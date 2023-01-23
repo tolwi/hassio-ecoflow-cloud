@@ -1,0 +1,16 @@
+{
+  "title": "EcoFlow-Cloud",
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "username": "User email",
+          "password": "User password",
+          "type": "Device name",
+          "name": "Device name",
+          "device_id": "Device SN"
+        }
+      }
+    }
+  }
+}

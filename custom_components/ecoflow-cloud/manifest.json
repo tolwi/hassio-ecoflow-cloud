@@ -1,0 +1,16 @@
+{
+  "domain": "ecoflow-cloud",
+  "name": "Ecoflow-Cloud",
+  "version": "0.1",
+  "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
+  "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
+  "requirements": [
+    "paho-mqtt==1.6.1",
+    "reactivex==4.0.4"
+  ],
+  "config_flow": true,
+  "codeowners": [
+    "@tolwi"
+  ],
+  "iot_class": "cloud_push"
+}
