@@ -56,7 +56,7 @@ class ValueUpdateEntity(BaseEntity):
 
 
 class ChargingPowerEntity(ValueUpdateEntity):
-    _attr_step = 10
+    _attr_native_step = 10
     _attr_icon = "mdi:transmission-tower-import"
     _attr_native_unit_of_measurement = POWER_WATT
     _attr_device_class = SensorDeviceClass.POWER
