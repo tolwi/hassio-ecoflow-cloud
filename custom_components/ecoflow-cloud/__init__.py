@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 
-from .mqtt.ecoflow_mqtt import EcoflowMQTTClient, EcoflowAuthentication
+from .mqtt.ecoflow_mqtt import EcoflowMQTTClient, EcoflowAuthentication, module_by_prefix
 
 DOMAIN = "ecoflow-cloud"
 
@@ -25,10 +25,9 @@ class EcoFlowBaseEntity(Entity):
     _attr_should_poll = False
     _connected = False
 
-    def __init__(self, client: EcoflowMQTTClient, module_type: str, mqtt_key: str, title: str, enabled: bool = True):
+    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, enabled: bool = True):
         self._attr_available = False
         self._client = client
-        self._module_type = module_type
         self._mqtt_key = mqtt_key
 
         self._attr_name = title
@@ -38,8 +37,10 @@ class EcoFlowBaseEntity(Entity):
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
-        d = self._client.data.topic(self._module_type).subscribe(self.__updated)
-        self.async_on_remove(d.dispose)
+        prefix = self._mqtt_key.split(".")[0]
+        if prefix in module_by_prefix:
+            d = self._client.data.topic(module_by_prefix[prefix]).subscribe(self.__updated)
+            self.async_on_remove(d.dispose)
 
     def __updated(self, data: dict[str, Any]):
         if self._mqtt_key in data:

@@ -6,7 +6,7 @@
         "data": {
           "username": "User email",
           "password": "User password",
-          "type": "Device name",
+          "type": "Device type",
           "name": "Device name",
           "device_id": "Device SN"
         }

@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Dict
 
 import voluptuous as vol
-import homeassistant.helpers.config_validation as cv
 from homeassistant import const
 from homeassistant.config_entries import ConfigFlow, ConfigEntry
 from homeassistant.core import callback
@@ -59,5 +58,4 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> SchemaOptionsFlowHandler:
-        """Options callback for AccuWeather."""
         return SchemaOptionsFlowHandler(config_entry, OPTIONS_FLOW)

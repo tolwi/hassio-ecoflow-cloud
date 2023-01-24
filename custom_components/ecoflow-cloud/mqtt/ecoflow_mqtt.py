@@ -20,6 +20,13 @@ from reactivex.subject import ReplaySubject
 _LOGGER = logging.getLogger(__name__)
 DISCONNECT_TIME = timedelta(seconds=5)
 
+module_by_prefix = {
+    "pd": "1",
+    "bms_emsStatus": "2",
+    "bms_bmsStatus": "2",
+    "inv": "3",
+    "mppt": "5"
+}
 
 class EcoflowException(Exception):
     def __init__(self, *args, **kwargs):

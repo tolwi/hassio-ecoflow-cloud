@@ -3,17 +3,14 @@ from typing import Any
 from homeassistant.components.sensor import (SensorDeviceClass, SensorEntity,
                                              SensorStateClass)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (ELECTRIC_CURRENT_AMPERE,
-                                 ELECTRIC_POTENTIAL_VOLT, ENERGY_WATT_HOUR,
-                                 FREQUENCY_HERTZ, PERCENTAGE, POWER_WATT,
-                                 TEMP_CELSIUS, TIME_SECONDS)
+from homeassistant.const import (PERCENTAGE, POWER_WATT,
+                                 TEMP_CELSIUS, TIME_MINUTES, TIME_SECONDS)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import DOMAIN, EcoFlowBaseEntity
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from .config_flow import EcoflowModel
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -21,17 +18,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
 
     entities.extend([
-        LevelEntity(client, "1", "pd.soc", "Main Battery Level"),
-        RemainEntity(client, "2", "bms_emsStatus.chgRemainTime", "Charge Remaining Time"),
-        RemainEntity(client, "2", "bms_emsStatus.dsgRemainTime", "Discharge Remaining Time"),
+        LevelEntity(client, "pd.soc", "Main Battery Level"),
+        RemainEntity(client, "bms_emsStatus.chgRemainTime", "Charge Remaining Time"),
+        RemainEntity(client, "bms_emsStatus.dsgRemainTime", "Discharge Remaining Time"),
 
-        WattsEntity(client, "1", "pd.wattsInSum", "Total In Power"),
-        WattsEntity(client, "1", "pd.wattsOutSum", "Total Out Power"),
+        WattsEntity(client, "pd.wattsInSum", "Total In Power"),
+        WattsEntity(client, "pd.wattsOutSum", "Total Out Power"),
 
-        TempEntity(client, "3", "inv.outTemp", "Inv Out temperature"),
-        CyclesEntity(client, "2", "bms_bmsStatus.cycles", "Cycles"),
-        FanEntity(client, "2", "bms_emsStatus.fanLevel", "Fan Level")
-        ])
+        TempEntity(client, "inv.outTemp", "Inv Out temperature"),
+        CyclesEntity(client, "bms_bmsStatus.cycles", "Cycles"),
+        FanEntity(client, "bms_emsStatus.fanLevel", "Fan Level")
+    ])
 
     # if client.device_type == EcoflowModel.DELTA2.name:
     #     pass
@@ -70,9 +67,10 @@ class RemainEntity(BaseEntity):
 
     def _prepare_value(self, val: Any) -> Any:
         if int(val) < 0 or int(val) >= 5000:
-            return "0"
+            return 0
         else:
-            return val
+            # value is in minutes, but there is no simple way to change unit of measurement - so let's just multiply by 60 :)
+            return int(val) * 60
 
 
 class TempEntity(BaseEntity):
@@ -86,8 +84,3 @@ class WattsEntity(BaseEntity):
     _attr_device_class = SensorDeviceClass.POWER
     _attr_native_unit_of_measurement = POWER_WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
-
-
-
-
-
