@@ -5,6 +5,7 @@ import random
 import ssl
 import time
 from datetime import datetime, timedelta
+from queue import Queue
 from typing import Any
 
 import paho.mqtt.client as mqtt_client
@@ -104,7 +105,8 @@ class EcoflowAuthentication:
 class EcoflowDataHolder:
 
     def __init__(self):
-        self.data = dict[str, dict[str, Any]()]()
+        self.commands = list[dict[str, Any]]()
+        self.data = dict[str, dict[str, Any]]()
         self.broadcast_time = dict[str, datetime]()
         self.subjects = dict[str, Subject[dict[str, Any]]]()
 
@@ -116,7 +118,13 @@ class EcoflowDataHolder:
     def topic(self, module_type: str) -> Observable[dict[str, Any]]:
         return self.subjects[module_type]
 
-    def update(self, module_type: str, params: dict[str, Any]):
+    def add_command(self, cmd: dict[str, Any]):
+        while len(self.commands) > 20:
+            self.commands.pop(0)
+
+        self.commands.append(cmd)
+
+    def update_data(self, module_type: str, params: dict[str, Any]):
         _LOGGER.debug(f"Got update on {module_type}")
         if module_type in self.data:
             self.data[module_type].update(params)
@@ -144,7 +152,7 @@ class EcoflowMQTTClient:
             name=entry.title,
         )
 
-        self.client = mqtt_client.Client(f'hassio-mqtt-{self.device_sn}')
+        self.client = mqtt_client.Client(f'hassio-mqtt-{self.device_sn}-{entry.title.replace(" ","-")}')
         self.client.username_pw_set(self.auth.mqtt_username, self.auth.mqtt_password)
         self.client.tls_set(certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED)
         self.client.tls_insecure_set(False)
@@ -159,7 +167,7 @@ class EcoflowMQTTClient:
     def on_connect(self, client, userdata, flags, rc):
         match rc:
             case 0:
-                self.client.subscribe(self._data_topic)
+                self.client.subscribe([(self._data_topic, 0), (self._set_topic, 0)])
                 _LOGGER.info(f"Subscribed to MQTT topic {self._data_topic}")
             case -1:
                 _LOGGER.error("Failed to connect to MQTT: connection timed out")
@@ -184,10 +192,13 @@ class EcoflowMQTTClient:
             time.sleep(5)
 
     def on_message(self, client, userdata, message):
-        msg = message.payload.decode("utf-8")
-        _LOGGER.debug(f"Got message: {msg}")
-        j = json.loads(msg)
-        self.data.update(j["moduleType"], j["params"])
+        payload = message.payload.decode("utf-8")
+        j = json.loads(payload)
+
+        if message.topic == self._data_topic:
+            self.data.update_data(j["moduleType"], j["params"])
+        elif message.topic == self._set_topic:
+            self.data.add_command(j)
 
     def send_message(self, command: dict):
         message_id = 999900000 + random.randint(10000, 99999)

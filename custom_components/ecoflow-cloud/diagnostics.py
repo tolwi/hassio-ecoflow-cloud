@@ -22,4 +22,6 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     for i in client.data.data:
         d = client.data.data[i]
         values[i] = _to_serializable(d)
+
+    values['commands'] = [_to_serializable(cmd) for cmd in client.data.commands]
     return values

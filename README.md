@@ -22,7 +22,8 @@ Once installed, use Add Integration -> Ecoflow Cloud.
  - Discharge Remaining Time
  - Total In Power
  - Total Out Power
- - Inv Out temperature
+ - Inv Out Temperature
+ - Battery Temperature
  - Cycles
 
 *Switches*

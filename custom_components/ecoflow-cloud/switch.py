@@ -34,6 +34,10 @@ commands = {
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
+
+    if client.device_type == EcoflowModel.DIAGNOSTIC.name:
+        return
+
     entities = [
         SimpleEntity(client, "pd.carState", "DC (12V) Enabled"),
     ]
@@ -42,12 +46,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         entities.extend([
             BeeperEntity(client, "mppt.beepState", "Beeper"),
             SimpleEntity(client, "pd.dcOutState", "USB Enabled"),
-            SimpleEntity(client, "pd.acEnabled", "AC Enabled")
+            SimpleEntity(client, "pd.acEnabled", "AC Enabled"),
+            SimpleEntity(client, "pd.carState", "DC (12V) Enabled")
         ])
 
     if client.device_type == EcoflowModel.RIVER_2_MAX.name:
         entities.extend([
-            SimpleEntity(client, "mppt.cfgAcEnabled", "AC Enabled")
+            SimpleEntity(client, "mppt.cfgAcEnabled", "AC Enabled"),
+            SimpleEntity(client, "pd.carState", "DC (12V) Enabled")
         ])
 
     async_add_entities(entities)

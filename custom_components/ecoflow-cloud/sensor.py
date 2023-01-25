@@ -10,11 +10,16 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import DOMAIN, EcoFlowBaseEntity
+from .config_flow import EcoflowModel
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
+
+    if client.device_type == EcoflowModel.DIAGNOSTIC.name:
+        return
+
     entities = []
 
     entities.extend([
@@ -25,8 +30,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         WattsEntity(client, "pd.wattsInSum", "Total In Power"),
         WattsEntity(client, "pd.wattsOutSum", "Total Out Power"),
 
-        TempEntity(client, "inv.outTemp", "Inv Out temperature"),
+        TempEntity(client, "inv.outTemp", "Inv Out Temperature"),
+        TempEntity(client, "bms_bmsStatus.temp", "Battery Temperature"),
         CyclesEntity(client, "bms_bmsStatus.cycles", "Cycles"),
+
         FanEntity(client, "bms_emsStatus.fanLevel", "Fan Level")
     ])
 

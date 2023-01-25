@@ -15,6 +15,10 @@ from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
+
+    if client.device_type == EcoflowModel.DIAGNOSTIC.name:
+        return
+
     entities = []
     entities.extend([
         LevelEntity(client, "bms_emsStatus.maxChargeSoc", "Max Charge Level", 50, 100,

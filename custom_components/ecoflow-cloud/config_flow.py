@@ -15,7 +15,8 @@ class EcoflowModel(Enum):
     DELTA_2 = 1,
     RIVER_2 = 2,
     RIVER_2_MAX = 3,
-    RIVER_2_PRO = 4
+    RIVER_2_PRO = 4,
+    DIAGNOSTIC = 99
 
     @classmethod
     def list(cls) -> list[str]:
