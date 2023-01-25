@@ -126,8 +126,11 @@ class EcoflowDataHolder:
 
     def update_data(self, module_type: str, params: dict[str, Any]):
         _LOGGER.debug(f"Got update on {module_type}")
-        if module_type in self.data:
-            self.data[module_type].update(params)
+        if module_type not in self.data:
+            self.data[module_type] = dict[str, Any]()
+
+        self.data[module_type].update(params)
+        if module_type in self.broadcast_time:
             if (utcnow() - self.broadcast_time[module_type]).total_seconds() > 5:
                 self.broadcast_time[module_type] = utcnow()
                 self.subjects[module_type].on_next(self.data[module_type])
