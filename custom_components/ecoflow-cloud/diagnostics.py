@@ -18,10 +18,9 @@ def _to_serializable(x):
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
-    values = {}
-    for i in client.data.data:
-        d = client.data.data[i]
-        values[i] = _to_serializable(d)
-
-    values['commands'] = [_to_serializable(cmd) for cmd in client.data.commands]
+    values = {
+        'commands': [_to_serializable(raw) for raw in client.data.commands],
+        'raw_data': [_to_serializable(raw) for raw in client.data.raw_data],
+        'data':     {module_type: _to_serializable(raw) for module_type, raw in client.data.data.items()}
+    }
     return values

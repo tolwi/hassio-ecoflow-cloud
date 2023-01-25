@@ -106,6 +106,7 @@ class EcoflowDataHolder:
 
     def __init__(self):
         self.commands = list[dict[str, Any]]()
+        self.raw_data = list[dict[str, Any]]()
         self.data = dict[str, dict[str, Any]]()
         self.broadcast_time = dict[str, datetime]()
         self.subjects = dict[str, Subject[dict[str, Any]]]()
@@ -119,22 +120,32 @@ class EcoflowDataHolder:
         return self.subjects[module_type]
 
     def add_command(self, cmd: dict[str, Any]):
-        while len(self.commands) > 20:
+        while len(self.commands) >= 20:
             self.commands.pop(0)
 
         self.commands.append(cmd)
 
-    def update_data(self, module_type: str, params: dict[str, Any]):
-        _LOGGER.debug(f"Got update on {module_type}")
+    def update_data(self, raw: dict[str, Any]):
+        self.__add_raw_data(raw)
+
+        module_type: str = raw.get('moduleType', "NONE")
+        params: dict[str, Any] = raw['params']
+
         if module_type not in self.data:
             self.data[module_type] = dict[str, Any]()
 
         self.data[module_type].update(params)
+
         if module_type in self.broadcast_time:
             if (utcnow() - self.broadcast_time[module_type]).total_seconds() > 5:
                 self.broadcast_time[module_type] = utcnow()
                 self.subjects[module_type].on_next(self.data[module_type])
                 _LOGGER.debug("Broadcast on %s: $s", (module_type, str(self.data[module_type])))
+
+    def __add_raw_data(self, raw: dict[str, Any]):
+        while len(self.raw_data) >= 20:
+            self.raw_data.pop(0)
+        self.raw_data.append(raw)
 
 
 class EcoflowMQTTClient:
@@ -196,12 +207,12 @@ class EcoflowMQTTClient:
 
     def on_message(self, client, userdata, message):
         payload = message.payload.decode("utf-8")
-        j = json.loads(payload)
+        raw = json.loads(payload)
 
         if message.topic == self._data_topic:
-            self.data.update_data(j["moduleType"], j["params"])
+            self.data.update_data(raw)
         elif message.topic == self._set_topic:
-            self.data.add_command(j)
+            self.data.add_command(raw)
 
     def send_message(self, command: dict):
         message_id = 999900000 + random.randint(10000, 99999)
