@@ -16,18 +16,9 @@ from homeassistant.core import HomeAssistant, DOMAIN
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import utcnow
 from reactivex import Subject, Observable
-from reactivex.subject import ReplaySubject
 
 _LOGGER = logging.getLogger(__name__)
-DISCONNECT_TIME = timedelta(seconds=5)
 
-module_by_prefix = {
-    "pd": "1",
-    "bms_emsStatus": "2",
-    "bms_bmsStatus": "2",
-    "inv": "3",
-    "mppt": "5"
-}
 
 class EcoflowException(Exception):
     def __init__(self, *args, **kwargs):
@@ -107,17 +98,12 @@ class EcoflowDataHolder:
     def __init__(self):
         self.commands = list[dict[str, Any]]()
         self.raw_data = list[dict[str, Any]]()
-        self.data = dict[str, dict[str, Any]]()
-        self.broadcast_time = dict[str, datetime]()
-        self.subjects = dict[str, Subject[dict[str, Any]]]()
+        self.params = dict[str, Any]()
+        self.__broadcast_time: datetime = utcnow()
+        self.__observable = Subject[dict[str, Any]]()
 
-        for i in range(1, 6):
-            self.data[str(i)] = dict[str, Any]()
-            self.broadcast_time[str(i)] = utcnow()
-            self.subjects[str(i)] = ReplaySubject[dict[str, Any]](window=DISCONNECT_TIME)
-
-    def topic(self, module_type: str) -> Observable[dict[str, Any]]:
-        return self.subjects[module_type]
+    def observable(self) -> Observable[dict[str, Any]]:
+        return self.__observable
 
     def add_command(self, cmd: dict[str, Any]):
         while len(self.commands) >= 20:
@@ -128,19 +114,11 @@ class EcoflowDataHolder:
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
 
-        module_type: str = raw.get('moduleType', "NONE")
-        params: dict[str, Any] = raw['params']
+        self.params.update(raw['params'])
 
-        if module_type not in self.data:
-            self.data[module_type] = dict[str, Any]()
-
-        self.data[module_type].update(params)
-
-        if module_type in self.broadcast_time:
-            if (utcnow() - self.broadcast_time[module_type]).total_seconds() > 5:
-                self.broadcast_time[module_type] = utcnow()
-                self.subjects[module_type].on_next(self.data[module_type])
-                _LOGGER.debug("Broadcast on %s: $s", (module_type, str(self.data[module_type])))
+        if (utcnow() - self.__broadcast_time).total_seconds() > 5:
+            self.__broadcast_time = utcnow()
+            self.__observable.on_next(self.params)
 
     def __add_raw_data(self, raw: dict[str, Any]):
         while len(self.raw_data) >= 20:

@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 
-from .mqtt.ecoflow_mqtt import EcoflowMQTTClient, EcoflowAuthentication, module_by_prefix
+from .mqtt.ecoflow_mqtt import EcoflowMQTTClient, EcoflowAuthentication
 
 DOMAIN = "ecoflow-cloud"
 
@@ -23,12 +23,12 @@ _PLATFORMS = {
 class EcoFlowBaseEntity(Entity):
     _attr_has_entity_name = True
     _attr_should_poll = False
-    _connected = False
 
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, enabled: bool = True):
+    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, enabled: bool = True, auto_enable: bool = False):
         self._attr_available = False
         self._client = client
         self._mqtt_key = mqtt_key
+        self._auto_enable = auto_enable
 
         self._attr_name = title
         self._attr_entity_registry_enabled_default = enabled
@@ -37,19 +37,20 @@ class EcoFlowBaseEntity(Entity):
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
-        prefix = self._mqtt_key.split(".")[0]
-        if prefix in module_by_prefix:
-            d = self._client.data.topic(module_by_prefix[prefix]).subscribe(self.__updated)
-            self.async_on_remove(d.dispose)
+        d = self._client.data.observable().subscribe(self.__updated)
+        self.async_on_remove(d.dispose)
 
     def __updated(self, data: dict[str, Any]):
         if self._mqtt_key in data:
             self._attr_available = True
-            self._attr_native_value = self._prepare_value(data[self._mqtt_key])
-            self.async_write_ha_state()
+            if self._auto_enable:
+                self._attr_entity_registry_enabled_default = True
 
-    def _prepare_value(self, val: Any) -> Any:
-        return val
+            if self._update_value(data[self._mqtt_key]):
+                self.async_write_ha_state()
+
+    def _update_value(self, val: Any) -> bool:
+        return False
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
