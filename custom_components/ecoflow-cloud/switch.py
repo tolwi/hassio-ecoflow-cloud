@@ -21,18 +21,36 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     if client.device_type == EcoflowModel.DELTA_PRO.name:
         entities.extend([
-            EnabledEntity(client, "pd.dcOutState", "USB Enabled", None)
+            BeeperEntity(client, "mppt.beepState", "Beeper",
+                         lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
+            EnabledEntity(client, "pd.dcOutState", "USB Enabled",
+                          lambda value: {"moduleType": 0, "operateType": "TCP",
+                                         "params": {"id": 34, "enabled": value}}),
+            EnabledEntity(client, "inv.cfgAcEnabled", "AC Enabled",
+                          lambda value: {"moduleType": 0, "operateType": "TCP",
+                                         "params": {"id": 66, "enabled": value}}),
+
+            EnabledEntity(client, "inv.cfgAcXboost", "X-Boost Enabled",
+                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": value}}),
+
+            EnabledEntity(client, "inv.acPassByAutoEn", "AC Always On",
+                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 84, "enabled": value}})
+
         ])
 
     if client.device_type == EcoflowModel.DELTA_2.name:
         entities.extend([
+
             BeeperEntity(client, "mppt.beepState", "Beeper",
                          lambda value: {"moduleType": 5, "operateType": "quietMode", "params": {"enabled": value}}),
 
             EnabledEntity(client, "pd.dcOutState", "USB Enabled",
                           lambda value: {"moduleType": 1, "operateType": "dcOutCfg", "params": {"enabled": value}}),
 
-            EnabledEntity(client, "pd.acEnabled", "AC Enabled",
+            EnabledEntity(client, "pd.acAutoOnCfg", "AC Always On",
+                          lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
+
+            EnabledEntity(client, "mppt.cfgAcEnabled", "AC Enabled",
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
                                          "params": {"enabled": value, "out_voltage": -1, "out_freq": 255,
                                                     "xboost": 255}}),
@@ -85,7 +103,7 @@ class DisabledEntity(SwitchEntity, EcoFlowBaseEntity):
         self.__command = command
 
     def _update_value(self, val: Any) -> bool:
-        self._attr_is_on = not bool(val)
+        self._attr_is_off = bool(val)
         return True
 
     def turn_on(self, **kwargs: Any) -> None:

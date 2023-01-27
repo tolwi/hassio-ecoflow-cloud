@@ -3,7 +3,7 @@ from typing import Callable, Any
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, POWER_WATT, TIME_SECONDS, TIME_MINUTES
+from homeassistant.const import PERCENTAGE, POWER_WATT, TIME_SECONDS, TIME_MINUTES, ELECTRIC_CURRENT_MILLIAMPERE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -24,7 +24,35 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     if client.device_type == EcoflowModel.DELTA_PRO.name:
         entities.extend([
             LevelEntity(client, "ems.maxChargeSoc", "Max Charge Level", 50, 100, None),
-            LevelEntity(client, "ems.minDsgSoc", "Min Discharge Level", 0, 30, None)
+            LevelEntity(client, "ems.minDsgSoc", "Min Discharge Level", 0, 30, None),
+
+            LevelEntity(client, "ems.minOpenOilEbSoc", "Generator Auto Start Level", 0, 30,
+                        lambda value: {"moduleType": 0, "operateType": "TCP",
+                                               "params": {"openOilSoc": value, "id": 52}}),
+
+            LevelEntity(client, "ems.maxCloseOilEbSoc", "Generator Auto Stop Level", 50, 100,
+                        lambda value: {"moduleType": 0, "operateType": "TCP",
+                                       "params": {"closeOilSoc": value, "id": 53}}),
+
+            ChargingPowerEntity(client, "inv.cfgSlowChgWatts", "AC Charging Power", 200, 1800,
+                        lambda value: {"moduleType": 0, "operateType": "TCP",
+                                       "params": {"slowChgPower": value, "id": 69}}),
+
+            ChargingCurrentEntity(client, "mppt.cfgDcChgCurrent", "DC (12v) Charge Current", 4000, 8000,
+                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                 "params": {"currMa": value, "id": 71}}),
+
+            PeriodSecondsEntity(client, "pd.lcdOffSec", "Screen Timeout", 0, 300,
+                                lambda value: {"moduleType": 0, "operateType": "TCP",
+                                               "params": {"lcdTime": value, "id": 39}}),
+
+            PeriodMinutesEntity(client, "pd.standByMode", "Unit Timeout", 0, 1440,
+                                lambda value: {"moduleType": 0, "operateType": "TCP",
+                                               "params": {"standByMode": value, "id": 33}}),
+
+            PeriodMinutesEntity(client, "inv.cfgStandbyMin", "AC Timeout", 0, 1440,
+                                lambda value: {"moduleType": 0, "operateType": "TCP",
+                                               "params": {"standByMins": value, "id": 153}}),
         ])
 
     if client.device_type == EcoflowModel.RIVER_2_MAX.name:
@@ -123,10 +151,15 @@ class PeriodMinutesEntity(ValueUpdateEntity):
 
 
 class ChargingPowerEntity(ValueUpdateEntity):
-    _attr_native_step = 10
+    _attr_native_step = 100
     _attr_icon = "mdi:transmission-tower-import"
     _attr_native_unit_of_measurement = POWER_WATT
     _attr_device_class = SensorDeviceClass.POWER
+
+class ChargingCurrentEntity(ValueUpdateEntity):
+    _attr_native_step = 2000
+    _attr_native_unit_of_measurement = ELECTRIC_CURRENT_MILLIAMPERE
+    _attr_device_class = SensorDeviceClass.CURRENT
 
 
 class LevelEntity(ValueUpdateEntity):
