@@ -10,7 +10,6 @@ from homeassistant.helpers.schema_config_entry_flow import SchemaOptionsFlowHand
 
 from . import DOMAIN
 
-
 class EcoflowModel(Enum):
     DELTA_2 = 1,
     RIVER_2 = 2,

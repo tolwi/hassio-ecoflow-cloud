@@ -4,8 +4,7 @@ import logging
 import random
 import ssl
 import time
-from datetime import datetime, timedelta
-from queue import Queue
+from datetime import datetime
 from typing import Any
 
 import paho.mqtt.client as mqtt_client
