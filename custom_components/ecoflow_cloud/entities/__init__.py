@@ -3,7 +3,7 @@ from typing import Any
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.switch import SwitchEntity, SwitchDeviceClass
 from homeassistant.helpers.entity import Entity, EntityCategory
 
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
@@ -45,7 +45,8 @@ class EcoFlowBaseEntity(Entity):
     def _update_value(self, val: Any) -> bool:
         return False
 
-
+    def _update_storage(self, value: Any):
+        self._client.data.force_update_data({self._mqtt_key: value})
 class BaseNumberEntity(NumberEntity, EcoFlowBaseEntity):
     _attr_entity_category = EntityCategory.CONFIG
 
@@ -69,6 +70,8 @@ class BaseSensorEntity(SensorEntity, EcoFlowBaseEntity):
 
 class BaseSwitchEntity(SwitchEntity, EcoFlowBaseEntity):
     pass
+    # _attr_device_class = SwitchDeviceClass.SWITCH
+    # _attr_assumed_state = True
 
 
 class BaseSelectEntity(SelectEntity, EcoFlowBaseEntity):

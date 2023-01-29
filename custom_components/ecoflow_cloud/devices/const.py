@@ -1,8 +1,3 @@
-FREQS = {
-    "50Hz": 1,
-    "60Hz": 2,
-}
-
 DC_IMPUTS = {
     "Auto": 0,
     "Solar": 1,
@@ -17,38 +12,44 @@ DC_ICONS = {
 
 SCREEN_TIMEOUT_OPTIONS = {
     "Never": 0,
-    "10sec": 10,
-    "30sec": 30,
-    "1min": 60,
-    "5min": 300,
-    "30min": 1800,
+    "10 sec": 10,
+    "30 sec": 30,
+    "1 min": 60,
+    "5 min": 300,
+    "30 min": 1800,
 }
 
 UNIT_TIMEOUT_OPTIONS = {
     "Never": 0,
-    "30min": 30,
-    "1hour": 60,
-    "2hour": 120,
-    "6hour": 360,
-    "12hour": 720,
+    "30 min": 30,
+    "1 hr": 60,
+    "2 hr": 120,
+    "4 hr": 240,
+    "6 hr": 360,
+    "12 hr": 720,
+    "24 hr": 1440
 }
 
 AC_TIMEOUT_OPTIONS = {
     "Never": 0,
-    "2hour": 120,
-    "4hour": 240,
-    "6hour": 360,
-    "12hour": 720,
-    "24hour": 1440,
+    "30 min": 30,
+    "1 hr": 60,
+    "2 hr": 120,
+    "4 hr": 240,
+    "6 hr": 360,
+    "12 hr": 720,
+    "24 hr": 1440,
 }
 
 DC_TIMEOUT_OPTIONS = {
     "Never": 0,
-    "2hour": 120,
-    "4hour": 240,
-    "6hour": 360,
-    "12hour": 720,
-    "24hour": 1440,
+    "30 min": 30,
+    "1 hr": 60,
+    "2 hr": 120,
+    "4 hr": 240,
+    "6 hr": 360,
+    "12 hr": 720,
+    "24 hr": 1440,
 }
 
 DC_CHARGE_CURRENT_OPTIONS = {
@@ -60,6 +61,7 @@ DC_CHARGE_CURRENT_OPTIONS = {
 MAIN_BATTERY_LEVEL = "Main Battery Level"
 TOTAL_IN_POWER = "Total In Power"
 TOTAL_OUT_POWER = "Total Out Power"
+REMAINING_TIME = "Remaining Time"
 CHARGE_REMAINING_TIME = "Charge Remaining Time"
 DISCHARGE_REMAINING_TIME = "Discharge Remaining Time"
 

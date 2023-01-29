@@ -22,8 +22,12 @@ class DeltaPro(BaseDevice):
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
-            LevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100, None),
-            LevelEntity(client, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30, None),
+            LevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
+                        lambda value: {"moduleType": 0, "operateType": "TCP",
+                                       "params": {"id": 49, "maxChgSoc": value }}),
+            LevelEntity(client, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
+                        lambda value: {"moduleType": 0, "operateType": "TCP",
+                                       "params": {"id": 51, "minDsgSoc": value }}),
 
             LevelEntity(client, "ems.minOpenOilEbSoc", "Generator Auto Start Level", 0, 30,
                         lambda value: {"moduleType": 0, "operateType": "TCP",

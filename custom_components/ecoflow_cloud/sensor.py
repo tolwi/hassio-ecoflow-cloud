@@ -72,14 +72,3 @@ class WattsSensorEntity(BaseSensorEntity):
     _attr_native_unit_of_measurement = POWER_WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
-    __values: list[int] = [0, 0, 0]
-
-    def _update_value(self, val: Any) -> Any:
-        ival = int(val)
-        self.__values.pop(0)
-        self.__values.append(ival)
-        if ival == 0 and any(filter(lambda v: v > 0, self.__values)):
-            return False
-        else:
-            self._attr_native_value = ival
-            return True

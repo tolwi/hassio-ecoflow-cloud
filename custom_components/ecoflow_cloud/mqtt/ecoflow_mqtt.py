@@ -4,7 +4,7 @@ import logging
 import random
 import ssl
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 import paho.mqtt.client as mqtt_client
@@ -94,8 +94,12 @@ class EcoflowAuthentication:
 
 class EcoflowDataHolder:
 
-    def __init__(self):
-        self.commands = list[dict[str, Any]]()
+    def __init__(self, collect_raw: bool = False):
+        self.__collect_raw = collect_raw
+        self.set_commands = list[dict[str, Any]]()
+        self.set_replies = list[dict[str, Any]]()
+        self.get_commands = list[dict[str, Any]]()
+        self.get_replies = list[dict[str, Any]]()
         self.raw_data = list[dict[str, Any]]()
         self.params = dict[str, Any]()
         self.__broadcast_time: datetime = utcnow()
@@ -104,11 +108,25 @@ class EcoflowDataHolder:
     def observable(self) -> Observable[dict[str, Any]]:
         return self.__observable
 
-    def add_command(self, cmd: dict[str, Any]):
-        while len(self.commands) >= 20:
-            self.commands.pop(0)
+    def add_set_command(self, cmd: dict[str, Any]):
+        self.__trim_list(self.set_commands, 20)
+        self.set_commands.append(cmd)
 
-        self.commands.append(cmd)
+    def add_set_command_reply(self, cmd: dict[str, Any]):
+        self.__trim_list(self.set_replies, 20)
+        self.set_replies.append(cmd)
+
+    def add_get_command(self, cmd: dict[str, Any]):
+        self.__trim_list(self.get_commands, 20)
+        self.get_commands.append(cmd)
+
+    def add_get_command_reply(self, cmd: dict[str, Any]):
+        self.__trim_list(self.get_replies, 20)
+        self.get_replies.append(cmd)
+
+    def force_update_data(self, update: dict[str, Any]):
+        self.params.update(update)
+        self.__broadcast_time = utcnow() - timedelta(seconds=1)
 
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
@@ -119,23 +137,31 @@ class EcoflowDataHolder:
             self.__broadcast_time = utcnow()
             self.__observable.on_next(self.params)
 
+    def __trim_list(self, src: list[Any], size: int):
+        while len(src) >= size:
+            src.pop(0)
+
     def __add_raw_data(self, raw: dict[str, Any]):
-        while len(self.raw_data) >= 20:
-            self.raw_data.pop(0)
-        self.raw_data.append(raw)
+        if self.__collect_raw:
+            while len(self.raw_data) >= 20:
+                self.raw_data.pop(0)
+            self.raw_data.append(raw)
 
 
 class EcoflowMQTTClient:
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, auth: EcoflowAuthentication):
 
-        self.data = EcoflowDataHolder()
         self.auth = auth
 
         self.device_type = entry.data[const.CONF_TYPE]
         self.device_sn = entry.data[const.CONF_DEVICE_ID]
         self._data_topic = f"/app/device/property/{self.device_sn}"
         self._set_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/set"
+        self._set_reply_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/set_reply"
+        self._get_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/get"
+        self._get_reply_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/get_reply"
+        self.data = EcoflowDataHolder(self.device_type == "DIAGNOSTIC")
 
         self.device_info_main = DeviceInfo(
             identifiers={(DOMAIN, self.device_sn)},
@@ -158,7 +184,9 @@ class EcoflowMQTTClient:
     def on_connect(self, client, userdata, flags, rc):
         match rc:
             case 0:
-                self.client.subscribe([(self._data_topic, 0), (self._set_topic, 0)])
+                self.client.subscribe([(self._data_topic, 0),
+                                       (self._set_topic, 1), (self._set_reply_topic, 1),
+                                       (self._get_topic, 1), (self._get_reply_topic, 1)])
                 _LOGGER.info(f"Subscribed to MQTT topic {self._data_topic}")
             case -1:
                 _LOGGER.error("Failed to connect to MQTT: connection timed out")
@@ -189,7 +217,13 @@ class EcoflowMQTTClient:
         if message.topic == self._data_topic:
             self.data.update_data(raw)
         elif message.topic == self._set_topic:
-            self.data.add_command(raw)
+            self.data.add_set_command(raw)
+        elif message.topic == self._set_reply_topic:
+            self.data.add_set_command_reply(raw)
+        elif message.topic == self._get_topic:
+            self.data.add_get_command(raw)
+        elif message.topic == self._get_reply_topic:
+            self.data.add_get_command_reply(raw)
 
     def send_message(self, command: dict):
         message_id = 999900000 + random.randint(10000, 99999)
@@ -197,7 +231,7 @@ class EcoflowMQTTClient:
                    "id": f"{message_id}",
                    "version": "1.0"}
         payload.update(command)
-        self.client.publish(self._set_topic, json.dumps(payload))
+        self.client.publish(self._set_topic, json.dumps(payload), 1)
 
     def stop(self):
         self.client.loop_stop()
