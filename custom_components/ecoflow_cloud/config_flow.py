@@ -3,12 +3,12 @@ from typing import Dict
 
 import voluptuous as vol
 from homeassistant import const
-from homeassistant.config_entries import ConfigFlow, ConfigEntry
-from homeassistant.core import callback
+from homeassistant.config_entries import ConfigFlow
 from homeassistant.helpers import selector
-from homeassistant.helpers.schema_config_entry_flow import SchemaOptionsFlowHandler, SchemaFlowFormStep
+from homeassistant.helpers.schema_config_entry_flow import SchemaFlowFormStep
 
 from . import DOMAIN
+
 
 class EcoflowModel(Enum):
     DELTA_2 = 1,
@@ -56,8 +56,3 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=OPTIONS_SCHEMA,
             last_step=True,
         )
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> SchemaOptionsFlowHandler:
-        return SchemaOptionsFlowHandler(config_entry, OPTIONS_FLOW)
