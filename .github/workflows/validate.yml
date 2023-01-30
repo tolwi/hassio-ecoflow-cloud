@@ -13,8 +13,8 @@ jobs:
       - name: Hassfest validation
         uses: "home-assistant/actions/hassfest@master"
 
-      - name: HACS Action
-        if: "github.ref == 'main' || github.base_ref == 'main'"
-        uses: "hacs/action@main"
-        with:
-          category: "integration"
+#      - name: HACS Action
+#        if: "github.ref == 'main' || github.base_ref == 'main'"
+#        uses: "hacs/action@main"
+#        with:
+#          category: "integration"
