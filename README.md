@@ -16,7 +16,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
 
 ## Current state
-*Sensors*:
+*Sensors*
  - Main Battery Level
  - Charge Remaining Time
  - Discharge Remaining Time
@@ -25,6 +25,9 @@ Once installed, use Add Integration -> Ecoflow Cloud.
  - Inv Out Temperature
  - Battery Temperature
  - Cycles
+ - Slave Battery Level (_Delta 2 only_)
+ - Slave Battery Temperature (_Delta 2 only_)
+ - Slave Cycles (_Delta 2 only_)
 
 *Switches*
 - AC Enabled
@@ -36,7 +39,15 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Max Charge Level
 - Min Discharge Level
 - AC Charging Power
+- Generator Auto Start Level (_Delta 2 only_)
+- Generator Auto Stop Level (_Delta 2 only_)
+
+*Selects*
 - Screen Timeout
 - Unit Timeout
 - AC Timeout
 - DC (12V) Timeout (_Delta 2 only_)
+- DC (12V) Charge Current (_Delta 2 only_)
+
+## In progress
+Delta Pro and River Max basic support

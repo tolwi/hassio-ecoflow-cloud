@@ -53,6 +53,10 @@ class River2Max(BaseDevice):
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
+            DictSelectEntity(client, "mppt.dcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
+                             lambda value: {"moduleType": 5, "operateType": "dcChgCfg",
+                                            "params": {"dcChgCfg": value}}),
+
             DictSelectEntity(client, "mppt.scrStandbyMin", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
                              lambda value: {"moduleType": 5, "operateType": "lcdCfg",
                                             "params": {"brighLevel": 255, "delayOff": value}}),

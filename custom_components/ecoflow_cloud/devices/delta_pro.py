@@ -29,11 +29,11 @@ class DeltaPro(BaseDevice):
                         lambda value: {"moduleType": 0, "operateType": "TCP",
                                        "params": {"id": 51, "minDsgSoc": value }}),
 
-            LevelEntity(client, "ems.minOpenOilEbSoc", "Generator Auto Start Level", 0, 30,
+            LevelEntity(client, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
                         lambda value: {"moduleType": 0, "operateType": "TCP",
                                        "params": {"openOilSoc": value, "id": 52}}),
 
-            LevelEntity(client, "ems.maxCloseOilEbSoc", "Generator Auto Stop Level", 50, 100,
+            LevelEntity(client, "ems.maxCloseOilEbSoc", const.GEN_AUTO_STOP_LEVEL, 50, 100,
                         lambda value: {"moduleType": 0, "operateType": "TCP",
                                        "params": {"closeOilSoc": value, "id": 53}}),
 

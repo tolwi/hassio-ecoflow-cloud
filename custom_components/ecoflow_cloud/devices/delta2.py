@@ -40,6 +40,14 @@ class Delta2(BaseDevice):
                         lambda value: {"moduleType": 2, "operateType": "upsConfig",
                                        "params": {"minDsgSoc": int(value)}}),
 
+            LevelEntity(client, "bms_emsStatus.minOpenOilEb", const.GEN_AUTO_START_LEVEL, 0, 30,
+                        lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
+                                        "params": {"closeOilSoc": value}}),
+
+            LevelEntity(client, "bms_emsStatus.maxCloseOilEb", const.GEN_AUTO_STOP_LEVEL, 50, 100,
+                        lambda value: {"moduleType": 2, "operateType": "openOilSoc",
+                                        "params": {"openOilSoc": value}}),
+
             ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 200, 1200,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}})
@@ -69,6 +77,10 @@ class Delta2(BaseDevice):
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
+            DictSelectEntity(client, "mppt.dcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
+                             lambda value: {"moduleType": 5, "operateType": "dcChgCfg",
+                                            "params": {"dcChgCfg": value}}),
+
             DictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
                              lambda value: {"moduleType": 1, "operateType": "lcdCfg",
                                             "params": {"brighLevel": 255, "delayOff": value}}),

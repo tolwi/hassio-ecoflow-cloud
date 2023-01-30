@@ -80,6 +80,8 @@ UNIT_TIMEOUT = "Unit Timeout"
 AC_TIMEOUT = "AC Timeout"
 DC_TIMEOUT = "DC (12V) Timeout"
 DC_CHARGE_CURRENT = "DC (12V) Charge Current"
+GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
+GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
 
 BEEPER = "Beeper"
 USB_ENABLED = "USB Enabled"
