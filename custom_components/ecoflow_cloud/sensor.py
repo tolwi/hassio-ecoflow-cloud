@@ -70,4 +70,10 @@ class WattsSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.POWER
     _attr_native_unit_of_measurement = POWER_WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_value = 0
+    _attr_native_value = -1
+
+class InWattsSensorEntity(WattsSensorEntity):
+    _attr_icon = "mdi:transmission-tower-import"
+
+class OutWattsSensorEntity(WattsSensorEntity):
+    _attr_icon = "mdi:transmission-tower-export"

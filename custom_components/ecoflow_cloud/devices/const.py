@@ -70,7 +70,19 @@ DC_CHARGE_CURRENT_OPTIONS = {
 
 MAIN_BATTERY_LEVEL = "Main Battery Level"
 TOTAL_IN_POWER = "Total In Power"
+SOLAR_IN_POWER = "Solar In Power"
+AC_IN_POWER = "AC In Power"
+TYPE_C_IN_POWER = "Type-C In Power"
+
 TOTAL_OUT_POWER = "Total Out Power"
+AC_OUT_POWER = "AC Out Power"
+DC_OUT_POWER = "DC Out Power"
+
+TYPEC_1_OUT_POWER = "Type-C (1) Out Power"
+TYPEC_2_OUT_POWER = "Type-C (2) Out Power"
+USB_1_OUT_POWER = "USB (1) Out Power"
+USB_2_OUT_POWER = "USB (2) Out Power"
+
 REMAINING_TIME = "Remaining Time"
 CHARGE_REMAINING_TIME = "Charge Remaining Time"
 DISCHARGE_REMAINING_TIME = "Discharge Remaining Time"

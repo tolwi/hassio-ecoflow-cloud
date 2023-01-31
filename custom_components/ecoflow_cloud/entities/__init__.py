@@ -15,7 +15,7 @@ class EcoFlowBaseEntity(Entity):
 
     def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, enabled: bool = True,
                  auto_enable: bool = False) -> object:
-        self._attr_available = False
+        # self._attr_available = False
         self._client = client
         self._mqtt_key = mqtt_key
         self._auto_enable = auto_enable

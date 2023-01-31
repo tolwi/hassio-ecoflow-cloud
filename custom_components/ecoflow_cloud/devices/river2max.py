@@ -4,7 +4,7 @@ from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, Bas
 from ..number import LevelEntity, ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, FanSensorEntity
+    CyclesSensorEntity, FanSensorEntity, InWattsSensorEntity, OutWattsSensorEntity
 from ..switch import EnabledEntity
 
 
@@ -12,8 +12,19 @@ class River2Max(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
-            WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
+            OutWattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+
+            InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
+            InWattsSensorEntity(client, "pd.typecChaWatts", const.TYPE_C_IN_POWER),
+            InWattsSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
+
+            OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
+            OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
+            OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
+            OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),
+            OutWattsSensorEntity(client, "pd.usb2Watts", const.USB_2_OUT_POWER),
+
             RemainSensorEntity(client, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
 
