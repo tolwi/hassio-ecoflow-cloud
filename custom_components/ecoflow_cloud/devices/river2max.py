@@ -1,8 +1,8 @@
 from . import const, BaseDevice
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..number import LevelEntity, ChargingPowerEntity
-from ..select import DictSelectEntity
+from ..number import LevelEntity, ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
+from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, FanSensorEntity
 from ..switch import EnabledEntity
@@ -27,13 +27,13 @@ class River2Max(BaseDevice):
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
-            LevelEntity(client, "bms_emsStatus.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
-                        lambda value: {"moduleType": 2, "operateType": "upsConfig",
-                                       "params": {"maxChgSoc": int(value)}}),
+            MaxBatteryLevelEntity(client, "bms_emsStatus.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
+                                  lambda value: {"moduleType": 2, "operateType": "upsConfig",
+                                                 "params": {"maxChgSoc": int(value)}}),
 
-            LevelEntity(client, "bms_emsStatus.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
-                        lambda value: {"moduleType": 2, "operateType": "upsConfig",
-                                       "params": {"minDsgSoc": int(value)}}),
+            MinBatteryLevelEntity(client, "bms_emsStatus.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
+                                  lambda value: {"moduleType": 2, "operateType": "upsConfig",
+                                                 "params": {"minDsgSoc": int(value)}}),
 
             ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 100, 660,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
@@ -57,15 +57,15 @@ class River2Max(BaseDevice):
                              lambda value: {"moduleType": 5, "operateType": "dcChgCfg",
                                             "params": {"dcChgCfg": value}}),
 
-            DictSelectEntity(client, "mppt.scrStandbyMin", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
-                             lambda value: {"moduleType": 5, "operateType": "lcdCfg",
-                                            "params": {"brighLevel": 255, "delayOff": value}}),
+            TimeoutDictSelectEntity(client, "mppt.scrStandbyMin", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 5, "operateType": "lcdCfg",
+                                                   "params": {"brighLevel": 255, "delayOff": value}}),
 
-            DictSelectEntity(client, "mppt.powStandbyMin", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
-                             lambda value: {"moduleType": 5, "operateType": "standby",
-                                            "params": {"standbyMins": value}}),
+            TimeoutDictSelectEntity(client, "mppt.powStandbyMin", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 5, "operateType": "standby",
+                                                   "params": {"standbyMins": value}}),
 
-            DictSelectEntity(client, "mppt.acStandbyMins", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
-                             lambda value: {"moduleType": 5, "operateType": "acStandby",
-                                            "params": {"standbyMins": value}})
+            TimeoutDictSelectEntity(client, "mppt.acStandbyMins", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 5, "operateType": "acStandby",
+                                                   "params": {"standbyMins": value}})
         ]

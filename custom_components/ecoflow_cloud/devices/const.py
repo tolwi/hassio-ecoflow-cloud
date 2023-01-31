@@ -30,6 +30,16 @@ UNIT_TIMEOUT_OPTIONS = {
     "24 hr": 1440
 }
 
+UNIT_TIMEOUT_OPTIONS_LIMITED = {
+    "Never": 0,
+    "30 min": 30,
+    "1 hr": 60,
+    "2 hr": 120,
+    "4 hr": 240,
+    "6 hr": 360,
+    "12 hr": 720
+}
+
 AC_TIMEOUT_OPTIONS = {
     "Never": 0,
     "30 min": 30,
@@ -89,5 +99,4 @@ AC_ENABLED = "AC Enabled"
 DC_ENABLED = "DC (12V) Enabled"
 XBOOST_ENABLED = "X-Boost Enabled"
 AC_ALWAYS_ENABLED = "AC Always On"
-
 

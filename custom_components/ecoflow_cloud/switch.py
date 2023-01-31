@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Literal
+from typing import Any, Callable
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -34,23 +34,12 @@ class EnabledEntity(BaseSwitchEntity):
         return True
 
     def turn_on(self, **kwargs: Any) -> None:
-        self._attr_is_on = True
-        self._update_storage(1)
-        self.async_write_ha_state()
         if self.__command:
-            data = self.__command(1)
-            self._client.send_message(data)
-
+            self.send_message(1, self.__command(1))
 
     def turn_off(self, **kwargs: Any) -> None:
-        self._attr_is_on = False
-        self._update_storage(0)
-        self.async_write_ha_state()
-
         if self.__command:
-            data = self.__command(0)
-            self._client.send_message(data)
-
+            self.send_message(0, self.__command(0))
 
 
 class DisabledEntity(BaseSwitchEntity):
@@ -66,23 +55,22 @@ class DisabledEntity(BaseSwitchEntity):
         return True
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        self._attr_is_on = True
-        self._update_storage(0)
-        self.async_write_ha_state()
-
         if self.__command:
-            data = self.__command(0)
-            self._client.send_message(data)
+            self.send_message(0, self.__command(0))
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        self._attr_is_on = False
-        self._update_storage(1)
-        self.async_write_ha_state()
-
         if self.__command:
-            data = self.__command(1)
-            self._client.send_message(data)
+            self.send_message(1, self.__command(1))
 
 
 class BeeperEntity(DisabledEntity):
     _attr_entity_category = EntityCategory.CONFIG
+
+    @property
+    def icon(self) -> str | None:
+        if self.is_on:
+            return "mdi:volume-high"
+        else:
+            return "mdi:volume-mute"
+
+

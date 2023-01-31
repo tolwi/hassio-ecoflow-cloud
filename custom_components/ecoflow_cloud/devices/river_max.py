@@ -1,7 +1,7 @@
 from . import const, BaseDevice
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..number import LevelEntity
+from ..number import LevelEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity
@@ -25,8 +25,8 @@ class DeltaPro(BaseDevice):
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
-            LevelEntity(client, "bmsMaster.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100, None),
-            LevelEntity(client, "bmsMaster.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30, None),
+            MaxBatteryLevelEntity(client, "bmsMaster.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100, None),
+            MinBatteryLevelEntity(client, "bmsMaster.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30, None),
         ]
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
@@ -38,12 +38,9 @@ class DeltaPro(BaseDevice):
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
             DictSelectEntity(client, "mppt.cfgDcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
-                            lambda value: {"moduleType": 0, "operateType": "TCP",
-                                                 "params": {"currMa": value, "id": 71}}),
+                             None),
 
-            DictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
-                                lambda value: {"moduleType": 0, "operateType": "TCP",
-                                               "params": {"lcdTime": value, "id": 39}}),
+            DictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS, None),
 
             DictSelectEntity(client, "pd.standByMode", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS, None),
 

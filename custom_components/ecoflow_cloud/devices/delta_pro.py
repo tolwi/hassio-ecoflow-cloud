@@ -1,8 +1,9 @@
 from . import const, BaseDevice
-from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..number import LevelEntity, ChargingPowerEntity
-from ..select import DictSelectEntity
+from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
+from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, MinGenStartLevelEntity, \
+    MaxGenStopLevelEntity
+from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
@@ -22,20 +23,20 @@ class DeltaPro(BaseDevice):
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
-            LevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
-                        lambda value: {"moduleType": 0, "operateType": "TCP",
-                                       "params": {"id": 49, "maxChgSoc": value }}),
-            LevelEntity(client, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
-                        lambda value: {"moduleType": 0, "operateType": "TCP",
-                                       "params": {"id": 51, "minDsgSoc": value }}),
+            MaxBatteryLevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
+                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                 "params": {"id": 49, "maxChgSoc": value}}),
+            MinBatteryLevelEntity(client, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
+                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                 "params": {"id": 51, "minDsgSoc": value}}),
 
-            LevelEntity(client, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
-                        lambda value: {"moduleType": 0, "operateType": "TCP",
-                                       "params": {"openOilSoc": value, "id": 52}}),
+            MinGenStartLevelEntity(client, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
+                                   lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                  "params": {"openOilSoc": value, "id": 52}}),
 
-            LevelEntity(client, "ems.maxCloseOilEbSoc", const.GEN_AUTO_STOP_LEVEL, 50, 100,
-                        lambda value: {"moduleType": 0, "operateType": "TCP",
-                                       "params": {"closeOilSoc": value, "id": 53}}),
+            MaxGenStopLevelEntity(client, "ems.maxCloseOilEbSoc", const.GEN_AUTO_STOP_LEVEL, 50, 100,
+                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                 "params": {"closeOilSoc": value, "id": 53}}),
 
             ChargingPowerEntity(client, "inv.cfgSlowChgWatts", const.AC_CHARGING_POWER, 200, 2900,
                                 lambda value: {"moduleType": 0, "operateType": "TCP",
@@ -64,19 +65,19 @@ class DeltaPro(BaseDevice):
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
             DictSelectEntity(client, "mppt.cfgDcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
-                            lambda value: {"moduleType": 0, "operateType": "TCP",
-                                                 "params": {"currMa": value, "id": 71}}),
+                             lambda value: {"moduleType": 0, "operateType": "TCP",
+                                            "params": {"currMa": value, "id": 71}}),
 
-            DictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
-                                lambda value: {"moduleType": 0, "operateType": "TCP",
-                                               "params": {"lcdTime": value, "id": 39}}),
+            TimeoutDictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                   "params": {"lcdTime": value, "id": 39}}),
 
-            DictSelectEntity(client, "pd.standByMode", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
-                                lambda value: {"moduleType": 0, "operateType": "TCP",
-                                               "params": {"standByMode": value, "id": 33}}),
+            TimeoutDictSelectEntity(client, "pd.standByMode", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS_LIMITED,
+                                    lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                   "params": {"standByMode": value, "id": 33}}),
 
-            DictSelectEntity(client, "inv.cfgStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
-                                lambda value: {"moduleType": 0, "operateType": "TCP",
-                                               "params": {"standByMins": value, "id": 153}}),
+            TimeoutDictSelectEntity(client, "inv.cfgStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                   "params": {"standByMins": value, "id": 153}}),
 
         ]

@@ -4,7 +4,7 @@ import logging
 import random
 import ssl
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 import paho.mqtt.client as mqtt_client
@@ -15,6 +15,8 @@ from homeassistant.core import HomeAssistant, DOMAIN
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import utcnow
 from reactivex import Subject, Observable
+
+from .utils import LimitedSizeOrderedDict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -91,53 +93,106 @@ class EcoflowAuthentication:
 
         return response
 
+class EcoflowCommandInfo():
+
+    def __init__(self, target_state: dict[str, Any] | None, command: dict[str, Any]) -> None:
+        self.counter = 0
+        self.target_state = target_state
+        self.command = command
+        self.reply: dict[str, Any] = {}
+        self.time = utcnow().timestamp()
+
+    def is_ack(self) -> bool:
+        return True
+        # if "data" in self.reply:
+        #     if "ack" in self.reply["data"]:
+        #         if self.reply["data"]["ack"] == 1:
+        #             return True
+        # return False
+
+    def is_retryable(self) -> bool:
+        return self.target_state is not None and self.counter < 2
+
+    def diagnostic_dict(self) -> dict[str, Any]:
+        return {
+            "counter": self.counter,
+            "target_state": self.target_state,
+            "command": self.command,
+            "reply": self.reply
+        }
 
 class EcoflowDataHolder:
 
     def __init__(self, collect_raw: bool = False):
         self.__collect_raw = collect_raw
-        self.set_commands = list[dict[str, Any]]()
-        self.set_replies = list[dict[str, Any]]()
-        self.get_commands = list[dict[str, Any]]()
-        self.get_replies = list[dict[str, Any]]()
+        self.set_commands = LimitedSizeOrderedDict[int, EcoflowCommandInfo]()
+        self.get_commands = LimitedSizeOrderedDict[int, EcoflowCommandInfo]()
         self.raw_data = list[dict[str, Any]]()
         self.params = dict[str, Any]()
+        self.params_override = dict[str, Any]()
         self.__broadcast_time: datetime = utcnow()
         self.__observable = Subject[dict[str, Any]]()
 
     def observable(self) -> Observable[dict[str, Any]]:
         return self.__observable
 
-    def add_set_command(self, cmd: dict[str, Any]):
-        self.__trim_list(self.set_commands, 20)
-        self.set_commands.append(cmd)
+    def put_set_command(self, id: int, cmd: EcoflowCommandInfo) -> EcoflowCommandInfo:
+        self.set_commands.append(id, cmd, self.__invalidate)
+        return cmd
+    
+    def add_set_command(self, mqtt_state: dict[str, Any] | None, cmd: dict[str, Any]) -> EcoflowCommandInfo:
+        cmd_id = int(cmd["id"])
+        if cmd_id not in self.set_commands:
+            self.set_commands.append(cmd_id, EcoflowCommandInfo(mqtt_state, cmd), self.__invalidate)
+            if mqtt_state:
+                self.__override_params(mqtt_state)
+        return self.set_commands[cmd_id]
 
-    def add_set_command_reply(self, cmd: dict[str, Any]):
-        self.__trim_list(self.set_replies, 20)
-        self.set_replies.append(cmd)
+    def add_set_command_reply(self, cmd: dict[str, Any]) -> EcoflowCommandInfo | None:
+        cmd_id = int(cmd["id"])
+        if cmd_id in self.set_commands:
+            cmd_info = self.set_commands[cmd_id]
+            cmd_info.reply = cmd
+            if cmd_info.target_state and \
+                    (cmd_info.is_ack() or not cmd_info.is_retryable()):
+                self.__invalidate(cmd_info)
+            return cmd_info
 
-    def add_get_command(self, cmd: dict[str, Any]):
-        self.__trim_list(self.get_commands, 20)
-        self.get_commands.append(cmd)
+    def add_get_command(self, mqtt_state: dict[str, Any] | None, cmd: dict[str, Any]):
+        cmd_id = int(cmd["id"])
+        if id not in self.get_commands:
+            self.get_commands.append(cmd_id, EcoflowCommandInfo(mqtt_state, cmd))
 
     def add_get_command_reply(self, cmd: dict[str, Any]):
-        self.__trim_list(self.get_replies, 20)
-        self.get_replies.append(cmd)
+        cmd_id = int(cmd["id"])
+        if id in self.get_commands:
+            self.get_commands[cmd_id].reply = cmd
 
-    def force_update_data(self, update: dict[str, Any]):
-        self.params.update(update)
-        self.__broadcast_time = utcnow() - timedelta(seconds=1)
+    def __invalidate(self, cmd: EcoflowCommandInfo):
+        if cmd.target_state is not None:
+            for rk in cmd.target_state.keys():
+                if rk in self.params_override:
+                    self.params_override.pop(rk)
+
+    def __override_params(self, target_state: dict[str, Any]):
+        # self.params_override.update(mqtt_state)
+        self.params.update(target_state)
+        self.__broadcast()
 
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
 
         self.params.update(raw['params'])
+        self.params.update(self.params_override)
 
         if (utcnow() - self.__broadcast_time).total_seconds() > 5:
-            self.__broadcast_time = utcnow()
-            self.__observable.on_next(self.params)
+            self.__broadcast()
 
-    def __trim_list(self, src: list[Any], size: int):
+    def __broadcast(self):
+        self.__broadcast_time = utcnow()
+        self.__observable.on_next(self.params)
+
+    def __trim_list(self, src: list, size: int):
         while len(src) >= size:
             src.pop(0)
 
@@ -217,21 +272,42 @@ class EcoflowMQTTClient:
         if message.topic == self._data_topic:
             self.data.update_data(raw)
         elif message.topic == self._set_topic:
-            self.data.add_set_command(raw)
+            self.data.add_set_command(None, raw)
         elif message.topic == self._set_reply_topic:
-            self.data.add_set_command_reply(raw)
+            info = self.data.add_set_command_reply(raw)
+            # if info is not None:
+            #     if not info.is_ack() and info.is_retryable():
+            #         self.resend_message(info)
+
         elif message.topic == self._get_topic:
-            self.data.add_get_command(raw)
+            self.data.add_get_command(None, raw)
         elif message.topic == self._get_reply_topic:
             self.data.add_get_command_reply(raw)
 
-    def send_message(self, command: dict):
-        message_id = 999900000 + random.randint(10000, 99999)
+    message_id = 999900000 + random.randint(10000, 99999)
+
+    def resend_message(self, msg: EcoflowCommandInfo):
+        self.message_id += 1
+        payload = {}
+        payload.update(msg.command)
+        payload["id"] = f"{self.message_id}"
+
+        msg.counter += 1
+        self.data.put_set_command(self.message_id, msg)
+
+        info = self.client.publish(self._set_topic, json.dumps(payload), 1)
+        _LOGGER.debug("ReSending " + json.dumps(payload) + " :" + str(info) + "(" + str(info.is_published())+")")
+
+    def send_message(self, mqtt_state: dict[str, Any], command: dict):
+        self.message_id += 1
         payload = {"from": "HomeAssistant",
-                   "id": f"{message_id}",
+                   "id": f"{self.message_id}",
                    "version": "1.0"}
         payload.update(command)
-        self.client.publish(self._set_topic, json.dumps(payload), 1)
+        self.data.add_set_command(mqtt_state, payload)
+
+        info = self.client.publish(self._set_topic, json.dumps(payload), 1)
+        _LOGGER.debug("Sending " + json.dumps(payload) + " :" + str(info) + "(" + str(info.is_published())+")")
 
     def stop(self):
         self.client.loop_stop()

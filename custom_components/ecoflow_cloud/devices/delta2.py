@@ -1,8 +1,9 @@
 from . import const, BaseDevice
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..number import LevelEntity, ChargingPowerEntity
-from ..select import DictSelectEntity
+from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
+    MaxGenStopLevelEntity, MinGenStartLevelEntity
+from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
     FanSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
@@ -32,21 +33,21 @@ class Delta2(BaseDevice):
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
-            LevelEntity(client, "bms_emsStatus.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
-                        lambda value: {"moduleType": 2, "operateType": "upsConfig",
-                                       "params": {"maxChgSoc": int(value)}}),
+            MaxBatteryLevelEntity(client, "bms_emsStatus.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
+                                  lambda value: {"moduleType": 2, "operateType": "upsConfig",
+                                                 "params": {"maxChgSoc": int(value)}}),
 
-            LevelEntity(client, "bms_emsStatus.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
-                        lambda value: {"moduleType": 2, "operateType": "upsConfig",
-                                       "params": {"minDsgSoc": int(value)}}),
+            MinBatteryLevelEntity(client, "bms_emsStatus.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
+                                  lambda value: {"moduleType": 2, "operateType": "upsConfig",
+                                                 "params": {"minDsgSoc": int(value)}}),
 
-            LevelEntity(client, "bms_emsStatus.minOpenOilEb", const.GEN_AUTO_START_LEVEL, 0, 30,
-                        lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
-                                        "params": {"closeOilSoc": value}}),
+            MinGenStartLevelEntity(client, "bms_emsStatus.minOpenOilEb", const.GEN_AUTO_START_LEVEL, 0, 30,
+                                   lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
+                                                  "params": {"closeOilSoc": value}}),
 
-            LevelEntity(client, "bms_emsStatus.maxCloseOilEb", const.GEN_AUTO_STOP_LEVEL, 50, 100,
-                        lambda value: {"moduleType": 2, "operateType": "openOilSoc",
-                                        "params": {"openOilSoc": value}}),
+            MaxGenStopLevelEntity(client, "bms_emsStatus.maxCloseOilEb", const.GEN_AUTO_STOP_LEVEL, 50, 100,
+                                  lambda value: {"moduleType": 2, "operateType": "openOilSoc",
+                                                 "params": {"openOilSoc": value}}),
 
             ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 200, 1200,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
@@ -81,20 +82,20 @@ class Delta2(BaseDevice):
                              lambda value: {"moduleType": 5, "operateType": "dcChgCfg",
                                             "params": {"dcChgCfg": value}}),
 
-            DictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
-                             lambda value: {"moduleType": 1, "operateType": "lcdCfg",
-                                            "params": {"brighLevel": 255, "delayOff": value}}),
+            TimeoutDictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 1, "operateType": "lcdCfg",
+                                                   "params": {"brighLevel": 255, "delayOff": value}}),
 
-            DictSelectEntity(client, "pd.standbyMin", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
-                             lambda value: {"moduleType": 1, "operateType": "standbyTime",
-                                            "params": {"standbyMins": value}}),
+            TimeoutDictSelectEntity(client, "pd.standbyMin", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 1, "operateType": "standbyTime",
+                                                   "params": {"standbyMins": value}}),
 
-            DictSelectEntity(client, "mppt.acStandbyMins", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
-                             lambda value: {"moduleType": 5, "operateType": "standbyTime",
-                                            "params": {"standbyMins": value}}),
+            TimeoutDictSelectEntity(client, "mppt.acStandbyMins", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 5, "operateType": "standbyTime",
+                                                   "params": {"standbyMins": value}}),
 
-            DictSelectEntity(client, "mppt.carStandbyMin", const.DC_TIMEOUT, const.DC_TIMEOUT_OPTIONS,
-                             lambda value: {"moduleType": 5, "operateType": "carStandby",
-                                            "params": {"standbyMins": value}})
+            TimeoutDictSelectEntity(client, "mppt.carStandbyMin", const.DC_TIMEOUT, const.DC_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 5, "operateType": "carStandby",
+                                                   "params": {"standbyMins": value}})
 
         ]
