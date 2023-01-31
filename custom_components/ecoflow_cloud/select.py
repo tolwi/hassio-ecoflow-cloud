@@ -19,6 +19,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 class DictSelectEntity(BaseSelectEntity):
     _attr_entity_category = EntityCategory.CONFIG
+    _attr_available = False
 
     def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, options: dict[str, int],
                  command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
