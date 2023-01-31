@@ -1,7 +1,7 @@
 {
   "domain": "ecoflow_cloud",
   "name": "Ecoflow-Cloud",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
   "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
   "requirements": [
