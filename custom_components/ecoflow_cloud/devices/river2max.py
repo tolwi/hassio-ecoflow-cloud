@@ -1,10 +1,10 @@
 from . import const, BaseDevice
-from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..number import LevelEntity, ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
+from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
+from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
-from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, FanSensorEntity, InWattsSensorEntity, OutWattsSensorEntity
+from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity
 from ..switch import EnabledEntity
 
 
@@ -32,7 +32,7 @@ class River2Max(BaseDevice):
             TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
 
-            FanSensorEntity(client, "bms_emsStatus.fanLevel", "Fan Level"),
+            # FanSensorEntity(client, "bms_emsStatus.fanLevel", "Fan Level"),
 
         ]
 
