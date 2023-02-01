@@ -20,7 +20,6 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
     values = {
         'data': dict(sorted(client.data.params.items())),
-        'override': dict(sorted(client.data.params_override.items())),
         'set_commands': {k: v.diagnostic_dict() for k, v in client.data.set_commands.items()},
         'get_commands': {k: v.diagnostic_dict() for k, v in client.data.get_commands.items()},
         'raw_data': client.data.raw_data,
