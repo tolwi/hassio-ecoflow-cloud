@@ -1,10 +1,9 @@
 from typing import Any
 
-from homeassistant.components.sensor import (SensorDeviceClass, SensorEntity,
-                                             SensorStateClass)
+from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (PERCENTAGE, POWER_WATT,
-                                 TEMP_CELSIUS, TIME_MINUTES, TIME_SECONDS)
+                                 TEMP_CELSIUS, TIME_MINUTES)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -21,7 +20,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     if client.device_type in devices:
         entities = devices[client.device_type].sensors(client)
         async_add_entities(entities)
-
 
 class CyclesSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -44,7 +42,7 @@ class RemainSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.DURATION
     _attr_native_unit_of_measurement = TIME_MINUTES
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_value = -1
+    _attr_native_value = 0
 
     def _update_value(self, val: Any) -> Any:
         ival = int(val)
@@ -63,14 +61,14 @@ class TempSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = TEMP_CELSIUS
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_value = 0
+    _attr_native_value = -1
 
 
 class WattsSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.POWER
     _attr_native_unit_of_measurement = POWER_WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_value = -1
+    _attr_native_value = 0
 
 class InWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
