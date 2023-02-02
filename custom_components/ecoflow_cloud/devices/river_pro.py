@@ -8,7 +8,7 @@ from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, T
 from ..switch import EnabledEntity, BeeperEntity
 
 
-class RiverMax(BaseDevice):
+class RiverPro(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
@@ -28,11 +28,9 @@ class RiverMax(BaseDevice):
 
             RemainSensorEntity(client, "pd.remainTime", const.REMAINING_TIME),
             TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP),
+
             CyclesSensorEntity(client, "bmsMaster.cycles", const.CYCLES),
 
-            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL, False, True),
-            TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_BATTERY_TEMP, False, True),
-            CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True)
         ]
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:

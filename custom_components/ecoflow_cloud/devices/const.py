@@ -78,10 +78,12 @@ TOTAL_OUT_POWER = "Total Out Power"
 AC_OUT_POWER = "AC Out Power"
 DC_OUT_POWER = "DC Out Power"
 
+TYPEC_OUT_POWER = "Type-C Out Power"
 TYPEC_1_OUT_POWER = "Type-C (1) Out Power"
 TYPEC_2_OUT_POWER = "Type-C (2) Out Power"
 USB_1_OUT_POWER = "USB (1) Out Power"
 USB_2_OUT_POWER = "USB (2) Out Power"
+USB_3_OUT_POWER = "USB (3) Out Power"
 
 REMAINING_TIME = "Remaining Time"
 CHARGE_REMAINING_TIME = "Charge Remaining Time"
