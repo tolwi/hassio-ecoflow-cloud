@@ -13,6 +13,7 @@ class Delta2(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
+            LevelSensorEntity(client, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
@@ -20,13 +21,19 @@ class Delta2(BaseDevice):
             InWattsSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
 
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
+
+            # OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
+            # the same value as pd.carWatts
+            OutWattsSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typec2Watts", const.TYPEC_2_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),
             OutWattsSensorEntity(client, "pd.usb2Watts", const.USB_2_OUT_POWER),
+
+            OutWattsSensorEntity(client, "pd.qcUsb1Watts", const.USB_QC_1_OUT_POWER),
+            OutWattsSensorEntity(client, "pd.qcUsb2Watts", const.USB_QC_2_OUT_POWER),
 
             RemainSensorEntity(client, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),

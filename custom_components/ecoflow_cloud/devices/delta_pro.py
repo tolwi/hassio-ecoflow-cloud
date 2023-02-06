@@ -20,13 +20,20 @@ class DeltaPro(BaseDevice):
             InWattsSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
 
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
+            OutWattsSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
+            # OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
+
+            OutWattsSensorEntity(client, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
+            OutWattsSensorEntity(client, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typec2Watts", const.TYPEC_2_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),
             OutWattsSensorEntity(client, "pd.usb2Watts", const.USB_2_OUT_POWER),
+
+            OutWattsSensorEntity(client, "pd.qcUsb1Watts", const.USB_QC_1_OUT_POWER),
+            OutWattsSensorEntity(client, "pd.qcUsb2Watts", const.USB_QC_2_OUT_POWER),
 
             RemainSensorEntity(client, "ems.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, "ems.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
@@ -61,9 +68,9 @@ class DeltaPro(BaseDevice):
         return [
             BeeperEntity(client, "mppt.beepState", const.BEEPER,
                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
-            EnabledEntity(client, "pd.dcOutState", const.USB_ENABLED,
+            EnabledEntity(client, "mppt.carState", const.DC_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP",
-                                         "params": {"id": 34, "enabled": value}}),
+                                         "params": {"id": 81, "enabled": value}}),
             EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP",
                                          "params": {"id": 66, "enabled": value}}),

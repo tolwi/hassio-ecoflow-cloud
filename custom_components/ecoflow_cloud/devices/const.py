@@ -68,6 +68,8 @@ DC_CHARGE_CURRENT_OPTIONS = {
     "8A": 8000
 }
 
+COMBINED_BATTERY_LEVEL = "Battery Level"
+
 MAIN_BATTERY_LEVEL = "Main Battery Level"
 TOTAL_IN_POWER = "Total In Power"
 SOLAR_IN_POWER = "Solar In Power"
@@ -77,6 +79,8 @@ TYPE_C_IN_POWER = "Type-C In Power"
 TOTAL_OUT_POWER = "Total Out Power"
 AC_OUT_POWER = "AC Out Power"
 DC_OUT_POWER = "DC Out Power"
+DC_CAR_OUT_POWER = "DC Car Out Power"
+DC_ANDERSON_OUT_POWER = "DC Anderson Out Power"
 
 TYPEC_OUT_POWER = "Type-C Out Power"
 TYPEC_1_OUT_POWER = "Type-C (1) Out Power"
@@ -84,6 +88,10 @@ TYPEC_2_OUT_POWER = "Type-C (2) Out Power"
 USB_1_OUT_POWER = "USB (1) Out Power"
 USB_2_OUT_POWER = "USB (2) Out Power"
 USB_3_OUT_POWER = "USB (3) Out Power"
+
+USB_QC_1_OUT_POWER = "USB QC (1) Out Power"
+USB_QC_2_OUT_POWER = "USB QC (2) Out Power"
+
 
 REMAINING_TIME = "Remaining Time"
 CHARGE_REMAINING_TIME = "Charge Remaining Time"
