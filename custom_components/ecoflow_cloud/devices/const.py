@@ -103,6 +103,8 @@ CYCLES = "Cycles"
 SLAVE_BATTERY_LEVEL = "Slave Battery Level"
 SLAVE_BATTERY_TEMP = "Slave Battery Temperature"
 SLAVE_CYCLES = "Slave Cycles"
+SLAVE_IN_POWER = "Slave In Power"
+SLAVE_OUT_POWER = "Slave Out Power"
 
 MAX_CHARGE_LEVEL = "Max Charge Level"
 MIN_DISCHARGE_LEVEL = "Min Discharge Level"
