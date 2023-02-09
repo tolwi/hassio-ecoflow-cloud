@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
@@ -25,6 +25,10 @@ class EcoFlowBaseEntity(Entity):
         self._attr_device_info = client.device_info_main
         self._attr_unique_id = 'ecoflow-' + client.device_sn + '-' + mqtt_key.replace('.', '-').replace('_', '-')
 
+    @property
+    def mqtt_key(self):
+        return self._mqtt_key
+
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
         d = self._client.data.observable().subscribe(self.__updated)
@@ -46,8 +50,28 @@ class EcoFlowBaseEntity(Entity):
         self._client.send_message({self._mqtt_key: target_value}, command)
 
 
-class BaseNumberEntity(NumberEntity, EcoFlowBaseEntity):
+class EcoFlowBaseCommandEntity(EcoFlowBaseEntity):
+    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
+                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
+        super().__init__(client, mqtt_key, title, enabled, auto_enable)
+        self._command = command
+
+    def command_dict(self, value: int) -> dict[str, any] | None:
+        if self._command:
+            return self._command(value)
+        else:
+            return None
+
+
+class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
     _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, min_value: int, max_value: int,
+                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True,
+                 auto_enable: bool = False):
+        super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
+        self._attr_native_max_value = max_value
+        self._attr_native_min_value = min_value
 
     def _update_value(self, val: Any) -> bool:
         if self._attr_native_value != val:
@@ -67,9 +91,9 @@ class BaseSensorEntity(SensorEntity, EcoFlowBaseEntity):
             return False
 
 
-class BaseSwitchEntity(SwitchEntity, EcoFlowBaseEntity):
+class BaseSwitchEntity(SwitchEntity, EcoFlowBaseCommandEntity):
     pass
 
 
-class BaseSelectEntity(SelectEntity, EcoFlowBaseEntity):
+class BaseSelectEntity(SelectEntity, EcoFlowBaseCommandEntity):
     pass
