@@ -123,4 +123,5 @@ AC_ENABLED = "AC Enabled"
 DC_ENABLED = "DC (12V) Enabled"
 XBOOST_ENABLED = "X-Boost Enabled"
 AC_ALWAYS_ENABLED = "AC Always On"
+PV_PRIO = "Prio Solar Charging"
 
