@@ -12,6 +12,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 ⚠️ Integration has only been tested with
   - RIVER 2 Max
   - DELTA 2
+  - RIVER 1 (288Wh) equal to River Max (576Wh)
 
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
 
