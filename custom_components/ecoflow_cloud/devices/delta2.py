@@ -88,6 +88,9 @@ class Delta2(BaseDevice):
             EnabledEntity(client, "pd.acAutoOnCfg", const.AC_ALWAYS_ENABLED,
                           lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
 
+            EnabledEntity(client, "pd.pvChgPrioSet", const.PV_PRIO,
+                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio", "params": {"pvChangeSet": value}}),
+
             EnabledEntity(client, "mppt.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
                                          "params": {"enabled": value, "out_voltage": -1, "out_freq": 255,
