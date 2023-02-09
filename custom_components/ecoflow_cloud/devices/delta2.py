@@ -47,7 +47,9 @@ class Delta2(BaseDevice):
             # Optional Slave Battery
             LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),
             TempSensorEntity(client, "bms_slave.temp", const.SLAVE_BATTERY_TEMP, False, True),
-            CyclesSensorEntity(client, "bms_slave.cycles", const.SLAVE_CYCLES, False, True)
+            CyclesSensorEntity(client, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
+            InWattsSensorEntity(client, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),
+            OutWattsSensorEntity(client, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True)
 
         ]
 
@@ -85,6 +87,9 @@ class Delta2(BaseDevice):
 
             EnabledEntity(client, "pd.acAutoOnCfg", const.AC_ALWAYS_ENABLED,
                           lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
+
+            EnabledEntity(client, "pd.pvChgPrioSet", const.PV_PRIO,
+                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio", "params": {"pvChangeSet": value}}),
 
             EnabledEntity(client, "mppt.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
