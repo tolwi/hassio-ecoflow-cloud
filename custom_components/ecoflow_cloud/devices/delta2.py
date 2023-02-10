@@ -95,6 +95,11 @@ class Delta2(BaseDevice):
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
                                          "params": {"enabled": value, "out_voltage": -1, "out_freq": 255,
                                                     "xboost": 255}}),
+            
+            EnabledEntity(client, "mppt.cfgAcXboost", const.XBOOST_ENABLED,
+                          lambda value: {"moduleType": 5, "operateType": "acOutCfg",
+                                         "params": {"enabled": 255, "out_voltage": -1, "out_freq": 255,
+                                                    "xboost": value}}),
 
             EnabledEntity(client, "pd.carState", const.DC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}}),
