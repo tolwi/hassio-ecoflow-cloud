@@ -5,11 +5,11 @@ In order to add a new entity for a device type, following info is needed:
 - *slider*: name, data_key, action_command, min, max
 
 Current integrations details:
-- [DELTA_2](devices/DELTA_2)
-- [RIVER_2_MAX](devices/RIVER_2_MAX)
-- [DELTA_PRO](devices/DELTA_PRO)
-- [RIVER_MAX](devices/RIVER_MAX)
-- [RIVER_PRO](devices/RIVER_PRO)
+- [DELTA_2](devices/DELTA_2.md)
+- [RIVER_2_MAX](devices/RIVER_2_MAX.md)
+- [DELTA_PRO](devices/DELTA_PRO.md)
+- [RIVER_MAX](devices/RIVER_MAX.md)
+- [RIVER_PRO](devices/RIVER_PRO.md)
 
 
 Use [diagnostic](https://www.home-assistant.io/integrations/diagnostics/) dump to find `data_key` and `action_command`:

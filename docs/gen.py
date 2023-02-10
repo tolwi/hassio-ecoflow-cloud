@@ -112,7 +112,7 @@ def update_full_summary():
             f.write(render_device_summary(dev))
             f.write("\n\n")
 
-        print("- [%s](devices/%s)" % (dt, dt))
+        print("- [%s](devices/%s.md)" % (dt, dt))
 
 
 if __name__ == "__main__":
