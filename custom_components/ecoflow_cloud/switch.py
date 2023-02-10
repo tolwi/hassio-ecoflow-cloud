@@ -23,10 +23,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 
 class EnabledEntity(BaseSwitchEntity):
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
-        super().__init__(client, mqtt_key, title, enabled, auto_enable)
-        self.__command = command
 
     def _update_value(self, val: Any) -> bool:
         _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
@@ -34,20 +30,15 @@ class EnabledEntity(BaseSwitchEntity):
         return True
 
     def turn_on(self, **kwargs: Any) -> None:
-        if self.__command:
-            self.send_message(1, self.__command(1))
+        if self._command:
+            self.send_message(1, self.command_dict(1))
 
     def turn_off(self, **kwargs: Any) -> None:
-        if self.__command:
-            self.send_message(0, self.__command(0))
+        if self._command:
+            self.send_message(0, self.command_dict(0))
 
 
 class DisabledEntity(BaseSwitchEntity):
-
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
-        super().__init__(client, mqtt_key, title, enabled, auto_enable)
-        self.__command = command
 
     def _update_value(self, val: Any) -> bool:
         _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
@@ -55,12 +46,12 @@ class DisabledEntity(BaseSwitchEntity):
         return True
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        if self.__command:
-            self.send_message(0, self.__command(0))
+        if self._command:
+            self.send_message(0, self.command_dict(0))
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        if self.__command:
-            self.send_message(1, self.__command(1))
+        if self._command:
+            self.send_message(1, self.command_dict(1))
 
 
 class BeeperEntity(DisabledEntity):
