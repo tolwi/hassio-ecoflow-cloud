@@ -21,19 +21,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 
 class ValueUpdateEntity(BaseNumberEntity):
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True,
-                 auto_enable: bool = False) -> object:
-        super().__init__(client, mqtt_key, title, enabled, auto_enable)
-        self._attr_native_max_value = max_value
-        self._attr_native_min_value = min_value
-        self.__command = command
 
     async def async_set_native_value(self, value: float):
-        if self.__command:
+        if self._command:
             ival = int(value)
-            self.send_message(ival, self.__command(ival))
-
+            self.send_message(ival, self.command_dict(ival))
 
 class ChargingPowerEntity(ValueUpdateEntity):
     _attr_native_step = 100
