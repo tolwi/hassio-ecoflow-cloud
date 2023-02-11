@@ -35,7 +35,7 @@ class ChargingPowerEntity(ValueUpdateEntity):
 
 
 class LevelEntity(ValueUpdateEntity):
-    _attr_native_step = 5
+    _attr_native_step = 1
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_device_class = SensorDeviceClass.BATTERY
 

@@ -60,7 +60,7 @@ class Delta2(BaseDevice):
                                                  "params": {"maxChgSoc": int(value)}}),
 
             MinBatteryLevelEntity(client, "bms_emsStatus.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
-                                  lambda value: {"moduleType": 2, "operateType": "upsConfig",
+                                  lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
             MinGenStartLevelEntity(client, "bms_emsStatus.minOpenOilEb", const.GEN_AUTO_START_LEVEL, 0, 30,
