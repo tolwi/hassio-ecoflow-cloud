@@ -43,7 +43,7 @@ class River2Max(BaseDevice):
                                                  "params": {"maxChgSoc": int(value)}}),
 
             MinBatteryLevelEntity(client, "bms_emsStatus.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
-                                  lambda value: {"moduleType": 2, "operateType": "upsConfig",
+                                  lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
             ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 100, 660,
