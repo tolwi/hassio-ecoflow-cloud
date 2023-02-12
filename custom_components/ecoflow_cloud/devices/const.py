@@ -1,7 +1,7 @@
-DC_IMPUTS = {
+DC_MODE_OPTIONS = {
     "Auto": 0,
-    "Solar": 1,
-    "Car": 2,
+    "Solar Recharging": 1,
+    "Car Recharging": 2,
 }
 
 DC_ICONS = {
@@ -125,3 +125,4 @@ XBOOST_ENABLED = "X-Boost Enabled"
 AC_ALWAYS_ENABLED = "AC Always On"
 PV_PRIO = "Prio Solar Charging"
 
+DC_MODE = "DC Mode"

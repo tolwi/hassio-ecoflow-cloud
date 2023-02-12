@@ -8,7 +8,7 @@ from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
 from ..switch import EnabledEntity
 
 
-class River2Max(BaseDevice):
+class River2(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
@@ -46,7 +46,7 @@ class River2Max(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
-            ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 100, 660,
+            ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 100, 360,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}}),
         ]
@@ -57,7 +57,7 @@ class River2Max(BaseDevice):
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
                                          "params": {"enabled": value, "out_voltage": -1, "out_freq": 255,
                                                     "xboost": 255}}),
-
+            
             EnabledEntity(client, "mppt.cfgAcXboost", const.XBOOST_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
                                          "params": {"enabled": 255, "out_voltage": -1, "out_freq": 255,
