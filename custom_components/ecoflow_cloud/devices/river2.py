@@ -73,7 +73,7 @@ class River2(BaseDevice):
                              lambda value: {"moduleType": 5, "operateType": "dcChgCfg",
                                             "params": {"dcChgCfg": value}}),
 
-            DictSelectEntity(client, "mppt.dcChgCurrent", const.DC_MODE, const.DC_MODE_OPTIONS,
+            DictSelectEntity(client, "mppt.cfgChgType", const.DC_MODE, const.DC_MODE_OPTIONS,
                              lambda value: {"moduleType": 5, "operateType": "chaType",
                                             "params": {"chaType": value}}),
 
