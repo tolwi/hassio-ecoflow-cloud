@@ -6,6 +6,7 @@ In order to add a new entity for a device type, following info is needed:
 
 Current integrations details:
 - [DELTA_2](devices/DELTA_2.md)
+- [RIVER_2](devices/RIVER_2.md)
 - [RIVER_2_MAX](devices/RIVER_2_MAX.md)
 - [DELTA_PRO](devices/DELTA_PRO.md)
 - [RIVER_MAX](devices/RIVER_MAX.md)

@@ -13,7 +13,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
 
 ## Current state
-<details><summary> DELTA_2 <i>(sensors: 22, switches: 5, sliders: 5, selects: 5)</i> </summary>
+<details><summary> DELTA_2 <i>(sensors: 24, switches: 7, sliders: 5, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -39,12 +39,16 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave Battery Level
 - Slave Battery Temperature
 - Slave Cycles
+- Slave In Power
+- Slave Out Power
 
 *Switches*
 - Beeper 
 - USB Enabled 
 - AC Always On 
+- Prio Solar Charging 
 - AC Enabled 
+- X-Boost Enabled 
 - DC (12V) Enabled 
 
 *Sliders (numbers)*
@@ -63,7 +67,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2_MAX <i>(sensors: 16, switches: 2, sliders: 3, selects: 4)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 16, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -86,6 +90,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 *Switches*
 - AC Enabled 
+- X-Boost Enabled 
 - DC (12V) Enabled 
 
 *Sliders (numbers)*
@@ -95,6 +100,47 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 *Selects*
 - DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+
+</p></details>
+
+<details><summary> RIVER_2_MAX <i>(sensors: 16, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Total In Power
+- Total Out Power
+- AC In Power
+- Type-C In Power
+- Solar In Power
+- AC Out Power
+- DC Out Power
+- Type-C (1) Out Power
+- USB (1) Out Power
+- USB (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Inv Out Temperature
+- Battery Temperature
+- Cycles
+
+*Switches*
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+
+*Selects*
+- DC (12V) Charge Current 
+- DC Mode 
 - Screen Timeout 
 - Unit Timeout 
 - AC Timeout 
@@ -147,7 +193,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_MAX <i>(sensors: 16, switches: 3, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_MAX <i>(sensors: 16, switches: 4, sliders: 1, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
@@ -169,16 +215,17 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave Cycles
 
 *Switches*
-- Beeper  (read-only)
-- AC Enabled  (read-only)
-- X-Boost Enabled  (read-only)
+- Beeper 
+- AC Enabled 
+- DC (12V) Enabled 
+- X-Boost Enabled 
 
 *Sliders (numbers)*
 - Max Charge Level  (read-only)
 
 *Selects*
-- Unit Timeout  (read-only)
-- AC Timeout  (read-only)
+- Unit Timeout 
+- AC Timeout 
 
 </p></details>
 
