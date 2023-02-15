@@ -1,1 +1,27 @@
-
+{
+    "title": "EcoFlow-Cloud",
+    "config": {
+      "step": {
+        "user": {
+          "data": {
+            "username": "Adresse e-mail",
+            "password": "Mot de passe",
+            "type": "Type d'appareil",
+            "name": "Nom de l'appareil",
+            "device_id": "Numéro de série"
+          }
+        }
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "data": {
+            "power_step": "Pas du curseur de puissance de charge",
+            "refresh_period_sec": "Durée actualisation des données (secondes)"
+          }
+        }
+      }
+    }
+  }
+  
