@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -17,9 +17,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
 
     from .devices.registry import devices
-    if client.device_type in devices:
-        entities = devices[client.device_type].switches(client)
-        async_add_entities(entities)
+    async_add_entities(devices[client.device_type].switches(client))
 
 
 class EnabledEntity(BaseSwitchEntity):
@@ -63,5 +61,3 @@ class BeeperEntity(DisabledEntity):
             return "mdi:volume-high"
         else:
             return "mdi:volume-mute"
-
-

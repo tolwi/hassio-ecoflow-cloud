@@ -1,15 +1,18 @@
-from homeassistant import const
+import logging
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
+from .config.const import CONF_DEVICE_TYPE, CONF_USERNAME, CONF_PASSWORD, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, \
+    DEFAULT_REFRESH_PERIOD_SEC
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient, EcoflowAuthentication
+
+_LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "ecoflow_cloud"
 
 _PLATFORMS = {
-    # Platform.BINARY_SENSOR,
-    # Platform.LIGHT,
     Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,
@@ -17,11 +20,29 @@ _PLATFORMS = {
 }
 
 
+async def async_migrate_entry(hass, config_entry: ConfigEntry):
+    """Migrate old entry."""
+    if config_entry.version == 1:
+        from .devices.registry import devices
+        device = devices[config_entry.data[CONF_DEVICE_TYPE]]
+
+        new_data = {**config_entry.data}
+        new_options = {OPTS_POWER_STEP: device.charging_power_step(),
+                       OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC}
+
+        config_entry.version = 2
+        hass.config_entries.async_update_entry(config_entry, data=new_data, options=new_options)
+
+    _LOGGER.info("Migration to version %s successful", config_entry.version)
+
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
 
-    auth = EcoflowAuthentication(entry.data[const.CONF_USERNAME], entry.data[const.CONF_PASSWORD])
+    auth = EcoflowAuthentication(entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
     await hass.async_add_executor_job(auth.authorize)
     client = EcoflowMQTTClient(hass, entry, auth)
 

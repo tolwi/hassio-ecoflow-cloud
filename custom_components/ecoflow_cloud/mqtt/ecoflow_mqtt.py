@@ -9,7 +9,6 @@ from typing import Any
 
 import paho.mqtt.client as mqtt_client
 import requests
-from homeassistant import const
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, DOMAIN
 from homeassistant.helpers.entity import DeviceInfo
@@ -17,6 +16,7 @@ from homeassistant.util import utcnow
 from reactivex import Subject, Observable
 
 from .utils import LimitedSizeOrderedDict
+from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -102,7 +102,6 @@ class EcoflowCommandInfo():
         self.reply: dict[str, Any] = {}
         self.time = utcnow().timestamp()
 
-
     def diagnostic_dict(self) -> dict[str, Any]:
         return {
             "target_state": self.target_state,
@@ -112,7 +111,8 @@ class EcoflowCommandInfo():
 
 
 class EcoflowDataHolder:
-    def __init__(self, collect_raw: bool = False):
+    def __init__(self, update_period_sec: int, collect_raw: bool = False):
+        self.__update_period_sec = update_period_sec
         self.__collect_raw = collect_raw
         self.set_commands = LimitedSizeOrderedDict[int, EcoflowCommandInfo]()
         self.get_commands = LimitedSizeOrderedDict[int, EcoflowCommandInfo]()
@@ -161,7 +161,7 @@ class EcoflowDataHolder:
         self.__add_raw_data(raw)
         self.params.update(raw['params'])
 
-        if (utcnow() - self.__broadcast_time).total_seconds() > 5:
+        if (utcnow() - self.__broadcast_time).total_seconds() > self.__update_period_sec:
             self.__broadcast()
 
     def __broadcast(self):
@@ -183,15 +183,17 @@ class EcoflowMQTTClient:
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, auth: EcoflowAuthentication):
 
         self.auth = auth
+        self.config_entry = entry
+        self.device_type = entry.data[CONF_DEVICE_TYPE]
+        self.device_sn = entry.data[CONF_DEVICE_ID]
 
-        self.device_type = entry.data[const.CONF_TYPE]
-        self.device_sn = entry.data[const.CONF_DEVICE_ID]
         self._data_topic = f"/app/device/property/{self.device_sn}"
         self._set_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/set"
         self._set_reply_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/set_reply"
         self._get_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/get"
         self._get_reply_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/get_reply"
-        self.data = EcoflowDataHolder(self.device_type == "DIAGNOSTIC")
+
+        self.data = EcoflowDataHolder(entry.options.get(OPTS_REFRESH_PERIOD_SEC), self.device_type == "DIAGNOSTIC")
 
         self.device_info_main = DeviceInfo(
             identifiers={(DOMAIN, self.device_sn)},
@@ -214,7 +216,7 @@ class EcoflowMQTTClient:
     def on_connect(self, client, userdata, flags, rc):
         match rc:
             case 0:
-                self.client.subscribe([(self._data_topic, 0),
+                self.client.subscribe([(self._data_topic, 1),
                                        (self._set_topic, 1), (self._set_reply_topic, 1),
                                        (self._get_topic, 1), (self._get_reply_topic, 1)])
                 _LOGGER.info(f"Subscribed to MQTT topic {self._data_topic}")

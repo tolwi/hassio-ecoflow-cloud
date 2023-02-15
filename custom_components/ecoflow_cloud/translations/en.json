@@ -12,5 +12,15 @@
         }
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "power_step": "Charging power slider step",
+          "refresh_period_sec": "Data refresh period (sec)"
+        }
+      }
+    }
   }
 }

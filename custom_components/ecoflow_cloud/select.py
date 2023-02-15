@@ -8,13 +8,12 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from custom_components.ecoflow_cloud import EcoflowMQTTClient, DOMAIN
 from custom_components.ecoflow_cloud.entities import BaseSelectEntity
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
 
     from .devices.registry import devices
-    if client.device_type in devices:
-        entities = devices[client.device_type].selects(client)
-        async_add_entities(entities)
+    async_add_entities(devices[client.device_type].selects(client))
 
 
 class DictSelectEntity(BaseSelectEntity):
@@ -41,7 +40,6 @@ class DictSelectEntity(BaseSelectEntity):
             val = self.__options_dict[option]
             self.send_message(val, self.command_dict(val))
 
+
 class TimeoutDictSelectEntity(DictSelectEntity):
     _attr_icon = "mdi:timer-outline"
-
-

@@ -17,9 +17,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
 
     from .devices.registry import devices
-    if client.device_type in devices:
-        entities = devices[client.device_type].sensors(client)
-        async_add_entities(entities)
+    async_add_entities(devices[client.device_type].sensors(client))
+
 
 class CyclesSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -70,8 +69,10 @@ class WattsSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
+
 class InWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
+
 
 class OutWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"

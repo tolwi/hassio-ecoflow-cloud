@@ -1,59 +1,72 @@
-from enum import Enum
-from typing import Dict
+import logging
+from typing import Dict, Any
 
 import voluptuous as vol
 from homeassistant import const
-from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import ConfigFlow, ConfigEntry, OptionsFlow
+from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
-from homeassistant.helpers.schema_config_entry_flow import SchemaFlowFormStep
 
 from . import DOMAIN
+from .config.const import EcoflowModel, CONF_USERNAME, CONF_PASSWORD, CONF_DEVICE_TYPE, CONF_DEVICE_NAME, \
+    CONF_DEVICE_ID, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC
 
-
-class EcoflowModel(Enum):
-    DELTA_2 = 1,
-    RIVER_2 = 2,
-    RIVER_2_MAX = 3,
-    RIVER_2_PRO = 4,
-    DELTA_PRO = 5,
-    RIVER_MAX = 6,
-    RIVER_PRO = 7,
-    DIAGNOSTIC = 99
-
-    @classmethod
-    def list(cls) -> list[str]:
-        return [e.name for e in EcoflowModel]
-
-
-OPTIONS_SCHEMA = vol.Schema({
-    vol.Required(const.CONF_USERNAME): str,
-    vol.Required(const.CONF_PASSWORD): str,
-    vol.Required(const.CONF_TYPE): selector.SelectSelector(
-                                    selector.SelectSelectorConfig(options=EcoflowModel.list(),
-                                                                  mode=selector.SelectSelectorMode.DROPDOWN),
-                    ),
-    vol.Required(const.CONF_NAME): str,
-    vol.Required(const.CONF_DEVICE_ID): str,
-})
-
-OPTIONS_FLOW = {
-    "init": SchemaFlowFormStep(OPTIONS_SCHEMA),
-}
+_LOGGER = logging.getLogger(__name__)
 
 
 class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 1
+    VERSION = 2
 
-    async def async_step_user(self, user_input: dict = None):
+    async def async_step_user(self, user_input: dict[str, Any] | None = None):
         errors: Dict[str, str] = {}
         if user_input is not None and not errors:
-            return self.async_create_entry(title=user_input[const.CONF_NAME], data=user_input)
+            from .devices.registry import devices
+            device = devices[user_input[CONF_DEVICE_TYPE]]
 
-        if user_input is None:
-            user_input = {}
+            options = {OPTS_POWER_STEP: device.charging_power_step(), OPTS_REFRESH_PERIOD_SEC: 5}
+
+            return self.async_create_entry(title=user_input[const.CONF_NAME], data=user_input, options=options)
 
         return self.async_show_form(
             step_id="user",
-            data_schema=OPTIONS_SCHEMA,
             last_step=True,
+            data_schema=vol.Schema({
+                vol.Required(CONF_USERNAME): str,
+                vol.Required(CONF_PASSWORD): str,
+                vol.Required(CONF_DEVICE_TYPE): selector.SelectSelector(
+                    selector.SelectSelectorConfig(options=EcoflowModel.list(),
+                                                  mode=selector.SelectSelectorMode.DROPDOWN),
+                ),
+                vol.Required(CONF_DEVICE_NAME): str,
+                vol.Required(CONF_DEVICE_ID): str,
+            })
+
+        )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        return EcoflowOptionsFlow(config_entry)
+
+
+class EcoflowOptionsFlow(OptionsFlow):
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        self.config_entry = config_entry
+
+    async def async_step_init(
+            self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        return self.async_show_form(
+            step_id="init",
+            last_step=True,
+            data_schema=vol.Schema({
+                vol.Optional(OPTS_POWER_STEP,
+                             default=self.config_entry.options[OPTS_POWER_STEP]): int,
+                vol.Optional(OPTS_REFRESH_PERIOD_SEC,
+                             default=self.config_entry.options[OPTS_REFRESH_PERIOD_SEC]): int,
+            })
         )

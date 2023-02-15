@@ -9,6 +9,10 @@ from ..switch import EnabledEntity
 
 
 class River2Max(BaseDevice):
+
+    def charging_power_step(self) -> int:
+        return 50
+
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
