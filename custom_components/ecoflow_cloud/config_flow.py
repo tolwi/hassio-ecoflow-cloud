@@ -10,7 +10,7 @@ from homeassistant.helpers import selector
 
 from . import DOMAIN
 from .config.const import EcoflowModel, CONF_USERNAME, CONF_PASSWORD, CONF_DEVICE_TYPE, CONF_DEVICE_NAME, \
-    CONF_DEVICE_ID, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC
+    CONF_DEVICE_ID, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, DEFAULT_REFRESH_PERIOD_SEC
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
             from .devices.registry import devices
             device = devices[user_input[CONF_DEVICE_TYPE]]
 
-            options = {OPTS_POWER_STEP: device.charging_power_step(), OPTS_REFRESH_PERIOD_SEC: 5}
+            options = {OPTS_POWER_STEP: device.charging_power_step(), OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC}
 
             return self.async_create_entry(title=user_input[const.CONF_NAME], data=user_input, options=options)
 
