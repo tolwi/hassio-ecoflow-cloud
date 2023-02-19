@@ -25,8 +25,9 @@ class River2(BaseDevice):
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.usb2Watts", const.USB_2_OUT_POWER),
+
+            # both USB-A Ports (the small RIVER 2 has only two) are being summarized under "pd.usb1Watts" - https://github.com/tolwi/hassio-ecoflow-cloud/issues/12#issuecomment-1432837393
+            OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_OUT_POWER),
 
             RemainSensorEntity(client, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
