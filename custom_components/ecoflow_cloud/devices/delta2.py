@@ -118,7 +118,7 @@ class Delta2(BaseDevice):
 
             TimeoutDictSelectEntity(client, "pd.standbyMin", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
                                     lambda value: {"moduleType": 1, "operateType": "standbyTime",
-                                                   "params": {"standbyMins": value}}),
+                                                   "params": {"standbyMin": value}}),
 
             TimeoutDictSelectEntity(client, "mppt.acStandbyMins", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
                                     lambda value: {"moduleType": 5, "operateType": "standbyTime",
