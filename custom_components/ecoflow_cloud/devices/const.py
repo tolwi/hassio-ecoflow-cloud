@@ -127,3 +127,6 @@ AC_ALWAYS_ENABLED = "AC Always On"
 PV_PRIO = "Prio Solar Charging"
 
 DC_MODE = "DC Mode"
+BATT_VOLT = "Battery Volts"
+MIN_CELL_VOLT = "Min Cell Volts"
+MAX_CELL_VOLT = "Max Cell Volts"
