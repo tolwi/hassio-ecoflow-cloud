@@ -5,7 +5,7 @@ from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevel
     MaxGenStopLevelEntity, MinGenStartLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity
+    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -42,7 +42,9 @@ class Delta2(BaseDevice):
             TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
 
-            # FanSensorEntity(client, "bms_emsStatus.fanLevel", "Fan Level"),
+            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATT_VOLT),
+            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT),
+            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT),
 
             # Optional Slave Battery
             LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),
