@@ -20,6 +20,9 @@
 - Inv Out Temperature (`inv.outTemp`)
 - Battery Temperature (`bms_bmsStatus.temp`)
 - Cycles (`bms_bmsStatus.cycles`)
+- Battery Volts (`bms_bmsStatus.vol`)
+- Min Cell Volts (`bms_bmsStatus.minCellVol`)
+- Max Cell Volts (`bms_bmsStatus.maxCellVol`)
 - Slave Battery Level (`bms_slave.soc`)
 - Slave Battery Temperature (`bms_slave.temp`)
 - Slave Cycles (`bms_slave.cycles`)
@@ -45,7 +48,7 @@
 *Selects*
 - DC (12V) Charge Current (`mppt.dcChgCurrent` -> `{"moduleType": 5, "operateType": "dcChgCfg", "params": {"dcChgCfg": "VALUE"}}` [4A (4000), 6A (6000), 8A (8000)])
 - Screen Timeout (`pd.lcdOffSec` -> `{"moduleType": 1, "operateType": "lcdCfg", "params": {"brighLevel": 255, "delayOff": "VALUE"}}` [Never (0), 10 sec (10), 30 sec (30), 1 min (60), 5 min (300), 30 min (1800)])
-- Unit Timeout (`pd.standbyMin` -> `{"moduleType": 1, "operateType": "standbyTime", "params": {"standbyMins": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
+- Unit Timeout (`pd.standbyMin` -> `{"moduleType": 1, "operateType": "standbyTime", "params": {"standbyMin": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
 - AC Timeout (`mppt.acStandbyMins` -> `{"moduleType": 5, "operateType": "standbyTime", "params": {"standbyMins": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
 - DC (12V) Timeout (`mppt.carStandbyMin` -> `{"moduleType": 5, "operateType": "carStandby", "params": {"standbyMins": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
 

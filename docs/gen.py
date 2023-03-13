@@ -1,14 +1,16 @@
 import json
 from unittest.mock import Mock
 
+from custom_components.ecoflow_cloud import OPTS_POWER_STEP
 from custom_components.ecoflow_cloud.devices import BaseDevice
 from custom_components.ecoflow_cloud.devices.registry import devices
 from custom_components.ecoflow_cloud.entities import EcoFlowBaseCommandEntity, BaseSwitchEntity, BaseSensorEntity, \
     BaseNumberEntity, BaseSelectEntity
 
 client = Mock()
+client.config_entry = Mock()
+client.config_entry.options = {OPTS_POWER_STEP: 999}
 client.device_sn = "MOCK"
-
 MARKER_VALUE: int = -66666
 
 
@@ -19,6 +21,7 @@ def device_summary(device: BaseDevice) -> str:
         len(device.numbers(client)),
         len(device.selects(client))
     )
+
 
 def command_ro(e: EcoFlowBaseCommandEntity) -> str:
     command_dict = e.command_dict(MARKER_VALUE)
@@ -71,7 +74,7 @@ def render_select(sw: BaseSelectEntity, brief: bool = False) -> str:
         return "- %s %s" % (sw.name, command_ro(sw))
     else:
         return "- %s (`%s` -> `%s` [%s])" % (
-        sw.name, sw.mqtt_key, prepare_command(sw), prepare_options(sw.options_dict()),)
+            sw.name, sw.mqtt_key, prepare_command(sw), prepare_options(sw.options_dict()),)
 
 
 def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
@@ -106,7 +109,6 @@ def render_brief_summary():
 
 def update_full_summary():
     for dt, dev in devices.items():
-
         with open("devices/%s.md" % dt, "w+") as f:
             f.write("## %s\n" % dt)
             f.write(render_device_summary(dev))
@@ -118,4 +120,3 @@ def update_full_summary():
 if __name__ == "__main__":
     update_full_summary()
     render_brief_summary()
-

@@ -2,7 +2,8 @@ from typing import Any
 
 from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (PERCENTAGE, POWER_WATT, TEMP_CELSIUS, TIME_MINUTES, ELECTRIC_POTENTIAL_MILLIVOLT)
+from homeassistant.const import (PERCENTAGE, POWER_WATT, ELECTRIC_POTENTIAL_MILLIVOLT,
+                                 TEMP_CELSIUS, UnitOfTime)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -38,7 +39,7 @@ class LevelSensorEntity(BaseSensorEntity):
 
 class RemainSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.DURATION
-    _attr_native_unit_of_measurement = TIME_MINUTES
+    _attr_native_unit_of_measurement = UnitOfTime.MINUTES
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
@@ -61,11 +62,13 @@ class TempSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = -1
 
+
 class VoltSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.VOLTAGE
     _attr_native_unit_of_measurement = ELECTRIC_POTENTIAL_MILLIVOLT
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_value = 0    
+    _attr_native_value = 0
+
 
 class WattsSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.POWER
@@ -73,8 +76,10 @@ class WattsSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
+
 class InWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
+
 
 class OutWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
