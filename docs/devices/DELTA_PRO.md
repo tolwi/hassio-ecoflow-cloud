@@ -18,8 +18,13 @@
 - USB QC (2) Out Power (`pd.qcUsb2Watts`)
 - Charge Remaining Time (`ems.chgRemainTime`)
 - Discharge Remaining Time (`ems.dsgRemainTime`)
-- Battery Temperature (`bmsMaster.temp`)
 - Cycles (`bmsMaster.cycles`)
+- Battery Temperature (`bmsMaster.temp`)
+- Min Cell Temperature (`bmsMaster.minCellTemp`)   _disabled_
+- Max Cell Temperature (`bmsMaster.maxCellTemp`)   _disabled_
+- Battery Volts (`bmsMaster.vol`)   _disabled_
+- Min Cell Volts (`bmsMaster.minCellVol`)   _disabled_
+- Max Cell Volts (`bmsMaster.maxCellVol`)   _disabled_
 
 *Switches*
 - Beeper (`mppt.beepState` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": "VALUE"}}`)

@@ -15,8 +15,13 @@
 - Charge Remaining Time (`bms_emsStatus.chgRemainTime`)
 - Discharge Remaining Time (`bms_emsStatus.dsgRemainTime`)
 - Inv Out Temperature (`inv.outTemp`)
-- Battery Temperature (`bms_bmsStatus.temp`)
 - Cycles (`bms_bmsStatus.cycles`)
+- Battery Temperature (`bms_bmsStatus.temp`)
+- Min Cell Temperature (`bms_bmsStatus.minCellTemp`)   _disabled_
+- Max Cell Temperature (`bms_bmsStatus.maxCellTemp`)   _disabled_
+- Battery Volts (`bms_bmsStatus.vol`)   _disabled_
+- Min Cell Volts (`bms_bmsStatus.minCellVol`)   _disabled_
+- Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _disabled_
 
 *Switches*
 - AC Enabled (`mppt.cfgAcEnabled` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)

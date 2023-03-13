@@ -51,7 +51,10 @@ def render_sensor(sw: BaseSensorEntity, brief: bool = False) -> str:
     if brief:
         return "- %s" % sw.name
     else:
-        return "- %s (`%s`)" % (sw.name, sw.mqtt_key)
+        if sw.enabled_default:
+            return "- %s (`%s`)" % (sw.name, sw.mqtt_key)
+        else:
+            return "- %s (`%s`)   _disabled_" % (sw.name, sw.mqtt_key)
 
 
 def render_switch(sw: BaseSwitchEntity, brief: bool = False) -> str:

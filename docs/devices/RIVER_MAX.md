@@ -12,11 +12,21 @@
 - USB (2) Out Power (`pd.usb2Watts`)
 - USB (3) Out Power (`pd.usb3Watts`)
 - Remaining Time (`pd.remainTime`)
-- Battery Temperature (`bmsMaster.temp`)
 - Cycles (`bmsMaster.cycles`)
-- Slave Battery Level (`bmsSlave1.soc`)
-- Slave Battery Temperature (`bmsSlave1.temp`)
-- Slave Cycles (`bmsSlave1.cycles`)
+- Battery Temperature (`bmsMaster.temp`)
+- Min Cell Temperature (`bmsMaster.minCellTemp`)   _disabled_
+- Max Cell Temperature (`bmsMaster.maxCellTemp`)   _disabled_
+- Battery Volts (`bmsMaster.vol`)   _disabled_
+- Min Cell Volts (`bmsMaster.minCellVol`)   _disabled_
+- Max Cell Volts (`bmsMaster.maxCellVol`)   _disabled_
+- Slave Battery Level (`bmsSlave1.soc`)   _disabled_
+- Slave Battery Temperature (`bmsSlave1.temp`)   _disabled_
+- Slave Min Cell Temperature (`bmsSlave1.minCellTemp`)   _disabled_
+- Slave Max Cell Temperature (`bmsSlave1.maxCellTemp`)   _disabled_
+- Battery Volts (`bmsSlave1.vol`)   _disabled_
+- Min Cell Volts (`bmsSlave1.minCellVol`)   _disabled_
+- Max Cell Volts (`bmsSlave1.maxCellVol`)   _disabled_
+- Slave Cycles (`bmsSlave1.cycles`)   _disabled_
 
 *Switches*
 - Beeper (`pd.beepState` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": "VALUE"}}`)

@@ -65,6 +65,7 @@ class TempSensorEntity(BaseSensorEntity):
 
 class VoltSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.VOLTAGE
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = ELECTRIC_POTENTIAL_MILLIVOLT
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0

@@ -98,14 +98,20 @@ REMAINING_TIME = "Remaining Time"
 CHARGE_REMAINING_TIME = "Charge Remaining Time"
 DISCHARGE_REMAINING_TIME = "Discharge Remaining Time"
 
-BATTERY_TEMP = "Battery Temperature"
 CYCLES = "Cycles"
 
 SLAVE_BATTERY_LEVEL = "Slave Battery Level"
 SLAVE_BATTERY_TEMP = "Slave Battery Temperature"
+SLAVE_MIN_CELL_TEMP = "Slave Min Cell Temperature"
+SLAVE_MAX_CELL_TEMP = "Slave Max Cell Temperature"
+
 SLAVE_CYCLES = "Slave Cycles"
 SLAVE_IN_POWER = "Slave In Power"
 SLAVE_OUT_POWER = "Slave Out Power"
+
+SLAVE_BATTERY_VOLT = "Slave Battery Volts"
+SLAVE_MIN_CELL_VOLT = "Slave Min Cell Volts"
+SLAVE_MAX_CELL_VOLT = "Slave Max Cell Volts"
 
 MAX_CHARGE_LEVEL = "Max Charge Level"
 MIN_DISCHARGE_LEVEL = "Min Discharge Level"
@@ -127,6 +133,11 @@ AC_ALWAYS_ENABLED = "AC Always On"
 PV_PRIO = "Prio Solar Charging"
 
 DC_MODE = "DC Mode"
-BATT_VOLT = "Battery Volts"
+
+BATTERY_TEMP = "Battery Temperature"
+MIN_CELL_TEMP = "Min Cell Temperature"
+MAX_CELL_TEMP = "Max Cell Temperature"
+
+BATTERY_VOLT = "Battery Volts"
 MIN_CELL_VOLT = "Min Cell Volts"
 MAX_CELL_VOLT = "Max Cell Volts"

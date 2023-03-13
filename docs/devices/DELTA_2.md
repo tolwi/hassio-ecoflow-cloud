@@ -18,16 +18,23 @@
 - Charge Remaining Time (`bms_emsStatus.chgRemainTime`)
 - Discharge Remaining Time (`bms_emsStatus.dsgRemainTime`)
 - Inv Out Temperature (`inv.outTemp`)
-- Battery Temperature (`bms_bmsStatus.temp`)
 - Cycles (`bms_bmsStatus.cycles`)
-- Battery Volts (`bms_bmsStatus.vol`)
-- Min Cell Volts (`bms_bmsStatus.minCellVol`)
-- Max Cell Volts (`bms_bmsStatus.maxCellVol`)
-- Slave Battery Level (`bms_slave.soc`)
-- Slave Battery Temperature (`bms_slave.temp`)
-- Slave Cycles (`bms_slave.cycles`)
-- Slave In Power (`bms_slave.inputWatts`)
-- Slave Out Power (`bms_slave.outputWatts`)
+- Battery Temperature (`bms_bmsStatus.temp`)
+- Min Cell Temperature (`bms_bmsStatus.minCellTemp`)   _disabled_
+- Max Cell Temperature (`bms_bmsStatus.maxCellTemp`)   _disabled_
+- Battery Volts (`bms_bmsStatus.vol`)   _disabled_
+- Min Cell Volts (`bms_bmsStatus.minCellVol`)   _disabled_
+- Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _disabled_
+- Slave Battery Level (`bms_slave.soc`)   _disabled_
+- Slave Battery Temperature (`bms_slave.temp`)   _disabled_
+- Slave Min Cell Temperature (`bms_slave.minCellTemp`)   _disabled_
+- Slave Max Cell Temperature (`bms_slave.maxCellTemp`)   _disabled_
+- Slave Battery Volts (`bms_slave.vol`)   _disabled_
+- Slave Min Cell Volts (`bms_slave.minCellVol`)   _disabled_
+- Slave Max Cell Volts (`bms_slave.maxCellVol`)   _disabled_
+- Slave Cycles (`bms_slave.cycles`)   _disabled_
+- Slave In Power (`bms_slave.inputWatts`)   _disabled_
+- Slave Out Power (`bms_slave.outputWatts`)   _disabled_
 
 *Switches*
 - Beeper (`mppt.beepState` -> `{"moduleType": 5, "operateType": "quietMode", "params": {"enabled": "VALUE"}}`)

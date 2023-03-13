@@ -13,7 +13,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
 
 ## Current state
-<details><summary> DELTA_2 <i>(sensors: 27, switches: 7, sliders: 5, selects: 5)</i> </summary>
+<details><summary> DELTA_2 <i>(sensors: 34, switches: 7, sliders: 5, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -34,13 +34,20 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Charge Remaining Time
 - Discharge Remaining Time
 - Inv Out Temperature
-- Battery Temperature
 - Cycles
+- Battery Temperature
+- Min Cell Temperature
+- Max Cell Temperature
 - Battery Volts
 - Min Cell Volts
 - Max Cell Volts
 - Slave Battery Level
 - Slave Battery Temperature
+- Slave Min Cell Temperature
+- Slave Max Cell Temperature
+- Slave Battery Volts
+- Slave Min Cell Volts
+- Slave Max Cell Volts
 - Slave Cycles
 - Slave In Power
 - Slave Out Power
@@ -70,7 +77,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 15, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 20, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -87,8 +94,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Charge Remaining Time
 - Discharge Remaining Time
 - Inv Out Temperature
-- Battery Temperature
 - Cycles
+- Battery Temperature
+- Min Cell Temperature
+- Max Cell Temperature
+- Battery Volts
+- Min Cell Volts
+- Max Cell Volts
 
 *Switches*
 - AC Enabled 
@@ -109,7 +121,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2_MAX <i>(sensors: 16, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_MAX <i>(sensors: 21, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -127,8 +139,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Charge Remaining Time
 - Discharge Remaining Time
 - Inv Out Temperature
-- Battery Temperature
 - Cycles
+- Battery Temperature
+- Min Cell Temperature
+- Max Cell Temperature
+- Battery Volts
+- Min Cell Volts
+- Max Cell Volts
 
 *Switches*
 - AC Enabled 
@@ -149,7 +166,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_PRO <i>(sensors: 19, switches: 5, sliders: 5, selects: 4)</i> </summary>
+<details><summary> DELTA_PRO <i>(sensors: 24, switches: 5, sliders: 5, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -170,8 +187,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - USB QC (2) Out Power
 - Charge Remaining Time
 - Discharge Remaining Time
-- Battery Temperature
 - Cycles
+- Battery Temperature
+- Min Cell Temperature
+- Max Cell Temperature
+- Battery Volts
+- Min Cell Volts
+- Max Cell Volts
 
 *Switches*
 - Beeper 
@@ -195,7 +217,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_MAX <i>(sensors: 16, switches: 4, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_MAX <i>(sensors: 26, switches: 4, sliders: 1, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
@@ -210,10 +232,20 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - USB (2) Out Power
 - USB (3) Out Power
 - Remaining Time
-- Battery Temperature
 - Cycles
+- Battery Temperature
+- Min Cell Temperature
+- Max Cell Temperature
+- Battery Volts
+- Min Cell Volts
+- Max Cell Volts
 - Slave Battery Level
 - Slave Battery Temperature
+- Slave Min Cell Temperature
+- Slave Max Cell Temperature
+- Battery Volts
+- Min Cell Volts
+- Max Cell Volts
 - Slave Cycles
 
 *Switches*

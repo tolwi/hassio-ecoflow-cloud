@@ -29,6 +29,10 @@ class EcoFlowBaseEntity(Entity):
     def mqtt_key(self):
         return self._mqtt_key
 
+    @property
+    def enabled_default(self):
+        return self._attr_entity_registry_enabled_default
+
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
         d = self._client.data.observable().subscribe(self.__updated)

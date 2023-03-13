@@ -4,7 +4,7 @@ from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity
 from ..switch import EnabledEntity
 
 
@@ -33,8 +33,15 @@ class River2(BaseDevice):
             RemainSensorEntity(client, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
 
             TempSensorEntity(client, "inv.outTemp", "Inv Out Temperature"),
-            TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
+
+            TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
+            TempSensorEntity(client, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP, False),
+            TempSensorEntity(client, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP, False),
+
+            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
+            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
+            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 
             # FanSensorEntity(client, "bms_emsStatus.fanLevel", "Fan Level"),
 

@@ -4,7 +4,7 @@ from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 
@@ -27,11 +27,26 @@ class RiverMax(BaseDevice):
             OutWattsSensorEntity(client, "pd.usb3Watts", const.USB_3_OUT_POWER),
 
             RemainSensorEntity(client, "pd.remainTime", const.REMAINING_TIME),
-            TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP),
             CyclesSensorEntity(client, "bmsMaster.cycles", const.CYCLES),
 
+            TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP),
+            TempSensorEntity(client, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
+            TempSensorEntity(client, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
+
+            VoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
+            VoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
+            VoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
+
             LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL, False, True),
+
             TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_BATTERY_TEMP, False, True),
+            TempSensorEntity(client, "bmsSlave1.minCellTemp", const.SLAVE_MIN_CELL_TEMP, False),
+            TempSensorEntity(client, "bmsSlave1.maxCellTemp", const.SLAVE_MAX_CELL_TEMP, False),
+
+            VoltSensorEntity(client, "bmsSlave1.vol", const.BATTERY_VOLT, False),
+            VoltSensorEntity(client, "bmsSlave1.minCellVol", const.MIN_CELL_VOLT, False),
+            VoltSensorEntity(client, "bmsSlave1.maxCellVol", const.MAX_CELL_VOLT, False),
+
             CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True)
         ]
 

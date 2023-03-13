@@ -39,16 +39,26 @@ class Delta2(BaseDevice):
             RemainSensorEntity(client, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
 
             TempSensorEntity(client, "inv.outTemp", "Inv Out Temperature"),
-            TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
 
-            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATT_VOLT),
-            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT),
-            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT),
+            TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
+            TempSensorEntity(client, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP, False),
+            TempSensorEntity(client, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP, False),
+
+            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
+            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
+            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 
             # Optional Slave Battery
             LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),
             TempSensorEntity(client, "bms_slave.temp", const.SLAVE_BATTERY_TEMP, False, True),
+            TempSensorEntity(client, "bms_slave.minCellTemp", const.SLAVE_MIN_CELL_TEMP, False),
+            TempSensorEntity(client, "bms_slave.maxCellTemp", const.SLAVE_MAX_CELL_TEMP, False),
+
+            VoltSensorEntity(client, "bms_slave.vol", const.SLAVE_BATTERY_VOLT, False),
+            VoltSensorEntity(client, "bms_slave.minCellVol", const.SLAVE_MIN_CELL_VOLT, False),
+            VoltSensorEntity(client, "bms_slave.maxCellVol", const.SLAVE_MAX_CELL_VOLT, False),
+
             CyclesSensorEntity(client, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
             InWattsSensorEntity(client, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),
             OutWattsSensorEntity(client, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True)
@@ -97,7 +107,7 @@ class Delta2(BaseDevice):
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
                                          "params": {"enabled": value, "out_voltage": -1, "out_freq": 255,
                                                     "xboost": 255}}),
-            
+
             EnabledEntity(client, "mppt.cfgAcXboost", const.XBOOST_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
                                          "params": {"enabled": 255, "out_voltage": -1, "out_freq": 255,
