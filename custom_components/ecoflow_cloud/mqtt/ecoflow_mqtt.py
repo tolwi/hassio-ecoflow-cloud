@@ -4,6 +4,7 @@ import logging
 import random
 import ssl
 import time
+import uuid
 from datetime import datetime
 from typing import Any
 
@@ -201,7 +202,7 @@ class EcoflowMQTTClient:
             name=entry.title,
         )
 
-        self.client = mqtt_client.Client(f'hassio-mqtt-{self.device_sn}-{entry.title.replace(" ", "-")}')
+        self.client = mqtt_client.Client(f'ANDROID_-{str(uuid.uuid4()).upper()}_{auth.user_id}')
         self.client.username_pw_set(self.auth.mqtt_username, self.auth.mqtt_password)
         self.client.tls_set(certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED)
         self.client.tls_insecure_set(False)
