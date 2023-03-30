@@ -22,6 +22,7 @@ class EcoflowModel(Enum):
     DELTA_PRO = 5,
     RIVER_MAX = 6,
     RIVER_PRO = 7,
+    DELTA_MAX = 8,
     DIAGNOSTIC = 99
 
     @classmethod
