@@ -25,12 +25,14 @@ class River2Max(BaseDevice):
 
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.usb2Watts", const.USB_2_OUT_POWER),
+            OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_OUT_POWER),
+            OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_OUT_POWER),
+            # OutWattsSensorEntity(client, "pd.usb2Watts", const.USB_2_OUT_POWER),
 
             RemainSensorEntity(client, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
+            RemainSensorEntity(client, "pd.remainTime", const.REMAINING_TIME),
+
 
             TempSensorEntity(client, "inv.outTemp", "Inv Out Temperature"),
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
@@ -56,7 +58,7 @@ class River2Max(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
-            ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 100, 660,
+            ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 50, 660,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}}),
         ]
