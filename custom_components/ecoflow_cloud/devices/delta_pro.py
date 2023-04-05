@@ -47,6 +47,11 @@ class DeltaPro(BaseDevice):
             VoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
             VoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
 
+            # Optional Slave Battery
+            LevelSensorEntity(client, "bmsSlave2.soc", const.SLAVE_BATTERY_LEVEL, False, True),
+            TempSensorEntity(client, "bmsSlave2.temp", const.SLAVE_BATTERY_TEMP, False, True),
+            WattsSensorEntity(client, "bmsSlave2.inputWatts", const.SLAVE_IN_POWER, False, True),
+            WattsSensorEntity(client, "bmsSlave2.outputWatts", const.SLAVE_OUT_POWER, False, True)
         ]
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
