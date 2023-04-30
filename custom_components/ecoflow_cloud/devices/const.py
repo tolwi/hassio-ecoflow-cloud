@@ -75,6 +75,8 @@ TOTAL_IN_POWER = "Total In Power"
 SOLAR_IN_POWER = "Solar In Power"
 AC_IN_POWER = "AC In Power"
 TYPE_C_IN_POWER = "Type-C In Power"
+SOLAR_IN_CURRENT = "Solar In Current"
+SOLAR_IN_VOLTAGE = "Solar In Voltage"
 
 TOTAL_OUT_POWER = "Total Out Power"
 AC_OUT_POWER = "AC Out Power"
