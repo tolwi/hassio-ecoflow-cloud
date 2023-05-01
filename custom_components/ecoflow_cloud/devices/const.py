@@ -103,13 +103,25 @@ DISCHARGE_REMAINING_TIME = "Discharge Remaining Time"
 CYCLES = "Cycles"
 
 SLAVE_BATTERY_LEVEL = "Slave Battery Level"
+SLAVE_1_BATTERY_LEVEL = "Slave 1 Battery Level"
+SLAVE_2_BATTERY_LEVEL = "Slave 2 Battery Level"
+
 SLAVE_BATTERY_TEMP = "Slave Battery Temperature"
+SLAVE_1_BATTERY_TEMP = "Slave 1 Battery Temperature"
+SLAVE_2_BATTERY_TEMP = "Slave 2 Battery Temperature"
+
 SLAVE_MIN_CELL_TEMP = "Slave Min Cell Temperature"
 SLAVE_MAX_CELL_TEMP = "Slave Max Cell Temperature"
 
 SLAVE_CYCLES = "Slave Cycles"
+
 SLAVE_IN_POWER = "Slave In Power"
+SLAVE_1_IN_POWER = "Slave 1 In Power"
+SLAVE_2_IN_POWER = "Slave 2 In Power"
+
 SLAVE_OUT_POWER = "Slave Out Power"
+SLAVE_1_OUT_POWER = "Slave 1 Out Power"
+SLAVE_2_OUT_POWER = "Slave 2 Out Power"
 
 SLAVE_BATTERY_VOLT = "Slave Battery Volts"
 SLAVE_MIN_CELL_VOLT = "Slave Min Cell Volts"
