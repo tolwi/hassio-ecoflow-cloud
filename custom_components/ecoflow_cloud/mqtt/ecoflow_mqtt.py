@@ -202,7 +202,8 @@ class EcoflowMQTTClient:
             name=entry.title,
         )
 
-        self.client = mqtt_client.Client(f'ANDROID_-{str(uuid.uuid4()).upper()}_{auth.user_id}')
+        self.client = mqtt_client.Client(client_id=f'ANDROID_-{str(uuid.uuid4()).upper()}_{auth.user_id}',
+                                         clean_session=True, reconnect_on_failure=True)
         self.client.username_pw_set(self.auth.mqtt_username, self.auth.mqtt_password)
         self.client.tls_set(certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED)
         self.client.tls_insecure_set(False)
@@ -242,6 +243,7 @@ class EcoflowMQTTClient:
         if rc != 0:
             _LOGGER.error(f"Unexpected MQTT disconnection: {rc}. Will auto-reconnect")
             time.sleep(5)
+            # self.client.reconnect() ??
 
     def on_message(self, client, userdata, message):
         payload = message.payload.decode("utf-8")
