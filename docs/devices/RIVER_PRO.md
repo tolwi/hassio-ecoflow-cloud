@@ -4,6 +4,8 @@
 - Main Battery Level (`pd.soc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
+- Solar In Current (`inv.dcInAmp`)
+- Solar In Voltage (`inv.dcInVol`)
 - AC In Power (`inv.inputWatts`)
 - AC Out Power (`inv.outputWatts`)
 - DC Out Power (`pd.carWatts`)

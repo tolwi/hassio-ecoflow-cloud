@@ -166,7 +166,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_PRO <i>(sensors: 24, switches: 5, sliders: 5, selects: 4)</i> </summary>
+<details><summary> DELTA_PRO <i>(sensors: 32, switches: 5, sliders: 5, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -194,6 +194,14 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts
 - Min Cell Volts
 - Max Cell Volts
+- Slave 1 Battery Level
+- Slave 1 Battery Temperature
+- Slave 1 In Power
+- Slave 1 Out Power
+- Slave 2 Battery Level
+- Slave 2 Battery Temperature
+- Slave 2 In Power
+- Slave 2 Out Power
 
 *Switches*
 - Beeper 
@@ -263,13 +271,15 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_PRO <i>(sensors: 13, switches: 3, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_PRO <i>(sensors: 15, switches: 3, sliders: 1, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
 - Total In Power
 - Total Out Power
+- Solar In Current
+- Solar In Voltage
 - AC In Power
 - AC Out Power
 - DC Out Power
