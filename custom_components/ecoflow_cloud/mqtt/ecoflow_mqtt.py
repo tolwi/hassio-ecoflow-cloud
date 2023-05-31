@@ -263,8 +263,7 @@ class EcoflowMQTTClient:
         except UnicodeDecodeError as error:
             _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
 
-        
-        message_id = 999900000 + random.randint(10000, 99999)
+    message_id = 999900000 + random.randint(10000, 99999)
 
     def resend_message(self, msg: EcoflowCommandInfo):
         self.message_id += 1
