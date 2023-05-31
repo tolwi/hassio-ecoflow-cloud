@@ -8,6 +8,7 @@ Current integrations details:
 - [DELTA_2](devices/DELTA_2.md)
 - [RIVER_2](devices/RIVER_2.md)
 - [RIVER_2_MAX](devices/RIVER_2_MAX.md)
+- [RIVER_2_PRO](devices/RIVER_2_PRO.md)
 - [DELTA_PRO](devices/DELTA_PRO.md)
 - [RIVER_MAX](devices/RIVER_MAX.md)
 - [RIVER_PRO](devices/RIVER_PRO.md)

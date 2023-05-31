@@ -166,6 +166,51 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
+<details><summary> RIVER_2_PRO <i>(sensors: 21, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Total In Power
+- Total Out Power
+- AC In Power
+- Type-C In Power
+- Solar In Power
+- AC Out Power
+- DC Out Power
+- Type-C Out Power
+- USB Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature
+- Max Cell Temperature
+- Battery Volts
+- Min Cell Volts
+- Max Cell Volts
+
+*Switches*
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+
+*Selects*
+- DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+
+</p></details>
+
 <details><summary> DELTA_PRO <i>(sensors: 32, switches: 5, sliders: 5, selects: 4)</i> </summary>
 <p>
 
@@ -353,6 +398,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 *Selects*
 
 </p></details>
+
 
 ## How to
 - [Add/update device](docs/integration.md)
