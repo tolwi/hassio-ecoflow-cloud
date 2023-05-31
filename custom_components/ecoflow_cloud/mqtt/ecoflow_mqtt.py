@@ -246,21 +246,25 @@ class EcoflowMQTTClient:
             # self.client.reconnect() ??
 
     def on_message(self, client, userdata, message):
-        payload = message.payload.decode("utf-8")
-        raw = json.loads(payload)
+        try:
+            payload = message.payload.decode("utf-8")
+            raw = json.loads(payload)
 
-        if message.topic == self._data_topic:
-            self.data.update_data(raw)
-        elif message.topic == self._set_topic:
-            self.data.add_set_command(None, raw)
-        elif message.topic == self._set_reply_topic:
-            self.data.add_set_command_reply(raw)
-        elif message.topic == self._get_topic:
-            self.data.add_get_command(None, raw)
-        elif message.topic == self._get_reply_topic:
-            self.data.add_get_command_reply(raw)
+            if message.topic == self._data_topic:
+                self.data.update_data(raw)
+            elif message.topic == self._set_topic:
+                self.data.add_set_command(None, raw)
+            elif message.topic == self._set_reply_topic:
+                self.data.add_set_command_reply(raw)
+            elif message.topic == self._get_topic:
+                self.data.add_get_command(None, raw)
+            elif message.topic == self._get_reply_topic:
+                self.data.add_get_command_reply(raw)
+        except UnicodeDecodeError as error:
+            _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
 
-    message_id = 999900000 + random.randint(10000, 99999)
+        
+        message_id = 999900000 + random.randint(10000, 99999)
 
     def resend_message(self, msg: EcoflowCommandInfo):
         self.message_id += 1
