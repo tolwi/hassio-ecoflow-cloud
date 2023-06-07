@@ -4,7 +4,8 @@ from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InAmpSensorEntity, \
+    InVoltSensorEntity
 from ..switch import EnabledEntity
 
 
@@ -18,6 +19,9 @@ class River2Max(BaseDevice):
             LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
             InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+
+            InAmpSensorEntity(client, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
+            InVoltSensorEntity(client, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
 
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
             InWattsSensorEntity(client, "pd.typecChaWatts", const.TYPE_C_IN_POWER),
