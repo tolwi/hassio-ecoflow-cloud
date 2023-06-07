@@ -48,11 +48,7 @@ class RemainSensorEntity(BaseSensorEntity):
         if ival < 0 or ival > 5000:
             ival = 0
 
-        if self._attr_native_value != ival:
-            self._attr_native_value = ival
-            return True
-        else:
-            return False
+        return super()._update_value(ival)
 
 
 class TempSensorEntity(BaseSensorEntity):
@@ -70,12 +66,14 @@ class VoltSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
+
 class AmpSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.CURRENT
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfElectricCurrent.MILLIAMPERE 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
+
 
 class WattsSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.POWER
@@ -88,11 +86,18 @@ class InWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
 
+class InWattsSolarSensorEntity(InWattsSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
+
+
 class OutWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
 
+
 class InVoltSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
+
 
 class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
