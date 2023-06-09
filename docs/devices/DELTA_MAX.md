@@ -20,11 +20,11 @@
 - Inv Out Temperature (`inv.outTemp`)
 - Cycles (`bmsMaster.cycles`)
 - Battery Temperature (`bmsMaster.temp`)
-- Min Cell Temperature (`bmsMaster.minCellTemp`)   _disabled_
-- Max Cell Temperature (`bmsMaster.maxCellTemp`)   _disabled_
-- Battery Volts (`bmsMaster.vol`)   _disabled_
-- Min Cell Volts (`bmsMaster.minCellVol`)   _disabled_
-- Max Cell Volts (`bmsMaster.maxCellVol`)   _disabled_
+- Min Cell Temperature (`bmsMaster.minCellTemp`)   _(disabled)_
+- Max Cell Temperature (`bmsMaster.maxCellTemp`)   _(disabled)_
+- Battery Volts (`bmsMaster.vol`)   _(disabled)_
+- Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
+- Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
 
 *Switches*
 - Beeper (`pd.beepState` -> `{"moduleType": 5, "operateType": "quietMode", "params": {"enabled": "VALUE"}}`)

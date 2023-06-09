@@ -36,21 +36,21 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Inv Out Temperature
 - Cycles
 - Battery Temperature
-- Min Cell Temperature
-- Max Cell Temperature
-- Battery Volts
-- Min Cell Volts
-- Max Cell Volts
-- Slave Battery Level
-- Slave Battery Temperature
-- Slave Min Cell Temperature
-- Slave Max Cell Temperature
-- Slave Battery Volts
-- Slave Min Cell Volts
-- Slave Max Cell Volts
-- Slave Cycles
-- Slave In Power
-- Slave Out Power
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Slave Battery Level  _(auto)_
+- Slave Battery Temperature  _(auto)_
+- Slave Min Cell Temperature  _(disabled)_
+- Slave Max Cell Temperature  _(disabled)_
+- Slave Battery Volts  _(disabled)_
+- Slave Min Cell Volts  _(disabled)_
+- Slave Max Cell Volts  _(disabled)_
+- Slave Cycles  _(auto)_
+- Slave In Power  _(auto)_
+- Slave Out Power  _(auto)_
 
 *Switches*
 - Beeper 
@@ -96,11 +96,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Inv Out Temperature
 - Cycles
 - Battery Temperature
-- Min Cell Temperature
-- Max Cell Temperature
-- Battery Volts
-- Min Cell Volts
-- Max Cell Volts
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
 
 *Switches*
 - AC Enabled 
@@ -121,13 +121,15 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2_MAX <i>(sensors: 21, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_MAX <i>(sensors: 23, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
 - Total In Power
 - Total Out Power
+- Solar In Current
+- Solar In Voltage
 - AC In Power
 - Type-C In Power
 - Solar In Power
@@ -141,11 +143,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Inv Out Temperature
 - Cycles
 - Battery Temperature
-- Min Cell Temperature
-- Max Cell Temperature
-- Battery Volts
-- Min Cell Volts
-- Max Cell Volts
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
 
 *Switches*
 - AC Enabled 
@@ -186,11 +188,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Inv Out Temperature
 - Cycles
 - Battery Temperature
-- Min Cell Temperature
-- Max Cell Temperature
-- Battery Volts
-- Min Cell Volts
-- Max Cell Volts
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
 
 *Switches*
 - AC Enabled 
@@ -234,19 +236,19 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Discharge Remaining Time
 - Cycles
 - Battery Temperature
-- Min Cell Temperature
-- Max Cell Temperature
-- Battery Volts
-- Min Cell Volts
-- Max Cell Volts
-- Slave 1 Battery Level
-- Slave 1 Battery Temperature
-- Slave 1 In Power
-- Slave 1 Out Power
-- Slave 2 Battery Level
-- Slave 2 Battery Temperature
-- Slave 2 In Power
-- Slave 2 Out Power
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Slave 1 Battery Level  _(auto)_
+- Slave 1 Battery Temperature  _(auto)_
+- Slave 1 In Power  _(auto)_
+- Slave 1 Out Power  _(auto)_
+- Slave 2 Battery Level  _(auto)_
+- Slave 2 Battery Temperature  _(auto)_
+- Slave 2 In Power  _(auto)_
+- Slave 2 Out Power  _(auto)_
 
 *Switches*
 - Beeper 
@@ -287,19 +289,19 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Remaining Time
 - Cycles
 - Battery Temperature
-- Min Cell Temperature
-- Max Cell Temperature
-- Battery Volts
-- Min Cell Volts
-- Max Cell Volts
-- Slave Battery Level
-- Slave Battery Temperature
-- Slave Min Cell Temperature
-- Slave Max Cell Temperature
-- Battery Volts
-- Min Cell Volts
-- Max Cell Volts
-- Slave Cycles
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Slave Battery Level  _(auto)_
+- Slave Battery Temperature  _(auto)_
+- Slave Min Cell Temperature  _(disabled)_
+- Slave Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Slave Cycles  _(auto)_
 
 *Switches*
 - Beeper 
@@ -308,7 +310,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - X-Boost Enabled 
 
 *Sliders (numbers)*
-- Max Charge Level  (read-only)
+- Max Charge Level  _(read-only)_
 
 *Selects*
 - Unit Timeout 
@@ -337,16 +339,16 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Cycles
 
 *Switches*
-- Beeper  (read-only)
-- AC Enabled  (read-only)
-- X-Boost Enabled  (read-only)
+- Beeper  _(read-only)_
+- AC Enabled  _(read-only)_
+- X-Boost Enabled  _(read-only)_
 
 *Sliders (numbers)*
-- Max Charge Level  (read-only)
+- Max Charge Level  _(read-only)_
 
 *Selects*
-- Unit Timeout  (read-only)
-- AC Timeout  (read-only)
+- Unit Timeout  _(read-only)_
+- AC Timeout  _(read-only)_
 
 </p></details>
 
@@ -373,11 +375,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Inv Out Temperature
 - Cycles
 - Battery Temperature
-- Min Cell Temperature
-- Max Cell Temperature
-- Battery Volts
-- Min Cell Volts
-- Max Cell Volts
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
 
 *Switches*
 - Beeper 
@@ -398,7 +400,6 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 *Selects*
 
 </p></details>
-
 
 ## How to
 - [Add/update device](docs/integration.md)

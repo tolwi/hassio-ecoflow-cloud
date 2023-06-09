@@ -26,7 +26,7 @@ def device_summary(device: BaseDevice) -> str:
 def command_ro(e: EcoFlowBaseCommandEntity) -> str:
     command_dict = e.command_dict(MARKER_VALUE)
     if command_dict is None:
-        return " (read-only)"
+        return " _(read-only)_"
     else:
         return ""
 
@@ -49,12 +49,21 @@ def prepare_command(e: EcoFlowBaseCommandEntity) -> str | None:
 
 def render_sensor(sw: BaseSensorEntity, brief: bool = False) -> str:
     if brief:
-        return "- %s" % sw.name
+        if sw.enabled_default:
+            return "- %s" % sw.name
+        else:
+            if sw.auto_enable:
+                return "- %s  _(auto)_" % sw.name
+            else:
+                return "- %s  _(disabled)_" % sw.name
     else:
         if sw.enabled_default:
             return "- %s (`%s`)" % (sw.name, sw.mqtt_key)
         else:
-            return "- %s (`%s`)   _disabled_" % (sw.name, sw.mqtt_key)
+            if sw.auto_enable:
+                return "- %s (`%s`)   _(auto)_" % (sw.name, sw.mqtt_key)
+            else:
+                return "- %s (`%s`)   _(disabled)_" % (sw.name, sw.mqtt_key)
 
 
 def render_switch(sw: BaseSwitchEntity, brief: bool = False) -> str:

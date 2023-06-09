@@ -14,19 +14,19 @@
 - Remaining Time (`pd.remainTime`)
 - Cycles (`bmsMaster.cycles`)
 - Battery Temperature (`bmsMaster.temp`)
-- Min Cell Temperature (`bmsMaster.minCellTemp`)   _disabled_
-- Max Cell Temperature (`bmsMaster.maxCellTemp`)   _disabled_
-- Battery Volts (`bmsMaster.vol`)   _disabled_
-- Min Cell Volts (`bmsMaster.minCellVol`)   _disabled_
-- Max Cell Volts (`bmsMaster.maxCellVol`)   _disabled_
-- Slave Battery Level (`bmsSlave1.soc`)   _disabled_
-- Slave Battery Temperature (`bmsSlave1.temp`)   _disabled_
-- Slave Min Cell Temperature (`bmsSlave1.minCellTemp`)   _disabled_
-- Slave Max Cell Temperature (`bmsSlave1.maxCellTemp`)   _disabled_
-- Battery Volts (`bmsSlave1.vol`)   _disabled_
-- Min Cell Volts (`bmsSlave1.minCellVol`)   _disabled_
-- Max Cell Volts (`bmsSlave1.maxCellVol`)   _disabled_
-- Slave Cycles (`bmsSlave1.cycles`)   _disabled_
+- Min Cell Temperature (`bmsMaster.minCellTemp`)   _(disabled)_
+- Max Cell Temperature (`bmsMaster.maxCellTemp`)   _(disabled)_
+- Battery Volts (`bmsMaster.vol`)   _(disabled)_
+- Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
+- Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
+- Slave Battery Level (`bmsSlave1.soc`)   _(auto)_
+- Slave Battery Temperature (`bmsSlave1.temp`)   _(auto)_
+- Slave Min Cell Temperature (`bmsSlave1.minCellTemp`)   _(disabled)_
+- Slave Max Cell Temperature (`bmsSlave1.maxCellTemp`)   _(disabled)_
+- Battery Volts (`bmsSlave1.vol`)   _(disabled)_
+- Min Cell Volts (`bmsSlave1.minCellVol`)   _(disabled)_
+- Max Cell Volts (`bmsSlave1.maxCellVol`)   _(disabled)_
+- Slave Cycles (`bmsSlave1.cycles`)   _(auto)_
 
 *Switches*
 - Beeper (`pd.beepState` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": "VALUE"}}`)

@@ -30,6 +30,10 @@ class EcoFlowBaseEntity(Entity):
         return self._mqtt_key
 
     @property
+    def auto_enable(self):
+        return self._auto_enable
+
+    @property
     def enabled_default(self):
         return self._attr_entity_registry_enabled_default
 

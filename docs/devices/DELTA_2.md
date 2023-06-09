@@ -20,21 +20,21 @@
 - Inv Out Temperature (`inv.outTemp`)
 - Cycles (`bms_bmsStatus.cycles`)
 - Battery Temperature (`bms_bmsStatus.temp`)
-- Min Cell Temperature (`bms_bmsStatus.minCellTemp`)   _disabled_
-- Max Cell Temperature (`bms_bmsStatus.maxCellTemp`)   _disabled_
-- Battery Volts (`bms_bmsStatus.vol`)   _disabled_
-- Min Cell Volts (`bms_bmsStatus.minCellVol`)   _disabled_
-- Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _disabled_
-- Slave Battery Level (`bms_slave.soc`)   _disabled_
-- Slave Battery Temperature (`bms_slave.temp`)   _disabled_
-- Slave Min Cell Temperature (`bms_slave.minCellTemp`)   _disabled_
-- Slave Max Cell Temperature (`bms_slave.maxCellTemp`)   _disabled_
-- Slave Battery Volts (`bms_slave.vol`)   _disabled_
-- Slave Min Cell Volts (`bms_slave.minCellVol`)   _disabled_
-- Slave Max Cell Volts (`bms_slave.maxCellVol`)   _disabled_
-- Slave Cycles (`bms_slave.cycles`)   _disabled_
-- Slave In Power (`bms_slave.inputWatts`)   _disabled_
-- Slave Out Power (`bms_slave.outputWatts`)   _disabled_
+- Min Cell Temperature (`bms_bmsStatus.minCellTemp`)   _(disabled)_
+- Max Cell Temperature (`bms_bmsStatus.maxCellTemp`)   _(disabled)_
+- Battery Volts (`bms_bmsStatus.vol`)   _(disabled)_
+- Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
+- Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
+- Slave Battery Level (`bms_slave.soc`)   _(auto)_
+- Slave Battery Temperature (`bms_slave.temp`)   _(auto)_
+- Slave Min Cell Temperature (`bms_slave.minCellTemp`)   _(disabled)_
+- Slave Max Cell Temperature (`bms_slave.maxCellTemp`)   _(disabled)_
+- Slave Battery Volts (`bms_slave.vol`)   _(disabled)_
+- Slave Min Cell Volts (`bms_slave.minCellVol`)   _(disabled)_
+- Slave Max Cell Volts (`bms_slave.maxCellVol`)   _(disabled)_
+- Slave Cycles (`bms_slave.cycles`)   _(auto)_
+- Slave In Power (`bms_slave.inputWatts`)   _(auto)_
+- Slave Out Power (`bms_slave.outputWatts`)   _(auto)_
 
 *Switches*
 - Beeper (`mppt.beepState` -> `{"moduleType": 5, "operateType": "quietMode", "params": {"enabled": "VALUE"}}`)
