@@ -401,5 +401,54 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
+<details><summary> DELTA_2_MAX <i>(sensors: 24, switches: 7, sliders: 5, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Battery Level
+- Total In Power
+- Total Out Power
+- AC In Power
+- Solar In Power
+- AC Out Power
+- DC Out Power
+- Type-C (1) Out Power
+- Type-C (2) Out Power
+- USB (1) Out Power
+- USB (2) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+
+*Switches*
+- Beeper 
+- USB Enabled 
+- AC Always On 
+- Prio Solar Charging 
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- Generator Auto Start Level 
+- Generator Auto Stop Level 
+- AC Charging Power 
+
+*Selects*
+
+</p></details>
+
 ## How to
 - [Add/update device](docs/integration.md)
