@@ -83,7 +83,8 @@ class Delta2Max(BaseDevice):
                                                  "params": {"openOilSoc": value}}),
 
             ChargingPowerEntity(client, "inv.acChgRatedPower", const.AC_CHARGING_POWER, 200, 2400,
-                                lambda value: {"moduleType": 5, "operateType": "acChgCfg",
+                                lambda value: {"moduleType": 3, "operateType": "acChgCfg",
+                                               "moduleSn": client.device_sn,
                                                "params": {"slowChgWatts": int(value), "fastChgWatts":255, "chgPauseFlag": 0}})
 
         ]
