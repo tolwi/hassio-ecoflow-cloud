@@ -41,12 +41,12 @@ class Delta2Max(BaseDevice):
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
 
             TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
-            TempSensorEntity(client, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP, False),
-            TempSensorEntity(client, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP, False),
+            TempSensorEntity(client, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP),
+            TempSensorEntity(client, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP),
 
-            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
-            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
-            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
+            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT),
+            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT),
+            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT),
 
             # Optional Slave Battery
             #LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),
