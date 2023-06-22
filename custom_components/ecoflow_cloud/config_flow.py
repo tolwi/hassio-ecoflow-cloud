@@ -10,13 +10,14 @@ from homeassistant.helpers import selector
 
 from . import DOMAIN
 from .config.const import EcoflowModel, CONF_USERNAME, CONF_PASSWORD, CONF_DEVICE_TYPE, CONF_DEVICE_NAME, \
-    CONF_DEVICE_ID, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, DEFAULT_REFRESH_PERIOD_SEC
+    CONF_DEVICE_ID, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, DEFAULT_REFRESH_PERIOD_SEC, OPTS_PING_PERIOD_SEC, \
+    DEFAULT_PING_PERIOD_SEC
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 2
+    VERSION = 3
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         errors: Dict[str, str] = {}
@@ -24,7 +25,9 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
             from .devices.registry import devices
             device = devices[user_input[CONF_DEVICE_TYPE]]
 
-            options = {OPTS_POWER_STEP: device.charging_power_step(), OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC}
+            options = {OPTS_POWER_STEP: device.charging_power_step(),
+                       OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
+                       OPTS_PING_PERIOD_SEC: DEFAULT_PING_PERIOD_SEC}
 
             return self.async_create_entry(title=user_input[const.CONF_NAME], data=user_input, options=options)
 
@@ -68,5 +71,7 @@ class EcoflowOptionsFlow(OptionsFlow):
                              default=self.config_entry.options[OPTS_POWER_STEP]): int,
                 vol.Optional(OPTS_REFRESH_PERIOD_SEC,
                              default=self.config_entry.options[OPTS_REFRESH_PERIOD_SEC]): int,
+                vol.Optional(OPTS_PING_PERIOD_SEC,
+                             default=self.config_entry.options[OPTS_PING_PERIOD_SEC]): int,
             })
         )
