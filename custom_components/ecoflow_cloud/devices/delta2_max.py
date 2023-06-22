@@ -34,8 +34,8 @@ class Delta2Max(BaseDevice):
             OutWattsSensorEntity(client, "pd.qcUsb1Watts", const.USB_QC_1_OUT_POWER),
             OutWattsSensorEntity(client, "pd.qcUsb2Watts", const.USB_QC_2_OUT_POWER),
 
-            RemainSensorEntity(client, "ems.chgRemainTime", const.CHARGE_REMAINING_TIME),
-            RemainSensorEntity(client, "ems.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
+            RemainSensorEntity(client, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
+            RemainSensorEntity(client, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
 
             TempSensorEntity(client, "inv.outTemp", "Inv Out Temperature"),
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
@@ -68,21 +68,25 @@ class Delta2Max(BaseDevice):
         return [
             MaxBatteryLevelEntity(client, "bms_emsStatus.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
                                   lambda value: {"moduleType": 2, "operateType": "upsConfig",
+                                                 "moduleSn": client.device_sn,
                                                  "params": {"maxChgSoc": int(value)}}),
 
             MinBatteryLevelEntity(client, "bms_emsStatus.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
                                   lambda value: {"moduleType": 2, "operateType": "dsgCfg",
+                                                 "moduleSn": client.device_sn,
                                                  "params": {"minDsgSoc": int(value)}}),
 
             MinGenStartLevelEntity(client, "bms_emsStatus.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
                                    lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
+                                                  "moduleSn": client.device_sn,
                                                   "params": {"closeOilSoc": value}}),
 
             MaxGenStopLevelEntity(client, "bms_emsStatus.maxCloseOilEbSoc", const.GEN_AUTO_STOP_LEVEL, 50, 100,
                                   lambda value: {"moduleType": 2, "operateType": "openOilSoc",
+                                                 "moduleSn": client.device_sn,
                                                  "params": {"openOilSoc": value}}),
 
-            ChargingPowerEntity(client, "inv.acChgRatedPower", const.AC_CHARGING_POWER, 200, 2400,
+            ChargingPowerEntity(client, "inv.SlowChgWatts", const.AC_CHARGING_POWER, 200, 2400,
                                 lambda value: {"moduleType": 3, "operateType": "acChgCfg",
                                                "moduleSn": client.device_sn,
                                                "params": {"slowChgWatts": int(value), "fastChgWatts":255, "chgPauseFlag": 0}})
@@ -91,49 +95,46 @@ class Delta2Max(BaseDevice):
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         return [
-            BeeperEntity(client, "pd.beepState", const.BEEPER,
-                         lambda value: {"moduleType": 5, "operateType": "quietMode", "params": {"enabled": value}}),
+            BeeperEntity(client, "pd.beepMode", const.BEEPER,
+                         lambda value: {"moduleType": 1, "operateType": "quietCfg",
+                                        "moduleSn": client.device_sn,
+                                        "params": {"enabled": value}}),
 
             EnabledEntity(client, "pd.dcOutState", const.USB_ENABLED,
-                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"enabled": value, "id": 34  }}),
+                          lambda value: {"moduleType": 1, "operateType": "dcOutCfg",
+                                        "moduleSn": client.device_sn,
+                                        "params": {"enabled": value }}),
 
-            EnabledEntity(client, "pd.acAutoOnCfg", const.AC_ALWAYS_ENABLED,
-                          lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
-
-            EnabledEntity(client, "pd.pvChgPrioSet", const.PV_PRIO,
-                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio", "params": {"pvChangeSet": value}}),
+            EnabledEntity(client, "pd.newAcAutoOnCfg", const.AC_ALWAYS_ENABLED,
+                          lambda value: {"moduleType": 1, "operateType": "newAcAutoOnCfg",
+                                         "moduleSn": client.device_sn,
+                                         "params": {"enabled": value, "minAcSoc": 5}}),
 
             EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED,
-                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"enabled": value, "id": 66  }}),
+                          lambda value: {"moduleType": 3, "operateType": "acOutCfg",
+                                         "moduleSn": client.device_sn,
+                                         "params": {"enabled": value }}),
 
             EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED,
-                          lambda value: {"moduleType": 5, "operateType": "TCP", "params": {"id": 66, "xboost": value}}),
-
-            EnabledEntity(client, "mppt.carState", const.DC_ENABLED,
-                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"enabled": value, "id": 81  }}),
-
+                          lambda value: {"moduleType": 3, "operateType": "acOutCfg",
+                                         "moduleSn": client.device_sn,
+                                         "params": {"xboost": value}})
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
-            #DictSelectEntity(client, "mppt.cfgDcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
-            #                 lambda value: {"moduleType": 5, "operateType": "dcChgCfg",
-            #                                "params": {"dcChgCfg": value}}),
+            TimeoutDictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 1, "operateType": "lcdCfg",
+                                                   "moduleSn": "R351ZEB4HF4E0717",
+                                                   "params": {"brighLevel": 255, "delayOff": value}}),
 
-            #TimeoutDictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
-            #                        lambda value: {"moduleType": 1, "operateType": "lcdCfg",
-            #                                       "params": {"brighLevel": 255, "delayOff": value}}),
+            TimeoutDictSelectEntity(client, "inv.standbyMin", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 1, "operateType": "standbyTime",
+                                                   "moduleSn": "R351ZEB4HF4E0717",
+                                                   "params": {"standbyMin": value}}),
 
-            #TimeoutDictSelectEntity(client, "inv.cfgStandbyMin", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
-            #                        lambda value: {"moduleType": 1, "operateType": "standbyTime",
-            #                                       "params": {"standbyMin": value}}),
-
-            #TimeoutDictSelectEntity(client, "mppt.acStandbyMins", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
-            #                        lambda value: {"moduleType": 5, "operateType": "standbyTime",
-            #                                       "params": {"standbyMins": value}}),
-
-            #TimeoutDictSelectEntity(client, "mppt.carStandbyMin", const.DC_TIMEOUT, const.DC_TIMEOUT_OPTIONS,
-            #                        lambda value: {"moduleType": 5, "operateType": "carStandby",
-            #                                       "params": {"standbyMins": value}})
-
+            TimeoutDictSelectEntity(client, "mppt.carStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
+                                    lambda value: {"moduleType": 5, "operateType": "standbyTime",
+                                                   "moduleSn": "R351ZEB4HF4E0717",
+                                                   "params": {"standbyMins": value}}),
         ]
