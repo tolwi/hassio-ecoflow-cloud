@@ -1,5 +1,3 @@
-import datetime
-
 from . import const, BaseDevice
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
@@ -7,7 +5,7 @@ from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevel
     MaxGenStopLevelEntity, MinGenStartLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, PingSensorEntity
+    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -63,21 +61,9 @@ class Delta2(BaseDevice):
 
             CyclesSensorEntity(client, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
             InWattsSensorEntity(client, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),
-            OutWattsSensorEntity(client, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True),
+            OutWattsSensorEntity(client, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True)
 
-            PingSensorEntity(client, self._ping_command)
         ]
-
-    def _ping_command(self, now: datetime):
-        week_number = (now.day - 1) // 7 + 1
-        return {"moduleType": 2, "operateType": "setRtcTime", "params": {
-            "sec": now.second,
-            "min": now.minute,
-            "week": week_number,
-            "month": now.month,
-            "hour": now.hour,
-            "year": now.year,
-            "day": now.day}}
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
@@ -115,8 +101,7 @@ class Delta2(BaseDevice):
                           lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
 
             EnabledEntity(client, "pd.pvChgPrioSet", const.PV_PRIO,
-                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio",
-                                         "params": {"pvChangeSet": value}}),
+                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio", "params": {"pvChangeSet": value}}),
 
             EnabledEntity(client, "mppt.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",

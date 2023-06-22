@@ -1,18 +1,15 @@
-import time
-from datetime import timedelta, datetime
-from typing import Any, Callable
+from typing import Any
 
-from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass, SensorEntity)
+from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (PERCENTAGE, POWER_WATT, TEMP_CELSIUS,
+from homeassistant.const import (PERCENTAGE, POWER_WATT, TEMP_CELSIUS, 
                                  UnitOfElectricPotential, UnitOfElectricCurrent, UnitOfTime)
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.event import async_track_time_interval
 
-from . import DOMAIN, OPTS_PING_PERIOD_SEC, ATTR_LAST_PING
-from .entities import BaseSensorEntity, EcoFlowBaseEntity
+from . import DOMAIN
+from .entities import BaseSensorEntity
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 
@@ -73,7 +70,7 @@ class VoltSensorEntity(BaseSensorEntity):
 class AmpSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.CURRENT
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_native_unit_of_measurement = UnitOfElectricCurrent.MILLIAMPERE
+    _attr_native_unit_of_measurement = UnitOfElectricCurrent.MILLIAMPERE 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
@@ -104,32 +101,3 @@ class InVoltSensorEntity(VoltSensorEntity):
 
 class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
-
-
-class PingSensorEntity(SensorEntity, EcoFlowBaseEntity):
-    _attr_device_class = SensorDeviceClass.DURATION
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
-    _attr_state_class = SensorStateClass.MEASUREMENT
-
-    def __init__(self, client: EcoflowMQTTClient, command: Callable[[datetime], dict[str, any]]) -> object:
-        super().__init__(client, 'ping_period', 'Ping Period')
-        self._attr_native_value = int(client.config_entry.options[OPTS_PING_PERIOD_SEC])
-        self.__command = command
-        self.__last_ping: datetime | None = None
-
-    async def async_added_to_hass(self):
-        if self._attr_native_value > 0:
-            self.async_on_remove(
-                async_track_time_interval(self.hass, self._ping, timedelta(seconds=self._attr_native_value)))
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any] | None:
-        return {ATTR_LAST_PING: self.__last_ping}
-
-    async def _ping(self, now: datetime) -> None:
-        self.__last_ping = now
-        self.async_write_ha_state()
-
-        command = self.__command(now)
-        self.send_message(int(time.mktime(now.timetuple())), command)

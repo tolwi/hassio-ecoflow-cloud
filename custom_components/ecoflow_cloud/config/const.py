@@ -10,10 +10,8 @@ CONF_DEVICE_NAME: Final = const.CONF_NAME
 CONF_DEVICE_ID: Final = const.CONF_DEVICE_ID
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
-OPTS_PING_PERIOD_SEC: Final = "ping_period"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 5
-DEFAULT_PING_PERIOD_SEC: Final = 0
 
 
 class EcoflowModel(Enum):

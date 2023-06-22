@@ -160,7 +160,6 @@ class EcoflowDataHolder:
 
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
-        self.params['timestamp'] = raw['timestamp']
         self.params.update(raw['params'])
 
         if (utcnow() - self.__broadcast_time).total_seconds() > self.__update_period_sec:
@@ -283,9 +282,7 @@ class EcoflowMQTTClient:
                    "id": f"{self.message_id}",
                    "version": "1.0"}
         payload.update(command)
-
-        if len(mqtt_state) > 0:
-            self.data.add_set_command(mqtt_state, payload)
+        self.data.add_set_command(mqtt_state, payload)
 
         info = self.client.publish(self._set_topic, json.dumps(payload), 1)
         _LOGGER.debug("Sending " + json.dumps(payload) + " :" + str(info) + "(" + str(info.is_published()) + ")")

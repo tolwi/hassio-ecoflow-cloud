@@ -1,16 +1,16 @@
 import logging
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
 from .config.const import CONF_DEVICE_TYPE, CONF_USERNAME, CONF_PASSWORD, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, \
-    DEFAULT_REFRESH_PERIOD_SEC, DEFAULT_PING_PERIOD_SEC, OPTS_PING_PERIOD_SEC
+    DEFAULT_REFRESH_PERIOD_SEC
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient, EcoflowAuthentication
 
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "ecoflow_cloud"
-ATTR_LAST_PING = "last_ping"
 
 _PLATFORMS = {
     Platform.NUMBER,
@@ -31,13 +31,6 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
                        OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC}
 
         config_entry.version = 2
-        hass.config_entries.async_update_entry(config_entry, data=new_data, options=new_options)
-    elif config_entry.version == 2:
-        new_data = {**config_entry.data}
-        new_options = {**config_entry.options,
-                       OPTS_PING_PERIOD_SEC: DEFAULT_PING_PERIOD_SEC}
-
-        config_entry.version = 3
         hass.config_entries.async_update_entry(config_entry, data=new_data, options=new_options)
 
     _LOGGER.info("Migration to version %s successful", config_entry.version)

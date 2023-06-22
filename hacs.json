@@ -1,6 +1,6 @@
 {
   "name": "EcoFlowCloud",
   "render_readme": true,
-  "homeassistant": "2023.06.0",
+  "homeassistant": "2022.7.0",
   "hide_default_branch": true
 }
