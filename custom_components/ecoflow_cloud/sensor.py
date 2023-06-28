@@ -4,8 +4,8 @@ from typing import Any, Mapping, OrderedDict
 
 from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass, SensorEntity)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (PERCENTAGE, POWER_WATT, TEMP_CELSIUS,
-                                 UnitOfElectricPotential, UnitOfElectricCurrent, UnitOfTime, UnitOfEnergy, UnitOfPower)
+from homeassistant.const import (PERCENTAGE,
+                                 UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency, UnitOfPower, UnitOfTemperature, UnitOfTime)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -60,7 +60,7 @@ class RemainSensorEntity(BaseSensorEntity):
 class TempSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.TEMPERATURE
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_native_unit_of_measurement = TEMP_CELSIUS
+    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = -1
 
@@ -118,6 +118,16 @@ class InEnergySensorEntity(EnergySensorEntity):
 
 class OutEnergySensorEntity(EnergySensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
+
+class SolarWattsSensorEntity(WattsSensorEntity):
+    _attr_icon = "mdi:mdi:solar-power"
+
+
+class FrequencySensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.FREQUENCY
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfFrequency.HERTZ
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC

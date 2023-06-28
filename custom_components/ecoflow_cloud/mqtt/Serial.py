@@ -16,6 +16,15 @@ def _parse_dict(data: bytes, types: Iterable[tuple[str, int, Callable[[bytes], A
 def _to_int(data: bytes):
     return int.from_bytes(data, "little")
 
+def _to_int_ex(div: int = 1):
+    def f(d: bytes):
+        v = _to_int(d)
+        if v is None:
+            return None
+        v /= div
+        return v
+    return f
+
 def _to_uint(data: bytes):
     return struct.unpack('B', data[0])[0]
 
