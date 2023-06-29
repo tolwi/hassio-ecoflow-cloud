@@ -52,7 +52,7 @@ class RiverMax(BaseDevice):
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
-            MaxBatteryLevelEntity(client, "bmsMaster.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100, None),
+            MaxBatteryLevelEntity(client, "bmsMaster.maxChargeSoc", const.MAX_CHARGE_LEVEL, 30, 100, None),
             # MinBatteryLevelEntity(client, "bmsMaster.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30, None),
         ]
 
