@@ -12,5 +12,5 @@
     "paho-mqtt==1.6.1",
     "reactivex==4.0.4"
   ],
-  "version": "0.8.9"
+  "version": "0.9.0"
 }
