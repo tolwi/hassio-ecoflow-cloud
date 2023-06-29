@@ -41,26 +41,26 @@ class Delta2Max(BaseDevice):
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
 
             TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
-            TempSensorEntity(client, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP),
-            TempSensorEntity(client, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP),
+            TempSensorEntity(client, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP, False),
+            TempSensorEntity(client, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT),
-            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT),
-            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT),
+            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
+            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
+            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 
             # Optional Slave Battery
-            #LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),
-            #TempSensorEntity(client, "bms_slave.temp", const.SLAVE_BATTERY_TEMP, False, True),
-            #TempSensorEntity(client, "bms_slave.minCellTemp", const.SLAVE_MIN_CELL_TEMP, False),
-            #TempSensorEntity(client, "bms_slave.maxCellTemp", const.SLAVE_MAX_CELL_TEMP, False),
+            # LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),
+            # TempSensorEntity(client, "bms_slave.temp", const.SLAVE_BATTERY_TEMP, False, True),
+            # TempSensorEntity(client, "bms_slave.minCellTemp", const.SLAVE_MIN_CELL_TEMP, False),
+            # TempSensorEntity(client, "bms_slave.maxCellTemp", const.SLAVE_MAX_CELL_TEMP, False),
 
-            #VoltSensorEntity(client, "bms_slave.vol", const.SLAVE_BATTERY_VOLT, False),
-            #VoltSensorEntity(client, "bms_slave.minCellVol", const.SLAVE_MIN_CELL_VOLT, False),
-            #VoltSensorEntity(client, "bms_slave.maxCellVol", const.SLAVE_MAX_CELL_VOLT, False),
+            # VoltSensorEntity(client, "bms_slave.vol", const.SLAVE_BATTERY_VOLT, False),
+            # VoltSensorEntity(client, "bms_slave.minCellVol", const.SLAVE_MIN_CELL_VOLT, False),
+            # VoltSensorEntity(client, "bms_slave.maxCellVol", const.SLAVE_MAX_CELL_VOLT, False),
 
-            #CyclesSensorEntity(client, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
-            #InWattsSensorEntity(client, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),
-            #OutWattsSensorEntity(client, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True)
+            # CyclesSensorEntity(client, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
+            # InWattsSensorEntity(client, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),
+            # OutWattsSensorEntity(client, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True)
 
         ]
 
@@ -89,7 +89,8 @@ class Delta2Max(BaseDevice):
             ChargingPowerEntity(client, "inv.SlowChgWatts", const.AC_CHARGING_POWER, 200, 2400,
                                 lambda value: {"moduleType": 3, "operateType": "acChgCfg",
                                                "moduleSn": client.device_sn,
-                                               "params": {"slowChgWatts": int(value), "fastChgWatts":255, "chgPauseFlag": 0}})
+                                               "params": {"slowChgWatts": int(value), "fastChgWatts": 255,
+                                                          "chgPauseFlag": 0}})
 
         ]
 
@@ -102,8 +103,8 @@ class Delta2Max(BaseDevice):
 
             EnabledEntity(client, "pd.dcOutState", const.USB_ENABLED,
                           lambda value: {"moduleType": 1, "operateType": "dcOutCfg",
-                                        "moduleSn": client.device_sn,
-                                        "params": {"enabled": value }}),
+                                         "moduleSn": client.device_sn,
+                                         "params": {"enabled": value}}),
 
             EnabledEntity(client, "pd.newAcAutoOnCfg", const.AC_ALWAYS_ENABLED,
                           lambda value: {"moduleType": 1, "operateType": "newAcAutoOnCfg",
@@ -113,7 +114,7 @@ class Delta2Max(BaseDevice):
             EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 3, "operateType": "acOutCfg",
                                          "moduleSn": client.device_sn,
-                                         "params": {"enabled": value }}),
+                                         "params": {"enabled": value}}),
 
             EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED,
                           lambda value: {"moduleType": 3, "operateType": "acOutCfg",
@@ -125,16 +126,16 @@ class Delta2Max(BaseDevice):
         return [
             TimeoutDictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
                                     lambda value: {"moduleType": 1, "operateType": "lcdCfg",
-                                                   "moduleSn": "R351ZEB4HF4E0717",
+                                                   "moduleSn": client.device_sn,
                                                    "params": {"brighLevel": 255, "delayOff": value}}),
 
             TimeoutDictSelectEntity(client, "inv.standbyMin", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS,
                                     lambda value: {"moduleType": 1, "operateType": "standbyTime",
-                                                   "moduleSn": "R351ZEB4HF4E0717",
+                                                   "moduleSn": client.device_sn,
                                                    "params": {"standbyMin": value}}),
 
             TimeoutDictSelectEntity(client, "mppt.carStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
                                     lambda value: {"moduleType": 5, "operateType": "standbyTime",
-                                                   "moduleSn": "R351ZEB4HF4E0717",
+                                                   "moduleSn": client.device_sn,
                                                    "params": {"standbyMins": value}}),
         ]

@@ -13,6 +13,7 @@ Current integrations details:
 - [RIVER_MAX](devices/RIVER_MAX.md)
 - [RIVER_PRO](devices/RIVER_PRO.md)
 - [DELTA_MAX](devices/DELTA_MAX.md)
+- [DELTA_2_MAX](devices/DELTA_2_MAX.md)
 
 
 Use [diagnostic](https://www.home-assistant.io/integrations/diagnostics/) dump to find `data_key` and `action_command`:

@@ -401,7 +401,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 24, switches: 7, sliders: 5, selects: 0)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 24, switches: 5, sliders: 5, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -434,10 +434,8 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Beeper 
 - USB Enabled 
 - AC Always On 
-- Prio Solar Charging 
 - AC Enabled 
 - X-Boost Enabled 
-- DC (12V) Enabled 
 
 *Sliders (numbers)*
 - Max Charge Level 
@@ -447,6 +445,9 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC Charging Power 
 
 *Selects*
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
 
 </p></details>
 
