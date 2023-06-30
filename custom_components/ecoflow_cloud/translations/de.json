@@ -1,0 +1,26 @@
+{
+  "title": "EcoFlow-Cloud",
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "username": "Benutzer-Email",
+          "password": "Benutzer-Passwort",
+          "type": "Gerätetyp",
+          "name": "Gerätename",
+          "device_id": "Seriennummer des Gerät"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "power_step": "Ladeleistung (Schritte für Schieberegler)",
+          "refresh_period_sec": "Datenaktualisierung in Sekunden"
+        }
+      }
+    }
+  }
+}
