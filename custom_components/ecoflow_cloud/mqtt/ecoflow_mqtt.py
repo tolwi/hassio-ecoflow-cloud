@@ -16,7 +16,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import utcnow
 from reactivex import Subject, Observable
 
-from .utils import LimitedSizeOrderedDict
+from .utils import BoundFifoList
 from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC
 
 _LOGGER = logging.getLogger(__name__)
@@ -95,66 +95,48 @@ class EcoflowAuthentication:
         return response
 
 
-class EcoflowCommandInfo():
-
-    def __init__(self, target_state: dict[str, Any] | None, command: dict[str, Any]) -> None:
-        self.target_state = target_state
-        self.command = command
-        self.reply: dict[str, Any] = {}
-        self.time = utcnow().timestamp()
-
-    def diagnostic_dict(self) -> dict[str, Any]:
-        return {
-            "target_state": self.target_state,
-            "command": self.command,
-            "reply": self.reply
-        }
-
-
 class EcoflowDataHolder:
     def __init__(self, update_period_sec: int, collect_raw: bool = False):
         self.__update_period_sec = update_period_sec
         self.__collect_raw = collect_raw
-        self.set_commands = LimitedSizeOrderedDict[int, EcoflowCommandInfo]()
-        self.get_commands = LimitedSizeOrderedDict[int, EcoflowCommandInfo]()
-        self.raw_data = list[dict[str, Any]]()
+        self.set = BoundFifoList[dict[str, Any]]()
+        self.set_reply = BoundFifoList[dict[str, Any]]()
+        self.get = BoundFifoList[dict[str, Any]]()
+        self.get_reply = BoundFifoList[dict[str, Any]]()
         self.params = dict[str, Any]()
-        self.__broadcast_time: datetime = utcnow()
-        self.__observable = Subject[dict[str, Any]]()
+
+        self.raw_data = BoundFifoList[dict[str, Any]]()
+
+        self.__params_broadcast_time: datetime = utcnow()
+        self.__params_observable = Subject[dict[str, Any]]()
+
+        self.__set_reply_observable = Subject[list[dict[str, Any]]]()
+        self.__get_reply_observable = Subject[list[dict[str, Any]]]()
 
     def observable(self) -> Observable[dict[str, Any]]:
-        return self.__observable
+        return self.__params_observable
 
-    def put_set_command(self, cmd_id: int, cmd: EcoflowCommandInfo) -> EcoflowCommandInfo:
-        self.set_commands.append(cmd_id, cmd)
-        return cmd
+    def get_reply_observable(self) -> Observable[list[dict[str, Any]]]:
+        return self.__get_reply_observable
 
-    def add_set_command(self, target_state: dict[str, Any] | None, cmd: dict[str, Any]) -> EcoflowCommandInfo:
-        cmd_id = int(cmd["id"])
-        if cmd_id not in self.set_commands:
-            self.set_commands.append(cmd_id, EcoflowCommandInfo(target_state, cmd))
-            if target_state is not None:
-                self.__update_to_target_state(target_state)
-        return self.set_commands[cmd_id]
+    def set_reply_observable(self) -> Observable[list[dict[str, Any]]]:
+        return self.__set_reply_observable
 
-    def add_set_command_reply(self, cmd: dict[str, Any]) -> EcoflowCommandInfo | None:
-        cmd_id = int(cmd["id"])
-        if cmd_id in self.set_commands:
-            cmd_info = self.set_commands[cmd_id]
-            cmd_info.reply = cmd
-            return cmd_info
+    def add_set_message(self, msg: dict[str, Any]):
+        self.set.append(msg)
 
-    def add_get_command(self, target_state: dict[str, Any] | None, cmd: dict[str, Any]):
-        cmd_id = int(cmd["id"])
-        if id not in self.get_commands:
-            self.get_commands.append(cmd_id, EcoflowCommandInfo(target_state, cmd))
+    def add_set_reply_message(self, msg: dict[str, Any]):
+        self.set_reply.append(msg)
+        self.__set_reply_observable.on_next(self.set_reply)
 
-    def add_get_command_reply(self, cmd: dict[str, Any]):
-        cmd_id = int(cmd["id"])
-        if id in self.get_commands:
-            self.get_commands[cmd_id].reply = cmd
+    def add_get_message(self, msg: dict[str, Any]):
+        self.get.append(msg)
 
-    def __update_to_target_state(self, target_state: dict[str, Any]):
+    def add_get_reply_message(self, msg: dict[str, Any]):
+        self.get_reply.append(msg)
+        self.__get_reply_observable.on_next(self.get_reply)
+
+    def update_to_target_state(self, target_state: dict[str, Any]):
         self.params.update(target_state)
         self.__broadcast()
 
@@ -162,22 +144,19 @@ class EcoflowDataHolder:
         self.__add_raw_data(raw)
         self.params.update(raw['params'])
 
-        if (utcnow() - self.__broadcast_time).total_seconds() > self.__update_period_sec:
+        if (utcnow() - self.__params_broadcast_time).total_seconds() > self.__update_period_sec:
             self.__broadcast()
 
     def __broadcast(self):
-        self.__broadcast_time = utcnow()
-        self.__observable.on_next(self.params)
-
-    def __trim_list(self, src: list, size: int):
-        while len(src) >= size:
-            src.pop(0)
+        self.__params_broadcast_time = utcnow()
+        self.__params_observable.on_next(self.params)
 
     def __add_raw_data(self, raw: dict[str, Any]):
         if self.__collect_raw:
-            self.__trim_list(self.raw_data, 20)
             self.raw_data.append(raw)
 
+    def last_params_broadcast_time(self) -> datetime:
+        return self.__params_broadcast_time
 
 class EcoflowMQTTClient:
 
@@ -253,37 +232,34 @@ class EcoflowMQTTClient:
             if message.topic == self._data_topic:
                 self.data.update_data(raw)
             elif message.topic == self._set_topic:
-                self.data.add_set_command(None, raw)
+                self.data.add_set_message(raw)
             elif message.topic == self._set_reply_topic:
-                self.data.add_set_command_reply(raw)
+                self.data.add_set_reply_message(raw)
             elif message.topic == self._get_topic:
-                self.data.add_get_command(None, raw)
+                self.data.add_get_message(raw)
             elif message.topic == self._get_reply_topic:
-                self.data.add_get_command_reply(raw)
+                self.data.add_get_reply_message(raw)
         except UnicodeDecodeError as error:
             _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
 
     message_id = 999900000 + random.randint(10000, 99999)
 
-    def resend_message(self, msg: EcoflowCommandInfo):
-        self.message_id += 1
-        payload = {}
-        payload.update(msg.command)
-        payload["id"] = f"{self.message_id}"
-
-        self.data.put_set_command(self.message_id, msg)
-
-        info = self.client.publish(self._set_topic, json.dumps(payload), 1)
-        _LOGGER.debug("ReSending " + json.dumps(payload) + " :" + str(info) + "(" + str(info.is_published()) + ")")
-
-    def send_message(self, mqtt_state: dict[str, Any], command: dict):
+    def __prepare_payload(self, command: dict):
         self.message_id += 1
         payload = {"from": "HomeAssistant",
                    "id": f"{self.message_id}",
                    "version": "1.0"}
         payload.update(command)
-        self.data.add_set_command(mqtt_state, payload)
+        return payload
 
+    def send_get_message(self, command: dict):
+        payload = self.__prepare_payload(command)
+        info = self.client.publish(self._get_topic, json.dumps(payload), 1)
+        _LOGGER.debug("Sending " + json.dumps(payload) + " :" + str(info) + "(" + str(info.is_published()) + ")")
+
+    def send_set_message(self, mqtt_state: dict[str, Any], command: dict):
+        self.data.update_to_target_state(mqtt_state)
+        payload = self.__prepare_payload(command)
         info = self.client.publish(self._set_topic, json.dumps(payload), 1)
         _LOGGER.debug("Sending " + json.dumps(payload) + " :" + str(info) + "(" + str(info.is_published()) + ")")
 

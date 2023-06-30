@@ -19,6 +19,9 @@ _PLATFORMS = {
     Platform.SWITCH,
 }
 
+ATTR_STATUS_SN = "sn"
+ATTR_STATUS_UPDATES = "updates"
+
 
 async def async_migrate_entry(hass, config_entry: ConfigEntry):
     """Migrate old entry."""

@@ -26,7 +26,8 @@ class ValueUpdateEntity(BaseNumberEntity):
     async def async_set_native_value(self, value: float):
         if self._command:
             ival = int(value)
-            self.send_message(ival, self.command_dict(ival))
+            self.send_set_message(ival, self.command_dict(ival))
+
 
 class ChargingPowerEntity(ValueUpdateEntity):
     _attr_icon = "mdi:transmission-tower-import"

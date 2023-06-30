@@ -29,11 +29,11 @@ class EnabledEntity(BaseSwitchEntity):
 
     def turn_on(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_message(1, self.command_dict(1))
+            self.send_set_message(1, self.command_dict(1))
 
     def turn_off(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_message(0, self.command_dict(0))
+            self.send_set_message(0, self.command_dict(0))
 
 
 class DisabledEntity(BaseSwitchEntity):
@@ -45,11 +45,11 @@ class DisabledEntity(BaseSwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_message(0, self.command_dict(0))
+            self.send_set_message(0, self.command_dict(0))
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_message(1, self.command_dict(1))
+            self.send_set_message(1, self.command_dict(1))
 
 
 class BeeperEntity(DisabledEntity):

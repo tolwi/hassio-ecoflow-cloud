@@ -38,7 +38,7 @@ class DictSelectEntity(BaseSelectEntity):
     async def async_select_option(self, option: str):
         if self._command:
             val = self.__options_dict[option]
-            self.send_message(val, self.command_dict(val))
+            self.send_set_message(val, self.command_dict(val))
 
 
 class TimeoutDictSelectEntity(DictSelectEntity):
