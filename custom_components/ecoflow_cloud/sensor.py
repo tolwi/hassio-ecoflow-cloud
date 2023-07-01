@@ -9,8 +9,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.util import utcnow
 
-from . import DOMAIN, OPTS_REFRESH_PERIOD_SEC, ATTR_STATUS_SN, ATTR_STATUS_UPDATES
+from . import DOMAIN, OPTS_REFRESH_PERIOD_SEC, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_QUOTA_UPDATES, \
+    ATTR_STATUS_QUOTA_LAST_UPDATE
 from .entities import BaseSensorEntity, EcoFlowAbstractEntity
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
@@ -113,13 +115,18 @@ class QuotasStatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         super().__init__(client, "Status", "status")
         self._data_refresh_sec = int(client.config_entry.options[OPTS_REFRESH_PERIOD_SEC])
         self.__online = -1
+        self.__last_update = utcnow()
         self.__attrs = dict[str, Any]()
-        self.__attrs[ATTR_STATUS_UPDATES] = 0
+        self.__attrs[ATTR_STATUS_QUOTA_UPDATES] = 0
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
-        d = self._client.data.get_reply_observable().subscribe(self.__updated)
-        self.async_on_remove(d.dispose)
+
+        get_reply_d = self._client.data.get_reply_observable().subscribe(self.__get_reply_update)
+        self.async_on_remove(get_reply_d.dispose)
+
+        params_d = self._client.data.params_observable().subscribe(self.__params_update)
+        self.async_on_remove(params_d.dispose)
 
         self.__get_latest_quotas()
 
@@ -128,20 +135,28 @@ class QuotasStatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     def __check_latest_quotas(self, now: datetime):
         update_delta_sec = (now - self._client.data.last_params_broadcast_time()).total_seconds()
+        data_after_quota = (self._client.data.last_params_broadcast_time() - self.__last_update).total_seconds()
+        is_data_outdated = update_delta_sec > self._data_refresh_sec * 3
+        is_data_without_quota = data_after_quota > self._data_refresh_sec * 2
 
-        if (self.__online == 1 and update_delta_sec > self._data_refresh_sec * 3) or (
-                self.__online != 1 and update_delta_sec < self._data_refresh_sec):
+        # online and outdated (try to force data updates) OR offline but with incoming updates (refresh status)
+        if (self.__online == 1 and is_data_outdated) or (self.__online != 1 and is_data_without_quota):
             self.__get_latest_quotas()
 
     def __get_latest_quotas(self):
         self.send_get_message({"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
 
-    def __updated(self, data: list[dict[str, Any]]):
+    def __params_update(self, data: dict[str, Any]):
+        self.__attrs[ATTR_STATUS_DATA_LAST_UPDATE] = datetime.fromtimestamp(data['timestamp'])
+        self.async_write_ha_state()
+
+    def __get_reply_update(self, data: list[dict[str, Any]]):
         d = data[0]
         if d["operateType"] == "latestQuotas":
             self.__online = d["data"]["online"]
-
-            self.__attrs[ATTR_STATUS_UPDATES] = self.__attrs[ATTR_STATUS_UPDATES] + 1
+            self.__last_update = utcnow()
+            self.__attrs[ATTR_STATUS_QUOTA_LAST_UPDATE] = self.__last_update
+            self.__attrs[ATTR_STATUS_QUOTA_UPDATES] = self.__attrs[ATTR_STATUS_QUOTA_UPDATES] + 1
 
             if self.__online == 1:
                 self.__attrs[ATTR_STATUS_SN] = d["data"]["sn"]

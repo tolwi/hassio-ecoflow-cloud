@@ -19,8 +19,10 @@ _PLATFORMS = {
     Platform.SWITCH,
 }
 
-ATTR_STATUS_SN = "sn"
-ATTR_STATUS_UPDATES = "updates"
+ATTR_STATUS_SN = "SN"
+ATTR_STATUS_QUOTA_UPDATES = "quota_update_count"
+ATTR_STATUS_QUOTA_LAST_UPDATE = "quota_last_update"
+ATTR_STATUS_DATA_LAST_UPDATE = "data_last_update"
 
 
 async def async_migrate_entry(hass, config_entry: ConfigEntry):

@@ -113,7 +113,7 @@ class EcoflowDataHolder:
         self.__set_reply_observable = Subject[list[dict[str, Any]]]()
         self.__get_reply_observable = Subject[list[dict[str, Any]]]()
 
-    def observable(self) -> Observable[dict[str, Any]]:
+    def params_observable(self) -> Observable[dict[str, Any]]:
         return self.__params_observable
 
     def get_reply_observable(self) -> Observable[list[dict[str, Any]]]:
@@ -142,6 +142,7 @@ class EcoflowDataHolder:
 
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
+        self.params['timestamp'] = raw['timestamp']
         self.params.update(raw['params'])
 
         if (utcnow() - self.__params_broadcast_time).total_seconds() > self.__update_period_sec:
