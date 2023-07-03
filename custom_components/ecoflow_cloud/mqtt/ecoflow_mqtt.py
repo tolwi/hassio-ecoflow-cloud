@@ -195,6 +195,12 @@ class EcoflowMQTTClient:
         self.client.connect(self.auth.mqtt_url, self.auth.mqtt_port)
         self.client.loop_start()
 
+    def reconnect(self):
+        _LOGGER.info(f"Re-connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}")
+        self.client.loop_stop(True)
+        self.client.reconnect()
+        self.client.loop_start()
+
     def on_connect(self, client, userdata, flags, rc):
         match rc:
             case 0:

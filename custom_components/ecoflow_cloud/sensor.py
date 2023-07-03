@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from typing import Any, Mapping
+from typing import Any, Mapping, OrderedDict
 
 from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass, SensorEntity)
 from homeassistant.config_entries import ConfigEntry
@@ -12,7 +12,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import utcnow
 
 from . import DOMAIN, OPTS_REFRESH_PERIOD_SEC, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_QUOTA_UPDATES, \
-    ATTR_STATUS_QUOTA_LAST_UPDATE
+    ATTR_STATUS_QUOTA_LAST_UPDATE, ATTR_STATUS_RECONNECTS
 from .entities import BaseSensorEntity, EcoFlowAbstractEntity
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
@@ -115,9 +115,13 @@ class QuotasStatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         super().__init__(client, "Status", "status")
         self._data_refresh_sec = int(client.config_entry.options[OPTS_REFRESH_PERIOD_SEC])
         self.__online = -1
-        self.__last_update = utcnow()
-        self.__attrs = dict[str, Any]()
+        self.__last_quota_update = utcnow()
+        self.__attrs = OrderedDict[str, Any]()
+        self.__attrs[ATTR_STATUS_SN] = "Unknown"
+        self.__attrs[ATTR_STATUS_DATA_LAST_UPDATE] = None
         self.__attrs[ATTR_STATUS_QUOTA_UPDATES] = 0
+        self.__attrs[ATTR_STATUS_QUOTA_LAST_UPDATE] = None
+        self.__attrs[ATTR_STATUS_RECONNECTS] = 0
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -135,15 +139,27 @@ class QuotasStatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     def __check_latest_quotas(self, now: datetime):
         update_delta_sec = (now - self._client.data.last_params_broadcast_time()).total_seconds()
-        data_after_quota = (self._client.data.last_params_broadcast_time() - self.__last_update).total_seconds()
+        data_after_quota = (self._client.data.last_params_broadcast_time() - self.__last_quota_update).total_seconds()
         is_data_outdated = update_delta_sec > self._data_refresh_sec * 3
         is_data_without_quota = data_after_quota > self._data_refresh_sec * 2
 
-        # online and outdated (try to force data updates) OR offline but with incoming updates (refresh status)
-        if (self.__online == 1 and is_data_outdated) or (self.__online != 1 and is_data_without_quota):
+        if self.__online == 1 and is_data_outdated:
+            # online and outdated - refresh quota to detect if device went offline
+
+            if self.__attrs[ATTR_STATUS_QUOTA_UPDATES] % 5 == 0:
+                # it is time to reconnect to recover data stream as device seems to be online after 5 status checks
+                self.__attrs[ATTR_STATUS_RECONNECTS] = self.__attrs[ATTR_STATUS_RECONNECTS] + 1
+                self._client.reconnect()
+
+            self.__get_latest_quotas()
+        elif self.__online != 1 and is_data_without_quota:
+            # offline but with incoming updates (refresh status)
+
             self.__get_latest_quotas()
 
     def __get_latest_quotas(self):
+        self.__attrs[ATTR_STATUS_QUOTA_UPDATES] = self.__attrs[ATTR_STATUS_QUOTA_UPDATES] + 1
+
         self.send_get_message({"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
 
     def __params_update(self, data: dict[str, Any]):
@@ -154,15 +170,14 @@ class QuotasStatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         d = data[0]
         if d["operateType"] == "latestQuotas":
             self.__online = d["data"]["online"]
-            self.__last_update = utcnow()
-            self.__attrs[ATTR_STATUS_QUOTA_LAST_UPDATE] = self.__last_update
-            self.__attrs[ATTR_STATUS_QUOTA_UPDATES] = self.__attrs[ATTR_STATUS_QUOTA_UPDATES] + 1
+            self.__last_quota_update = utcnow()
+            self.__attrs[ATTR_STATUS_QUOTA_LAST_UPDATE] = self.__last_quota_update
 
             if self.__online == 1:
                 self.__attrs[ATTR_STATUS_SN] = d["data"]["sn"]
                 self._attr_native_value = "online"
 
-                #?? self._client.data.update_data(d["data"]["quotaMap"])
+                # ?? self._client.data.update_data(d["data"]["quotaMap"])
             else:
                 self._attr_native_value = "offline"
 
