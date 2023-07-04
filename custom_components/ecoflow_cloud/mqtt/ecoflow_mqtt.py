@@ -14,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, DOMAIN
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import utcnow
+from homeassistant.util.dt import UTC
 from reactivex import Subject, Observable
 
 from .utils import BoundFifoList
@@ -107,7 +108,8 @@ class EcoflowDataHolder:
 
         self.raw_data = BoundFifoList[dict[str, Any]]()
 
-        self.__params_broadcast_time: datetime = utcnow()
+        self.__params_time = utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self.__params_broadcast_time = utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
         self.__params_observable = Subject[dict[str, Any]]()
 
         self.__set_reply_observable = Subject[list[dict[str, Any]]]()
@@ -142,6 +144,7 @@ class EcoflowDataHolder:
 
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
+        self.__params_time = datetime.fromtimestamp(raw['timestamp'], UTC)
         self.params['timestamp'] = raw['timestamp']
         self.params.update(raw['params'])
 
@@ -156,8 +159,9 @@ class EcoflowDataHolder:
         if self.__collect_raw:
             self.raw_data.append(raw)
 
-    def last_params_broadcast_time(self) -> datetime:
-        return self.__params_broadcast_time
+    def params_time(self) -> datetime:
+        return self.__params_time
+
 
 class EcoflowMQTTClient:
 

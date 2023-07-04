@@ -5,7 +5,8 @@ from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevel
     MaxGenStopLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InWattsSolarSensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InWattsSolarSensorEntity, \
+    StatusSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -56,7 +57,8 @@ class DeltaPro(BaseDevice):
             LevelSensorEntity(client, "bmsSlave2.soc", const.SLAVE_2_BATTERY_LEVEL, False, True),
             TempSensorEntity(client, "bmsSlave2.temp", const.SLAVE_2_BATTERY_TEMP, False, True),
             WattsSensorEntity(client, "bmsSlave2.inputWatts", const.SLAVE_2_IN_POWER, False, True),
-            WattsSensorEntity(client, "bmsSlave2.outputWatts", const.SLAVE_2_OUT_POWER, False, True)
+            WattsSensorEntity(client, "bmsSlave2.outputWatts", const.SLAVE_2_OUT_POWER, False, True),
+            StatusSensorEntity(client),
         ]
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:

@@ -20,10 +20,11 @@ _PLATFORMS = {
 }
 
 ATTR_STATUS_SN = "SN"
-ATTR_STATUS_QUOTA_UPDATES = "quota_request_count"
-ATTR_STATUS_QUOTA_LAST_UPDATE = "quota_last_update"
+ATTR_STATUS_UPDATES = "status_request_count"
+ATTR_STATUS_LAST_UPDATE = "status_last_update"
 ATTR_STATUS_DATA_LAST_UPDATE = "data_last_update"
 ATTR_STATUS_RECONNECTS = "reconnects"
+ATTR_STATUS_PHASE = "status_phase"
 
 
 async def async_migrate_entry(hass, config_entry: ConfigEntry):
