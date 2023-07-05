@@ -5,7 +5,7 @@ from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevel
     MaxGenStopLevelEntity, MinGenStartLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity
+    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -61,6 +61,7 @@ class Delta2Max(BaseDevice):
             # CyclesSensorEntity(client, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
             # InWattsSensorEntity(client, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),
             # OutWattsSensorEntity(client, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True)
+            StatusSensorEntity(client),
 
         ]
 

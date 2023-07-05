@@ -1,5 +1,10 @@
 from abc import ABC, abstractmethod
 
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
+
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..entities import BaseNumberEntity, BaseSelectEntity
 from ..entities import BaseSensorEntity
@@ -12,32 +17,32 @@ class BaseDevice(ABC):
         return 100
 
     @abstractmethod
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowMQTTClient) -> list[SensorEntity]:
         pass
 
     @abstractmethod
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowMQTTClient) -> list[NumberEntity]:
         pass
 
     @abstractmethod
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowMQTTClient) -> list[SwitchEntity]:
         pass
 
     @abstractmethod
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowMQTTClient) -> list[SelectEntity]:
         pass
 
 
 class DiagnosticDevice(BaseDevice):
 
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowMQTTClient) -> list[SensorEntity]:
         return []
 
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowMQTTClient) -> list[NumberEntity]:
         return []
 
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowMQTTClient) -> list[SwitchEntity]:
         return []
 
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowMQTTClient) -> list[SelectEntity]:
         return []

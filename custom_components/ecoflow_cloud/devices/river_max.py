@@ -4,7 +4,7 @@ from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 
@@ -47,7 +47,8 @@ class RiverMax(BaseDevice):
             VoltSensorEntity(client, "bmsSlave1.minCellVol", const.MIN_CELL_VOLT, False),
             VoltSensorEntity(client, "bmsSlave1.maxCellVol", const.MAX_CELL_VOLT, False),
 
-            CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True)
+            CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True),
+            StatusSensorEntity(client),
         ]
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:

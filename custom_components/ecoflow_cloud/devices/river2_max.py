@@ -5,7 +5,7 @@ from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevel
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InAmpSensorEntity, \
-    InVoltSensorEntity
+    InVoltSensorEntity, QuotasStatusSensorEntity
 from ..switch import EnabledEntity
 
 
@@ -48,6 +48,8 @@ class River2Max(BaseDevice):
             VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
             VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
             VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
+
+            QuotasStatusSensorEntity(client),
             # FanSensorEntity(client, "bms_emsStatus.fanLevel", "Fan Level"),
 
         ]
