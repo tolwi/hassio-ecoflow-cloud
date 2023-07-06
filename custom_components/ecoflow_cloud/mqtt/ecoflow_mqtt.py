@@ -144,7 +144,8 @@ class EcoflowDataHolder:
 
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
-        self.__params_time = datetime.fromtimestamp(raw['timestamp'], UTC)
+        # self.__params_time = datetime.fromtimestamp(raw['timestamp'], UTC)
+        self.__params_time = utcnow()
         self.params['timestamp'] = raw['timestamp']
         self.params.update(raw['params'])
 

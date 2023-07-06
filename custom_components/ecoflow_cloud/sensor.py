@@ -155,7 +155,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
                 self._client.reconnect()
 
     def __params_update(self, data: dict[str, Any]):
-        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = datetime.fromtimestamp(data['timestamp'], UTC)
+        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._client.data.params_time()
         if self._online == 0:
             self._update_status(0)
 
