@@ -20,8 +20,7 @@ from reactivex import Subject, Observable
 from .utils import BoundFifoList
 from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC, EcoflowModel
 
-import proto.ecopacket_pb2 as ecopacket
-import proto.powerstream_pb2 as powerstream
+from .proto import powerstream_pb2 as powerstream, ecopacket_pb2 as ecopacket
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -197,7 +196,7 @@ class EcoflowMQTTClient:
         self.client.tls_insecure_set(False)
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
-        if self.device_type == EcoflowModel.POWERSTREAM:
+        if self.device_type == EcoflowModel.POWERSTREAM.name:
             self.client.on_message = self.on_bytes_message
         else:
             self.client.on_message = self.on_json_message
@@ -261,21 +260,30 @@ class EcoflowMQTTClient:
             _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
 
     def on_bytes_message(self, client, userdata, message):
-        packet = ecopacket.ecopacket.SendHeaderMsg()
-        packet.ParseFromString(message)
+        try:
+            packet = ecopacket.SendHeaderMsg()
+            packet.ParseFromString(message.payload)
 
-        if packet.msg.cmd_id != 1:
-            _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
-            return
+            if packet.msg.cmd_id != 1:
+                _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
+                return
 
-        if message.topic != self._data_topic:
-            _LOGGER.info("PowerStream not listening to %s MQTT topic", message.topic)
-            return
+            if message.topic != self._data_topic:
+                _LOGGER.info("PowerStream not listening to %s MQTT topic", message.topic)
+                return
 
-        heartbeat = powerstream.InverterHeartbeat()
-        heartbeat.ParseFromString(packet.msg.pdata)
+            heartbeat = powerstream.InverterHeartbeat()
+            heartbeat.ParseFromString(packet.msg.pdata)
 
-        self.data.update_data(heartbeat)
+            raw = {"params": {}}
+
+            for descriptor in heartbeat.DESCRIPTOR.fields:
+                raw["params"][descriptor.name] = getattr(heartbeat, descriptor.name)
+
+            self.data.update_data(raw)
+        except Exception as error:
+            _LOGGER.error(error)
+            _LOGGER.debug(message.payload)
 
     message_id = 999900000 + random.randint(10000, 99999)
 
