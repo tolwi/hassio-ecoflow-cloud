@@ -10,43 +10,43 @@ from ..sensor import LevelSensorEntity, AmpSensorEntity, TempSensorEntity, \
 class PowerStream(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            SolarWattsSensorEntity(client, "pv1InputWatts", "Solar 1 Watts"),
-            VoltSensorEntity(client, "pv1InputVolt", "Solar 1 Input Volts", False),
-            VoltSensorEntity(client, "pv1OpVolt", "Solar 1 Op Volts", False),
-            AmpSensorEntity(client, "pv1InputCur", "Solar 1 Amps", False),
-            TempSensorEntity(client, "pv1Temp", "Solar 1 Tempurature"),
+            SolarWattsSensorEntity(client, "pv1_input_watts", "Solar 1 Watts"),
+            VoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Volts", False),
+            VoltSensorEntity(client, "pv1_op_volt", "Solar 1 Op Volts", False),
+            AmpSensorEntity(client, "pv1_input_cur", "Solar 1 Amps", False),
+            TempSensorEntity(client, "pv1_temp", "Solar 1 Tempurature"),
             # pv1RelayStatus
 
-            SolarWattsSensorEntity(client, "pv2InputWatts", "Solar 2 Watts"),
-            VoltSensorEntity(client, "pv2OnputVolt", "Solar 2 Input Volts", False),
-            VoltSensorEntity(client, "pv2OpVolt", "Solar 2 Op Volts", False),
-            AmpSensorEntity(client, "pv2InputCur", "Solar 2 Current", False),
-            TempSensorEntity(client, "pv2Temp", "Solar 2 Tempurature"),
+            SolarWattsSensorEntity(client, "pv2_input_watts", "Solar 2 Watts"),
+            VoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Volts", False),
+            VoltSensorEntity(client, "pv2_op_volt", "Solar 2 Op Volts", False),
+            AmpSensorEntity(client, "pv2_input_cur", "Solar 2 Current", False),
+            TempSensorEntity(client, "pv2_temp", "Solar 2 Tempurature"),
             # pv2RelayStatus
 
-            LevelSensorEntity(client, "batSoc", "Battery Charge"),
-            InWattsSensorEntity(client, "batInputWatts", "Battery Input Watts"),
-            VoltSensorEntity(client, "batInputVolt", "Battery Input Volts", False),
-            VoltSensorEntity(client, "batOpVolt", "Battery Op Volts", False),
-            AmpSensorEntity(client, "batInputCur", "Battery Input Current", False),
-            TempSensorEntity(client, "batTemp", "Battery Tempurature"),
+            LevelSensorEntity(client, "bat_soc", "Battery Charge"),
+            InWattsSensorEntity(client, "bat_input_watts", "Battery Input Watts"),
+            VoltSensorEntity(client, "bat_input_volt", "Battery Input Volts", False),
+            VoltSensorEntity(client, "bat_op_volt", "Battery Op Volts", False),
+            AmpSensorEntity(client, "bat_input_cur", "Battery Input Current", False),
+            TempSensorEntity(client, "bat_temp", "Battery Tempurature"),
 
-            VoltSensorEntity(client, "llcInputVolt", "AC Input Volts", False),
-            VoltSensorEntity(client, "llcOpVolt", "AC Op Volts", False),
+            VoltSensorEntity(client, "llc_input_volt", "AC Input Volts", False),
+            VoltSensorEntity(client, "llc_op_volt", "AC Op Volts", False),
 
             # invOnOff
-            OutWattsSensorEntity(client, "invOutputWatts", "Inverter Output Watts"),
-            VoltSensorEntity(client, "invInputVolt", "Inverter Output Volts", False),
-            VoltSensorEntity(client, "invOpVolt", "Inverter Op Volts", False),
-            AmpSensorEntity(client, "invOutputCur", "Inverter Output Current", False),
-            AmpSensorEntity(client, "invDcCur", "Inverter DC Current", False),
-            FrequencySensorEntity(client, "invFreq", "Inverter DC Current", False),
-            TempSensorEntity(client, "invTemp", "Inverter Tempurature"),
+            OutWattsSensorEntity(client, "inv_output_watts", "Inverter Output Watts"),
+            VoltSensorEntity(client, "inv_input_volt", "Inverter Output Volts", False),
+            VoltSensorEntity(client, "inv_op_volt", "Inverter Op Volts", False),
+            AmpSensorEntity(client, "inv_output_cur", "Inverter Output Current", False),
+            AmpSensorEntity(client, "inv_dc_cur", "Inverter DC Current", False),
+            FrequencySensorEntity(client, "inv_freq", "Inverter DC Current", False),
+            TempSensorEntity(client, "inv_temp", "Inverter Tempurature"),
             # invRelayStatus
 
-            WattsSensorEntity(client, "permanentWatts", "Other Loads"),
-            WattsSensorEntity(client, "dynamicWatts", "Smart Plug Loads"),
-            WattsSensorEntity(client, "ratedPower", "Rated Power"),
+            WattsSensorEntity(client, "permanent_watts", "Other Loads"),
+            WattsSensorEntity(client, "dynamic_watts", "Smart Plug Loads"),
+            WattsSensorEntity(client, "rated_power", "Rated Power"),
 
             # Unsure what this will be, assuming it will be an identifier for River/Delta devices
             # xxx(client, "bpType", "Battery Power Type"),
