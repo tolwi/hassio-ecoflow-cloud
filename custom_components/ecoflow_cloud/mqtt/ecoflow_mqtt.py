@@ -20,9 +20,8 @@ from reactivex import Subject, Observable
 from .utils import BoundFifoList
 from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC, EcoflowModel
 
-import protobuf.ecopacket_pb2 as ecopacket
-import protobuf.powerstream_pb2 as powerstream
-import protobuf.platform_comm_pb2 as platform
+import proto.ecopacket_pb2 as ecopacket
+import proto.powerstream_pb2 as powerstream
 
 _LOGGER = logging.getLogger(__name__)
 
