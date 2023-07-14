@@ -119,8 +119,16 @@ class InEnergySensorEntity(EnergySensorEntity):
 class OutEnergySensorEntity(EnergySensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
 
-class SolarWattsSensorEntity(WattsSensorEntity):
+class SolarDeciwattsSensorEntity(BaseSensorEntity):
     _attr_icon = "mdi:mdi:solar-power"
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
+
 
 
 class FrequencySensorEntity(BaseSensorEntity):
