@@ -1,10 +1,9 @@
 from . import BaseDevice
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
-from ..sensor import LevelSensorEntity, AmpSensorEntity, TempSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, \
-    WattsSensorEntity, FrequencySensorEntity, InWattsSolarSensorEntity, \
-    RemainSensorEntity
+from ..sensor import LevelSensorEntity, FrequencySensorEntity, \
+    InWattsSolarSensorEntity, RemainSensorEntity, InVoltSensorEntity, \
+    DeciwattsSensorEntity, TempSensorEntity, AmpSensorEntity, VoltSensorEntity
 # from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
 # from ..select import DictSelectEntity
 
@@ -12,33 +11,33 @@ class PowerStream(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             InWattsSolarSensorEntity(client, "pv1_input_watts", "Solar 1 Watts"),
-            VoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Volts"),
+            InVoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Volts"),
             VoltSensorEntity(client, "pv1_op_volt", "Solar 1 Op Volts"),
             AmpSensorEntity(client, "pv1_input_cur", "Solar 1 Amps"),
             TempSensorEntity(client, "pv1_temp", "Solar 1 Tempurature"),
             # pv1RelayStatus
 
             InWattsSolarSensorEntity(client, "pv2_input_watts", "Solar 2 Watts"),
-            VoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Volts"),
+            InVoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Volts"),
             VoltSensorEntity(client, "pv2_op_volt", "Solar 2 Op Volts"),
             AmpSensorEntity(client, "pv2_input_cur", "Solar 2 Current"),
             TempSensorEntity(client, "pv2_temp", "Solar 2 Tempurature"),
             # pv2RelayStatus
 
             LevelSensorEntity(client, "bat_soc", "Battery Charge"),
-            InWattsSensorEntity(client, "bat_input_watts", "Battery Input Watts"),
-            VoltSensorEntity(client, "bat_input_volt", "Battery Input Volts"),
-            VoltSensorEntity(client, "bat_op_volt", "Battery Op Volts"),
+            DeciwattsSensorEntity(client, "bat_input_watts", "Battery Input Watts"),
+            InVoltSensorEntity(client, "bat_input_volt", "Battery Input Volts"),
+            InVoltSensorEntity(client, "bat_op_volt", "Battery Op Volts"),
             AmpSensorEntity(client, "bat_input_cur", "Battery Input Current"),
             TempSensorEntity(client, "bat_temp", "Battery Tempurature"),
             RemainSensorEntity(client, "battery_remain", "Battery Remains"),
 
-            VoltSensorEntity(client, "llc_input_volt", "AC Input Volts"),
+            InVoltSensorEntity(client, "llc_input_volt", "AC Input Volts"),
             VoltSensorEntity(client, "llc_op_volt", "AC Op Volts"),
 
             # invOnOff
-            OutWattsSensorEntity(client, "inv_output_watts", "Inverter Output Watts"),
-            VoltSensorEntity(client, "inv_input_volt", "Inverter Output Volts"),
+            DeciwattsSensorEntity(client, "inv_output_watts", "Inverter Output Watts"),
+            InVoltSensorEntity(client, "inv_input_volt", "Inverter Output Volts"),
             VoltSensorEntity(client, "inv_op_volt", "Inverter Op Volts"),
             AmpSensorEntity(client, "inv_output_cur", "Inverter Output Current"),
             AmpSensorEntity(client, "inv_dc_cur", "Inverter DC Current"),
@@ -46,9 +45,9 @@ class PowerStream(BaseDevice):
             TempSensorEntity(client, "inv_temp", "Inverter Tempurature"),
             # invRelayStatus
 
-            WattsSensorEntity(client, "permanent_watts", "Other Loads"),
-            WattsSensorEntity(client, "dynamic_watts", "Smart Plug Loads"),
-            WattsSensorEntity(client, "rated_power", "Rated Power"),
+            DeciwattsSensorEntity(client, "permanent_watts", "Other Loads"),
+            DeciwattsSensorEntity(client, "dynamic_watts", "Smart Plug Loads"),
+            DeciwattsSensorEntity(client, "rated_power", "Rated Power"),
 
             # Unsure what this will be, assuming it will be an identifier for River/Delta devices
             # xxx(client, "bpType", "Battery Power Type"),
