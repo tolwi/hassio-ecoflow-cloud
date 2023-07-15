@@ -202,7 +202,7 @@ class EcoflowMQTTClient:
             self.client.on_message = self.on_json_message
 
         _LOGGER.info(f"Connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}")
-        self.client.connect(self.auth.mqtt_url, self.auth.mqtt_port)
+        self.client.connect(self.auth.mqtt_url, self.auth.mqtt_port, 30)
         self.client.loop_start()
 
     def reconnect(self):
@@ -261,6 +261,8 @@ class EcoflowMQTTClient:
 
     def on_bytes_message(self, client, userdata, message):
         try:
+            _LOGGER.debug(message.payload.hex())
+
             packet = ecopacket.SendHeaderMsg()
             packet.ParseFromString(message.payload)
 
@@ -278,12 +280,14 @@ class EcoflowMQTTClient:
             raw = {"params": {}}
 
             for descriptor in heartbeat.DESCRIPTOR.fields:
+                if not heartbeat.HasField(descriptor.name):
+                    continue
+
                 raw["params"][descriptor.name] = getattr(heartbeat, descriptor.name)
 
             self.data.update_data(raw)
         except Exception as error:
             _LOGGER.error(error)
-            _LOGGER.debug(message.payload)
 
     message_id = 999900000 + random.randint(10000, 99999)
 
