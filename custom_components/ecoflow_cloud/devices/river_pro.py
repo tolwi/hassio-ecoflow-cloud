@@ -43,10 +43,10 @@ class RiverPro(BaseDevice):
             CyclesSensorEntity(client, "bmsMaster.cycles", const.CYCLES),
 
 
-            # Secondary battery
-            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL),
-            CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES),
-            TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_BATTERY_TEMP),
+            # Optional Slave Batteries
+            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL, False, True),
+            CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True),
+            TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_BATTERY_TEMP, False, True),
             VoltSensorEntity(client, "bmsSlave1.vol", const.SLAVE_BATTERY_VOLT, False),
             AmpSensorEntity(client, "bmsSlave1.amp", const.SLAVE_BATTERY_AMP, False),
             VoltSensorEntity(client, "bmsSlave1.minCellVol", const.SLAVE_MIN_CELL_VOLT, False),
