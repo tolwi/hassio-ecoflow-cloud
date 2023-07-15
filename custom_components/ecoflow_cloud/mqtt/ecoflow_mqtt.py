@@ -285,6 +285,8 @@ class EcoflowMQTTClient:
 
                 raw["params"][descriptor.name] = getattr(heartbeat, descriptor.name)
 
+            raw["timestamp"] = utcnow()
+
             self.data.update_data(raw)
         except Exception as error:
             _LOGGER.error(error)
