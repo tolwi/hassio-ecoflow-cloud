@@ -69,7 +69,9 @@ class DeltaPro(BaseDevice):
             MinBatteryLevelEntity(client, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
                                   lambda value: {"moduleType": 0, "operateType": "TCP",
                                                  "params": {"id": 51, "minDsgSoc": value}}),
-
+            MaxBatteryLevelEntity(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 10, 85,
+                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                 "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0, "maxChgSoc": 0, "id": 94}}),
             MinGenStartLevelEntity(client, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
                                    lambda value: {"moduleType": 0, "operateType": "TCP",
                                                   "params": {"openOilSoc": value, "id": 52}}),
@@ -99,7 +101,9 @@ class DeltaPro(BaseDevice):
                           lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": value}}),
 
             EnabledEntity(client, "inv.acPassByAutoEn", const.AC_ALWAYS_ENABLED,
-                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 84, "enabled": value}})
+                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 84, "enabled": value}}),
+            EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
+                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"isConfig": value}}),
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:

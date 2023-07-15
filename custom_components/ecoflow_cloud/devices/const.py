@@ -129,6 +129,7 @@ SLAVE_MAX_CELL_VOLT = "Slave Max Cell Volts"
 
 MAX_CHARGE_LEVEL = "Max Charge Level"
 MIN_DISCHARGE_LEVEL = "Min Discharge Level"
+BACKUP_RESERVE_LEVEL = "Backup Reserve Level"
 AC_CHARGING_POWER = "AC Charging Power"
 SCREEN_TIMEOUT = "Screen Timeout"
 UNIT_TIMEOUT = "Unit Timeout"
@@ -145,6 +146,7 @@ DC_ENABLED = "DC (12V) Enabled"
 XBOOST_ENABLED = "X-Boost Enabled"
 AC_ALWAYS_ENABLED = "AC Always On"
 PV_PRIO = "Prio Solar Charging"
+BP_ENABLED = "Backup Reserve Enabled"
 
 DC_MODE = "DC Mode"
 

@@ -76,6 +76,10 @@ class Delta2(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
+            MaxBatteryLevelEntity(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 10, 85,
+                                  lambda value: {"moduleType": 1, "operateType": "watthConfig",
+                                                 "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0, "minChgSoc": 0}}),
+
             MinGenStartLevelEntity(client, "bms_emsStatus.minOpenOilEb", const.GEN_AUTO_START_LEVEL, 0, 30,
                                    lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
                                                   "params": {"closeOilSoc": value}}),
@@ -117,6 +121,8 @@ class Delta2(BaseDevice):
             EnabledEntity(client, "pd.carState", const.DC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}}),
 
+            EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
+                          lambda value: {"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": value}}),
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
