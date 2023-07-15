@@ -261,10 +261,10 @@ class EcoflowMQTTClient:
 
     def on_bytes_message(self, client, userdata, message):
         try:
-            _LOGGER.debug(message.payload.hex())
-
             packet = ecopacket.SendHeaderMsg()
             packet.ParseFromString(message.payload)
+
+            _LOGGER.debug("cmd id %u payload \"%s\"", packet.msg.cmd_id, message.payload.hex())
 
             if packet.msg.cmd_id != 1:
                 _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)

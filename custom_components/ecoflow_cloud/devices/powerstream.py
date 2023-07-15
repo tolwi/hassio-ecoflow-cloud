@@ -3,7 +3,7 @@ from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
 from ..sensor import LevelSensorEntity, AmpSensorEntity, TempSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, \
-    WattsSensorEntity, FrequencySensorEntity, SolarDeciwattsSensorEntity, \
+    WattsSensorEntity, FrequencySensorEntity, InWattsSolarSensorEntity, \
     RemainSensorEntity
 # from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
 # from ..select import DictSelectEntity
@@ -11,14 +11,14 @@ from ..sensor import LevelSensorEntity, AmpSensorEntity, TempSensorEntity, \
 class PowerStream(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            SolarDeciwattsSensorEntity(client, "pv1_input_watts", "Solar 1 Watts"),
+            InWattsSolarSensorEntity(client, "pv1_input_watts", "Solar 1 Watts"),
             VoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Volts"),
             VoltSensorEntity(client, "pv1_op_volt", "Solar 1 Op Volts"),
             AmpSensorEntity(client, "pv1_input_cur", "Solar 1 Amps"),
             TempSensorEntity(client, "pv1_temp", "Solar 1 Tempurature"),
             # pv1RelayStatus
 
-            SolarDeciwattsSensorEntity(client, "pv2_input_watts", "Solar 2 Watts"),
+            InWattsSolarSensorEntity(client, "pv2_input_watts", "Solar 2 Watts"),
             VoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Volts"),
             VoltSensorEntity(client, "pv2_op_volt", "Solar 2 Op Volts"),
             AmpSensorEntity(client, "pv2_input_cur", "Solar 2 Current"),
