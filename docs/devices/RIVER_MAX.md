@@ -27,6 +27,7 @@
 - Min Cell Volts (`bmsSlave1.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bmsSlave1.maxCellVol`)   _(disabled)_
 - Slave Cycles (`bmsSlave1.cycles`)   _(auto)_
+- Status
 
 *Switches*
 - Beeper (`pd.beepState` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": "VALUE"}}`)
@@ -35,7 +36,7 @@
 - X-Boost Enabled (`inv.cfgAcXboost` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": "VALUE"}}`)
 
 *Sliders (numbers)*
-- Max Charge Level (`bmsMaster.maxChargeSoc` -> `_ command not available _` [50 - 100])
+- Max Charge Level (`bmsMaster.maxChargeSoc` -> `_ command not available _` [30 - 100])
 
 *Selects*
 - Unit Timeout (`pd.standByMode` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 33, "standByMode": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])

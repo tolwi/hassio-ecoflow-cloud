@@ -15,7 +15,21 @@
 - USB (3) Out Power (`pd.usb3Watts`)
 - Remaining Time (`pd.remainTime`)
 - Battery Temperature (`bmsMaster.temp`)
+- Min Cell Temperature (`bmsMaster.minCellTemp`)   _(disabled)_
+- Max Cell Temperature (`bmsMaster.maxCellTemp`)   _(disabled)_
+- Battery Volts (`bmsMaster.vol`)   _(disabled)_
+- Battery Current (`bmsMaster.amp`)   _(disabled)_
+- Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
+- Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
 - Cycles (`bmsMaster.cycles`)
+- Slave Battery Level (`bmsSlave1.soc`)   _(auto)_
+- Slave Cycles (`bmsSlave1.cycles`)   _(auto)_
+- Slave Battery Temperature (`bmsSlave1.temp`)   _(auto)_
+- Slave Battery Volts (`bmsSlave1.vol`)   _(disabled)_
+- Slave Battery Current (`bmsSlave1.amp`)   _(disabled)_
+- Slave Min Cell Volts (`bmsSlave1.minCellVol`)   _(disabled)_
+- Slave Max Cell Volts (`bmsSlave1.maxCellVol`)   _(disabled)_
+- Status
 
 *Switches*
 - Beeper (`pd.beepState` -> `_ command not available _`)

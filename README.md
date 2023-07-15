@@ -13,7 +13,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
 
 ## Current state
-<details><summary> DELTA_2 <i>(sensors: 34, switches: 7, sliders: 5, selects: 5)</i> </summary>
+<details><summary> DELTA_2 <i>(sensors: 35, switches: 8, sliders: 6, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -51,6 +51,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave Cycles  _(auto)_
 - Slave In Power  _(auto)_
 - Slave Out Power  _(auto)_
+- Status
 
 *Switches*
 - Beeper 
@@ -60,10 +61,12 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC Enabled 
 - X-Boost Enabled 
 - DC (12V) Enabled 
+- Backup Reserve Enabled 
 
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
+- Backup Reserve Level 
 - Generator Auto Start Level 
 - Generator Auto Stop Level 
 - AC Charging Power 
@@ -77,7 +80,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 20, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 21, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -101,6 +104,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Status
 
 *Switches*
 - AC Enabled 
@@ -121,7 +125,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2_MAX <i>(sensors: 23, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_MAX <i>(sensors: 24, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -148,6 +152,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Status
 
 *Switches*
 - AC Enabled 
@@ -168,7 +173,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2_PRO <i>(sensors: 21, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_PRO <i>(sensors: 22, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -193,6 +198,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Status
 
 *Switches*
 - AC Enabled 
@@ -213,7 +219,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_PRO <i>(sensors: 32, switches: 5, sliders: 5, selects: 4)</i> </summary>
+<details><summary> DELTA_PRO <i>(sensors: 38, switches: 6, sliders: 6, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -241,6 +247,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Solar In Energy
+- Battery Charge Energy from AC
+- Battery Charge Energy from DC
+- Battery Discharge Energy to AC
+- Battery Discharge Energy to DC
 - Slave 1 Battery Level  _(auto)_
 - Slave 1 Battery Temperature  _(auto)_
 - Slave 1 In Power  _(auto)_
@@ -249,6 +260,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave 2 Battery Temperature  _(auto)_
 - Slave 2 In Power  _(auto)_
 - Slave 2 Out Power  _(auto)_
+- Status
 
 *Switches*
 - Beeper 
@@ -256,10 +268,12 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC Enabled 
 - X-Boost Enabled 
 - AC Always On 
+- Backup Reserve Enabled 
 
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
+- Backup Reserve Level 
 - Generator Auto Start Level 
 - Generator Auto Stop Level 
 - AC Charging Power 
@@ -272,7 +286,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_MAX <i>(sensors: 26, switches: 4, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_MAX <i>(sensors: 27, switches: 4, sliders: 1, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
@@ -302,6 +316,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
 - Slave Cycles  _(auto)_
+- Status
 
 *Switches*
 - Beeper 
@@ -318,7 +333,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_PRO <i>(sensors: 15, switches: 3, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_PRO <i>(sensors: 29, switches: 3, sliders: 1, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
@@ -336,7 +351,21 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - USB (3) Out Power
 - Remaining Time
 - Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Battery Current  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
 - Cycles
+- Slave Battery Level  _(auto)_
+- Slave Cycles  _(auto)_
+- Slave Battery Temperature  _(auto)_
+- Slave Battery Volts  _(disabled)_
+- Slave Battery Current  _(disabled)_
+- Slave Min Cell Volts  _(disabled)_
+- Slave Max Cell Volts  _(disabled)_
+- Status
 
 *Switches*
 - Beeper  _(read-only)_
@@ -352,7 +381,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_MAX <i>(sensors: 24, switches: 7, sliders: 5, selects: 0)</i> </summary>
+<details><summary> DELTA_MAX <i>(sensors: 25, switches: 7, sliders: 5, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
@@ -380,6 +409,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Status
 
 *Switches*
 - Beeper 
@@ -401,7 +431,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 24, switches: 5, sliders: 5, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 25, switches: 5, sliders: 5, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -429,6 +459,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Status
 
 *Switches*
 - Beeper 
