@@ -290,6 +290,7 @@ class EcoflowMQTTClient:
             self.data.update_data(raw)
         except Exception as error:
             _LOGGER.error(error)
+            _LOGGER.info(message.payload.hex())
 
     message_id = 999900000 + random.randint(10000, 99999)
 

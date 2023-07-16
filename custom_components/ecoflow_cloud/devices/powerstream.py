@@ -3,7 +3,7 @@ from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
 from ..sensor import LevelSensorEntity, DecihertzSensorEntity, \
     InWattsSolarSensorEntity, RemainSensorEntity, InVoltSensorEntity, \
-    DeciwattsSensorEntity, DecicelsiusSensorEntity, AmpSensorEntity, VoltSensorEntity
+    DeciwattsSensorEntity, DecicelsiusSensorEntity, AmpSensorEntity, VoltSensorEntity, DecivoltSensorEntity
 # from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
 # from ..select import DictSelectEntity
 
@@ -26,8 +26,8 @@ class PowerStream(BaseDevice):
 
             LevelSensorEntity(client, "bat_soc", "Battery Charge"),
             DeciwattsSensorEntity(client, "bat_input_watts", "Battery Input Watts"),
-            InVoltSensorEntity(client, "bat_input_volt", "Battery Input Volts"),
-            InVoltSensorEntity(client, "bat_op_volt", "Battery Op Volts"),
+            DecivoltSensorEntity(client, "bat_input_volt", "Battery Input Volts"),
+            DecivoltSensorEntity(client, "bat_op_volt", "Battery Op Volts"),
             AmpSensorEntity(client, "bat_input_cur", "Battery Input Current"),
             DecicelsiusSensorEntity(client, "bat_temp", "Battery Tempurature"),
             RemainSensorEntity(client, "battery_remain", "Battery Remains"),
