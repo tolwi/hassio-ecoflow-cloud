@@ -23,7 +23,7 @@ class PowerStream(BaseDevice):
             MiscSensorEntity(client, "pv1_relay_status", "Solar 1 Relay Status"),
             MiscSensorEntity(client, "pv1_error_code", "Solar 1 Error Code", False),
             MiscSensorEntity(client, "pv1_warning_code", "Solar 1 Warning Code", False),
-            MiscSensorEntity(client, "pv1_status", "Solar 1 tatus", False),
+            MiscSensorEntity(client, "pv1_status", "Solar 1 Status", False),
 
             InWattsSolarSensorEntity(client, "pv2_input_watts", "Solar 2 Watts"),
             DecivoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Potential"),
