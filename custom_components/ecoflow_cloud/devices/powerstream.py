@@ -1,7 +1,7 @@
 from . import BaseDevice
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
-from ..sensor import LevelSensorEntity, FrequencySensorEntity, \
+from ..sensor import LevelSensorEntity, DecihertzSensorEntity, \
     InWattsSolarSensorEntity, RemainSensorEntity, InVoltSensorEntity, \
     DeciwattsSensorEntity, DecicelsiusSensorEntity, AmpSensorEntity, VoltSensorEntity
 # from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
@@ -41,7 +41,7 @@ class PowerStream(BaseDevice):
             VoltSensorEntity(client, "inv_op_volt", "Inverter Op Volts"),
             AmpSensorEntity(client, "inv_output_cur", "Inverter Output Current"),
             AmpSensorEntity(client, "inv_dc_cur", "Inverter DC Current"),
-            FrequencySensorEntity(client, "inv_freq", "Inverter Frequency"),
+            DecihertzSensorEntity(client, "inv_freq", "Inverter Frequency"),
             DecicelsiusSensorEntity(client, "inv_temp", "Inverter Tempurature"),
             # invRelayStatus
 
