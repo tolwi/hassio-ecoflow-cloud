@@ -30,7 +30,8 @@ class PowerStream(BaseDevice):
             DecivoltSensorEntity(client, "bat_op_volt", "Battery Op Volts"),
             AmpSensorEntity(client, "bat_input_cur", "Battery Input Current"),
             DecicelsiusSensorEntity(client, "bat_temp", "Battery Tempurature"),
-            RemainSensorEntity(client, "battery_remain", "Battery Remains"),
+            RemainSensorEntity(client, "battery_charge_remain", "Charge Time"),
+            RemainSensorEntity(client, "battery_discharge_remain", "Discharge Time"),
 
             InVoltSensorEntity(client, "llc_input_volt", "AC Input Volts"),
             VoltSensorEntity(client, "llc_op_volt", "AC Op Volts"),
