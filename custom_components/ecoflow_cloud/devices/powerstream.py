@@ -1,9 +1,14 @@
 from . import BaseDevice
 from .. import EcoflowMQTTClient
-from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
-from ..sensor import LevelSensorEntity, DecihertzSensorEntity, \
-    InWattsSolarSensorEntity, RemainSensorEntity, InVoltSensorEntity, \
-    DeciwattsSensorEntity, DecicelsiusSensorEntity, AmpSensorEntity, VoltSensorEntity, DecivoltSensorEntity, DeciampSensorEntity, CentivoltSensorEntity
+from ..entities import (
+    BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
+)
+from ..sensor import (
+    AmpSensorEntity, CentivoltSensorEntity, DeciampSensorEntity,
+    DecicelsiusSensorEntity, DecihertzSensorEntity, DeciwattsSensorEntity,
+    DecivoltSensorEntity, InWattsSolarSensorEntity, LevelSensorEntity,
+    RemainSensorEntity,
+)
 # from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
 # from ..select import DictSelectEntity
 
@@ -33,12 +38,12 @@ class PowerStream(BaseDevice):
             RemainSensorEntity(client, "battery_charge_remain", "Charge Time"),
             RemainSensorEntity(client, "battery_discharge_remain", "Discharge Time"),
 
-            InVoltSensorEntity(client, "llc_input_volt", "AC Input Volts"),
-            VoltSensorEntity(client, "llc_op_volt", "AC Op Volts"),
+            DecivoltSensorEntity(client, "llc_input_volt", "LLC Input Volts", False),
+            DecivoltSensorEntity(client, "llc_op_volt", "LLC Op Volts", False),
 
             # invOnOff
             DeciwattsSensorEntity(client, "inv_output_watts", "Inverter Output Watts"),
-            InVoltSensorEntity(client, "inv_input_volt", "Inverter Output Volts"),
+            DecivoltSensorEntity(client, "inv_input_volt", "Inverter Output Volts", False),
             DecivoltSensorEntity(client, "inv_op_volt", "Inverter Op Volts"),
             AmpSensorEntity(client, "inv_output_cur", "Inverter Output Current"),
             AmpSensorEntity(client, "inv_dc_cur", "Inverter DC Current"),
