@@ -41,7 +41,7 @@ class PowerStream(BaseDevice):
             VoltSensorEntity(client, "inv_op_volt", "Inverter Op Volts"),
             AmpSensorEntity(client, "inv_output_cur", "Inverter Output Current"),
             AmpSensorEntity(client, "inv_dc_cur", "Inverter DC Current"),
-            FrequencySensorEntity(client, "inv_freq", "Inverter DC Current"),
+            FrequencySensorEntity(client, "inv_freq", "Inverter Frequency"),
             DecicelsiusSensorEntity(client, "inv_temp", "Inverter Tempurature"),
             # invRelayStatus
 
