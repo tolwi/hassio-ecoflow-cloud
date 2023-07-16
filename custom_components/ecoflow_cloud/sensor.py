@@ -39,6 +39,7 @@ class FanSensorEntity(BaseSensorEntity):
     _attr_icon = "mdi:fan"
 
 class MiscSensorEntity(BaseSensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_state_class = SensorStateClass.MEASUREMENT
 
 class LevelSensorEntity(BaseSensorEntity):
