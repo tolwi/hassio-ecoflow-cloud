@@ -16,35 +16,35 @@ class PowerStream(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             InWattsSolarSensorEntity(client, "pv1_input_watts", "Solar 1 Watts"),
-            DecivoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Volts"),
-            CentivoltSensorEntity(client, "pv1_op_volt", "Solar 1 Op Volts"),
-            DeciampSensorEntity(client, "pv1_input_cur", "Solar 1 Amps"),
+            DecivoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Potential"),
+            CentivoltSensorEntity(client, "pv1_op_volt", "Solar 1 Op Potential"),
+            DeciampSensorEntity(client, "pv1_input_cur", "Solar 1 Currrent"),
             DecicelsiusSensorEntity(client, "pv1_temp", "Solar 1 Tempurature"),
             # pv1RelayStatus
 
             InWattsSolarSensorEntity(client, "pv2_input_watts", "Solar 2 Watts"),
-            DecivoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Volts"),
-            CentivoltSensorEntity(client, "pv2_op_volt", "Solar 2 Op Volts"),
+            DecivoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Potential"),
+            CentivoltSensorEntity(client, "pv2_op_volt", "Solar 2 Op Potential"),
             DeciampSensorEntity(client, "pv2_input_cur", "Solar 2 Current"),
             DecicelsiusSensorEntity(client, "pv2_temp", "Solar 2 Tempurature"),
             # pv2RelayStatus
 
             LevelSensorEntity(client, "bat_soc", "Battery Charge"),
             DeciwattsSensorEntity(client, "bat_input_watts", "Battery Input Watts"),
-            DecivoltSensorEntity(client, "bat_input_volt", "Battery Input Volts"),
-            DecivoltSensorEntity(client, "bat_op_volt", "Battery Op Volts"),
+            DecivoltSensorEntity(client, "bat_input_volt", "Battery Input Potential"),
+            DecivoltSensorEntity(client, "bat_op_volt", "Battery Op Potential"),
             AmpSensorEntity(client, "bat_input_cur", "Battery Input Current"),
             DecicelsiusSensorEntity(client, "bat_temp", "Battery Tempurature"),
             RemainSensorEntity(client, "battery_charge_remain", "Charge Time"),
             RemainSensorEntity(client, "battery_discharge_remain", "Discharge Time"),
 
-            DecivoltSensorEntity(client, "llc_input_volt", "LLC Input Volts", False),
-            DecivoltSensorEntity(client, "llc_op_volt", "LLC Op Volts", False),
+            DecivoltSensorEntity(client, "llc_input_volt", "LLC Input Potential", False),
+            DecivoltSensorEntity(client, "llc_op_volt", "LLC Op Potential", False),
 
             # invOnOff
             DeciwattsSensorEntity(client, "inv_output_watts", "Inverter Output Watts"),
-            DecivoltSensorEntity(client, "inv_input_volt", "Inverter Output Volts", False),
-            DecivoltSensorEntity(client, "inv_op_volt", "Inverter Op Volts"),
+            DecivoltSensorEntity(client, "inv_input_volt", "Inverter Output Potential", False),
+            DecivoltSensorEntity(client, "inv_op_volt", "Inverter Op Potential"),
             AmpSensorEntity(client, "inv_output_cur", "Inverter Output Current"),
             AmpSensorEntity(client, "inv_dc_cur", "Inverter DC Current"),
             DecihertzSensorEntity(client, "inv_freq", "Inverter Frequency"),
