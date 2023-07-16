@@ -1,21 +1,21 @@
 syntax = "proto3";
 
 message InverterHeartbeat {
-    optional uint32 inv_err_code = 1;
-    optional uint32 inv_warn_code = 3;
-    optional uint32 pv1_err_code = 2;
-    optional uint32 pv1_warn_code = 4;
-    optional uint32 pv2_err_code = 5;
+    optional uint32 inv_error_code = 1;
+    optional uint32 inv_warning_code = 3;
+    optional uint32 pv1_error_code = 2;
+    optional uint32 pv1_warning_code = 4;
+    optional uint32 pv2_error_code = 5;
     optional uint32 pv2_warning_code = 6;
-    optional uint32 bat_err_code = 7;
+    optional uint32 bat_error_code = 7;
     optional uint32 bat_warning_code = 8;
-    optional uint32 llc_err_code = 9;
+    optional uint32 llc_error_code = 9;
     optional uint32 llc_warning_code = 10;
-    optional uint32 pv1_statue = 11;
-    optional uint32 pv2_statue = 12;
-    optional uint32 bat_statue = 13;
-    optional uint32 llc_statue = 14;
-    optional uint32 inv_statue = 15;
+    optional uint32 pv1_status = 11;
+    optional uint32 pv2_status = 12;
+    optional uint32 bat_status = 13;
+    optional uint32 llc_status = 14;
+    optional uint32 inv_status = 15;
     optional int32 pv1_input_volt = 16;
     optional int32 pv1_op_volt = 17;
     optional int32 pv1_input_cur = 18;
@@ -54,8 +54,8 @@ message InverterHeartbeat {
     optional uint32 lower_limit = 51;
     optional uint32 upper_limit = 52;
     optional uint32 inv_on_off = 53;
-    optional uint32 wireless_err_code = 54;
-    optional uint32 wireless_warn_code = 55;
+    optional uint32 wireless_error_code = 54;
+    optional uint32 wireless_warning_code = 55;
     optional uint32 inv_brightness = 56;
     optional uint32 heartbeat_frequency = 57;
     optional uint32 rated_power = 58;

@@ -491,11 +491,20 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Solar 1 Op Potential
 - Solar 1 Currrent
 - Solar 1 Tempurature
+- Solar 1 Relay Status
+- Solar 1 Error Code _(disabled)_
+- Solar 1 Warning Code _(disabled)_
+- Solar 1 tatus _(disabled)_
 - Solar 2 Watts
 - Solar 2 Input Potential
 - Solar 2 Op Potential
 - Solar 2 Current
 - Solar 2 Tempurature
+- Solar 2 Relay Status
+- Solar 2 Error Code _(disabled)_
+- Solar 2 Warning Code _(disabled)_
+- Solar 2 Status _(disabled)_
+- Battery Type _(disabled)_
 - Battery Charge
 - Battery Input Watts
 - Battery Input Potential
@@ -504,8 +513,15 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Tempurature
 - Charge Time
 - Discharge Time
+- Battery Error Code _(disabled)_
+- Battery Warning Code _(disabled)_
+- Battery Status _(disabled)_
 - LLC Input Potential _(disabled)_
 - LLC Op Potential _(disabled)_
+- LLC Error Code _(disabled)_
+- LLC Warning Code _(disabled)_
+- LLC Status _(disabled)_
+- Inverter On/Off Status
 - Inverter Output Watts
 - Inverter Output Potential _(disabled)_
 - Inverter Op Potential
@@ -513,9 +529,19 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Inverter DC Current
 - Inverter Frequency
 - Inverter Tempurature
+- Inverter Relay Status
+- Inverter Error Code _(disabled)_
+- Inverter Warning Code _(disabled)_
+- Inverter Status _(disabled)_
 - Other Loads
 - Smart Plug Loads
 - Rated Power
+- Lower Battery Limit _(disabled)_
+- Upper Battery Limit _(disabled)_
+- Wireless Error Code _(disabled)_
+- Wireless Warning Code _(disabled)_
+- LED Brightness _(disabled)_
+- Heartbeat Frequency _(disabled)_
 
 *Switches*
 None
