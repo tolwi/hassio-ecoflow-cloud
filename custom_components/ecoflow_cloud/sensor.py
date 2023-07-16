@@ -40,7 +40,6 @@ class FanSensorEntity(BaseSensorEntity):
 
 class MiscSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_state_class = SensorStateClass.MEASUREMENT
 
 class LevelSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.BATTERY
