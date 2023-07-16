@@ -3,7 +3,7 @@ from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
 from ..sensor import LevelSensorEntity, DecihertzSensorEntity, \
     InWattsSolarSensorEntity, RemainSensorEntity, InVoltSensorEntity, \
-    DeciwattsSensorEntity, DecicelsiusSensorEntity, AmpSensorEntity, VoltSensorEntity, DecivoltSensorEntity
+    DeciwattsSensorEntity, DecicelsiusSensorEntity, AmpSensorEntity, VoltSensorEntity, DecivoltSensorEntity, DeciampSensorEntity, CentivoltSensorEntity
 # from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
 # from ..select import DictSelectEntity
 
@@ -11,16 +11,16 @@ class PowerStream(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             InWattsSolarSensorEntity(client, "pv1_input_watts", "Solar 1 Watts"),
-            InVoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Volts"),
-            VoltSensorEntity(client, "pv1_op_volt", "Solar 1 Op Volts"),
-            AmpSensorEntity(client, "pv1_input_cur", "Solar 1 Amps"),
+            DecivoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Volts"),
+            CentivoltSensorEntity(client, "pv1_op_volt", "Solar 1 Op Volts"),
+            DeciampSensorEntity(client, "pv1_input_cur", "Solar 1 Amps"),
             DecicelsiusSensorEntity(client, "pv1_temp", "Solar 1 Tempurature"),
             # pv1RelayStatus
 
             InWattsSolarSensorEntity(client, "pv2_input_watts", "Solar 2 Watts"),
-            InVoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Volts"),
-            VoltSensorEntity(client, "pv2_op_volt", "Solar 2 Op Volts"),
-            AmpSensorEntity(client, "pv2_input_cur", "Solar 2 Current"),
+            DecivoltSensorEntity(client, "pv2_input_volt", "Solar 2 Input Volts"),
+            CentivoltSensorEntity(client, "pv2_op_volt", "Solar 2 Op Volts"),
+            DeciampSensorEntity(client, "pv2_input_cur", "Solar 2 Current"),
             DecicelsiusSensorEntity(client, "pv2_temp", "Solar 2 Tempurature"),
             # pv2RelayStatus
 
@@ -38,7 +38,7 @@ class PowerStream(BaseDevice):
             # invOnOff
             DeciwattsSensorEntity(client, "inv_output_watts", "Inverter Output Watts"),
             InVoltSensorEntity(client, "inv_input_volt", "Inverter Output Volts"),
-            VoltSensorEntity(client, "inv_op_volt", "Inverter Op Volts"),
+            DecivoltSensorEntity(client, "inv_op_volt", "Inverter Op Volts"),
             AmpSensorEntity(client, "inv_output_cur", "Inverter Output Current"),
             AmpSensorEntity(client, "inv_dc_cur", "Inverter DC Current"),
             DecihertzSensorEntity(client, "inv_freq", "Inverter Frequency"),
