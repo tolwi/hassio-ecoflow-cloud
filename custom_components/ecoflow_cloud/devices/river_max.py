@@ -15,7 +15,7 @@ class RiverMax(BaseDevice):
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
-            InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
+            InWattsSensorEntity(client, "inv.inputWatts", const.SOLAR_IN_POWER),
 
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
