@@ -5,8 +5,10 @@ from typing import Any, Mapping, OrderedDict
 
 from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass, SensorEntity)
 from homeassistant.config_entries import ConfigEntry
+
 from homeassistant.const import (PERCENTAGE,
                                  UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency, UnitOfPower, UnitOfTemperature, UnitOfTime)
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -133,7 +135,6 @@ class DeciwattsSensorEntity(WattsSensorEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) / 10)
 
-
 class InWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
@@ -156,6 +157,11 @@ class InVoltSensorEntity(VoltSensorEntity):
 class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
+class InEnergySensorEntity(EnergySensorEntity):
+    _attr_icon = "mdi:transmission-tower-import"
+
+class OutEnergySensorEntity(EnergySensorEntity):
+    _attr_icon = "mdi:transmission-tower-export"
 
 class InEnergySensorEntity(EnergySensorEntity):
     _attr_icon = "mdi:transmission-tower-import"

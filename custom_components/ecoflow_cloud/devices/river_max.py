@@ -4,7 +4,7 @@ from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 
@@ -15,7 +15,7 @@ class RiverMax(BaseDevice):
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
-            InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
+            InWattsSensorEntity(client, "inv.inputWatts", const.SOLAR_IN_POWER),
 
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
@@ -36,6 +36,12 @@ class RiverMax(BaseDevice):
             VoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
             VoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
             VoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
+
+            InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
+            InEnergySensorEntity(client, "pd.chgPowerAC", const.CHARGE_AC_ENERGY),
+            InEnergySensorEntity(client, "pd.chgPowerDC", const.CHARGE_DC_ENERGY),
+            OutEnergySensorEntity(client, "pd.dsgPowerAC", const.DISCHARGE_AC_ENERGY),
+            OutEnergySensorEntity(client, "pd.dsgPowerDC", const.DISCHARGE_DC_ENERGY),
 
             LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL, False, True),
 
