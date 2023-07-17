@@ -76,7 +76,7 @@ class Delta2(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
-            MaxBatteryLevelEntity(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 10, 85,
+            MaxBatteryLevelEntity(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
                                   lambda value: {"moduleType": 1, "operateType": "watthConfig",
                                                  "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0, "minChgSoc": 0}}),
 
