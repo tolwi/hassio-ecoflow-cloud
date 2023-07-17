@@ -1,11 +1,12 @@
 import math
+import logging
 from datetime import timedelta, datetime
 from typing import Any, Mapping, OrderedDict
 
 from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass, SensorEntity)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (PERCENTAGE, POWER_WATT, TEMP_CELSIUS,
-                                 UnitOfElectricPotential, UnitOfElectricCurrent, UnitOfTime, UnitOfEnergy, UnitOfPower)
+from homeassistant.const import (PERCENTAGE,
+                                 UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency, UnitOfPower, UnitOfTemperature, UnitOfTime)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -18,6 +19,7 @@ from . import DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_
 from .entities import BaseSensorEntity, EcoFlowAbstractEntity
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
@@ -36,6 +38,8 @@ class FanSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:fan"
 
+class MiscSensorEntity(BaseSensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
 class LevelSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.BATTERY
@@ -60,9 +64,14 @@ class RemainSensorEntity(BaseSensorEntity):
 class TempSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.TEMPERATURE
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_native_unit_of_measurement = TEMP_CELSIUS
+    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = -1
+
+
+class DecicelsiusSensorEntity(TempSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
 
 
 class VoltSensorEntity(BaseSensorEntity):
@@ -73,12 +82,39 @@ class VoltSensorEntity(BaseSensorEntity):
     _attr_native_value = 0
 
 
+class DecivoltSensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.VOLTAGE
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfElectricPotential.VOLT
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_value = 0
+
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
+
+
+class CentivoltSensorEntity(DecivoltSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
+
+
 class AmpSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.CURRENT
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfElectricCurrent.MILLIAMPERE
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
+
+
+class DeciampSensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.CURRENT
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_value = 0
+
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
 
 
 class WattsSensorEntity(BaseSensorEntity):
@@ -93,11 +129,18 @@ class EnergySensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_value = 0
 
+class DeciwattsSensorEntity(WattsSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
+
+
 class InWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
 
 class InWattsSolarSensorEntity(InWattsSensorEntity):
+    _attr_icon = "mdi:solar-power"
+
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) / 10)
 
@@ -113,11 +156,26 @@ class InVoltSensorEntity(VoltSensorEntity):
 class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
+
 class InEnergySensorEntity(EnergySensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
+
 class OutEnergySensorEntity(EnergySensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
+
+
+class FrequencySensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.FREQUENCY
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfFrequency.HERTZ
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+
+class DecihertzSensorEntity(FrequencySensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
+
 
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC

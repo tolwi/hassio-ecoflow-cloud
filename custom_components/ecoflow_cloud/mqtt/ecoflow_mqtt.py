@@ -18,7 +18,9 @@ from homeassistant.util.dt import UTC
 from reactivex import Subject, Observable
 
 from .utils import BoundFifoList
-from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC
+from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC, EcoflowModel
+
+from .proto import powerstream_pb2 as powerstream, ecopacket_pb2 as ecopacket
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -194,10 +196,13 @@ class EcoflowMQTTClient:
         self.client.tls_insecure_set(False)
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
-        self.client.on_message = self.on_message
+        if self.device_type == EcoflowModel.POWERSTREAM.name:
+            self.client.on_message = self.on_bytes_message
+        else:
+            self.client.on_message = self.on_json_message
 
         _LOGGER.info(f"Connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}")
-        self.client.connect(self.auth.mqtt_url, self.auth.mqtt_port)
+        self.client.connect(self.auth.mqtt_url, self.auth.mqtt_port, 30)
         self.client.loop_start()
 
     def reconnect(self):
@@ -236,7 +241,7 @@ class EcoflowMQTTClient:
             time.sleep(5)
             # self.client.reconnect() ??
 
-    def on_message(self, client, userdata, message):
+    def on_json_message(self, client, userdata, message):
         try:
             payload = message.payload.decode("utf-8")
             raw = json.loads(payload)
@@ -253,6 +258,39 @@ class EcoflowMQTTClient:
                 self.data.add_get_reply_message(raw)
         except UnicodeDecodeError as error:
             _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
+
+    def on_bytes_message(self, client, userdata, message):
+        try:
+            packet = ecopacket.SendHeaderMsg()
+            packet.ParseFromString(message.payload)
+
+            _LOGGER.debug("cmd id %u payload \"%s\"", packet.msg.cmd_id, message.payload.hex())
+
+            if packet.msg.cmd_id != 1:
+                _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
+                return
+
+            if message.topic != self._data_topic:
+                _LOGGER.info("PowerStream not listening to %s MQTT topic", message.topic)
+                return
+
+            heartbeat = powerstream.InverterHeartbeat()
+            heartbeat.ParseFromString(packet.msg.pdata)
+
+            raw = {"params": {}}
+
+            for descriptor in heartbeat.DESCRIPTOR.fields:
+                if not heartbeat.HasField(descriptor.name):
+                    continue
+
+                raw["params"][descriptor.name] = getattr(heartbeat, descriptor.name)
+
+            raw["timestamp"] = utcnow()
+
+            self.data.update_data(raw)
+        except Exception as error:
+            _LOGGER.error(error)
+            _LOGGER.info(message.payload.hex())
 
     message_id = 999900000 + random.randint(10000, 99999)
 

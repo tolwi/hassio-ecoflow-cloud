@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+message EnergyItem
+{
+    optional uint32 timestamp = 1;
+    optional uint32 watth_type = 2;
+    repeated uint32 watth = 3;
+}
+
+message EnergyTotalReport
+{
+    optional uint32 watth_seq = 1;
+    optional EnergyItem watth_item = 2;
+}
+
+message BatchEnergyTotalReport
+{
+    optional uint32 watth_seq = 1;
+    repeated EnergyItem watth_item = 2;
+}
+
+message EnergyTotalReportAck
+{
+    optional uint32 result = 1;
+    optional uint32 watth_seq = 2;
+    optional uint32 watth_type = 3;
+}
+
+message EventRecordItem
+{
+    optional uint32 timestamp = 1;
+    optional uint32 sys_ms = 2;
+    optional uint32 event_no = 3;
+    repeated float event_detail = 4;
+}
+
+message EventRecordReport
+{
+    optional uint32 event_ver = 1;
+    optional uint32 event_seq = 2;
+    repeated EventRecordItem event_item = 3;
+}
+
+message EventInfoReportAck
+{
+    optional uint32 result = 1;
+    optional uint32 event_seq = 2;
+    optional uint32 event_item_num =3;
+}
+
+message ProductNameSet
+{
+    optional string name = 1;
+}
+
+message ProductNameSetAck
+{
+    optional uint32 result = 1;
+}
+
+message ProductNameGet { }
+
+message ProductNameGetAck
+{
+    optional string name = 3;
+}
+
+message RTCTimeGet { }
+
+message RTCTimeGetAck
+{
+    optional uint32 timestamp = 1;
+    optional int32 timezone = 2;
+}
+
+message RTCTimeSet
+{
+    optional uint32 timestamp = 1;
+    optional int32 timezone = 2;
+}
+
+message RTCTimeSetAck
+{
+    optional uint32 result = 1;
+}
+
+message country_town_message
+{
+    optional uint32 country = 1;
+    optional uint32 town = 2;
+}
+
+enum PlCmdSets
+{
+    PL_NONE_CMD_SETS = 0;
+    PL_BASIC_CMD_SETS = 1;
+    PL_EXT_CMD_SETS = 254;
+}
+
+enum PlCmdId
+{
+    PL_CMD_ID_NONE = 0;
+    PL_CMD_ID_XLOG = 16;
+    PL_CMD_ID_WATTH = 32;
+}

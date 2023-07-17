@@ -54,29 +54,29 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper 
-- USB Enabled 
-- AC Always On 
-- Prio Solar Charging 
-- AC Enabled 
-- X-Boost Enabled 
-- DC (12V) Enabled 
-- Backup Reserve Enabled 
+- Beeper
+- USB Enabled
+- AC Always On
+- Prio Solar Charging
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
+- Backup Reserve Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- Backup Reserve Level 
-- Generator Auto Start Level 
-- Generator Auto Stop Level 
-- AC Charging Power 
+- Max Charge Level
+- Min Discharge Level
+- Backup Reserve Level
+- Generator Auto Start Level
+- Generator Auto Stop Level
+- AC Charging Power
 
 *Selects*
-- DC (12V) Charge Current 
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
-- DC (12V) Timeout 
+- DC (12V) Charge Current
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
+- DC (12V) Timeout
 
 </p></details>
 
@@ -107,21 +107,21 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- AC Enabled 
-- X-Boost Enabled 
-- DC (12V) Enabled 
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- AC Charging Power 
+- Max Charge Level
+- Min Discharge Level
+- AC Charging Power
 
 *Selects*
-- DC (12V) Charge Current 
-- DC Mode 
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
+- DC (12V) Charge Current
+- DC Mode
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
 
 </p></details>
 
@@ -155,21 +155,21 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- AC Enabled 
-- X-Boost Enabled 
-- DC (12V) Enabled 
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- AC Charging Power 
+- Max Charge Level
+- Min Discharge Level
+- AC Charging Power
 
 *Selects*
-- DC (12V) Charge Current 
-- DC Mode 
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
+- DC (12V) Charge Current
+- DC Mode
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
 
 </p></details>
 
@@ -201,21 +201,21 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- AC Enabled 
-- X-Boost Enabled 
-- DC (12V) Enabled 
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- AC Charging Power 
+- Max Charge Level
+- Min Discharge Level
+- AC Charging Power
 
 *Selects*
-- DC (12V) Charge Current 
-- DC Mode 
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
+- DC (12V) Charge Current
+- DC Mode
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
 
 </p></details>
 
@@ -263,26 +263,26 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper 
-- DC (12V) Enabled 
-- AC Enabled 
-- X-Boost Enabled 
-- AC Always On 
-- Backup Reserve Enabled 
+- Beeper
+- DC (12V) Enabled
+- AC Enabled
+- X-Boost Enabled
+- AC Always On
+- Backup Reserve Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- Backup Reserve Level 
-- Generator Auto Start Level 
-- Generator Auto Stop Level 
-- AC Charging Power 
+- Max Charge Level
+- Min Discharge Level
+- Backup Reserve Level
+- Generator Auto Start Level
+- Generator Auto Stop Level
+- AC Charging Power
 
 *Selects*
-- DC (12V) Charge Current 
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
+- DC (12V) Charge Current
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
 
 </p></details>
 
@@ -319,17 +319,17 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper 
-- AC Enabled 
-- DC (12V) Enabled 
-- X-Boost Enabled 
+- Beeper
+- AC Enabled
+- DC (12V) Enabled
+- X-Boost Enabled
 
 *Sliders (numbers)*
 - Max Charge Level  _(read-only)_
 
 *Selects*
-- Unit Timeout 
-- AC Timeout 
+- Unit Timeout
+- AC Timeout
 
 </p></details>
 
@@ -412,20 +412,20 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper 
-- USB Enabled 
-- AC Always On 
-- Prio Solar Charging 
-- AC Enabled 
-- X-Boost Enabled 
-- DC (12V) Enabled 
+- Beeper
+- USB Enabled
+- AC Always On
+- Prio Solar Charging
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- Generator Auto Start Level 
-- Generator Auto Stop Level 
-- AC Charging Power 
+- Max Charge Level
+- Min Discharge Level
+- Generator Auto Start Level
+- Generator Auto Stop Level
+- AC Charging Power
 
 *Selects*
 
@@ -462,23 +462,95 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper 
-- USB Enabled 
-- AC Always On 
-- AC Enabled 
-- X-Boost Enabled 
+- Beeper
+- USB Enabled
+- AC Always On
+- AC Enabled
+- X-Boost Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- Generator Auto Start Level 
-- Generator Auto Stop Level 
-- AC Charging Power 
+- Max Charge Level
+- Min Discharge Level
+- Generator Auto Start Level
+- Generator Auto Stop Level
+- AC Charging Power
 
 *Selects*
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
+
+</p></details>
+
+<details><summary> POWERSTREAM <i>(sensors: 25, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Solar 1 Watts
+- Solar 1 Input Potential
+- Solar 1 Op Potential
+- Solar 1 Currrent
+- Solar 1 Tempurature
+- Solar 1 Relay Status
+- Solar 1 Error Code _(disabled)_
+- Solar 1 Warning Code _(disabled)_
+- Solar 1 tatus _(disabled)_
+- Solar 2 Watts
+- Solar 2 Input Potential
+- Solar 2 Op Potential
+- Solar 2 Current
+- Solar 2 Tempurature
+- Solar 2 Relay Status
+- Solar 2 Error Code _(disabled)_
+- Solar 2 Warning Code _(disabled)_
+- Solar 2 Status _(disabled)_
+- Battery Type _(disabled)_
+- Battery Charge
+- Battery Input Watts
+- Battery Input Potential
+- Battery Op Potential
+- Battery Input Current
+- Battery Tempurature
+- Charge Time
+- Discharge Time
+- Battery Error Code _(disabled)_
+- Battery Warning Code _(disabled)_
+- Battery Status _(disabled)_
+- LLC Input Potential _(disabled)_
+- LLC Op Potential _(disabled)_
+- LLC Error Code _(disabled)_
+- LLC Warning Code _(disabled)_
+- LLC Status _(disabled)_
+- Inverter On/Off Status
+- Inverter Output Watts
+- Inverter Output Potential _(disabled)_
+- Inverter Op Potential
+- Inverter Output Current
+- Inverter DC Current
+- Inverter Frequency
+- Inverter Tempurature
+- Inverter Relay Status
+- Inverter Error Code _(disabled)_
+- Inverter Warning Code _(disabled)_
+- Inverter Status _(disabled)_
+- Other Loads
+- Smart Plug Loads
+- Rated Power
+- Lower Battery Limit _(disabled)_
+- Upper Battery Limit _(disabled)_
+- Wireless Error Code _(disabled)_
+- Wireless Warning Code _(disabled)_
+- LED Brightness _(disabled)_
+- Heartbeat Frequency _(disabled)_
+
+*Switches*
+None
+
+*Sliders (numbers)*
+None
+
+*Selects*
+None
 
 </p></details>
 
