@@ -25,6 +25,7 @@
 - Battery Volts (`bms_bmsStatus.vol`)   _(disabled)_
 - Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
+- Status
 
 *Switches*
 - Beeper (`pd.beepMode` -> `{"moduleType": 1, "operateType": "quietCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE"}}`)

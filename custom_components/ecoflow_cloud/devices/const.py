@@ -162,3 +162,6 @@ MAX_CELL_TEMP = "Max Cell Temperature"
 BATTERY_VOLT = "Battery Volts"
 MIN_CELL_VOLT = "Min Cell Volts"
 MAX_CELL_VOLT = "Max Cell Volts"
+
+BATTERY_AMP = "Battery Current"
+SLAVE_BATTERY_AMP = "Slave Battery Current"

@@ -22,6 +22,7 @@
 - Battery Volts (`bms_bmsStatus.vol`)   _(disabled)_
 - Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
+- Status
 
 *Switches*
 - AC Enabled (`mppt.cfgAcEnabled` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)
