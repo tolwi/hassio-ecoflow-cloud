@@ -14,13 +14,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, DOMAIN
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import utcnow
-from homeassistant.util.dt import UTC
 from reactivex import Subject, Observable
 
+from .proto import powerstream_pb2 as powerstream, ecopacket_pb2 as ecopacket
 from .utils import BoundFifoList
 from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC, EcoflowModel
-
-from .proto import powerstream_pb2 as powerstream, ecopacket_pb2 as ecopacket
 
 _LOGGER = logging.getLogger(__name__)
 
