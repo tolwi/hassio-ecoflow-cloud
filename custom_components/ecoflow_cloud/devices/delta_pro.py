@@ -48,11 +48,12 @@ class DeltaPro(BaseDevice):
             VoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
             VoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
 
-            # InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
-            # InEnergySensorEntity(client, "pd.chgPowerAc", const.CHARGE_AC_ENERGY),
-            # InEnergySensorEntity(client, "pd.chgPowerDc", const.CHARGE_DC_ENERGY),
-            # OutEnergySensorEntity(client, "pd.dsgPowerAc", const.DISCHARGE_AC_ENERGY),
-            # OutEnergySensorEntity(client, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
+            # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
+            InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
+            InEnergySensorEntity(client, "pd.chgPowerAc", const.CHARGE_AC_ENERGY),
+            InEnergySensorEntity(client, "pd.chgPowerDc", const.CHARGE_DC_ENERGY),
+            OutEnergySensorEntity(client, "pd.dsgPowerAc", const.DISCHARGE_AC_ENERGY),
+            OutEnergySensorEntity(client, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
 
             # Optional Slave Batteries
             LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_1_BATTERY_LEVEL, False, True),

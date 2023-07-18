@@ -37,11 +37,12 @@ class RiverMax(BaseDevice):
             VoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
             VoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
 
-            # InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
-            # InEnergySensorEntity(client, "pd.chgPowerAC", const.CHARGE_AC_ENERGY),
-            # InEnergySensorEntity(client, "pd.chgPowerDC", const.CHARGE_DC_ENERGY),
-            # OutEnergySensorEntity(client, "pd.dsgPowerAC", const.DISCHARGE_AC_ENERGY),
-            # OutEnergySensorEntity(client, "pd.dsgPowerDC", const.DISCHARGE_DC_ENERGY),
+            # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
+            InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
+            InEnergySensorEntity(client, "pd.chgPowerAC", const.CHARGE_AC_ENERGY),
+            InEnergySensorEntity(client, "pd.chgPowerDC", const.CHARGE_DC_ENERGY),
+            OutEnergySensorEntity(client, "pd.dsgPowerAC", const.DISCHARGE_AC_ENERGY),
+            OutEnergySensorEntity(client, "pd.dsgPowerDC", const.DISCHARGE_DC_ENERGY),
 
             LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL, False, True),
 

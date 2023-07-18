@@ -157,11 +157,6 @@ class InVoltSensorEntity(VoltSensorEntity):
 class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
-class InEnergySensorEntity(EnergySensorEntity):
-    _attr_icon = "mdi:transmission-tower-import"
-
-class OutEnergySensorEntity(EnergySensorEntity):
-    _attr_icon = "mdi:transmission-tower-export"
 
 class InEnergySensorEntity(EnergySensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
