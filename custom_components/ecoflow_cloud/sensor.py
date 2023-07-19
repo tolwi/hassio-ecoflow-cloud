@@ -149,7 +149,11 @@ class InWattsSolarSensorEntity(InWattsSensorEntity):
 class OutWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
 
-
+class OutWattsDcSensorEntity(WattsSensorEntity):
+    _attr_icon = "mdi:transmission-tower-export"
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
+    
 class InVoltSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 

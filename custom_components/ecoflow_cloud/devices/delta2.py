@@ -5,7 +5,7 @@ from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevel
     MaxGenStopLevelEntity, MinGenStartLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity
+    InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -24,8 +24,8 @@ class Delta2(BaseDevice):
 
             # OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
             # the same value as pd.carWatts
-            OutWattsSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
-
+            OutWattsDcSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
+            
             OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typec2Watts", const.TYPEC_2_OUT_POWER),
 
