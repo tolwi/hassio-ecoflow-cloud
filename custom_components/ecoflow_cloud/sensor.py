@@ -7,7 +7,8 @@ from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 
 from homeassistant.const import (PERCENTAGE,
-                                 UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency, UnitOfPower, UnitOfTemperature, UnitOfTime)
+                                 UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency,
+                                 UnitOfPower, UnitOfTemperature, UnitOfTime)
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
@@ -22,6 +23,7 @@ from .entities import BaseSensorEntity, EcoFlowAbstractEntity
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
@@ -40,8 +42,10 @@ class FanSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:fan"
 
+
 class MiscSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+
 
 class LevelSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.BATTERY
@@ -125,15 +129,18 @@ class WattsSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
+
 class EnergySensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_value = 0
 
+
 class DeciwattsSensorEntity(WattsSensorEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) / 10)
+
 
 class InWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
@@ -188,10 +195,10 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     CHECK_PHASES = [2, 4, 6]
     CONNECT_PHASES = [3, 5, 7]
 
-    def __init__(self, client: EcoflowMQTTClient):
+    def __init__(self, client: EcoflowMQTTClient, check_interval_sec=30):
         super().__init__(client, "Status", "status")
         self._online = 0
-        self.__check_interval_sec = 30
+        self.__check_interval_sec = check_interval_sec
         self._attrs = OrderedDict[str, Any]()
         self._attrs[ATTR_STATUS_SN] = client.device_sn
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._client.data.params_time()
