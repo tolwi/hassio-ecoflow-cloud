@@ -53,10 +53,10 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
-        d = self._client.data.params_observable().subscribe(self.__updated)
+        d = self._client.data.params_observable().subscribe(self._updated)
         self.async_on_remove(d.dispose)
 
-    def __updated(self, data: dict[str, Any]):
+    def _updated(self, data: dict[str, Any]):
         if self._mqtt_key in data:
             self._attr_available = True
             if self._auto_enable:
