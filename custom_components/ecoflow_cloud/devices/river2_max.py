@@ -1,7 +1,7 @@
 from . import const, BaseDevice
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
+from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, BatteryBackupLevel
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InAmpSensorEntity, \
@@ -37,7 +37,6 @@ class River2Max(BaseDevice):
             RemainSensorEntity(client, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
             RemainSensorEntity(client, "pd.remainTime", const.REMAINING_TIME),
 
-
             TempSensorEntity(client, "inv.outTemp", "Inv Out Temperature"),
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
 
@@ -67,6 +66,14 @@ class River2Max(BaseDevice):
             ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 50, 660,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}}),
+
+            BatteryBackupLevel(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
+                               "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc",
+                               lambda value: {"moduleType": 1, "operateType": "watthConfig",
+                                              "params": {"isConfig": 1,
+                                                         "bpPowerSoc": int(value),
+                                                         "minDsgSoc": 0,
+                                                         "minChgSoc": 0}}),
         ]
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
@@ -76,13 +83,26 @@ class River2Max(BaseDevice):
                                          "params": {"enabled": value, "out_voltage": -1, "out_freq": 255,
                                                     "xboost": 255}}),
 
+            EnabledEntity(client, "pd.acAutoOutConfig", const.AC_ALWAYS_ENABLED,
+                          lambda value, params: {"moduleType": 1, "operateType": "acAutoOutConfig",
+                                                 "params": {"acAutoOutConfig": value,
+                                                            "minAcOutSoc": int(params["bms_emsStatus.minDsgSoc"]) + 5}}
+                          ),
+
             EnabledEntity(client, "mppt.cfgAcXboost", const.XBOOST_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
                                          "params": {"enabled": 255, "out_voltage": -1, "out_freq": 255,
                                                     "xboost": value}}),
 
             EnabledEntity(client, "pd.carState", const.DC_ENABLED,
-                          lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}})
+                          lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}}),
+
+            EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
+                          lambda value, params: {"moduleType": 1, "operateType": "watthConfig",
+                                                 "params": {"isConfig": int(value),
+                                                            "bpPowerSoc": int(params["pd.bpPowerSoc"]),
+                                                            "minDsgSoc": 0,
+                                                            "minChgSoc": 0}})
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
