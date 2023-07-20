@@ -1,4 +1,5 @@
-from typing import Any, Callable
+import inspect
+from typing import Any, Callable, Optional
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
@@ -70,13 +71,18 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
 class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
     def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
+                 command: Callable[[int, Optional[dict[str, Any]]], dict[str, Any]] | None,
+                 enabled: bool = True, auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, enabled, auto_enable)
         self._command = command
 
     def command_dict(self, value: int) -> dict[str, any] | None:
         if self._command:
-            return self._command(value)
+            p_count = len(inspect.signature(self._command).parameters)
+            if p_count == 1:
+                return self._command(value)
+            elif p_count == 2:
+                return self._command(value, self._client.data.params)
         else:
             return None
 

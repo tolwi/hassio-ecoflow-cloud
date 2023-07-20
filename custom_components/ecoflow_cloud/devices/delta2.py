@@ -78,7 +78,8 @@ class Delta2(BaseDevice):
 
             MaxBatteryLevelEntity(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
                                   lambda value: {"moduleType": 1, "operateType": "watthConfig",
-                                                 "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0, "minChgSoc": 0}}),
+                                                 "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0,
+                                                            "minChgSoc": 0}}),
 
             MinGenStartLevelEntity(client, "bms_emsStatus.minOpenOilEb", const.GEN_AUTO_START_LEVEL, 0, 30,
                                    lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
@@ -102,11 +103,18 @@ class Delta2(BaseDevice):
             EnabledEntity(client, "pd.dcOutState", const.USB_ENABLED,
                           lambda value: {"moduleType": 1, "operateType": "dcOutCfg", "params": {"enabled": value}}),
 
-            EnabledEntity(client, "pd.acAutoOnCfg", const.AC_ALWAYS_ENABLED,
-                          lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
+            # EnabledEntity(client, "pd.acAutoOnCfg", const.AC_ALWAYS_ENABLED,
+            #               lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
+
+            EnabledEntity(client, "pd.acAutoOutConfig", const.AC_ALWAYS_ENABLED,
+                          lambda value, params: {"moduleType": 1, "operateType": "acAutoOutConfig",
+                                                 "params": {"acAutoOutConfig": value,
+                                                            "minAcOutSoc": int(params["bms_emsStatus.minDsgSoc"]) + 5}}
+                          ),
 
             EnabledEntity(client, "pd.pvChgPrioSet", const.PV_PRIO,
-                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio", "params": {"pvChangeSet": value}}),
+                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio",
+                                         "params": {"pvChangeSet": value}}),
 
             EnabledEntity(client, "mppt.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
