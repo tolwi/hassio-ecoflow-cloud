@@ -104,11 +104,18 @@ class Delta2(BaseDevice):
             EnabledEntity(client, "pd.dcOutState", const.USB_ENABLED,
                           lambda value: {"moduleType": 1, "operateType": "dcOutCfg", "params": {"enabled": value}}),
 
-            EnabledEntity(client, "pd.acAutoOnCfg", const.AC_ALWAYS_ENABLED,
-                          lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
+            # EnabledEntity(client, "pd.acAutoOnCfg", const.AC_ALWAYS_ENABLED,
+            #               lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
+
+            EnabledEntity(client, "pd.acAutoOutConfig", const.AC_ALWAYS_ENABLED,
+                          lambda value, params: {"moduleType": 1, "operateType": "acAutoOutConfig",
+                                                 "params": {"acAutoOutConfig": value,
+                                                            "minAcOutSoc": int(params["bms_emsStatus.minDsgSoc"]) + 5}}
+                          ),
 
             EnabledEntity(client, "pd.pvChgPrioSet", const.PV_PRIO,
-                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio", "params": {"pvChangeSet": value}}),
+                          lambda value: {"moduleType": 1, "operateType": "pvChangePrio",
+                                         "params": {"pvChangeSet": value}}),
 
             EnabledEntity(client, "mppt.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
