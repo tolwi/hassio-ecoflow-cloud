@@ -2,7 +2,7 @@ from . import const, BaseDevice
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
-    MaxGenStopLevelEntity, MinGenStartLevelEntity
+    MaxGenStopLevelEntity, MinGenStartLevelEntity, BatteryBackupLevel
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity
@@ -76,9 +76,11 @@ class Delta2(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
-            MaxBatteryLevelEntity(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
-                                  lambda value: {"moduleType": 1, "operateType": "watthConfig",
-                                                 "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0, "minChgSoc": 0}}),
+            BatteryBackupLevel(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
+                               "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc",
+                               lambda value: {"moduleType": 1, "operateType": "watthConfig",
+                                              "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0,
+                                                         "minChgSoc": 0}}),
 
             MinGenStartLevelEntity(client, "bms_emsStatus.minOpenOilEb", const.GEN_AUTO_START_LEVEL, 0, 30,
                                    lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
