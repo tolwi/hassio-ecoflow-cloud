@@ -35,7 +35,7 @@ class PowerStream(BaseDevice):
             MiscSensorEntity(client, "pv2_warning_code", "Solar 2 Warning Code", False),
             MiscSensorEntity(client, "pv2_status", "Solar 2 Status", False),
 
-            MiscSensorEntity(client, "bpType", "Battery Type", False),
+            MiscSensorEntity(client, "bp_type", "Battery Type", False),
             LevelSensorEntity(client, "bat_soc", "Battery Charge"),
             DeciwattsSensorEntity(client, "bat_input_watts", "Battery Input Watts"),
             DecivoltSensorEntity(client, "bat_input_volt", "Battery Input Potential"),

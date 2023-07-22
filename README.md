@@ -482,8 +482,20 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> POWERSTREAM <i>(sensors: 25, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> POWERSTREAM <sup>beta</sup> <i>(sensors: 55, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
+
+Due to limitations with the way that Ecoflow have implemented the communication
+between the device and app only a couple of fields at a time get updated. It may
+take several hours for all fields to receive data. However, launching the app
+and viewing the PowerStream should force all the fields to be updated at once.
+
+PowerStream support is still in development.
+
+Wishlist
+
+- Ability to change settings
+- Add Sensors to allow data to be displyed on the Energy Dashboard
 
 *Sensors*
 - Solar 1 Watts

@@ -259,33 +259,43 @@ class EcoflowMQTTClient:
 
     def on_bytes_message(self, client, userdata, message):
         try:
-            packet = ecopacket.SendHeaderMsg()
-            packet.ParseFromString(message.payload)
+            payload = message.payload
 
-            _LOGGER.debug("cmd id %u payload \"%s\"", packet.msg.cmd_id, message.payload.hex())
+            while True:
+                packet = ecopacket.SendHeaderMsg()
+                packet.ParseFromString(payload)
 
-            if packet.msg.cmd_id != 1:
-                _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
-                return
+                _LOGGER.debug("cmd id %u payload \"%s\"", packet.msg.cmd_id, payload.hex())
 
-            if message.topic != self._data_topic:
-                _LOGGER.info("PowerStream not listening to %s MQTT topic", message.topic)
-                return
+                if packet.msg.cmd_id != 1:
+                    _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
 
-            heartbeat = powerstream.InverterHeartbeat()
-            heartbeat.ParseFromString(packet.msg.pdata)
+                else:
+                    heartbeat = powerstream.InverterHeartbeat()
+                    heartbeat.ParseFromString(packet.msg.pdata)
 
-            raw = {"params": {}}
+                    raw = {"params": {}}
 
-            for descriptor in heartbeat.DESCRIPTOR.fields:
-                if not heartbeat.HasField(descriptor.name):
-                    continue
+                    for descriptor in heartbeat.DESCRIPTOR.fields:
+                        if not heartbeat.HasField(descriptor.name):
+                            continue
 
-                raw["params"][descriptor.name] = getattr(heartbeat, descriptor.name)
+                        raw["params"][descriptor.name] = getattr(heartbeat, descriptor.name)
 
-            raw["timestamp"] = utcnow()
+                    _LOGGER.info("Found %u fields", len(raw["params"]))
 
-            self.data.update_data(raw)
+                    raw["timestamp"] = utcnow()
+
+                    self.data.update_data(raw)
+
+                if packet.ByteSize() >= len(payload):
+                    break
+
+                _LOGGER.info("Found another frame in payload")
+
+                packetLength = len(payload) - packet.ByteSize()
+                payload = payload[:packetLength]
+
         except Exception as error:
             _LOGGER.error(error)
             _LOGGER.info(message.payload.hex())
