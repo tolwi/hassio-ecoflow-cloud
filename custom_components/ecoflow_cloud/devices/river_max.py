@@ -4,7 +4,8 @@ from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, \
+    InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 
@@ -33,9 +34,9 @@ class RiverMax(BaseDevice):
             TempSensorEntity(client, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            VoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
-            VoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
-            VoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
 
             # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
             InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
@@ -50,9 +51,9 @@ class RiverMax(BaseDevice):
             TempSensorEntity(client, "bmsSlave1.minCellTemp", const.SLAVE_MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bmsSlave1.maxCellTemp", const.SLAVE_MAX_CELL_TEMP, False),
 
-            VoltSensorEntity(client, "bmsSlave1.vol", const.BATTERY_VOLT, False),
-            VoltSensorEntity(client, "bmsSlave1.minCellVol", const.MIN_CELL_VOLT, False),
-            VoltSensorEntity(client, "bmsSlave1.maxCellVol", const.MAX_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsSlave1.vol", const.BATTERY_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsSlave1.minCellVol", const.MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsSlave1.maxCellVol", const.MAX_CELL_VOLT, False),
 
             CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True),
             StatusSensorEntity(client),
