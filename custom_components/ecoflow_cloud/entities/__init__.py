@@ -1,5 +1,6 @@
+from __future__ import annotations
 import inspect
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, OrderedDict, Mapping
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
@@ -14,7 +15,7 @@ class EcoFlowAbstractEntity(Entity):
     _attr_has_entity_name = True
     _attr_should_poll = False
 
-    def __init__(self, client: EcoflowMQTTClient, title: str, key: str) -> object:
+    def __init__(self, client: EcoflowMQTTClient, title: str, key: str):
         self._client = client
         self._attr_name = title
         self._attr_device_info = client.device_info_main
@@ -35,6 +36,13 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self._mqtt_key = mqtt_key
         self._auto_enable = auto_enable
         self._attr_entity_registry_enabled_default = enabled
+        self.__attributes_mapping: dict[str, str] = {}
+        self.__attrs = OrderedDict[str, Any]()
+
+    def attr(self, mqtt_key: str, title: str, default: Any) -> EcoFlowDictEntity:
+        self.__attributes_mapping[mqtt_key] = title
+        self.__attrs[title] = default
+        return self
 
     @property
     def mqtt_key(self):
@@ -57,6 +65,12 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self.async_on_remove(d.dispose)
 
     def _updated(self, data: dict[str, Any]):
+        # update attributes
+        for key, title in self.__attributes_mapping.items():
+            if key in data:
+                self.__attrs[title] = data[key]
+
+        # update value
         if self._mqtt_key in data:
             self._attr_available = True
             if self._auto_enable:
@@ -64,6 +78,10 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
             if self._update_value(data[self._mqtt_key]):
                 self.async_write_ha_state()
+
+    @property
+    def extra_state_attributes(self) -> Mapping[str, Any] | None:
+        return self.__attrs
 
     def _update_value(self, val: Any) -> bool:
         return False

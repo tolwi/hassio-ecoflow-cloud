@@ -1,4 +1,5 @@
 from . import const, BaseDevice
+from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, MinGenStartLevelEntity, \
@@ -7,21 +8,29 @@ from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, VoltSensorEntity, \
     InWattsSolarSensorEntity, \
-    StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity
+    StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
 class DeltaPro(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
+            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+                .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
+                .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
+            OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
+
+            InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
+            OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+
             InWattsSolarSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
 
-            OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
             OutWattsDcSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
             # OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
 
@@ -57,12 +66,19 @@ class DeltaPro(BaseDevice):
             OutEnergySensorEntity(client, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
 
             # Optional Slave Batteries
-            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_1_BATTERY_LEVEL, False, True),
+            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_1_BATTERY_LEVEL, False, True)
+                .attr("bmsSlave1.designCap", ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsSlave1.fullCap", ATTR_FULL_CAPACITY, 0)
+                .attr("bmsSlave1.remainCap", ATTR_REMAIN_CAPACITY, 0),
+
             TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_1_BATTERY_TEMP, False, True),
             WattsSensorEntity(client, "bmsSlave1.inputWatts", const.SLAVE_1_IN_POWER, False, True),
             WattsSensorEntity(client, "bmsSlave1.outputWatts", const.SLAVE_1_OUT_POWER, False, True),
 
-            LevelSensorEntity(client, "bmsSlave2.soc", const.SLAVE_2_BATTERY_LEVEL, False, True),
+            LevelSensorEntity(client, "bmsSlave2.soc", const.SLAVE_2_BATTERY_LEVEL, False, True)
+                .attr("bmsSlave2.designCap", ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsSlave2.fullCap", ATTR_FULL_CAPACITY, 0)
+                .attr("bmsSlave2.remainCap", ATTR_REMAIN_CAPACITY, 0),
             TempSensorEntity(client, "bmsSlave2.temp", const.SLAVE_2_BATTERY_TEMP, False, True),
             WattsSensorEntity(client, "bmsSlave2.inputWatts", const.SLAVE_2_IN_POWER, False, True),
             WattsSensorEntity(client, "bmsSlave2.outputWatts", const.SLAVE_2_OUT_POWER, False, True),

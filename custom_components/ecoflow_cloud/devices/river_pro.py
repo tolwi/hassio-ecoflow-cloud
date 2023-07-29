@@ -1,18 +1,24 @@
 from . import const, BaseDevice
+from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
-    InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity
+    InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 
 class RiverPro(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
+            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+                .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
+                .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
+
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
@@ -20,10 +26,12 @@ class RiverPro(BaseDevice):
             InVoltSensorEntity(client, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
 
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
-
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
 
+            InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
+            OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+
+            OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typecWatts", const.TYPEC_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),
@@ -44,7 +52,11 @@ class RiverPro(BaseDevice):
 
 
             # Optional Slave Batteries
-            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL, False, True),
+            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL, False, True)
+                .attr("bmsSlave1.designCap", ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsSlave1.fullCap", ATTR_FULL_CAPACITY, 0)
+                .attr("bmsSlave1.remainCap", ATTR_REMAIN_CAPACITY, 0),
+
             CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True),
             TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_BATTERY_TEMP, False, True),
             MilliVoltSensorEntity(client, "bmsSlave1.vol", const.SLAVE_BATTERY_VOLT, False),
