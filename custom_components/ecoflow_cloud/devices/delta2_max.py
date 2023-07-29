@@ -1,4 +1,5 @@
 from . import const, BaseDevice
+from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
@@ -12,7 +13,10 @@ from ..switch import BeeperEntity, EnabledEntity
 class Delta2Max(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
+            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+                .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
+                .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
+                .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
             LevelSensorEntity(client, "bms_emsStatus.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),

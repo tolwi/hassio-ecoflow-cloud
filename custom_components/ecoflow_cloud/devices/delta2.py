@@ -1,4 +1,5 @@
 from . import const, BaseDevice
+from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
@@ -12,7 +13,10 @@ from ..switch import BeeperEntity, EnabledEntity
 class Delta2(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL),
+            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+                .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
+                .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
+                .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
             LevelSensorEntity(client, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
@@ -50,7 +54,10 @@ class Delta2(BaseDevice):
             MilliVoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 
             # Optional Slave Battery
-            LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),
+            LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True)
+                .attr("bms_slave.designCap", ATTR_DESIGN_CAPACITY, 0)
+                .attr("bms_slave.fullCap", ATTR_FULL_CAPACITY, 0)
+                .attr("bms_slave.remainCap", ATTR_REMAIN_CAPACITY, 0),
             TempSensorEntity(client, "bms_slave.temp", const.SLAVE_BATTERY_TEMP, False, True),
             TempSensorEntity(client, "bms_slave.minCellTemp", const.SLAVE_MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bms_slave.maxCellTemp", const.SLAVE_MAX_CELL_TEMP, False),

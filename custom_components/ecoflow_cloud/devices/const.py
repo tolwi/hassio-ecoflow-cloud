@@ -70,6 +70,10 @@ DC_CHARGE_CURRENT_OPTIONS = {
 
 COMBINED_BATTERY_LEVEL = "Battery Level"
 
+ATTR_DESIGN_CAPACITY = "Design Capacity (mAh)"
+ATTR_FULL_CAPACITY = "Full Capacity (mAh)"
+ATTR_REMAIN_CAPACITY = "Remain Capacity (mAh)"
+
 MAIN_BATTERY_LEVEL = "Main Battery Level"
 TOTAL_IN_POWER = "Total In Power"
 SOLAR_IN_POWER = "Solar In Power"
