@@ -44,7 +44,6 @@ class ChargingPowerEntity(ValueUpdateEntity):
 class BatteryBackupLevel(ValueUpdateEntity):
     _attr_icon = "mdi:battery-charging-90"
     _attr_native_unit_of_measurement = PERCENTAGE
-    _attr_device_class = SensorDeviceClass.BATTERY
 
     def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
                  min_value: int, max_value: int,
@@ -64,8 +63,6 @@ class BatteryBackupLevel(ValueUpdateEntity):
 
 class LevelEntity(ValueUpdateEntity):
     _attr_native_unit_of_measurement = PERCENTAGE
-    _attr_device_class = SensorDeviceClass.BATTERY
-
 
 class MinBatteryLevelEntity(LevelEntity):
     _attr_icon = "mdi:battery-charging-10"
