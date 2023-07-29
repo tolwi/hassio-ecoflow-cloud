@@ -5,7 +5,7 @@ from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevel
     MaxGenStopLevelEntity, MinGenStartLevelEntity, BatteryBackupLevel
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity
+    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, MilliVoltSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -45,9 +45,9 @@ class Delta2(BaseDevice):
             TempSensorEntity(client, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
-            VoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
-            VoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
+            MilliVoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 
             # Optional Slave Battery
             LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),
@@ -55,9 +55,9 @@ class Delta2(BaseDevice):
             TempSensorEntity(client, "bms_slave.minCellTemp", const.SLAVE_MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bms_slave.maxCellTemp", const.SLAVE_MAX_CELL_TEMP, False),
 
-            VoltSensorEntity(client, "bms_slave.vol", const.SLAVE_BATTERY_VOLT, False),
-            VoltSensorEntity(client, "bms_slave.minCellVol", const.SLAVE_MIN_CELL_VOLT, False),
-            VoltSensorEntity(client, "bms_slave.maxCellVol", const.SLAVE_MAX_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bms_slave.vol", const.SLAVE_BATTERY_VOLT, False),
+            MilliVoltSensorEntity(client, "bms_slave.minCellVol", const.SLAVE_MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bms_slave.maxCellVol", const.SLAVE_MAX_CELL_VOLT, False),
 
             CyclesSensorEntity(client, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
             InWattsSensorEntity(client, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),

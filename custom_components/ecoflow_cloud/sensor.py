@@ -83,6 +83,14 @@ class DecicelsiusSensorEntity(TempSensorEntity):
 class VoltSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.VOLTAGE
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfElectricPotential.VOLT
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_value = 0
+
+
+class MilliVoltSensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.VOLTAGE
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfElectricPotential.MILLIVOLT
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
@@ -156,11 +164,14 @@ class InWattsSolarSensorEntity(InWattsSensorEntity):
 class OutWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
 
+
 class OutWattsDcSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
+
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) / 10)
-    
+
+
 class InVoltSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 

@@ -5,7 +5,7 @@ from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevel
     MaxGenStopLevelEntity, MinGenStartLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity
+    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, MilliVoltSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -45,9 +45,9 @@ class DeltaMax(BaseDevice):
             TempSensorEntity(client, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            VoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
-            VoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
-            VoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
 
             # Optional Slave Battery
             #LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True),

@@ -63,6 +63,7 @@ class BatteryBackupLevel(ValueUpdateEntity):
 
 class LevelEntity(ValueUpdateEntity):
     _attr_native_unit_of_measurement = PERCENTAGE
+    
 
 class MinBatteryLevelEntity(LevelEntity):
     _attr_icon = "mdi:battery-charging-10"

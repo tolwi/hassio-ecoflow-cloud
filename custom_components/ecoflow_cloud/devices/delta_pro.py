@@ -5,8 +5,9 @@ from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevel
     MaxGenStopLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, VoltSensorEntity, InWattsSolarSensorEntity, \
-    StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, VoltSensorEntity, \
+    InWattsSolarSensorEntity, \
+    StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -44,9 +45,9 @@ class DeltaPro(BaseDevice):
             TempSensorEntity(client, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            VoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
-            VoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
-            VoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
 
             # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
             InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
