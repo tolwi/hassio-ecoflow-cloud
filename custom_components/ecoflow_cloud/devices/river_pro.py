@@ -6,7 +6,8 @@ from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
-    InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity
+    InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 
@@ -25,10 +26,12 @@ class RiverPro(BaseDevice):
             InVoltSensorEntity(client, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
 
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
-
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
 
+            InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
+            OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+
+            OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typecWatts", const.TYPEC_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),

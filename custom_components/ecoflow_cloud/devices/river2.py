@@ -6,7 +6,7 @@ from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevel
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, \
-    MilliVoltSensorEntity
+    MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity
 from ..switch import EnabledEntity
 
 
@@ -21,14 +21,18 @@ class River2(BaseDevice):
                 .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
 
-        InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
+            InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
+            OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
+
+            InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
+            OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+
             InWattsSensorEntity(client, "pd.typecChaWatts", const.TYPE_C_IN_POWER),
             InWattsSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
 
-            OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
 

@@ -6,7 +6,8 @@ from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, \
-    InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity
+    InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 
@@ -22,9 +23,12 @@ class RiverMax(BaseDevice):
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
-            InWattsSensorEntity(client, "inv.inputWatts", const.SOLAR_IN_POWER),
-
+            InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
+
+            InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
+            OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+
             OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.typecWatts", const.TYPEC_OUT_POWER),

@@ -8,7 +8,8 @@ from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, VoltSensorEntity, \
     InWattsSolarSensorEntity, \
-    StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity
+    StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -23,9 +24,13 @@ class DeltaPro(BaseDevice):
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
+            OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
+
+            InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
+            OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+
             InWattsSolarSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
 
-            OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
             OutWattsDcSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
             # OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
 

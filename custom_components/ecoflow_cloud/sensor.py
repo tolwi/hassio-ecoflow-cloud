@@ -92,8 +92,19 @@ class MilliVoltSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.VOLTAGE
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfElectricPotential.MILLIVOLT
+    _attr_suggested_unit_of_measurement = UnitOfElectricPotential.VOLT
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_value = 0
+    _attr_native_value = 3
+
+
+class InMilliVoltSensorEntity(MilliVoltSensorEntity):
+    _attr_icon = "mdi:transmission-tower-import"
+    _attr_suggested_display_precision = 0
+
+
+class OutMilliVoltSensorEntity(MilliVoltSensorEntity):
+    _attr_icon = "mdi:transmission-tower-export"
+    _attr_suggested_display_precision = 0
 
 
 class DecivoltSensorEntity(BaseSensorEntity):
@@ -132,6 +143,7 @@ class DeciampSensorEntity(BaseSensorEntity):
 
 
 class WattsSensorEntity(BaseSensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_device_class = SensorDeviceClass.POWER
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
