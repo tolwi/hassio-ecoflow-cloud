@@ -502,7 +502,7 @@ Wishlist
 - Solar 1 Input Potential
 - Solar 1 Op Potential
 - Solar 1 Currrent
-- Solar 1 Tempurature
+- Solar 1 Temperature
 - Solar 1 Relay Status
 - Solar 1 Error Code _(disabled)_
 - Solar 1 Warning Code _(disabled)_
@@ -511,7 +511,7 @@ Wishlist
 - Solar 2 Input Potential
 - Solar 2 Op Potential
 - Solar 2 Current
-- Solar 2 Tempurature
+- Solar 2 Temperature
 - Solar 2 Relay Status
 - Solar 2 Error Code _(disabled)_
 - Solar 2 Warning Code _(disabled)_
@@ -522,7 +522,7 @@ Wishlist
 - Battery Input Potential
 - Battery Op Potential
 - Battery Input Current
-- Battery Tempurature
+- Battery Temperature
 - Charge Time
 - Discharge Time
 - Battery Error Code _(disabled)_
@@ -540,7 +540,7 @@ Wishlist
 - Inverter Output Current
 - Inverter DC Current
 - Inverter Frequency
-- Inverter Tempurature
+- Inverter Temperature
 - Inverter Relay Status
 - Inverter Error Code _(disabled)_
 - Inverter Warning Code _(disabled)_
