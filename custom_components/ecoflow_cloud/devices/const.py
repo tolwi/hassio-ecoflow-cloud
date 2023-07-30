@@ -69,6 +69,7 @@ DC_CHARGE_CURRENT_OPTIONS = {
 }
 
 COMBINED_BATTERY_LEVEL = "Battery Level"
+BATTERY_CHARGING_STATE = "Battery Charging State"
 
 ATTR_DESIGN_CAPACITY = "Design Capacity (mAh)"
 ATTR_FULL_CAPACITY = "Full Capacity (mAh)"

@@ -3,6 +3,7 @@ import logging
 from datetime import timedelta, datetime
 from typing import Any, Mapping, OrderedDict
 
+from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
 from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass, SensorEntity)
 from homeassistant.config_entries import ConfigEntry
 
@@ -19,7 +20,7 @@ from homeassistant.util.dt import UTC
 
 from . import DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_UPDATES, \
     ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, ATTR_STATUS_PHASE
-from .entities import BaseSensorEntity, EcoFlowAbstractEntity
+from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,6 +31,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     from .devices.registry import devices
     async_add_entities(devices[client.device_type].sensors(client))
+
+
+class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
+
+    def _update_value(self, val: Any) -> bool:
+        self._attr_is_on = bool(val)
+        return True
+
+
+class ChargingBinarySensorEntity(MiscBinarySensorEntity):
+    _attr_icon = "mdi:battery-charging"
+    _attr_device_class = BinarySensorDeviceClass.BATTERY_CHARGING
 
 
 class CyclesSensorEntity(BaseSensorEntity):
