@@ -19,6 +19,7 @@ def _to_serializable(x):
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
     values = {
+        'device':    client.device_type,
         'params':     dict(sorted(client.data.params.items())),
         'set':       [dict(sorted(k.items())) for k in client.data.set],
         'set_reply': [dict(sorted(k.items())) for k in client.data.set_reply],
