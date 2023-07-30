@@ -1,0 +1,831 @@
+{
+  "integration_manifest": {
+    "domain": "ecoflow_cloud",
+    "name": "Ecoflow-Cloud",
+    "version": "0.5.0",
+    "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
+    "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
+    "requirements": [
+      "paho-mqtt==1.6.1",
+      "reactivex==4.0.4"
+    ],
+    "config_flow": true,
+    "codeowners": [
+      "@tolwi"
+    ],
+    "iot_class": "cloud_push",
+    "is_built_in": false
+  },
+  "data": {
+    "data": {
+      "bmsMaster.amp": -88,
+      "bmsMaster.bmsFault": 0,
+      "bmsMaster.bqSysStatReq": 128,
+      "bmsMaster.cycles": 8,
+      "bmsMaster.errCode": 6,
+      "bmsMaster.fullCap": 23633,
+      "bmsMaster.maxCellTemp": 30,
+      "bmsMaster.maxCellVol": 4126,
+      "bmsMaster.maxChargeSoc": 100,
+      "bmsMaster.maxMosTemp": 31,
+      "bmsMaster.minCellTemp": 30,
+      "bmsMaster.minCellVol": 4121,
+      "bmsMaster.minMosTemp": 31,
+      "bmsMaster.openBmsIdx": 1,
+      "bmsMaster.remainCap": 23980,
+      "bmsMaster.soc": 100,
+      "bmsMaster.sysVer": 33555464,
+      "bmsMaster.tagChgAmp": 20000,
+      "bmsMaster.tagChgVol": 33450,
+      "bmsMaster.temp": 30,
+      "bmsMaster.vol": 33075,
+      "inv.cfgAcChgModeFlg": 0,
+      "inv.cfgAcEnabled": 0,
+      "inv.cfgAcOutFreq": 1,
+      "inv.cfgAcOutVoltage": 220000,
+      "inv.cfgAcXboost": 1,
+      "inv.cfgFanMode": 1,
+      "inv.cfgStandbyMin": 0,
+      "inv.chargerType": 255,
+      "inv.dcInAmp": 0,
+      "inv.dcInVol": 464,
+      "inv.errCode": 0,
+      "inv.fanState": 0,
+      "inv.inTemp": 38,
+      "inv.inputWatts": 0,
+      "inv.invInAmp": 0,
+      "inv.invInFreq": 50,
+      "inv.invInVol": 232000,
+      "inv.invOutAmp": 0,
+      "inv.invOutFreq": 0,
+      "inv.invOutVol": 0,
+      "inv.invType": 9,
+      "inv.outTemp": 33,
+      "inv.outputWatts": 0,
+      "inv.sysVer": 17039625,
+      "latestTimeStamp": 1675145606072,
+      "pd.beepState": 1,
+      "pd.bmsSlave": 0,
+      "pd.carSwitch": 0,
+      "pd.carTemp": 28,
+      "pd.carUsedTime": 3198,
+      "pd.carWatts": 0,
+      "pd.chgPowerAC": 6207,
+      "pd.chgPowerDC": 0,
+      "pd.chgSunPower": 0,
+      "pd.dcInUsedTime": 10,
+      "pd.dsgPowerAC": 3238,
+      "pd.dsgPowerDC": 235,
+      "pd.errCode": 0,
+      "pd.invUsedTime": 559788,
+      "pd.ledState": 0,
+      "pd.ledWatts": 0,
+      "pd.model": 1,
+      "pd.mpptUsedTime": 0,
+      "pd.remainTime": 5999,
+      "pd.soc": 100,
+      "pd.standByMode": 0,
+      "pd.sysVer": 16778004,
+      "pd.typecTemp": 28,
+      "pd.typecUsedTime": 55019,
+      "pd.typecWatts": 0,
+      "pd.usb1Watts": 0,
+      "pd.usb2Watts": 0,
+      "pd.usb3Watts": 0,
+      "pd.usbUsedTime": 23435,
+      "pd.usbqcUsedTime": 2424,
+      "pd.wattsInSum": 0,
+      "pd.wattsOutSum": 0
+    },
+    "set_commands": [
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "643253693",
+        "lang": "en-us",
+        "params": {
+          "id": 68
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "643262998",
+        "lang": "en-us",
+        "params": {
+          "id": 72
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646129799",
+        "lang": "en-us",
+        "params": {
+          "id": 40
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646139604",
+        "lang": "en-us",
+        "params": {
+          "id": 68
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646149727",
+        "lang": "en-us",
+        "params": {
+          "id": 72
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646176219",
+        "lang": "en-us",
+        "params": {
+          "id": 40
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646184987",
+        "lang": "en-us",
+        "params": {
+          "id": 68
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646194496",
+        "lang": "en-us",
+        "params": {
+          "id": 72
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646219274",
+        "lang": "en-us",
+        "params": {
+          "id": 40
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646228704",
+        "lang": "en-us",
+        "params": {
+          "id": 68
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "646237996",
+        "lang": "en-us",
+        "params": {
+          "id": 72
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649099254",
+        "lang": "en-us",
+        "params": {
+          "id": 40
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649108069",
+        "lang": "en-us",
+        "params": {
+          "id": 68
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649113903",
+        "lang": "en-us",
+        "params": {
+          "id": 72
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649145776",
+        "lang": "en-us",
+        "params": {
+          "id": 40
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649150013",
+        "lang": "en-us",
+        "params": {
+          "id": 68
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649154580",
+        "lang": "en-us",
+        "params": {
+          "id": 72
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649164365",
+        "lang": "en-us",
+        "params": {
+          "id": 40
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649167225",
+        "lang": "en-us",
+        "params": {
+          "id": 68
+        },
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "TCP",
+        "id": "649170260",
+        "lang": "en-us",
+        "params": {
+          "id": 72
+        },
+        "version": "1.0"
+      }
+    ],
+    "set_replies": [
+      {
+        "id": 643169682,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "data": 0,
+          "cmdSet": 32,
+          "ack": 0,
+          "id": 68
+        }
+      },
+      {
+        "id": 643179757,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "data": 8000,
+          "cmdSet": 32,
+          "ack": 0,
+          "id": 72
+        }
+      },
+      {
+        "id": 646176219,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 40
+        }
+      },
+      {
+        "id": 646184987,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 68
+        }
+      },
+      {
+        "id": 646194496,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 72
+        }
+      },
+      {
+        "id": 646219274,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 40
+        }
+      },
+      {
+        "id": 646237996,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 72
+        }
+      },
+      {
+        "id": 646228704,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 68
+        }
+      },
+      {
+        "id": 646129799,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "data": 30,
+          "cmdSet": 32,
+          "ack": 0,
+          "id": 40,
+          "retStat": 0
+        }
+      },
+      {
+        "id": 646139604,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "data": 0,
+          "cmdSet": 32,
+          "ack": 0,
+          "id": 68
+        }
+      },
+      {
+        "id": 646149727,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "data": 8000,
+          "cmdSet": 32,
+          "ack": 0,
+          "id": 72
+        }
+      },
+      {
+        "id": 649145776,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 40
+        }
+      },
+      {
+        "id": 649150013,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 68
+        }
+      },
+      {
+        "id": 649154580,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 72
+        }
+      },
+      {
+        "id": 649164365,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 40
+        }
+      },
+      {
+        "id": 649167225,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 68
+        }
+      },
+      {
+        "id": 649170260,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "cmdSet": 32,
+          "ack": 1,
+          "id": 72
+        }
+      },
+      {
+        "id": 649099254,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "data": 30,
+          "cmdSet": 32,
+          "ack": 0,
+          "id": 40,
+          "retStat": 0
+        }
+      },
+      {
+        "id": 649108069,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "data": 0,
+          "cmdSet": 32,
+          "ack": 0,
+          "id": 68
+        }
+      },
+      {
+        "id": 649113903,
+        "version": "1.0",
+        "operateType": "TCP",
+        "code": "0",
+        "data": {
+          "data": 8000,
+          "cmdSet": 32,
+          "ack": 0,
+          "id": 72
+        }
+      }
+    ],
+    "get_commands": [
+      {
+        "from": "iOS",
+        "operateType": "latestQuotas",
+        "id": "585868205",
+        "lang": "en-us",
+        "params": {},
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "latestQuotas",
+        "id": "586077584",
+        "lang": "en-us",
+        "params": {},
+        "version": "1.0"
+      },
+      {
+        "from": "iOS",
+        "operateType": "latestQuotas",
+        "id": "586332422",
+        "lang": "en-us",
+        "params": {},
+        "version": "1.0"
+      }
+    ],
+    "get_replies": [
+      {
+        "id": 585868205,
+        "operateType": "latestQuotas",
+        "data": {
+          "sn": "P2CBZ7XE8010147",
+          "productType": 12,
+          "model": 1,
+          "online": 1,
+          "quotaMap": {
+            "pd.wattsInSum": 0,
+            "pd.dcInUsedTime": 10,
+            "pd.model": 1,
+            "bmsMaster.bqSysStatReq": 128,
+            "inv.cfgAcOutVoltage": 220000,
+            "pd.beepState": 1,
+            "inv.cfgAcChgModeFlg": 0,
+            "inv.cfgStandbyMin": 0,
+            "bmsMaster.bmsFault": 0,
+            "pd.remainTime": 370,
+            "bmsMaster.maxCellTemp": 29,
+            "inv.outputWatts": 99,
+            "pd.typecWatts": 0,
+            "inv.invOutFreq": 50,
+            "bmsMaster.sysVer": 33555464,
+            "inv.chargerType": 0,
+            "pd.chgSunPower": 0,
+            "pd.carTemp": 28,
+            "bmsMaster.soc": 84,
+            "bmsMaster.maxChargeSoc": 100,
+            "pd.ledWatts": 0,
+            "inv.fanState": 1,
+            "pd.usb1Watts": 0,
+            "pd.standByMode": 0,
+            "bmsMaster.errCode": 0,
+            "bmsMaster.maxMosTemp": 27,
+            "inv.inTemp": 39,
+            "inv.cfgAcXboost": 1,
+            "pd.dsgPowerAC": 3214,
+            "inv.outTemp": 54,
+            "pd.chgPowerAC": 5981,
+            "bmsMaster.maxCellVol": 3979,
+            "inv.invOutVol": 218707,
+            "pd.bmsSlave": 0,
+            "bmsMaster.minMosTemp": 27,
+            "pd.sysVer": 16778004,
+            "inv.inputWatts": 0,
+            "bmsMaster.fullCap": 23406,
+            "inv.invInFreq": 0,
+            "pd.carUsedTime": 3198,
+            "pd.soc": 84,
+            "pd.typecTemp": 27,
+            "inv.invOutAmp": 457,
+            "bmsMaster.cycles": 8,
+            "inv.cfgFanMode": 1,
+            "bmsMaster.remainCap": 18986,
+            "bmsMaster.temp": 29,
+            "inv.dcInVol": 4390,
+            "pd.chgPowerDC": 0,
+            "pd.dsgPowerDC": 235,
+            "pd.ledState": 0,
+            "pd.usb3Watts": 0,
+            "inv.dcInAmp": 0,
+            "pd.typecUsedTime": 55019,
+            "inv.cfgAcOutFreq": 1,
+            "bmsMaster.vol": 31887,
+            "inv.errCode": 0,
+            "pd.usbqcUsedTime": 2424,
+            "bmsMaster.tagChgVol": 33450,
+            "bmsMaster.amp": -4241,
+            "pd.wattsOutSum": 98,
+            "pd.carSwitch": 0,
+            "pd.usbUsedTime": 23435,
+            "pd.mpptUsedTime": 0,
+            "bmsMaster.openBmsIdx": 1,
+            "bmsMaster.minCellTemp": 28,
+            "bmsMaster.tagChgAmp": 20000,
+            "inv.cfgAcEnabled": 1,
+            "inv.invType": 9,
+            "pd.errCode": 0,
+            "inv.invInAmp": 0,
+            "bmsMaster.minCellVol": 3973,
+            "pd.carWatts": 0,
+            "pd.usb2Watts": 0,
+            "pd.invUsedTime": 556337,
+            "inv.invInVol": 0,
+            "inv.sysVer": 17039625
+          }
+        }
+      },
+      {
+        "id": 586077584,
+        "operateType": "latestQuotas",
+        "data": {
+          "sn": "P2CBZ7XE8010147",
+          "productType": 12,
+          "model": 1,
+          "online": 1,
+          "quotaMap": {
+            "pd.wattsInSum": 0,
+            "pd.dcInUsedTime": 10,
+            "pd.model": 1,
+            "bmsMaster.bqSysStatReq": 128,
+            "inv.cfgAcOutVoltage": 220000,
+            "pd.beepState": 1,
+            "inv.cfgAcChgModeFlg": 0,
+            "inv.cfgStandbyMin": 0,
+            "bmsMaster.bmsFault": 0,
+            "pd.remainTime": 370,
+            "bmsMaster.maxCellTemp": 29,
+            "inv.outputWatts": 98,
+            "pd.typecWatts": 0,
+            "inv.invOutFreq": 50,
+            "bmsMaster.sysVer": 33555464,
+            "inv.chargerType": 0,
+            "pd.chgSunPower": 0,
+            "pd.carTemp": 28,
+            "bmsMaster.soc": 84,
+            "bmsMaster.maxChargeSoc": 100,
+            "pd.ledWatts": 0,
+            "inv.fanState": 1,
+            "pd.usb1Watts": 0,
+            "pd.standByMode": 0,
+            "bmsMaster.errCode": 0,
+            "bmsMaster.maxMosTemp": 27,
+            "inv.inTemp": 39,
+            "inv.cfgAcXboost": 1,
+            "pd.dsgPowerAC": 3214,
+            "inv.outTemp": 54,
+            "pd.chgPowerAC": 5981,
+            "bmsMaster.maxCellVol": 3981,
+            "inv.invOutVol": 219007,
+            "pd.bmsSlave": 0,
+            "bmsMaster.minMosTemp": 27,
+            "pd.sysVer": 16778004,
+            "inv.inputWatts": 0,
+            "bmsMaster.fullCap": 23406,
+            "inv.invInFreq": 0,
+            "pd.carUsedTime": 3198,
+            "pd.soc": 84,
+            "pd.typecTemp": 27,
+            "inv.invOutAmp": 533,
+            "bmsMaster.cycles": 8,
+            "inv.cfgFanMode": 1,
+            "bmsMaster.remainCap": 18982,
+            "bmsMaster.temp": 29,
+            "inv.dcInVol": 4388,
+            "pd.chgPowerDC": 0,
+            "pd.dsgPowerDC": 235,
+            "pd.ledState": 0,
+            "pd.usb3Watts": 0,
+            "inv.dcInAmp": 0,
+            "pd.typecUsedTime": 55019,
+            "inv.cfgAcOutFreq": 1,
+            "bmsMaster.vol": 31905,
+            "inv.errCode": 0,
+            "pd.usbqcUsedTime": 2424,
+            "bmsMaster.tagChgVol": 33450,
+            "bmsMaster.amp": -4266,
+            "pd.wattsOutSum": 98,
+            "pd.carSwitch": 0,
+            "pd.usbUsedTime": 23435,
+            "pd.mpptUsedTime": 0,
+            "bmsMaster.openBmsIdx": 1,
+            "bmsMaster.minCellTemp": 28,
+            "bmsMaster.tagChgAmp": 20000,
+            "inv.cfgAcEnabled": 1,
+            "inv.invType": 9,
+            "pd.errCode": 0,
+            "inv.invInAmp": 0,
+            "bmsMaster.minCellVol": 3976,
+            "pd.carWatts": 0,
+            "pd.usb2Watts": 0,
+            "pd.invUsedTime": 556337,
+            "inv.invInVol": 0,
+            "inv.sysVer": 17039625
+          }
+        }
+      },
+      {
+        "id": 586332422,
+        "operateType": "latestQuotas",
+        "data": {
+          "sn": "P2CBZ7XE8010147",
+          "productType": 12,
+          "model": 1,
+          "online": 1,
+          "quotaMap": {
+            "pd.wattsInSum": 0,
+            "pd.dcInUsedTime": 10,
+            "pd.model": 1,
+            "bmsMaster.bqSysStatReq": 128,
+            "inv.cfgAcOutVoltage": 220000,
+            "pd.beepState": 1,
+            "inv.cfgAcChgModeFlg": 0,
+            "inv.cfgStandbyMin": 0,
+            "bmsMaster.bmsFault": 0,
+            "pd.remainTime": 370,
+            "bmsMaster.maxCellTemp": 29,
+            "inv.outputWatts": 98,
+            "pd.typecWatts": 0,
+            "inv.invOutFreq": 50,
+            "bmsMaster.sysVer": 33555464,
+            "inv.chargerType": 0,
+            "pd.chgSunPower": 0,
+            "pd.carTemp": 28,
+            "bmsMaster.soc": 84,
+            "bmsMaster.maxChargeSoc": 100,
+            "pd.ledWatts": 0,
+            "inv.fanState": 1,
+            "pd.usb1Watts": 0,
+            "pd.standByMode": 0,
+            "bmsMaster.errCode": 0,
+            "bmsMaster.maxMosTemp": 27,
+            "inv.inTemp": 39,
+            "inv.cfgAcXboost": 1,
+            "pd.dsgPowerAC": 3214,
+            "inv.outTemp": 54,
+            "pd.chgPowerAC": 5981,
+            "bmsMaster.maxCellVol": 3981,
+            "inv.invOutVol": 219007,
+            "pd.bmsSlave": 0,
+            "bmsMaster.minMosTemp": 27,
+            "pd.sysVer": 16778004,
+            "inv.inputWatts": 0,
+            "bmsMaster.fullCap": 23406,
+            "inv.invInFreq": 0,
+            "pd.carUsedTime": 3198,
+            "pd.soc": 84,
+            "pd.typecTemp": 27,
+            "inv.invOutAmp": 533,
+            "bmsMaster.cycles": 8,
+            "inv.cfgFanMode": 1,
+            "bmsMaster.remainCap": 18982,
+            "bmsMaster.temp": 29,
+            "inv.dcInVol": 4388,
+            "pd.chgPowerDC": 0,
+            "pd.dsgPowerDC": 235,
+            "pd.ledState": 0,
+            "pd.usb3Watts": 0,
+            "inv.dcInAmp": 0,
+            "pd.typecUsedTime": 55019,
+            "inv.cfgAcOutFreq": 1,
+            "bmsMaster.vol": 31905,
+            "inv.errCode": 0,
+            "pd.usbqcUsedTime": 2424,
+            "bmsMaster.tagChgVol": 33450,
+            "bmsMaster.amp": -4266,
+            "pd.wattsOutSum": 98,
+            "pd.carSwitch": 0,
+            "pd.usbUsedTime": 23435,
+            "pd.mpptUsedTime": 0,
+            "bmsMaster.openBmsIdx": 1,
+            "bmsMaster.minCellTemp": 28,
+            "bmsMaster.tagChgAmp": 20000,
+            "inv.cfgAcEnabled": 1,
+            "inv.invType": 9,
+            "pd.errCode": 0,
+            "inv.invInAmp": 0,
+            "bmsMaster.minCellVol": 3976,
+            "pd.carWatts": 0,
+            "pd.usb2Watts": 0,
+            "pd.invUsedTime": 556337,
+            "inv.invInVol": 0,
+            "inv.sysVer": 17039625
+          }
+        }
+      }
+    ],
+    "raw_data": []
+  }
+}

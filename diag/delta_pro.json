@@ -1,0 +1,934 @@
+{
+  "home_assistant": {
+    "installation_type": "Home Assistant OS",
+    "version": "2023.2.1",
+    "dev": false,
+    "hassio": true,
+    "virtualenv": false,
+    "python_version": "3.10.7",
+    "docker": true,
+    "arch": "aarch64",
+    "timezone": "Europe/Berlin",
+    "os_name": "Linux",
+    "os_version": "5.15.84-v8",
+    "supervisor": "2023.01.1",
+    "host_os": "Home Assistant OS 9.5",
+    "docker_version": "20.10.22",
+    "chassis": "embedded",
+    "run_as_root": true
+  },
+  "custom_components": {
+    "loxone": {
+      "version": "0.4.1",
+      "requirements": [
+        "websockets",
+        "pycryptodome",
+        "numpy"
+      ]
+    },
+    "skodaconnect": {
+      "version": "v1.2.3",
+      "requirements": [
+        "skodaconnect>=1.3.4",
+        "homeassistant>=2022.12.0"
+      ]
+    },
+    "hacs": {
+      "version": "1.30.1",
+      "requirements": [
+        "aiogithubapi>=22.10.1"
+      ]
+    },
+    "ecoflow_cloud": {
+      "version": "0.7.0",
+      "requirements": [
+        "paho-mqtt==1.6.1",
+        "reactivex==4.0.4"
+      ]
+    },
+    "ecoflow": {
+      "version": "3.0.0",
+      "requirements": [
+        "reactivex"
+      ]
+    }
+  },
+  "integration_manifest": {
+    "domain": "ecoflow_cloud",
+    "name": "Ecoflow-Cloud",
+    "version": "0.7.0",
+    "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
+    "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
+    "requirements": [
+      "paho-mqtt==1.6.1",
+      "reactivex==4.0.4"
+    ],
+    "config_flow": true,
+    "codeowners": [
+      "@tolwi"
+    ],
+    "iot_class": "cloud_push",
+    "is_built_in": false
+  },
+  "data": {
+    "data": {
+      "bmsMaster.amp": -4591,
+      "bmsMaster.bmsFault": 0,
+      "bmsMaster.bqSysStatReg": 128,
+      "bmsMaster.cellId": 2,
+      "bmsMaster.cycles": 34,
+      "bmsMaster.designCap": 80000,
+      "bmsMaster.errCode": 0,
+      "bmsMaster.f32ShowSoc": 37.81998,
+      "bmsMaster.fullCap": 48000,
+      "bmsMaster.inputWatts": 0,
+      "bmsMaster.maxCellTemp": 27,
+      "bmsMaster.maxCellVol": 3286,
+      "bmsMaster.maxMosTemp": 27,
+      "bmsMaster.minCellTemp": 26,
+      "bmsMaster.minCellVol": 3279,
+      "bmsMaster.minMosTemp": 27,
+      "bmsMaster.num": 0,
+      "bmsMaster.openBmsIdx": 1,
+      "bmsMaster.outputWatts": 0,
+      "bmsMaster.remainCap": 18153,
+      "bmsMaster.remainTime": 0,
+      "bmsMaster.soc": 38,
+      "bmsMaster.soh": 0,
+      "bmsMaster.sysVer": 16843029,
+      "bmsMaster.tagChgAmp": 64000,
+      "bmsMaster.temp": 27,
+      "bmsMaster.type": 1,
+      "bmsMaster.vol": 49285,
+      "ems.bms0Online": 3,
+      "ems.bms1Online": 0,
+      "ems.bms2Online": 0,
+      "ems.bmsModel": 1,
+      "ems.bmsWarningState": 0,
+      "ems.chgAmp": 130000,
+      "ems.chgCmd": 1,
+      "ems.chgRemainTime": 143999,
+      "ems.chgState": 1,
+      "ems.chgVol": 50285,
+      "ems.dsgCmd": 1,
+      "ems.dsgRemainTime": 240,
+      "ems.emsIsNormalFlag": 1,
+      "ems.f32LcdShowSoc": 37.820835,
+      "ems.fanLevel": 0,
+      "ems.lcdShowSoc": 38,
+      "ems.maxAvailableNum": 1,
+      "ems.maxChargeSoc": 100,
+      "ems.maxCloseOilEbSoc": 100,
+      "ems.minDsgSoc": 5,
+      "ems.minOpenOilEbSoc": 5,
+      "ems.openBmsIdx": 1,
+      "ems.openUpsFlag": 1,
+      "ems.paraVolMax": 49853,
+      "ems.paraVolMin": 49253,
+      "inv.acDipSwitch": 2,
+      "inv.acInAmp": 0,
+      "inv.acInFreq": 0,
+      "inv.acInVol": 0,
+      "inv.acPassByAutoEn": 1,
+      "inv.cfgAcEnabled": 1,
+      "inv.cfgAcOutFreq": 1,
+      "inv.cfgAcOutVoltage": 230000,
+      "inv.cfgAcWorkMode": 0,
+      "inv.cfgAcXboost": 0,
+      "inv.cfgFastChgWatts": 0,
+      "inv.cfgSlowChgWatts": 200,
+      "inv.cfgStandbyMin": 0,
+      "inv.chargerType": 0,
+      "inv.chgPauseFlag": 0,
+      "inv.dcInAmp": 0,
+      "inv.dcInTemp": 29,
+      "inv.dcInVol": 0,
+      "inv.dischargeType": 1,
+      "inv.errCode": 0,
+      "inv.fanState": 1,
+      "inv.inputWatts": 0,
+      "inv.invOutAmp": 1390,
+      "inv.invOutFreq": 50,
+      "inv.invOutVol": 230168,
+      "inv.invType": 15,
+      "inv.outTemp": 29,
+      "inv.outputWatts": 155,
+      "inv.sysVer": 33620303,
+      "latestTimeStamp": 1675620796844,
+      "mppt.beepState": 0,
+      "mppt.carOutAmp": 0,
+      "mppt.carOutVol": 0,
+      "mppt.carOutWatts": 0,
+      "mppt.carState": 0,
+      "mppt.carTemp": 0,
+      "mppt.cfgChgType": 0,
+      "mppt.cfgDcChgCurrent": 8000,
+      "mppt.chgPauseFlag": 0,
+      "mppt.chgState": 0,
+      "mppt.chgType": 0,
+      "mppt.dc24vState": 1,
+      "mppt.dc24vTemp": 25,
+      "mppt.dcdc12vAmp": 0,
+      "mppt.dcdc12vVol": 0,
+      "mppt.dcdc12vWatts": 0,
+      "mppt.faultCode": 0,
+      "mppt.inAmp": 0,
+      "mppt.inVol": 48,
+      "mppt.inWatts": 0,
+      "mppt.mpptTemp": 25,
+      "mppt.outAmp": 2,
+      "mppt.outVol": 484,
+      "mppt.outWatts": 11,
+      "mppt.swVer": 50397216,
+      "mppt.xt60ChgType": 2,
+      "pd.beepState": 0,
+      "pd.carState": 0,
+      "pd.carTemp": 0,
+      "pd.carUsedTime": 20357,
+      "pd.carWatts": 0,
+      "pd.chgPowerAc": 444762,
+      "pd.chgPowerDc": 0,
+      "pd.chgSunPower": 37064,
+      "pd.dcInUsedTime": 0,
+      "pd.dcOutState": 1,
+      "pd.dsgPowerAc": 411377,
+      "pd.dsgPowerDc": 508,
+      "pd.errCode": 0,
+      "pd.ext3p8Port": 0,
+      "pd.ext4p8Port": 0,
+      "pd.extRj45Port": 0,
+      "pd.iconAcFreqMode": 1,
+      "pd.iconAcFreqState": 0,
+      "pd.iconBmsErrMode": 0,
+      "pd.iconBmsErrState": 0,
+      "pd.iconBmsParallelMode": 0,
+      "pd.iconBmsParallelState": 0,
+      "pd.iconBtMode": 0,
+      "pd.iconBtState": 0,
+      "pd.iconCarMode": 1,
+      "pd.iconCarState": 0,
+      "pd.iconChgStationMode": 0,
+      "pd.iconChgStationState": 0,
+      "pd.iconCoGasMode": 0,
+      "pd.iconCoGasState": 0,
+      "pd.iconEcoMode": 0,
+      "pd.iconEcoState": 0,
+      "pd.iconFactoryMode": 0,
+      "pd.iconFactoryState": 0,
+      "pd.iconFanMode": 0,
+      "pd.iconFanState": 0,
+      "pd.iconGasGenMode": 0,
+      "pd.iconGasGenState": 0,
+      "pd.iconHiTempMode": 0,
+      "pd.iconHiTempState": 0,
+      "pd.iconInvParallelMode": 0,
+      "pd.iconInvParallelState": 0,
+      "pd.iconLowTempMode": 0,
+      "pd.iconLowTempState": 0,
+      "pd.iconOverloadMode": 0,
+      "pd.iconOverloadState": 0,
+      "pd.iconPackHeaterMode": 0,
+      "pd.iconPackHeaterState": 0,
+      "pd.iconRcMode": 0,
+      "pd.iconRcState": 0,
+      "pd.iconRechgTimeMode": 0,
+      "pd.iconRechgTimeState": 0,
+      "pd.iconSocUpsMode": 0,
+      "pd.iconSocUpsState": 0,
+      "pd.iconSolarBracketMode": 0,
+      "pd.iconSolarBracketState": 0,
+      "pd.iconSolarPanelMode": 0,
+      "pd.iconSolarPanelState": 0,
+      "pd.iconTransSwMode": 0,
+      "pd.iconTransSwState": 0,
+      "pd.iconTypecMode": 0,
+      "pd.iconTypecState": 0,
+      "pd.iconUsbMode": 0,
+      "pd.iconUsbState": 0,
+      "pd.iconWifiMode": 0,
+      "pd.iconWifiState": 0,
+      "pd.iconWindGenMode": 0,
+      "pd.iconWindGenState": 0,
+      "pd.iconWirelessChgMode": 0,
+      "pd.iconWirelessChgState": 0,
+      "pd.invUsedTime": 9770029,
+      "pd.kit1": 0,
+      "pd.lcdBrightness": 0,
+      "pd.lcdOffSec": 300,
+      "pd.model": 1,
+      "pd.mpptUsedTime": 654462,
+      "pd.qcUsb1Watts": 0,
+      "pd.qcUsb2Watts": 0,
+      "pd.remainTime": 240,
+      "pd.soc": 38,
+      "pd.standByMode": 0,
+      "pd.sysChgDsgState": 1,
+      "pd.sysVer": 16908366,
+      "pd.typccUsedTime": 6600,
+      "pd.typec1Temp": 26,
+      "pd.typec1Watts": 0,
+      "pd.typec2Temp": 26,
+      "pd.typec2Watts": 0,
+      "pd.usb1Watts": 0,
+      "pd.usb2Watts": 0,
+      "pd.usbUsedTime": 3349,
+      "pd.usbqcUsedTime": 11949,
+      "pd.wattsInSum": 0,
+      "pd.wattsOutSum": 155,
+      "pd.wifiAutoRcvy": 0,
+      "pd.wifiRssi": 0,
+      "pd.wifiVer": 196609,
+      "pd.wirelessWatts": 0
+    },
+    "set_commands": {
+      "493041235": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "493041235",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 493041235,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "516321236": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "516321236",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 516321236,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "523101237": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "523101237",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 523101237,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "546411238": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "546411238",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 546411238,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "553171239": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "553171239",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 553171239,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "576511240": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "576511240",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 576511240,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "583261241": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "583261241",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 583261241,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "106601242": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "106601242",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 106601242,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "113351243": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "113351243",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 113351243,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "136701244": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "136701244",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 136701244,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "143431245": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "143431245",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 143431245,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "166791246": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "166791246",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 166791246,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "173501247": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "173501247",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 173501247,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "196841248": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "196841248",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 196841248,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "103591249": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "103591249",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 103591249,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "126871250": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "126871250",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 126871250,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "133631251": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "133631251",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 133631251,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "142411252": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "142411252",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 38,
+            "enabled": 0
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 142411252,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "result": 0,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 38
+          }
+        }
+      },
+      "147221253": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "147221253",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 147221253,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      },
+      "177281254": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "177281254",
+          "moduleType": 0,
+          "operateType": "TCP",
+          "params": {
+            "id": 72
+          },
+          "version": "1.0"
+        },
+        "reply": {
+          "id": 177281254,
+          "version": "1.0",
+          "operateType": "TCP",
+          "code": "0",
+          "data": {
+            "data": 8000,
+            "cmdSet": 32,
+            "ack": 0,
+            "id": 72
+          }
+        }
+      }
+    },
+    "get_commands": {
+      "252121000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "252121000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "253801000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "253801000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "265181000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "265181000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "275611000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "275611000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "291481000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "291481000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "152611000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "152611000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "351671000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "351671000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "158071029": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "158071029",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "254661000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "254661000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "298611002": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "298611002",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "216271008": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "216271008",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      },
+      "285331000": {
+        "target_state": null,
+        "command": {
+          "from": "Android",
+          "id": "285331000",
+          "moduleType": 0,
+          "operateType": "latestQuotas",
+          "params": {},
+          "version": "1.0"
+        },
+        "reply": {}
+      }
+    },
+    "raw_data": []
+  }
+}
