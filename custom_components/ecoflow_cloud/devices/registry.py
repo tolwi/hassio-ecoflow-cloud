@@ -1,6 +1,7 @@
 from custom_components.ecoflow_cloud.config_flow import EcoflowModel
 from custom_components.ecoflow_cloud.devices import BaseDevice, DiagnosticDevice
 from custom_components.ecoflow_cloud.devices.delta2 import Delta2
+from custom_components.ecoflow_cloud.devices.delta_mini import DeltaMini
 from custom_components.ecoflow_cloud.devices.delta_pro import DeltaPro
 from custom_components.ecoflow_cloud.devices.river2 import River2
 from custom_components.ecoflow_cloud.devices.river2_max import River2Max
@@ -19,6 +20,7 @@ devices: dict[str, BaseDevice] = {
     EcoflowModel.DELTA_PRO.name: DeltaPro(),
     EcoflowModel.RIVER_MAX.name: RiverMax(),
     EcoflowModel.RIVER_PRO.name: RiverPro(),
+    EcoflowModel.DELTA_MINI.name: DeltaMini(),
     EcoflowModel.DELTA_MAX.name: DeltaMax(),
     EcoflowModel.DELTA_2_MAX.name: Delta2Max(),
     EcoflowModel.POWERSTREAM.name: PowerStream(),

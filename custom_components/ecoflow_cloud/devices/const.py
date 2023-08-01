@@ -166,10 +166,15 @@ DC_MODE = "DC Mode"
 BATTERY_TEMP = "Battery Temperature"
 MIN_CELL_TEMP = "Min Cell Temperature"
 MAX_CELL_TEMP = "Max Cell Temperature"
+ATTR_MIN_CELL_TEMP = MIN_CELL_TEMP
+ATTR_MAX_CELL_TEMP = MAX_CELL_TEMP
+
 
 BATTERY_VOLT = "Battery Volts"
 MIN_CELL_VOLT = "Min Cell Volts"
 MAX_CELL_VOLT = "Max Cell Volts"
+ATTR_MIN_CELL_VOLT = MIN_CELL_VOLT
+ATTR_MAX_CELL_VOLT = MAX_CELL_VOLT
 
 BATTERY_AMP = "Battery Current"
 SLAVE_BATTERY_AMP = "Slave Battery Current"
