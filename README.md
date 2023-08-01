@@ -13,7 +13,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
 
 ## Current state
-<details><summary> DELTA_2 <i>(sensors: 35, switches: 8, sliders: 6, selects: 5)</i> </summary>
+<details><summary> DELTA_2 <i>(sensors: 37, switches: 8, sliders: 6, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -22,8 +22,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Total In Power
 - Total Out Power
 - AC In Power
-- Solar In Power
 - AC Out Power
+- AC In Volts
+- AC Out Volts
+- Solar In Power
 - DC Out Power
 - Type-C (1) Out Power
 - Type-C (2) Out Power
@@ -54,43 +56,46 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper
-- USB Enabled
-- AC Always On
-- Prio Solar Charging
-- AC Enabled
-- X-Boost Enabled
-- DC (12V) Enabled
-- Backup Reserve Enabled
+- Beeper 
+- USB Enabled 
+- AC Always On 
+- Prio Solar Charging 
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+- Backup Reserve Enabled 
 
 *Sliders (numbers)*
-- Max Charge Level
-- Min Discharge Level
-- Backup Reserve Level
-- Generator Auto Start Level
-- Generator Auto Stop Level
-- AC Charging Power
+- Max Charge Level 
+- Min Discharge Level 
+- Backup Reserve Level 
+- Generator Auto Start Level 
+- Generator Auto Stop Level 
+- AC Charging Power 
 
 *Selects*
-- DC (12V) Charge Current
-- Screen Timeout
-- Unit Timeout
-- AC Timeout
-- DC (12V) Timeout
+- DC (12V) Charge Current 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+- DC (12V) Timeout 
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 21, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 24, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
+- Battery Charging State
 - Total In Power
 - Total Out Power
 - AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
 - Type-C In Power
 - Solar In Power
-- AC Out Power
 - DC Out Power
 - Type-C (1) Out Power
 - USB Out Power
@@ -107,37 +112,40 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- AC Enabled
-- X-Boost Enabled
-- DC (12V) Enabled
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
 
 *Sliders (numbers)*
-- Max Charge Level
-- Min Discharge Level
-- AC Charging Power
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
 
 *Selects*
-- DC (12V) Charge Current
-- DC Mode
-- Screen Timeout
-- Unit Timeout
-- AC Timeout
+- DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
 
 </p></details>
 
-<details><summary> RIVER_2_MAX <i>(sensors: 24, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_MAX <i>(sensors: 27, switches: 5, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
+- Battery Charging State
 - Total In Power
 - Total Out Power
 - Solar In Current
 - Solar In Voltage
 - AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
 - Type-C In Power
 - Solar In Power
-- AC Out Power
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
@@ -155,35 +163,41 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- AC Enabled
-- X-Boost Enabled
-- DC (12V) Enabled
+- AC Enabled 
+- AC Always On 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+- Backup Reserve Enabled 
 
 *Sliders (numbers)*
-- Max Charge Level
-- Min Discharge Level
-- AC Charging Power
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+- Backup Reserve Level 
 
 *Selects*
-- DC (12V) Charge Current
-- DC Mode
-- Screen Timeout
-- Unit Timeout
-- AC Timeout
+- DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
 
 </p></details>
 
-<details><summary> RIVER_2_PRO <i>(sensors: 22, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_PRO <i>(sensors: 25, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
+- Battery Charging State
 - Total In Power
 - Total Out Power
 - AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
 - Type-C In Power
 - Solar In Power
-- AC Out Power
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
@@ -201,25 +215,25 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- AC Enabled
-- X-Boost Enabled
-- DC (12V) Enabled
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
 
 *Sliders (numbers)*
-- Max Charge Level
-- Min Discharge Level
-- AC Charging Power
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
 
 *Selects*
-- DC (12V) Charge Current
-- DC Mode
-- Screen Timeout
-- Unit Timeout
-- AC Timeout
+- DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
 
 </p></details>
 
-<details><summary> DELTA_PRO <i>(sensors: 38, switches: 6, sliders: 6, selects: 4)</i> </summary>
+<details><summary> DELTA_PRO <i>(sensors: 40, switches: 6, sliders: 6, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -227,8 +241,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Total In Power
 - Total Out Power
 - AC In Power
-- Solar In Power
 - AC Out Power
+- AC In Volts
+- AC Out Volts
+- Solar In Power
 - DC Out Power
 - DC Car Out Power
 - DC Anderson Out Power
@@ -263,30 +279,30 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper
-- DC (12V) Enabled
-- AC Enabled
-- X-Boost Enabled
-- AC Always On
-- Backup Reserve Enabled
+- Beeper 
+- DC (12V) Enabled 
+- AC Enabled 
+- X-Boost Enabled 
+- AC Always On 
+- Backup Reserve Enabled 
 
 *Sliders (numbers)*
-- Max Charge Level
-- Min Discharge Level
-- Backup Reserve Level
-- Generator Auto Start Level
-- Generator Auto Stop Level
-- AC Charging Power
+- Max Charge Level 
+- Min Discharge Level 
+- Backup Reserve Level 
+- Generator Auto Start Level 
+- Generator Auto Stop Level 
+- AC Charging Power 
 
 *Selects*
-- DC (12V) Charge Current
-- Screen Timeout
-- Unit Timeout
-- AC Timeout
+- DC (12V) Charge Current 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
 
 </p></details>
 
-<details><summary> RIVER_MAX <i>(sensors: 27, switches: 4, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_MAX <i>(sensors: 34, switches: 4, sliders: 1, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
@@ -295,6 +311,8 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Total Out Power
 - AC In Power
 - AC Out Power
+- AC In Volts
+- AC Out Volts
 - DC Out Power
 - Type-C Out Power
 - USB (1) Out Power
@@ -308,6 +326,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Solar In Energy
+- Battery Charge Energy from AC
+- Battery Charge Energy from DC
+- Battery Discharge Energy to AC
+- Battery Discharge Energy to DC
 - Slave Battery Level  _(auto)_
 - Slave Battery Temperature  _(auto)_
 - Slave Min Cell Temperature  _(disabled)_
@@ -319,21 +342,21 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper
-- AC Enabled
-- DC (12V) Enabled
-- X-Boost Enabled
+- Beeper 
+- AC Enabled 
+- DC (12V) Enabled 
+- X-Boost Enabled 
 
 *Sliders (numbers)*
 - Max Charge Level  _(read-only)_
 
 *Selects*
-- Unit Timeout
-- AC Timeout
+- Unit Timeout 
+- AC Timeout 
 
 </p></details>
 
-<details><summary> RIVER_PRO <i>(sensors: 29, switches: 3, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_PRO <i>(sensors: 31, switches: 3, sliders: 1, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
@@ -344,6 +367,8 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Solar In Voltage
 - AC In Power
 - AC Out Power
+- AC In Volts
+- AC Out Volts
 - DC Out Power
 - Type-C Out Power
 - USB (1) Out Power
@@ -381,7 +406,59 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_MAX <i>(sensors: 25, switches: 7, sliders: 5, selects: 0)</i> </summary>
+<details><summary> DELTA_MINI <i>(sensors: 28, switches: 4, sliders: 3, selects: 4)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Total In Power
+- Total Out Power
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- Solar In Power
+- DC Out Power
+- DC Car Out Power
+- DC Anderson Out Power
+- Type-C (1) Out Power
+- Type-C (2) Out Power
+- USB (1) Out Power
+- USB (2) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Cycles
+- Battery Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Solar In Energy
+- Battery Charge Energy from AC
+- Battery Charge Energy from DC
+- Battery Discharge Energy to AC
+- Battery Discharge Energy to DC
+- Status
+
+*Switches*
+- Beeper 
+- DC (12V) Enabled 
+- AC Enabled 
+- X-Boost Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+
+*Selects*
+- DC (12V) Charge Current 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+
+</p></details>
+
+<details><summary> DELTA_MAX <i>(sensors: 27, switches: 7, sliders: 5, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
@@ -390,8 +467,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Total In Power
 - Total Out Power
 - AC In Power
-- Solar In Power
 - AC Out Power
+- AC In Volts
+- AC Out Volts
+- Solar In Power
 - DC Out Power
 - Type-C (1) Out Power
 - Type-C (2) Out Power
@@ -412,26 +491,26 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper
-- USB Enabled
-- AC Always On
-- Prio Solar Charging
-- AC Enabled
-- X-Boost Enabled
-- DC (12V) Enabled
+- Beeper 
+- USB Enabled 
+- AC Always On 
+- Prio Solar Charging 
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
 
 *Sliders (numbers)*
-- Max Charge Level
-- Min Discharge Level
-- Generator Auto Start Level
-- Generator Auto Stop Level
-- AC Charging Power
+- Max Charge Level 
+- Min Discharge Level 
+- Generator Auto Start Level 
+- Generator Auto Stop Level 
+- AC Charging Power 
 
 *Selects*
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 25, switches: 5, sliders: 5, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 27, switches: 5, sliders: 5, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -440,8 +519,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Total In Power
 - Total Out Power
 - AC In Power
-- Solar In Power
 - AC Out Power
+- AC In Volts
+- AC Out Volts
+- Solar In Power
 - DC Out Power
 - Type-C (1) Out Power
 - Type-C (2) Out Power
@@ -462,40 +543,28 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper
-- USB Enabled
-- AC Always On
-- AC Enabled
-- X-Boost Enabled
+- Beeper 
+- USB Enabled 
+- AC Always On 
+- AC Enabled 
+- X-Boost Enabled 
 
 *Sliders (numbers)*
-- Max Charge Level
-- Min Discharge Level
-- Generator Auto Start Level
-- Generator Auto Stop Level
-- AC Charging Power
+- Max Charge Level 
+- Min Discharge Level 
+- Generator Auto Start Level 
+- Generator Auto Stop Level 
+- AC Charging Power 
 
 *Selects*
-- Screen Timeout
-- Unit Timeout
-- AC Timeout
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
 
 </p></details>
 
-<details><summary> POWERSTREAM <sup>beta</sup> <i>(sensors: 55, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> POWERSTREAM <sup>beta</sup> <i>(sensors: 57, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
-
-Due to limitations with the way that Ecoflow have implemented the communication
-between the device and app only a couple of fields at a time get updated. It may
-take several hours for all fields to receive data. However, launching the app
-and viewing the PowerStream should force all the fields to be updated at once.
-
-PowerStream support is still in development.
-
-Wishlist
-
-- Ability to change settings
-- Add Sensors to allow data to be displyed on the Energy Dashboard
 
 *Sensors*
 - Solar 1 Watts
@@ -504,19 +573,19 @@ Wishlist
 - Solar 1 Currrent
 - Solar 1 Temperature
 - Solar 1 Relay Status
-- Solar 1 Error Code _(disabled)_
-- Solar 1 Warning Code _(disabled)_
-- Solar 1 tatus _(disabled)_
+- Solar 1 Error Code  _(disabled)_
+- Solar 1 Warning Code  _(disabled)_
+- Solar 1 Status  _(disabled)_
 - Solar 2 Watts
 - Solar 2 Input Potential
 - Solar 2 Op Potential
 - Solar 2 Current
 - Solar 2 Temperature
 - Solar 2 Relay Status
-- Solar 2 Error Code _(disabled)_
-- Solar 2 Warning Code _(disabled)_
-- Solar 2 Status _(disabled)_
-- Battery Type _(disabled)_
+- Solar 2 Error Code  _(disabled)_
+- Solar 2 Warning Code  _(disabled)_
+- Solar 2 Status  _(disabled)_
+- Battery Type  _(disabled)_
 - Battery Charge
 - Battery Input Watts
 - Battery Input Potential
@@ -525,35 +594,36 @@ Wishlist
 - Battery Temperature
 - Charge Time
 - Discharge Time
-- Battery Error Code _(disabled)_
-- Battery Warning Code _(disabled)_
-- Battery Status _(disabled)_
-- LLC Input Potential _(disabled)_
-- LLC Op Potential _(disabled)_
-- LLC Error Code _(disabled)_
-- LLC Warning Code _(disabled)_
-- LLC Status _(disabled)_
+- Battery Error Code  _(disabled)_
+- Battery Warning Code  _(disabled)_
+- Battery Status  _(disabled)_
+- LLC Input Potential  _(disabled)_
+- LLC Op Potential  _(disabled)_
+- LLC Error Code  _(disabled)_
+- LLC Warning Code  _(disabled)_
+- LLC Status  _(disabled)_
 - Inverter On/Off Status
 - Inverter Output Watts
-- Inverter Output Potential _(disabled)_
+- Inverter Output Potential  _(disabled)_
 - Inverter Op Potential
 - Inverter Output Current
 - Inverter DC Current
 - Inverter Frequency
 - Inverter Temperature
 - Inverter Relay Status
-- Inverter Error Code _(disabled)_
-- Inverter Warning Code _(disabled)_
-- Inverter Status _(disabled)_
+- Inverter Error Code  _(disabled)_
+- Inverter Warning Code  _(disabled)_
+- Inverter Status  _(disabled)_
 - Other Loads
 - Smart Plug Loads
 - Rated Power
-- Lower Battery Limit _(disabled)_
-- Upper Battery Limit _(disabled)_
-- Wireless Error Code _(disabled)_
-- Wireless Warning Code _(disabled)_
-- LED Brightness _(disabled)_
-- Heartbeat Frequency _(disabled)_
+- Lower Battery Limit  _(disabled)_
+- Upper Battery Limit  _(disabled)_
+- Wireless Error Code  _(disabled)_
+- Wireless Warning Code  _(disabled)_
+- LED Brightness  _(disabled)_
+- Heartbeat Frequency  _(disabled)_
+- Status
 
 *Switches*
 None

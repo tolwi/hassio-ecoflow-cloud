@@ -2,12 +2,15 @@
 
 *Sensors*
 - Main Battery Level (`pd.soc`)
+- Battery Charging State (`bms_emsStatus.chgState`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
 - AC In Power (`inv.inputWatts`)
+- AC Out Power (`inv.outputWatts`)
+- AC In Volts (`inv.acInVol`)
+- AC Out Volts (`inv.invOutVol`)
 - Type-C In Power (`pd.typecChaWatts`)
 - Solar In Power (`mppt.inWatts`)
-- AC Out Power (`inv.outputWatts`)
 - DC Out Power (`pd.carWatts`)
 - Type-C Out Power (`pd.typec1Watts`)
 - USB Out Power (`pd.usb1Watts`)

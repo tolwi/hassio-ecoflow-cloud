@@ -99,7 +99,7 @@ class River2Max(BaseDevice):
             EnabledEntity(client, "pd.acAutoOutConfig", const.AC_ALWAYS_ENABLED,
                           lambda value, params: {"moduleType": 1, "operateType": "acAutoOutConfig",
                                                  "params": {"acAutoOutConfig": value,
-                                                            "minAcOutSoc": int(params["bms_emsStatus.minDsgSoc"]) + 5}}
+                                                            "minAcOutSoc": int(params.get("bms_emsStatus.minDsgSoc", 0)) + 5}}
                           ),
 
             EnabledEntity(client, "mppt.cfgAcXboost", const.XBOOST_ENABLED,
@@ -113,7 +113,7 @@ class River2Max(BaseDevice):
             EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 1, "operateType": "watthConfig",
                                                  "params": {"isConfig": int(value),
-                                                            "bpPowerSoc": int(params["pd.bpPowerSoc"]),
+                                                            "bpPowerSoc": int(params.get("pd.bpPowerSoc", 0)),
                                                             "minDsgSoc": 0,
                                                             "minChgSoc": 0}})
         ]
