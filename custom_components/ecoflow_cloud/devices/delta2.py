@@ -123,7 +123,7 @@ class Delta2(BaseDevice):
             EnabledEntity(client, "pd.acAutoOutConfig", const.AC_ALWAYS_ENABLED,
                           lambda value, params: {"moduleType": 1, "operateType": "acAutoOutConfig",
                                                  "params": {"acAutoOutConfig": value,
-                                                            "minAcOutSoc": int(params["bms_emsStatus.minDsgSoc"]) + 5}}
+                                                            "minAcOutSoc": int(params.get("bms_emsStatus.minDsgSoc", 0)) + 5}}
                           ),
 
             EnabledEntity(client, "pd.pvChgPrioSet", const.PV_PRIO,

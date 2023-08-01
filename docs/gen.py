@@ -7,11 +7,13 @@ from custom_components.ecoflow_cloud.devices.registry import devices
 from custom_components.ecoflow_cloud.entities import EcoFlowBaseCommandEntity, BaseSwitchEntity, BaseSensorEntity, \
     BaseNumberEntity, BaseSelectEntity, EcoFlowDictEntity
 
+MARKER_VALUE = -66666
 client = Mock()
 client.config_entry = Mock()
 client.config_entry.options = {OPTS_POWER_STEP: 999}
 client.device_sn = "MOCK"
-MARKER_VALUE: int = -66666
+client.data.params = {}
+client.data.params.setdefault("missing_key", MARKER_VALUE)
 
 
 def device_summary(device: BaseDevice) -> str:

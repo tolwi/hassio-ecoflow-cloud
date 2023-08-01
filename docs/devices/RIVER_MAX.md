@@ -6,6 +6,8 @@
 - Total Out Power (`pd.wattsOutSum`)
 - AC In Power (`inv.inputWatts`)
 - AC Out Power (`inv.outputWatts`)
+- AC In Volts (`inv.acInVol`)
+- AC Out Volts (`inv.invOutVol`)
 - DC Out Power (`pd.carWatts`)
 - Type-C Out Power (`pd.typecWatts`)
 - USB (1) Out Power (`pd.usb1Watts`)
@@ -19,6 +21,11 @@
 - Battery Volts (`bmsMaster.vol`)   _(disabled)_
 - Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
+- Solar In Energy (`pd.chgSunPower`)
+- Battery Charge Energy from AC (`pd.chgPowerAC`)
+- Battery Charge Energy from DC (`pd.chgPowerDC`)
+- Battery Discharge Energy to AC (`pd.dsgPowerAC`)
+- Battery Discharge Energy to DC (`pd.dsgPowerDC`)
 - Slave Battery Level (`bmsSlave1.soc`)   _(auto)_
 - Slave Battery Temperature (`bmsSlave1.temp`)   _(auto)_
 - Slave Min Cell Temperature (`bmsSlave1.minCellTemp`)   _(disabled)_
