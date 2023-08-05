@@ -126,8 +126,11 @@ class DeltaPro(BaseDevice):
 
             EnabledEntity(client, "inv.acPassByAutoEn", const.AC_ALWAYS_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 84, "enabled": value}}),
-            EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
-                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"isConfig": value}}),
+            EnabledEntity(client, "pd.bppowerSoc", const.BP_ENABLED,
+                          lambda value, params: {"moduleType": 0, "operateType": "TCP", "params": {"id": 94, "isConfig": value, 
+                                                            "bpPowerSoc": int(params["pd.bppowerSoc"]),
+                                                            "minDsgSoc": 0,
+                                                            "maxChgSoc": 0}}),
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
