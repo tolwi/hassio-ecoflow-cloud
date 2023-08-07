@@ -63,6 +63,7 @@ DC_TIMEOUT_OPTIONS = {
 }
 
 DC_CHARGE_CURRENT_OPTIONS = {
+    "0A": 0,
     "4A": 4000,
     "6A": 6000,
     "8A": 8000
