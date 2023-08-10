@@ -32,8 +32,11 @@ class DictSelectEntity(BaseSelectEntity):
     def _update_value(self, val: Any) -> bool:
         ival = int(val)
         lval = [k for k, v in self.__options_dict.items() if v == ival]
-        self._attr_current_option = lval[0]
-        return True
+        if len(lval) == 1:
+            self._attr_current_option = lval[0]
+            return True
+        else:
+            return False
 
     async def async_select_option(self, option: str):
         if self._command:
