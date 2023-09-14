@@ -40,9 +40,20 @@ class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
         return True
 
 
-class ChargingBinarySensorEntity(MiscBinarySensorEntity):
+class ChargingStateSensorEntity(BaseSensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:battery-charging"
     _attr_device_class = BinarySensorDeviceClass.BATTERY_CHARGING
+
+    def _update_value(self, val: Any) -> bool:
+        if val == 0:
+            return super()._update_value("unused")
+        elif val == 1:
+            return super()._update_value("charging")
+        elif val == 2:
+            return super()._update_value("discharging")
+        else:
+            return False
 
 
 class CyclesSensorEntity(BaseSensorEntity):
