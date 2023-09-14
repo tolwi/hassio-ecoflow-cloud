@@ -1,4 +1,6 @@
-from . import const, BaseDevice
+from homeassistant.const import Platform
+
+from . import const, BaseDevice, EntityMigration, MigrationAction
 from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, BATTERY_CHARGING_STATE
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
@@ -16,10 +18,12 @@ class River2(BaseDevice):
 
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+            LevelSensorEntity(client, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
                 .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
+
+            LevelSensorEntity(client, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
 
             ChargingBinarySensorEntity(client, "bms_emsStatus.chgState", BATTERY_CHARGING_STATE),
 
@@ -113,3 +117,10 @@ class River2(BaseDevice):
                                     lambda value: {"moduleType": 5, "operateType": "acStandby",
                                                    "params": {"standbyMins": value}})
         ]
+
+    def migrate(self, version) -> list[EntityMigration]:
+        if version == 2:
+            return [
+                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
+            ]
+        return []

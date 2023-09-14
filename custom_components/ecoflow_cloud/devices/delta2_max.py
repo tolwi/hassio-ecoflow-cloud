@@ -1,4 +1,6 @@
-from . import const, BaseDevice
+from homeassistant.const import Platform
+
+from . import const, BaseDevice, EntityMigration, MigrationAction
 from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
@@ -14,11 +16,13 @@ from ..switch import BeeperEntity, EnabledEntity
 class Delta2Max(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+            LevelSensorEntity(client, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
                 .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            LevelSensorEntity(client, "bms_emsStatus.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL),
+
+            LevelSensorEntity(client, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
+
             InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
@@ -149,3 +153,11 @@ class Delta2Max(BaseDevice):
                                                    "moduleSn": client.device_sn,
                                                    "params": {"standbyMins": value}}),
         ]
+
+    def migrate(self, version) -> list[EntityMigration]:
+        if version == 2:
+            return [
+                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
+                EntityMigration("bms_emsStatus.f32LcdShowSoc", Platform.SENSOR, MigrationAction.REMOVE)
+            ]
+        return []

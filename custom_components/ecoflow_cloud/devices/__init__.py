@@ -1,14 +1,26 @@
 from abc import ABC, abstractmethod
+from enum import StrEnum
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.const import Platform
 
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..entities import BaseNumberEntity, BaseSelectEntity
-from ..entities import BaseSensorEntity
-from ..entities import BaseSwitchEntity
+
+
+class MigrationAction(StrEnum):
+    REMOVE = "remove"
+
+
+class EntityMigration:
+
+    def __init__(self, key: str, domain: Platform, action: MigrationAction, **kwargs):
+        self.key = key
+        self.domain = domain
+        self.action = action
+        self.args = kwargs
 
 
 class BaseDevice(ABC):
@@ -31,6 +43,9 @@ class BaseDevice(ABC):
     @abstractmethod
     def selects(self, client: EcoflowMQTTClient) -> list[SelectEntity]:
         pass
+
+    def migrate(self, version) -> list[EntityMigration]:
+        return []
 
 
 class DiagnosticDevice(BaseDevice):
