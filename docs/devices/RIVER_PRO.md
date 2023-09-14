@@ -1,7 +1,7 @@
 ## RIVER_PRO
 
 *Sensors*
-- Main Battery Level (`pd.soc`)
+- Main Battery Level (`bmsMaster.soc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
 - Solar In Current (`inv.dcInAmp`)

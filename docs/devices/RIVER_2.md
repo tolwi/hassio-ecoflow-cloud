@@ -1,7 +1,8 @@
 ## RIVER_2
 
 *Sensors*
-- Main Battery Level (`pd.soc`)
+- Main Battery Level (`bms_bmsStatus.soc`)
+- Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Battery Charging State (`bms_emsStatus.chgState`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)

@@ -1,7 +1,7 @@
 ## RIVER_MAX
 
 *Sensors*
-- Main Battery Level (`pd.soc`)
+- Main Battery Level (`bmsMaster.soc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
 - AC In Power (`inv.inputWatts`)
