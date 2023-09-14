@@ -1,12 +1,13 @@
-from . import const, BaseDevice
+from homeassistant.const import Platform
+
+from . import const, BaseDevice, EntityMigration, MigrationAction
 from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
     MaxGenStopLevelEntity, MinGenStartLevelEntity
-from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, \
+    InWattsSensorEntity, OutWattsSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
@@ -14,7 +15,7 @@ from ..switch import BeeperEntity, EnabledEntity
 class DeltaMax(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+            LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
                 .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
@@ -146,3 +147,10 @@ class DeltaMax(BaseDevice):
             #                                       "params": {"standbyMins": value}})
 
         ]
+
+    def migrate(self, version) -> list[EntityMigration]:
+        if version == 2:
+            return [
+                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
+            ]
+        return []

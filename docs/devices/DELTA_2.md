@@ -1,7 +1,7 @@
 ## DELTA_2
 
 *Sensors*
-- Main Battery Level (`pd.soc`)
+- Main Battery Level (`bms_bmsStatus.soc`)
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)

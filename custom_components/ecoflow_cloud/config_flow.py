@@ -8,7 +8,7 @@ from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
-from . import DOMAIN
+from . import DOMAIN, CONFIG_VERSION
 from .config.const import EcoflowModel, CONF_USERNAME, CONF_PASSWORD, CONF_DEVICE_TYPE, CONF_DEVICE_NAME, \
     CONF_DEVICE_ID, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, DEFAULT_REFRESH_PERIOD_SEC
 
@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 2
+    VERSION = CONFIG_VERSION
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         errors: Dict[str, str] = {}

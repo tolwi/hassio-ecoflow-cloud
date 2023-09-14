@@ -1,7 +1,7 @@
 ## DELTA_MAX
 
 *Sensors*
-- Main Battery Level (`pd.soc`)
+- Main Battery Level (`bmsMaster.soc`)
 - Battery Level (`ems.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)

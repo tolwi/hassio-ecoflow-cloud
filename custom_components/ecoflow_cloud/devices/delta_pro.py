@@ -1,4 +1,6 @@
-from . import const, BaseDevice
+from homeassistant.const import Platform
+
+from . import const, BaseDevice, EntityMigration, MigrationAction
 from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
@@ -16,10 +18,12 @@ from ..switch import BeeperEntity, EnabledEntity
 class DeltaPro(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+            LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
                 .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
+            LevelSensorEntity(client, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
+
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
@@ -127,7 +131,7 @@ class DeltaPro(BaseDevice):
                           lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 95, "acautooutConfig": value}}),
             EnabledEntity(client, "pd.bppowerSoc", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 0, "operateType": "TCP", "params": {"id": 94, "isConfig": value, 
-                                                            "bpPowerSoc": int(params["pd.bppowerSoc"]),
+                                                            "bpPowerSoc": int(params.get("pd.bppowerSoc", 0)),
                                                             "minDsgSoc": 0,
                                                             "maxChgSoc": 0}}),
         ]
@@ -151,3 +155,10 @@ class DeltaPro(BaseDevice):
                                                    "params": {"standByMins": value, "id": 153}}),
 
         ]
+
+    def migrate(self, version) -> list[EntityMigration]:
+        if version == 2:
+            return [
+                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
+            ]
+        return []

@@ -1,7 +1,8 @@
 ## DELTA_PRO
 
 *Sensors*
-- Main Battery Level (`pd.soc`)
+- Main Battery Level (`bmsMaster.soc`)
+- Battery Level (`ems.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
 - AC In Power (`inv.inputWatts`)
@@ -47,8 +48,8 @@
 - DC (12V) Enabled (`mppt.carState` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 81, "enabled": "VALUE"}}`)
 - AC Enabled (`inv.cfgAcEnabled` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "enabled": "VALUE"}}`)
 - X-Boost Enabled (`inv.cfgAcXboost` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": "VALUE"}}`)
-- AC Always On (`inv.acPassByAutoEn` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 84, "enabled": "VALUE"}}`)
-- Backup Reserve Enabled (`pd.bpPowerSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"isConfig": "VALUE"}}`)
+- AC Always On (`pd.acautooutConfig` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 95, "acautooutConfig": "VALUE"}}`)
+- Backup Reserve Enabled (`pd.bppowerSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 94, "isConfig": "VALUE", "bpPowerSoc": 0, "minDsgSoc": 0, "maxChgSoc": 0}}`)
 
 *Sliders (numbers)*
 - Max Charge Level (`ems.maxChargeSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 49, "maxChgSoc": "VALUE"}}` [50 - 100])

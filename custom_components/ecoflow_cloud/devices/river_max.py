@@ -1,4 +1,6 @@
-from . import const, BaseDevice
+from homeassistant.const import Platform
+
+from . import const, BaseDevice, MigrationAction, EntityMigration
 from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
@@ -14,7 +16,7 @@ from ..switch import EnabledEntity, BeeperEntity
 class RiverMax(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "pd.soc", const.MAIN_BATTERY_LEVEL)
+            LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
                 .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
@@ -94,3 +96,10 @@ class RiverMax(BaseDevice):
             DictSelectEntity(client, "inv.cfgStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 153, "standByMins": value}}),
 
         ]
+
+    def migrate(self, version) -> list[EntityMigration]:
+        if version == 2:
+            return [
+                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
+            ]
+        return []

@@ -1,8 +1,8 @@
 ## DELTA_2_MAX
 
 *Sensors*
-- Main Battery Level (`pd.soc`)
-- Battery Level (`bms_emsStatus.f32LcdShowSoc`)
+- Main Battery Level (`bms_bmsStatus.soc`)
+- Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
 - AC In Power (`inv.inputWatts`)

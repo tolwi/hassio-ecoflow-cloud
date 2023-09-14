@@ -19,13 +19,17 @@ class EcoFlowAbstractEntity(Entity):
         self._client = client
         self._attr_name = title
         self._attr_device_info = client.device_info_main
-        self._attr_unique_id = 'ecoflow-' + client.device_sn + '-' + key.replace('.', '-').replace('_', '-')
+        self._attr_unique_id = self.gen_unique_id(client.device_sn, key)
 
     def send_get_message(self, command: dict):
         self._client.send_get_message(command)
 
     def send_set_message(self, target_dict: dict[str, Any] | None, command: dict):
         self._client.send_set_message(target_dict, command)
+
+    @staticmethod
+    def gen_unique_id(sn: str, key: str):
+        return 'ecoflow-' + sn + '-' + key.replace('.', '-').replace('_', '-')
 
 
 class EcoFlowDictEntity(EcoFlowAbstractEntity):
