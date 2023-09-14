@@ -54,7 +54,7 @@ class EcoflowAuthentication:
         try:
             self.token = response["data"]["token"]
             self.user_id = response["data"]["user"]["userId"]
-            user_name = response["data"]["user"]["name"]
+            user_name = response["data"]["user"].get("name", "<no user name>")
         except KeyError as key:
             raise EcoflowException(f"Failed to extract key {key} from response: {response}")
 
