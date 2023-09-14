@@ -8,7 +8,7 @@ from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevel
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, \
-    MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingBinarySensorEntity
+    MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingStateSensorEntity
 from ..switch import EnabledEntity
 
 
@@ -25,7 +25,7 @@ class River2(BaseDevice):
 
             LevelSensorEntity(client, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
 
-            ChargingBinarySensorEntity(client, "bms_emsStatus.chgState", BATTERY_CHARGING_STATE),
+            ChargingStateSensorEntity(client, "bms_emsStatus.chgState", BATTERY_CHARGING_STATE),
 
             InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
