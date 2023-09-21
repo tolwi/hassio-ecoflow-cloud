@@ -203,11 +203,19 @@ class EcoflowMQTTClient:
         self.client.connect(self.auth.mqtt_url, self.auth.mqtt_port, 30)
         self.client.loop_start()
 
-    def reconnect(self):
-        _LOGGER.info(f"Re-connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}")
-        self.client.loop_stop(True)
-        self.client.reconnect()
-        self.client.loop_start()
+    def is_connected(self):
+        return self.client.is_connected()
+
+    def reconnect(self) -> bool:
+        try:
+            _LOGGER.info(f"Re-connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}")
+            self.client.loop_stop(True)
+            self.client.reconnect()
+            self.client.loop_start()
+            return True
+        except Exception as e:
+            _LOGGER.error(e)
+            return False
 
     def on_connect(self, client, userdata, flags, rc):
         match rc:
@@ -310,16 +318,21 @@ class EcoflowMQTTClient:
         payload.update(command)
         return payload
 
+    def __send(self, topic: str, message: str):
+        try:
+            info = self.client.publish(topic, message, 1)
+            _LOGGER.debug("Sending " + message + " :" + str(info) + "(" + str(info.is_published()) + ")")
+        except RuntimeError as error:
+            _LOGGER.error(error)
+
     def send_get_message(self, command: dict):
         payload = self.__prepare_payload(command)
-        info = self.client.publish(self._get_topic, json.dumps(payload), 1)
-        _LOGGER.debug("Sending " + json.dumps(payload) + " :" + str(info) + "(" + str(info.is_published()) + ")")
+        self.__send(self._get_topic, json.dumps(payload))
 
     def send_set_message(self, mqtt_state: dict[str, Any], command: dict):
         self.data.update_to_target_state(mqtt_state)
         payload = self.__prepare_payload(command)
-        info = self.client.publish(self._set_topic, json.dumps(payload), 1)
-        _LOGGER.debug("Sending " + json.dumps(payload) + " :" + str(info) + "(" + str(info.is_published()) + ")")
+        self.__send(self._set_topic, json.dumps(payload))
 
     def stop(self):
         self.client.loop_stop()
