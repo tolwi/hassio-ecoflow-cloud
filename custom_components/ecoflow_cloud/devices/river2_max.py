@@ -84,13 +84,13 @@ class River2Max(BaseDevice):
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}}),
 
-            BatteryBackupLevel(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 15, 100,
+            BatteryBackupLevel(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
                                "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc",
                                lambda value: {"moduleType": 1, "operateType": "watthConfig",
                                               "params": {"isConfig": int(value),
                                                          "bpPowerSoc": int(value),
-                                                         "minDsgSoc": 0,
-                                                         "minChgSoc": 0}}),
+                                                         "minDsgSoc": int(value),
+                                                         "minChgSoc": int(value)}}),
         ]
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
@@ -117,9 +117,9 @@ class River2Max(BaseDevice):
             EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 1, "operateType": "watthConfig",
                                                  "params": {"isConfig": int(value),
-                                                            "bpPowerSoc": int(params.get("pd.bpPowerSoc", 15)),
-                                                            "minDsgSoc": 0,
-                                                            "minChgSoc": 0}})
+                                                            "bpPowerSoc": int(params.get("pd.bpPowerSoc", 5)),
+                                                            "minDsgSoc": int(value),
+                                                            "minChgSoc": int(value)}})
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
