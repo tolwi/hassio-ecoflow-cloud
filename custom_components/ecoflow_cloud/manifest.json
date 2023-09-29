@@ -2,7 +2,7 @@
   "domain": "ecoflow_cloud",
   "name": "Ecoflow-Cloud",
   "codeowners": [
-    "@tolwi"
+    "@neotigger"
   ],
   "config_flow": true,
   "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
