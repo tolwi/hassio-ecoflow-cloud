@@ -87,10 +87,10 @@ class River2Max(BaseDevice):
             BatteryBackupLevel(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
                                "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc",
                                lambda value: {"moduleType": 1, "operateType": "watthConfig",
-                                              "params": {"isConfig": int(value),
+                                              "params": {"isConfig": 1,
                                                          "bpPowerSoc": int(value),
-                                                         "minDsgSoc": int(value),
-                                                         "minChgSoc": int(value)}}),
+                                                         "minDsgSoc": 0,
+                                                         "minChgSoc": 0}}),
         ]
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
@@ -116,8 +116,8 @@ class River2Max(BaseDevice):
 
             EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 1, "operateType": "watthConfig",
-                                                 "params": {"isConfig": int(value),
-                                                            "bpPowerSoc": int(params.get("pd.bpPowerSoc", 5)),
+                                                 "params": {"isConfig": value,
+                                                            "bpPowerSoc": int(params.get("pd.bpPowerSoc")),
                                                             "minDsgSoc": int(value),
                                                             "minChgSoc": int(value)}})
         ]
