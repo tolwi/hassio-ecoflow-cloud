@@ -285,6 +285,12 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
                 # online, updated and outdated - reconnect
                 self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
                 self._client.reconnect()
+                self.async_write_ha_state()
+
+        elif not self._client.is_connected():  # validate connection even for offline device
+            self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
+            self._client.reconnect()
+            self.async_write_ha_state()
 
     def __params_update(self, data: dict[str, Any]):
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._client.data.params_time()
@@ -324,8 +330,11 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
         await super().async_added_to_hass()
 
     def _update_status(self, update_delta_sec):
-        self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
-        self.send_get_message({"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
+        if self._client.is_connected():
+            self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
+            self.send_get_message({"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
+        else:
+            super()._update_status(update_delta_sec)
 
     def __get_reply_update(self, data: list[dict[str, Any]]):
         d = data[0]
