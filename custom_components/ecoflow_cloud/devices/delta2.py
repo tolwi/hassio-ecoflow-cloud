@@ -144,7 +144,7 @@ class Delta2(BaseDevice):
             EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
                           lambda value: {"moduleType": 1,
                                          "operateType": "watthConfig",
-                                         "params": {"isConfig": value
+                                         "params": {"bpPowerSoc": value
                                                     "minChgSoc": 0,
                                                     "isConfig": value,
                                                     "minDsgSoc": 0}}),
