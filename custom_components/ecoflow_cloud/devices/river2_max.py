@@ -116,8 +116,8 @@ class River2Max(BaseDevice):
 
             EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 1, "operateType": "watthConfig",
-                                                 "params": {"isConfig": int(value),
-                                                            "bpPowerSoc": int(params.get("pd.bpPowerSoc", 0)),
+                                                 "params": {"isConfig": value,
+                                                            "bpPowerSoc": value,
                                                             "minDsgSoc": 0,
                                                             "minChgSoc": 0}})
         ]
