@@ -118,15 +118,11 @@ class Delta2(BaseDevice):
 
             EnabledEntity(client, "pd.dcOutState", const.USB_ENABLED,
                           lambda value: {"moduleType": 1, "operateType": "dcOutCfg", "params": {"enabled": value}}),
-
-            # EnabledEntity(client, "pd.acAutoOnCfg", const.AC_ALWAYS_ENABLED,
-            #               lambda value: {"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": value}}),
-
+            
             EnabledEntity(client, "pd.acAutoOutConfig", const.AC_ALWAYS_ENABLED,
                           lambda value, params: {"moduleType": 1, "operateType": "acAutoOutConfig",
                                                  "params": {"acAutoOutConfig": value,
-                                                            "minAcOutSoc": int(params.get("bms_emsStatus.minDsgSoc", 0)) + 5}}
-                          ),
+                                                            "minAcOutSoc": int(params.get("bms_emsStatus.minDsgSoc", 0)) + 5}}),
 
             EnabledEntity(client, "pd.pvChgPrioSet", const.PV_PRIO,
                           lambda value: {"moduleType": 1, "operateType": "pvChangePrio",
@@ -146,8 +142,13 @@ class Delta2(BaseDevice):
                           lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}}),
 
             EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
-                          lambda value: {"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": value}}),
-        ]
+                          lambda value: {"moduleType": 1,
+                                         "operateType": "watthConfig",
+                                         "params": {"isConfig": value
+                                                    "minChgSoc": 0,
+                                                    "isConfig": value,
+                                                    "minDsgSoc": 0}}),
+            ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
