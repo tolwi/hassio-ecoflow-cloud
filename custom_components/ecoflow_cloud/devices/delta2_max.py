@@ -32,7 +32,8 @@ class Delta2Max(BaseDevice):
             InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
             OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
 
-            InWattsSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
+            InWattsSensorEntity(client, "mppt.inWatts", const.SOLAR_1_IN_POWER),
+            InWattsSensorEntity(client, "mppt.pv2inWatts", const.SOLAR_2_IN_POWER),
 
             # OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
             # the same value as pd.carWatts
