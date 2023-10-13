@@ -13,5 +13,5 @@
     "reactivex==4.0.4",
     "protobuf>=4.23.0"
   ],
-  "version": "0.12.2"
+  "version": "0.12.3"
 }
