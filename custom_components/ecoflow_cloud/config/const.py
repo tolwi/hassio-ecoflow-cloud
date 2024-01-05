@@ -26,6 +26,7 @@ class EcoflowModel(Enum):
     DELTA_2_MAX = 9,
     DELTA_MINI = 15,   # productType = 15
     POWERSTREAM = 51,
+    GLACIER = 46,
     DIAGNOSTIC = 99
 
     @classmethod

@@ -89,6 +89,19 @@ class RemainSensorEntity(BaseSensorEntity):
             ival = 0
 
         return super()._update_value(ival)
+    
+class SecondsRemainSensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_value = 0
+
+    def _update_value(self, val: Any) -> Any:
+        ival = int(val)
+        if ival < 0 or ival > 5000:
+            ival = 0
+
+        return super()._update_value(ival)    
 
 
 class TempSensorEntity(BaseSensorEntity):

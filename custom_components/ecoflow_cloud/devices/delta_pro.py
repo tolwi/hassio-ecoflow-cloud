@@ -135,6 +135,10 @@ class DeltaPro(BaseDevice):
                                                             "minDsgSoc": 0,
                                                             "maxChgSoc": 0}}),
         ]
+    
+    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+        return [
+        ]      
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [

@@ -121,6 +121,10 @@ class River2Max(BaseDevice):
                                                             "minDsgSoc": 0,
                                                             "minChgSoc": 0}})
         ]
+    
+    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+        return [
+        ]      
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
