@@ -39,12 +39,6 @@ class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
         self._attr_is_on = bool(val)
         return True
 
-class PowerBinarySensorEntity(MiscBinarySensorEntity):
-    _attr_device_class = BinarySensorDeviceClass.POWER
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_icon = "mdi:power"    
-
-
 class ChargingStateSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:battery-charging"

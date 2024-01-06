@@ -9,7 +9,7 @@ from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, \
     MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingStateSensorEntity, \
-    FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, PowerBinarySensorEntity
+    FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity
 from ..switch import EnabledEntity, InvertedBeeperEntity
 from ..button import EnabledButtonEntity
 
