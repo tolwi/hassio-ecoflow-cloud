@@ -28,8 +28,6 @@ class Glacier(BaseDevice):
 
             LevelSensorEntity(client, "bms_emsStatus.f32LcdSoc", const.COMBINED_BATTERY_LEVEL),
 
-            PowerBinarySensorEntity(client,"pd.pwrState","Power"),
-
             ChargingStateSensorEntity(client, "bms_emsStatus.chgState", BATTERY_CHARGING_STATE),
 
             InWattsSensorEntity(client, "bms_bmsStatus.inWatts", const.TOTAL_IN_POWER),
