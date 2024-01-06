@@ -129,7 +129,8 @@ class Delta2Max(BaseDevice):
             EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 3, "operateType": "acOutCfg",
                                          "moduleSn": client.device_sn,
-                                         "params": {"enabled": value}}),
+                                         "params": {"enabled": value, "out_voltage": -1,
+                                                    "out_freq": 255, "xboost": 255}}),
 
             EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED,
                           lambda value: {"moduleType": 3, "operateType": "acOutCfg",
