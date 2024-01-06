@@ -3,7 +3,7 @@ from typing import Callable, Any
 from homeassistant.components.number import NumberMode
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, POWER_WATT, UnitOfTemperature
+from homeassistant.const import PERCENTAGE, UnitOfPower, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -31,7 +31,7 @@ class ValueUpdateEntity(BaseNumberEntity):
 
 class ChargingPowerEntity(ValueUpdateEntity):
     _attr_icon = "mdi:transmission-tower-import"
-    _attr_native_unit_of_measurement = POWER_WATT
+    _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_device_class = SensorDeviceClass.POWER
 
     def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, min_value: int, max_value: int,
