@@ -10,7 +10,7 @@ from ..sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorE
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, \
     MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingStateSensorEntity, \
     FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity
-from ..switch import EnabledEntity
+from ..switch import EnabledEntity, InvertedBeeperEntity
 from ..button import EnabledButtonEntity
 
 
@@ -66,10 +66,10 @@ class Glacier(BaseDevice):
             SecondsRemainSensorEntity(client, "pd.iceTm", "Ice Time Remain"),
             LevelSensorEntity(client, "pd.icePercent", "Ice Percentage"),
 
-            MiscSensorEntity(client, "pd.iceMkMode", "Ice Make Mode"),  
+            MiscSensorEntity(client, "pd.iceMkMode", "Ice Make Mode"), 
 
-            MiscBinarySensorEntity(client,"pd.iceAlert","Ice Alert"),          
-            MiscBinarySensorEntity(client,"pd.waterLine","Ice Water Level OK"),    
+            MiscBinarySensorEntity(client,"pd.iceAlert","Ice Alert"),
+            MiscBinarySensorEntity(client,"pd.waterLine","Ice Water Level OK"),   
 
             QuotasStatusSensorEntity(client)      
 
@@ -99,6 +99,15 @@ class Glacier(BaseDevice):
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         return [
+            InvertedBeeperEntity(client, "pd.beepEn", const.BEEPER,
+                         lambda value: {"moduleType": 1, "operateType": "beepEn", "params": {"flag": value}}),
+
+            EnabledEntity(client, "pd.coolMode", "Eco Mode",
+                          lambda value: {"moduleType": 1, "operateType": "ecoMode", "params": {"mode": value}}),                         
+
+            #power parameter is inverted for some reason
+            EnabledEntity(client, "pd.pwrState", "Power",
+                          lambda value: {"moduleType": 1, "operateType": "powerOff", "params": {"enable": value}}),                         
 
         ]
     

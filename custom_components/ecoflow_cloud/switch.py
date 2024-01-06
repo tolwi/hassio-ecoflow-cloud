@@ -61,3 +61,13 @@ class BeeperEntity(DisabledEntity):
             return "mdi:volume-high"
         else:
             return "mdi:volume-mute"
+
+class InvertedBeeperEntity(EnabledEntity):
+    _attr_entity_category = EntityCategory.CONFIG
+
+    @property
+    def icon(self) -> str | None:
+        if self.is_on:
+            return "mdi:volume-high"
+        else:
+            return "mdi:volume-mute"
