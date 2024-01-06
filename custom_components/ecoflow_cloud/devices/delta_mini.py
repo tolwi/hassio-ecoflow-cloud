@@ -116,6 +116,10 @@ class DeltaMini(BaseDevice):
             # EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
             #               lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"isConfig": value}}),
         ]
+    
+    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+        return [
+        ]      
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [

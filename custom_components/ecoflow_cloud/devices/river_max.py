@@ -88,6 +88,10 @@ class RiverMax(BaseDevice):
             EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": value}})
 
         ]
+    
+    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+        return [
+        ]      
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [

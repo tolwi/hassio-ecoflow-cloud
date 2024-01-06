@@ -3,7 +3,7 @@ from typing import Callable, Any
 from homeassistant.components.number import NumberMode
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, POWER_WATT
+from homeassistant.const import PERCENTAGE, POWER_WATT, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -79,3 +79,8 @@ class MinGenStartLevelEntity(LevelEntity):
 
 class MaxGenStopLevelEntity(LevelEntity):
     _attr_icon = "mdi:engine-off"
+
+
+class SetTempEntity(ValueUpdateEntity):
+    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+    

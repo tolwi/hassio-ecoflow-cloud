@@ -20,6 +20,8 @@ _PLATFORMS = {
     Platform.SELECT,
     Platform.SENSOR,
     Platform.SWITCH,
+    Platform.BUTTON,
+
 }
 
 ATTR_STATUS_SN = "SN"

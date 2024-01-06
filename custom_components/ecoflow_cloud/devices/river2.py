@@ -95,6 +95,10 @@ class River2(BaseDevice):
                           lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}})
         ]
 
+    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+        return [
+        ]  
+    
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
             DictSelectEntity(client, "mppt.dcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,

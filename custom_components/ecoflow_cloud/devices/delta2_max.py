@@ -136,6 +136,10 @@ class Delta2Max(BaseDevice):
                                          "moduleSn": client.device_sn,
                                          "params": {"xboost": value}})
         ]
+    
+    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+        return [
+        ]      
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
