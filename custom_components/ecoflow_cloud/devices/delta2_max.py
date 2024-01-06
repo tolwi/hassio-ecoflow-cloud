@@ -134,7 +134,10 @@ class Delta2Max(BaseDevice):
             EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED,
                           lambda value: {"moduleType": 3, "operateType": "acOutCfg",
                                          "moduleSn": client.device_sn,
-                                         "params": {"xboost": value}})
+                                         "params": {"xboost": value}}),
+            EnabledEntity(client, "pd.carState", const.DC_ENABLED,
+                          lambda value: {"moduleType": 5, "operateType": "mpptCar",
+                                         "params": {"enabled": value}})
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
