@@ -49,6 +49,9 @@ class BaseDevice(ABC):
     def selects(self, client: EcoflowMQTTClient) -> list[SelectEntity]:
         pass
 
+    def buttons(self, client: EcoflowMQTTClient) -> list[ButtonEntity]:
+        return []
+
     def migrate(self, version) -> list[EntityMigration]:
         return []
 

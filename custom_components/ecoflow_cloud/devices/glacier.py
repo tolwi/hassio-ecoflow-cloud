@@ -125,9 +125,3 @@ class Glacier(BaseDevice):
 
         ]
 
-    def migrate(self, version) -> list[EntityMigration]:
-        if version == 2:
-            return [
-                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
-            ]
-        return []

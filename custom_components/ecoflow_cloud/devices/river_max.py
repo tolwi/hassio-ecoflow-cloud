@@ -89,10 +89,6 @@ class RiverMax(BaseDevice):
 
         ]
     
-    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
-        return [
-        ]      
-
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
 
