@@ -9,8 +9,8 @@ from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, \
     MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingStateSensorEntity, \
-    FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity
-from ..switch import EnabledEntity
+    FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, PowerBinarySensorEntity
+from ..switch import EnabledEntity, InvertedBeeperEntity
 from ..button import EnabledButtonEntity
 
 
@@ -27,6 +27,8 @@ class Glacier(BaseDevice):
                 .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
 
             LevelSensorEntity(client, "bms_emsStatus.f32LcdSoc", const.COMBINED_BATTERY_LEVEL),
+
+            PowerBinarySensorEntity(client,"pd.pwrState","Power"),
 
             ChargingStateSensorEntity(client, "bms_emsStatus.chgState", BATTERY_CHARGING_STATE),
 
@@ -69,7 +71,7 @@ class Glacier(BaseDevice):
             MiscSensorEntity(client, "pd.iceMkMode", "Ice Make Mode"),  
 
             MiscBinarySensorEntity(client,"pd.iceAlert","Ice Alert"),          
-            MiscBinarySensorEntity(client,"pd.waterLine","Ice Water Level OK"),    
+            MiscBinarySensorEntity(client,"pd.waterLine","Ice Water Level OK"),   
 
             QuotasStatusSensorEntity(client)      
 
@@ -99,6 +101,15 @@ class Glacier(BaseDevice):
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         return [
+            InvertedBeeperEntity(client, "pd.beepEn", const.BEEPER,
+                         lambda value: {"moduleType": 1, "operateType": "beepEn", "params": {"flag": value}}),
+
+            EnabledEntity(client, "pd.coolMode", "Eco Mode",
+                          lambda value: {"moduleType": 1, "operateType": "ecoMode", "params": {"mode": value}}),                         
+
+            #power parameter is inverted for some reason
+            EnabledEntity(client, "pd.pwrState", "Power",
+                          lambda value: {"moduleType": 1, "operateType": "powerOff", "params": {"enable": value}}),                         
 
         ]
     
