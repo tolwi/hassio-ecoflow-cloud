@@ -38,6 +38,7 @@ class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
     def _update_value(self, val: Any) -> bool:
         self._attr_is_on = bool(val)
         return True
+    
 
 class ChargingStateSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC

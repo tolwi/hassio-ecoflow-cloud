@@ -66,7 +66,7 @@ class Glacier(BaseDevice):
             SecondsRemainSensorEntity(client, "pd.iceTm", "Ice Time Remain"),
             LevelSensorEntity(client, "pd.icePercent", "Ice Percentage"),
 
-            MiscSensorEntity(client, "pd.iceMkMode", "Ice Make Mode"),
+            MiscSensorEntity(client, "pd.iceMkMode", "Ice Make Mode"), 
 
             MiscBinarySensorEntity(client,"pd.iceAlert","Ice Alert"),
             MiscBinarySensorEntity(client,"pd.waterLine","Ice Water Level OK"),   
