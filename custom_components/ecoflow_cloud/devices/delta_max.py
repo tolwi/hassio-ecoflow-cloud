@@ -123,10 +123,6 @@ class DeltaMax(BaseDevice):
                           lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"enabled": value, "id": 81  }}),
 
         ]
-    
-    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
-        return [
-        ]      
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [

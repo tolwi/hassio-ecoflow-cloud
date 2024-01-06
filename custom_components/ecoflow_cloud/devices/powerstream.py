@@ -95,10 +95,6 @@ class PowerStream(BaseDevice):
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         return []
-    
-    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
-        return [
-        ]      
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [

@@ -83,10 +83,6 @@ class RiverPro(BaseDevice):
             EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED, None),
             EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED, None)
         ]
-    
-    def buttons(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
-        return [
-        ]      
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
