@@ -1,7 +1,8 @@
 from homeassistant.const import Platform
 
 from . import const, BaseDevice, EntityMigration, MigrationAction
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, BATTERY_CHARGING_STATE
+from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, BATTERY_CHARGING_STATE, \
+    MAIN_DESIGN_CAPACITY, MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity, BaseButtonEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, SetTempEntity
@@ -9,7 +10,7 @@ from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, \
     MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingStateSensorEntity, \
-    FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity
+    FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, CapacitySensorEntity
 from ..switch import EnabledEntity, InvertedBeeperEntity
 from ..button import EnabledButtonEntity
 
@@ -25,6 +26,9 @@ class Glacier(BaseDevice):
                 .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bms_bmsStatus.designCap", MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_bmsStatus.fullCap", MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_bmsStatus.remainCap", MAIN_REMAIN_CAPACITY, False),
 
             LevelSensorEntity(client, "bms_emsStatus.f32LcdSoc", const.COMBINED_BATTERY_LEVEL),
 
@@ -40,15 +44,19 @@ class Glacier(BaseDevice):
 
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
 
-            TempSensorEntity(client, "bms_bmsStatus.tmp", const.BATTERY_TEMP),
+            TempSensorEntity(client, "bms_bmsStatus.tmp", const.BATTERY_TEMP)
+                .attr("bms_bmsStatus.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bms_bmsStatus.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             TempSensorEntity(client, "bms_bmsStatus.minCellTmp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bms_bmsStatus.maxCellTmp", const.MAX_CELL_TEMP, False),
 
-            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
+            VoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False)
+                .attr("bms_bmsStatus.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
+                .attr("bms_bmsStatus.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             MilliVoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
             MilliVoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 
-            MiscBinarySensorEntity(client,"pd.batFlag","Battery Present"),
+            MiscBinarySensorEntity(client,"pd.batFlag", "Battery Present"),
 
             MiscSensorEntity(client, "pd.xt60InState", "XT60 State"),  
 

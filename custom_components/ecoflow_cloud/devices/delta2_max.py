@@ -1,7 +1,8 @@
 from homeassistant.const import Platform
 
 from . import const, BaseDevice, EntityMigration, MigrationAction
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
+from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, MAIN_DESIGN_CAPACITY, \
+    MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
@@ -9,7 +10,7 @@ from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevel
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, \
-    InMilliVoltSensorEntity, OutMilliVoltSensorEntity
+    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -20,6 +21,9 @@ class Delta2Max(BaseDevice):
                 .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bms_bmsStatus.designCap", MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_bmsStatus.fullCap", MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_bmsStatus.remainCap", MAIN_REMAIN_CAPACITY, False),
 
             LevelSensorEntity(client, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
 
@@ -54,11 +58,15 @@ class Delta2Max(BaseDevice):
             TempSensorEntity(client, "inv.outTemp", "Inv Out Temperature"),
             CyclesSensorEntity(client, "bms_bmsStatus.cycles", const.CYCLES),
 
-            TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP),
+            TempSensorEntity(client, "bms_bmsStatus.temp", const.BATTERY_TEMP)
+                .attr("bms_bmsStatus.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bms_bmsStatus.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             TempSensorEntity(client, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            MilliVoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False),
+            MilliVoltSensorEntity(client, "bms_bmsStatus.vol", const.BATTERY_VOLT, False)
+                .attr("bms_bmsStatus.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
+                .attr("bms_bmsStatus.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             MilliVoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
             MilliVoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 

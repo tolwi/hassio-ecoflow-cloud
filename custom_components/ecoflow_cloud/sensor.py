@@ -89,7 +89,8 @@ class RemainSensorEntity(BaseSensorEntity):
             ival = 0
 
         return super()._update_value(ival)
-    
+
+
 class SecondsRemainSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.DURATION
     _attr_native_unit_of_measurement = UnitOfTime.SECONDS
@@ -101,7 +102,7 @@ class SecondsRemainSensorEntity(BaseSensorEntity):
         if ival < 0 or ival > 5000:
             ival = 0
 
-        return super()._update_value(ival)    
+        return super()._update_value(ival)
 
 
 class TempSensorEntity(BaseSensorEntity):
@@ -191,12 +192,19 @@ class EnergySensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
     def _update_value(self, val: Any) -> bool:
         ival = int(val)
         if ival > 0:
-          return super()._update_value(ival)
+            return super()._update_value(ival)
         else:
-          return False
+            return False
+
+
+class CapacitySensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.CURRENT
+    _attr_native_unit_of_measurement = "mAh"
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
 
 class DeciwattsSensorEntity(WattsSensorEntity):

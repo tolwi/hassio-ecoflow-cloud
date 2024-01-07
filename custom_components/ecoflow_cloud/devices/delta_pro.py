@@ -1,7 +1,8 @@
 from homeassistant.const import Platform
 
 from . import const, BaseDevice, EntityMigration, MigrationAction
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
+from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, MAIN_DESIGN_CAPACITY, \
+    MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY, SLAVE_N_DESIGN_CAPACITY, SLAVE_N_FULL_CAPACITY, SLAVE_N_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, MinGenStartLevelEntity, \
@@ -11,7 +12,7 @@ from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, T
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, VoltSensorEntity, \
     InWattsSolarSensorEntity, \
     StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity
+    OutMilliVoltSensorEntity, CapacitySensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -22,6 +23,10 @@ class DeltaPro(BaseDevice):
                 .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bmsMaster.designCap", MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsMaster.fullCap", MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsMaster.remainCap", MAIN_REMAIN_CAPACITY, False),
+
             LevelSensorEntity(client, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
 
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
@@ -54,11 +59,15 @@ class DeltaPro(BaseDevice):
             RemainSensorEntity(client, "ems.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
             CyclesSensorEntity(client, "bmsMaster.cycles", const.CYCLES),
 
-            TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP),
+            TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP)
+                .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             TempSensorEntity(client, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
+            MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False)
+                .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
+                .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             MilliVoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
             MilliVoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
 
@@ -70,22 +79,33 @@ class DeltaPro(BaseDevice):
             OutEnergySensorEntity(client, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
 
             # Optional Slave Batteries
-            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_1_BATTERY_LEVEL, False, True)
+            LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_N_BATTERY_LEVEL % 1, False, True)
                 .attr("bmsSlave1.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsSlave1.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bmsSlave1.remainCap", ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bmsSlave1.designCap", SLAVE_N_DESIGN_CAPACITY % 1, False),
+            CapacitySensorEntity(client, "bmsSlave1.fullCap", SLAVE_N_FULL_CAPACITY % 1, False),
+            CapacitySensorEntity(client, "bmsSlave1.remainCap", SLAVE_N_REMAIN_CAPACITY % 1, False),
 
-            TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_1_BATTERY_TEMP, False, True),
-            WattsSensorEntity(client, "bmsSlave1.inputWatts", const.SLAVE_1_IN_POWER, False, True),
-            WattsSensorEntity(client, "bmsSlave1.outputWatts", const.SLAVE_1_OUT_POWER, False, True),
+            TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_N_BATTERY_TEMP % 1, False, True)
+                .attr("bmsSlave1.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bmsSlave1.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+            WattsSensorEntity(client, "bmsSlave1.inputWatts", const.SLAVE_N_IN_POWER % 1, False, True),
+            WattsSensorEntity(client, "bmsSlave1.outputWatts", const.SLAVE_N_OUT_POWER % 1, False, True),
 
-            LevelSensorEntity(client, "bmsSlave2.soc", const.SLAVE_2_BATTERY_LEVEL, False, True)
+            LevelSensorEntity(client, "bmsSlave2.soc", const.SLAVE_N_BATTERY_LEVEL % 2, False, True)
                 .attr("bmsSlave2.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsSlave2.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bmsSlave2.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            TempSensorEntity(client, "bmsSlave2.temp", const.SLAVE_2_BATTERY_TEMP, False, True),
-            WattsSensorEntity(client, "bmsSlave2.inputWatts", const.SLAVE_2_IN_POWER, False, True),
-            WattsSensorEntity(client, "bmsSlave2.outputWatts", const.SLAVE_2_OUT_POWER, False, True),
+            CapacitySensorEntity(client, "bmsSlave2.designCap", SLAVE_N_DESIGN_CAPACITY % 2, False),
+            CapacitySensorEntity(client, "bmsSlave2.fullCap", SLAVE_N_FULL_CAPACITY % 2, False),
+            CapacitySensorEntity(client, "bmsSlave2.remainCap", SLAVE_N_REMAIN_CAPACITY % 2, False),
+
+            TempSensorEntity(client, "bmsSlave2.temp", const.SLAVE_N_BATTERY_TEMP % 2, False, True)
+                .attr("bmsSlave2.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bmsSlave2.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+            WattsSensorEntity(client, "bmsSlave2.inputWatts", const.SLAVE_N_IN_POWER % 2, False, True),
+            WattsSensorEntity(client, "bmsSlave2.outputWatts", const.SLAVE_N_OUT_POWER % 2, False, True),
             StatusSensorEntity(client),
         ]
 

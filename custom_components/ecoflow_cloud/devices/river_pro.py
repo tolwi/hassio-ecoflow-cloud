@@ -1,15 +1,16 @@
 from homeassistant.const import Platform
 
 from . import const, BaseDevice, EntityMigration, MigrationAction
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY
+from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, MAIN_DESIGN_CAPACITY, \
+    MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY, SLAVE_DESIGN_CAPACITY, SLAVE_FULL_CAPACITY, SLAVE_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, InVoltSensorEntity, \
     InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity
+    OutMilliVoltSensorEntity, CapacitySensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 
@@ -20,6 +21,9 @@ class RiverPro(BaseDevice):
                 .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bmsMaster.designCap", MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsMaster.fullCap", MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsMaster.remainCap", MAIN_REMAIN_CAPACITY, False),
 
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
@@ -41,12 +45,17 @@ class RiverPro(BaseDevice):
             OutWattsSensorEntity(client, "pd.usb3Watts", const.USB_3_OUT_POWER),
 
             RemainSensorEntity(client, "pd.remainTime", const.REMAINING_TIME),
-            TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP),
+            TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP)
+                .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+
             TempSensorEntity(client, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False),
             AmpSensorEntity(client, "bmsMaster.amp", const.BATTERY_AMP, False),
+            MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False)
+                .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
+                .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             MilliVoltSensorEntity(client, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
             MilliVoltSensorEntity(client, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
 
@@ -58,11 +67,19 @@ class RiverPro(BaseDevice):
                 .attr("bmsSlave1.designCap", ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsSlave1.fullCap", ATTR_FULL_CAPACITY, 0)
                 .attr("bmsSlave1.remainCap", ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bmsSlave1.designCap", SLAVE_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsSlave1.fullCap", SLAVE_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsSlave1.remainCap", SLAVE_REMAIN_CAPACITY, False),
 
             CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True),
-            TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_BATTERY_TEMP, False, True),
-            MilliVoltSensorEntity(client, "bmsSlave1.vol", const.SLAVE_BATTERY_VOLT, False),
+            TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_BATTERY_TEMP, False, True)
+                .attr("bmsSlave1.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bmsSlave1.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+
             AmpSensorEntity(client, "bmsSlave1.amp", const.SLAVE_BATTERY_AMP, False),
+            MilliVoltSensorEntity(client, "bmsSlave1.vol", const.SLAVE_BATTERY_VOLT, False)
+                .attr("bmsSlave1.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
+                .attr("bmsSlave1.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             MilliVoltSensorEntity(client, "bmsSlave1.minCellVol", const.SLAVE_MIN_CELL_VOLT, False),
             MilliVoltSensorEntity(client, "bmsSlave1.maxCellVol", const.SLAVE_MAX_CELL_VOLT, False),
 
