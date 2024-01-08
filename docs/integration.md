@@ -16,6 +16,7 @@ Current integrations details:
 - [DELTA_MAX](devices/DELTA_MAX.md)
 - [DELTA_2_MAX](devices/DELTA_2_MAX.md)
 - [POWERSTREAM](devices/POWERSTREAM.md)
+- [GLACIER](devices/GLACIER.md)
 
 
 Use [diagnostic](https://www.home-assistant.io/integrations/diagnostics/) dump to find `data_key` and `action_command`:

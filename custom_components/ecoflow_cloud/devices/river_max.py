@@ -8,7 +8,7 @@ from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
 from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, StatusSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, StatusSensorEntity, \
     InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity
 from ..switch import EnabledEntity, BeeperEntity

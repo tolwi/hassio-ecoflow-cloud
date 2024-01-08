@@ -2,6 +2,9 @@
 
 *Sensors*
 - Main Battery Level (`bms_bmsStatus.soc`)
+- Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
+- Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_
+- Main Remain Capacity (`bms_bmsStatus.remainCap`)   _(disabled)_
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
@@ -28,6 +31,9 @@
 - Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
 - Slave Battery Level (`bms_slave.soc`)   _(auto)_
+- Slave Design Capacity (`bms_slave.designCap`)   _(disabled)_
+- Slave Full Capacity (`bms_slave.fullCap`)   _(disabled)_
+- Slave Remain Capacity (`bms_slave.remainCap`)   _(disabled)_
 - Slave Battery Temperature (`bms_slave.temp`)   _(auto)_
 - Slave Min Cell Temperature (`bms_slave.minCellTemp`)   _(disabled)_
 - Slave Max Cell Temperature (`bms_slave.maxCellTemp`)   _(disabled)_
@@ -47,7 +53,7 @@
 - AC Enabled (`mppt.cfgAcEnabled` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)
 - X-Boost Enabled (`mppt.cfgAcXboost` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": 255, "out_voltage": -1, "out_freq": 255, "xboost": "VALUE"}}`)
 - DC (12V) Enabled (`pd.carState` -> `{"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": "VALUE"}}`)
-- Backup Reserve Enabled (`pd.bpPowerSoc` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": "VALUE"}}`)
+- Backup Reserve Enabled (`pd.bpPowerSoc` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"bpPowerSoc": "VALUE", "minChgSoc": 0, "isConfig": "VALUE", "minDsgSoc": 0}}`)
 
 *Sliders (numbers)*
 - Max Charge Level (`bms_emsStatus.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])

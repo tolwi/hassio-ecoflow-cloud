@@ -2,6 +2,9 @@
 
 *Sensors*
 - Main Battery Level (`bms_bmsStatus.soc`)
+- Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
+- Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_
+- Main Remain Capacity (`bms_bmsStatus.remainCap`)   _(disabled)_
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Battery Charging State (`bms_emsStatus.chgState`)
 - Total In Power (`pd.wattsInSum`)

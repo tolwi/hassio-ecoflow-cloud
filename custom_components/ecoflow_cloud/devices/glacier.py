@@ -1,18 +1,15 @@
-from homeassistant.const import Platform
-
-from . import const, BaseDevice, EntityMigration, MigrationAction
+from . import const, BaseDevice
 from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, BATTERY_CHARGING_STATE, \
     MAIN_DESIGN_CAPACITY, MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY
+from ..button import EnabledButtonEntity
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity, BaseButtonEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, SetTempEntity
-from ..select import DictSelectEntity, TimeoutDictSelectEntity
+from ..number import SetTempEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, \
-    MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingStateSensorEntity, \
+    MilliVoltSensorEntity, ChargingStateSensorEntity, \
     FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, CapacitySensorEntity
 from ..switch import EnabledEntity, InvertedBeeperEntity
-from ..button import EnabledButtonEntity
 
 
 class Glacier(BaseDevice):

@@ -2,6 +2,9 @@
 
 *Sensors*
 - Main Battery Level (`bms_bmsStatus.soc`)
+- Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
+- Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_
+- Main Remain Capacity (`bms_bmsStatus.remainCap`)   _(disabled)_
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Battery Charging State (`bms_emsStatus.chgState`)
 - Total In Power (`pd.wattsInSum`)
@@ -35,7 +38,7 @@
 - AC Always On (`pd.acAutoOutConfig` -> `{"moduleType": 1, "operateType": "acAutoOutConfig", "params": {"acAutoOutConfig": "VALUE", "minAcOutSoc": 5}}`)
 - X-Boost Enabled (`mppt.cfgAcXboost` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": 255, "out_voltage": -1, "out_freq": 255, "xboost": "VALUE"}}`)
 - DC (12V) Enabled (`pd.carState` -> `{"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": "VALUE"}}`)
-- Backup Reserve Enabled (`pd.bpPowerSoc` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": "VALUE", "bpPowerSoc": 0, "minDsgSoc": 0, "minChgSoc": 0}}`)
+- Backup Reserve Enabled (`pd.bpPowerSoc` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": "VALUE", "bpPowerSoc": "VALUE", "minDsgSoc": 0, "minChgSoc": 0}}`)
 
 *Sliders (numbers)*
 - Max Charge Level (`bms_emsStatus.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])

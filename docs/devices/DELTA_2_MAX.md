@@ -2,6 +2,9 @@
 
 *Sensors*
 - Main Battery Level (`bms_bmsStatus.soc`)
+- Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
+- Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_
+- Main Remain Capacity (`bms_bmsStatus.remainCap`)   _(disabled)_
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
@@ -34,8 +37,9 @@
 - Beeper (`pd.beepMode` -> `{"moduleType": 1, "operateType": "quietCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE"}}`)
 - USB Enabled (`pd.dcOutState` -> `{"moduleType": 1, "operateType": "dcOutCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE"}}`)
 - AC Always On (`pd.newAcAutoOnCfg` -> `{"moduleType": 1, "operateType": "newAcAutoOnCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE", "minAcSoc": 5}}`)
-- AC Enabled (`inv.cfgAcEnabled` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE"}}`)
+- AC Enabled (`inv.cfgAcEnabled` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)
 - X-Boost Enabled (`inv.cfgAcXboost` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "MOCK", "params": {"xboost": "VALUE"}}`)
+- DC (12V) Enabled (`pd.carState` -> `{"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": "VALUE"}}`)
 
 *Sliders (numbers)*
 - Max Charge Level (`bms_emsStatus.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "moduleSn": "MOCK", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])

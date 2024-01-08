@@ -2,6 +2,9 @@
 
 *Sensors*
 - Main Battery Level (`bmsMaster.soc`)
+- Main Design Capacity (`bmsMaster.designCap`)   _(disabled)_
+- Main Full Capacity (`bmsMaster.fullCap`)   _(disabled)_
+- Main Remain Capacity (`bmsMaster.remainCap`)   _(disabled)_
 - Battery Level (`ems.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)

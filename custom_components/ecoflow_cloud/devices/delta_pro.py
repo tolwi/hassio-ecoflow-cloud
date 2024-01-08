@@ -9,8 +9,7 @@ from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevel
     MaxGenStopLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, VoltSensorEntity, \
-    InWattsSolarSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, InWattsSolarSensorEntity, \
     StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity
 from ..switch import BeeperEntity, EnabledEntity

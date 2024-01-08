@@ -4,7 +4,7 @@ from . import const, BaseDevice, EntityMigration, MigrationAction
 from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, MAIN_DESIGN_CAPACITY, \
     MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY, SLAVE_DESIGN_CAPACITY, SLAVE_FULL_CAPACITY, SLAVE_REMAIN_CAPACITY
 from .. import EcoflowMQTTClient
-from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity, EcoFlowAbstractEntity
+from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
     MaxGenStopLevelEntity, MinGenStartLevelEntity, BatteryBackupLevel
 from ..select import DictSelectEntity, TimeoutDictSelectEntity

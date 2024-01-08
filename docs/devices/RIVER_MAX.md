@@ -2,6 +2,9 @@
 
 *Sensors*
 - Main Battery Level (`bmsMaster.soc`)
+- Main Design Capacity (`bmsMaster.designCap`)   _(disabled)_
+- Main Full Capacity (`bmsMaster.fullCap`)   _(disabled)_
+- Main Remain Capacity (`bmsMaster.remainCap`)   _(disabled)_
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
 - AC In Power (`inv.inputWatts`)
@@ -27,6 +30,9 @@
 - Battery Discharge Energy to AC (`pd.dsgPowerAC`)
 - Battery Discharge Energy to DC (`pd.dsgPowerDC`)
 - Slave Battery Level (`bmsSlave1.soc`)   _(auto)_
+- Slave Design Capacity (`bmsSlave1.designCap`)   _(disabled)_
+- Slave Full Capacity (`bmsSlave1.fullCap`)   _(disabled)_
+- Slave Remain Capacity (`bmsSlave1.remainCap`)   _(disabled)_
 - Slave Battery Temperature (`bmsSlave1.temp`)   _(auto)_
 - Slave Min Cell Temperature (`bmsSlave1.minCellTemp`)   _(disabled)_
 - Slave Max Cell Temperature (`bmsSlave1.maxCellTemp`)   _(disabled)_
