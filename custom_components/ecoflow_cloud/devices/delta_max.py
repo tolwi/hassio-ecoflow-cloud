@@ -9,7 +9,8 @@ from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevel
     MaxGenStopLevelEntity, MinGenStartLevelEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, \
-    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity
+    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
+    OutWattsDcSensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -34,12 +35,8 @@ class DeltaMax(BaseDevice):
             InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
             OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
 
-            InWattsSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
-
-
-            # OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
-            # the same value as pd.carWatts
-            OutWattsSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
+            InWattsSolarSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
+            OutWattsDcSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typec2Watts", const.TYPEC_2_OUT_POWER),
