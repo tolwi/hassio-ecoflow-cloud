@@ -1,6 +1,4 @@
 from . import const, BaseDevice
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, BATTERY_CHARGING_STATE, \
-    MAIN_DESIGN_CAPACITY, MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY
 from ..button import EnabledButtonEntity
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity, BaseButtonEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
@@ -20,16 +18,16 @@ class Glacier(BaseDevice):
         return [
             # Power and Battery Entities
             LevelSensorEntity(client, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
-                .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bms_bmsStatus.designCap", MAIN_DESIGN_CAPACITY, False),
-            CapacitySensorEntity(client, "bms_bmsStatus.fullCap", MAIN_FULL_CAPACITY, False),
-            CapacitySensorEntity(client, "bms_bmsStatus.remainCap", MAIN_REMAIN_CAPACITY, False),
+                .attr("bms_bmsStatus.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bms_bmsStatus.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bms_bmsStatus.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bms_bmsStatus.designCap", const.MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_bmsStatus.fullCap", const.MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False),
 
             LevelSensorEntity(client, "bms_emsStatus.f32LcdSoc", const.COMBINED_BATTERY_LEVEL),
 
-            ChargingStateSensorEntity(client, "bms_emsStatus.chgState", BATTERY_CHARGING_STATE),
+            ChargingStateSensorEntity(client, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE),
 
             InWattsSensorEntity(client, "bms_bmsStatus.inWatts", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, "bms_bmsStatus.outWatts", const.TOTAL_OUT_POWER),

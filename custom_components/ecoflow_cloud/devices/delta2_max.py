@@ -23,6 +23,8 @@ class Delta2Max(BaseDevice):
             CapacitySensorEntity(client, "bms_bmsStatus.fullCap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False),
 
+            LevelSensorEntity(client, "bms_bmsStatus.soh", const.SOH),
+
             LevelSensorEntity(client, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
 
             InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
@@ -103,7 +105,7 @@ class Delta2Max(BaseDevice):
             CapacitySensorEntity(client, "bms_slave_bmsSlaveStatus_2.fullCap", const.SLAVE_N_FULL_CAPACITY % 2, False),
             CapacitySensorEntity(client, "bms_slave_bmsSlaveStatus_2.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 2, False),
 
-        TempSensorEntity(client, "bms_slave_bmsSlaveStatus_2.temp", const.SLAVE_N_BATTERY_TEMP % 2, False, True)
+            TempSensorEntity(client, "bms_slave_bmsSlaveStatus_2.temp", const.SLAVE_N_BATTERY_TEMP % 2, False, True)
                 .attr("bms_slave_bmsSlaveStatus_2.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
                 .attr("bms_slave_bmsSlaveStatus_2.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             TempSensorEntity(client, "bms_slave_bmsSlaveStatus_2.minCellTemp", const.SLAVE_N_MIN_CELL_TEMP % 2, False),

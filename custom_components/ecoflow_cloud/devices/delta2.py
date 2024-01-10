@@ -1,8 +1,6 @@
 from homeassistant.const import Platform
 
 from . import const, BaseDevice, EntityMigration, MigrationAction
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, MAIN_DESIGN_CAPACITY, \
-    MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY, SLAVE_DESIGN_CAPACITY, SLAVE_FULL_CAPACITY, SLAVE_REMAIN_CAPACITY
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
@@ -18,12 +16,14 @@ class Delta2(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
-                .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bms_bmsStatus.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bms_bmsStatus.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bms_bmsStatus.designCap", MAIN_DESIGN_CAPACITY, False),
-            CapacitySensorEntity(client, "bms_bmsStatus.fullCap", MAIN_FULL_CAPACITY, False),
-            CapacitySensorEntity(client, "bms_bmsStatus.remainCap", MAIN_REMAIN_CAPACITY, False),
+                .attr("bms_bmsStatus.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bms_bmsStatus.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bms_bmsStatus.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bms_bmsStatus.designCap", const.MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_bmsStatus.fullCap", const.MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False),
+
+            LevelSensorEntity(client, "bms_bmsStatus.soh", const.SOH),
 
             LevelSensorEntity(client, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             InWattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
@@ -72,13 +72,14 @@ class Delta2(BaseDevice):
 
             # Optional Slave Battery
             LevelSensorEntity(client, "bms_slave.soc", const.SLAVE_BATTERY_LEVEL, False, True)
-                .attr("bms_slave.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bms_slave.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bms_slave.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bms_slave.designCap", SLAVE_DESIGN_CAPACITY, False),
-            CapacitySensorEntity(client, "bms_slave.fullCap", SLAVE_FULL_CAPACITY, False),
-            CapacitySensorEntity(client, "bms_slave.remainCap", SLAVE_REMAIN_CAPACITY, False),
+                .attr("bms_slave.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bms_slave.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bms_slave.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bms_slave.designCap", const.SLAVE_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_slave.fullCap", const.SLAVE_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bms_slave.remainCap", const.SLAVE_REMAIN_CAPACITY, False),
 
+            LevelSensorEntity(client, "bms_slave.soh", const.SLAVE_SOH),
             TempSensorEntity(client, "bms_slave.temp", const.SLAVE_BATTERY_TEMP, False, True)
                 .attr("bms_slave.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
                 .attr("bms_slave.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),

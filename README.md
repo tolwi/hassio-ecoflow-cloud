@@ -13,7 +13,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
 
 ## Current state
-<details><summary> DELTA_2 <i>(sensors: 43, switches: 8, sliders: 6, selects: 5)</i> </summary>
+<details><summary> DELTA_2 <i>(sensors: 45, switches: 8, sliders: 6, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -21,6 +21,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
+- State of Health
 - Battery Level
 - Total In Power
 - Total Out Power
@@ -50,6 +51,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave Design Capacity  _(disabled)_
 - Slave Full Capacity  _(disabled)_
 - Slave Remain Capacity  _(disabled)_
+- Slave State of Health
 - Slave Battery Temperature  _(auto)_
 - Slave Min Cell Temperature  _(disabled)_
 - Slave Max Cell Temperature  _(disabled)_
@@ -88,7 +90,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 28, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 29, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -96,6 +98,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
+- State of Health
 - Battery Level
 - Battery Charging State
 - Total In Power
@@ -140,7 +143,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2_MAX <i>(sensors: 31, switches: 5, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER_2_MAX <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -148,6 +151,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
+- State of Health
 - Battery Level
 - Battery Charging State
 - Total In Power
@@ -198,7 +202,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2_PRO <i>(sensors: 29, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_PRO <i>(sensors: 30, switches: 3, sliders: 3, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -206,6 +210,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
+- State of Health
 - Battery Level
 - Battery Charging State
 - Total In Power
@@ -251,7 +256,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_PRO <i>(sensors: 50, switches: 6, sliders: 6, selects: 4)</i> </summary>
+<details><summary> DELTA_PRO <i>(sensors: 53, switches: 6, sliders: 6, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -259,6 +264,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
+- State of Health
 - Battery Level
 - Total In Power
 - Total Out Power
@@ -294,6 +300,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave 1 Design Capacity  _(disabled)_
 - Slave 1 Full Capacity  _(disabled)_
 - Slave 1 Remain Capacity  _(disabled)_
+- Slave 1 State of Health
 - Slave 1 Battery Temperature  _(auto)_
 - Slave 1 In Power  _(auto)_
 - Slave 1 Out Power  _(auto)_
@@ -301,6 +308,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave 2 Design Capacity  _(disabled)_
 - Slave 2 Full Capacity  _(disabled)_
 - Slave 2 Remain Capacity  _(disabled)_
+- Slave 2 State of Health
 - Slave 2 Battery Temperature  _(auto)_
 - Slave 2 In Power  _(auto)_
 - Slave 2 Out Power  _(auto)_
@@ -446,7 +454,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_MINI <i>(sensors: 32, switches: 4, sliders: 3, selects: 4)</i> </summary>
+<details><summary> DELTA_MINI <i>(sensors: 33, switches: 4, sliders: 3, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -454,6 +462,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
+- State of Health
 - Battery Level
 - Total In Power
 - Total Out Power
@@ -557,7 +566,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 31, switches: 6, sliders: 5, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 60, switches: 6, sliders: 5, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -565,6 +574,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
+- State of Health
 - Battery Level
 - Total In Power
 - Total Out Power
@@ -591,6 +601,34 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Slave 1 Battery Level  _(auto)_
+- Slave 1 Design Capacity  _(disabled)_
+- Slave 1 Full Capacity  _(disabled)_
+- Slave 1 Remain Capacity  _(disabled)_
+- Slave 1 Battery Temperature  _(auto)_
+- Slave 1 Min Cell Temperature  _(disabled)_
+- Slave 1 Max Cell Temperature  _(disabled)_
+- Slave 1 Battery Volts  _(disabled)_
+- Slave 1 Min Cell Volts  _(disabled)_
+- Slave 1 Max Cell Volts  _(disabled)_
+- Slave 1 Cycles  _(auto)_
+- Slave 1 State of Health  _(auto)_
+- Slave 1 In Power  _(auto)_
+- Slave 1 Out Power  _(auto)_
+- Slave 2 Battery Level  _(auto)_
+- Slave 2 Design Capacity  _(disabled)_
+- Slave 2 Full Capacity  _(disabled)_
+- Slave 2 Remain Capacity  _(disabled)_
+- Slave 2 Battery Temperature  _(auto)_
+- Slave 2 Min Cell Temperature  _(disabled)_
+- Slave 2 Max Cell Temperature  _(disabled)_
+- Slave 2 Battery Volts  _(disabled)_
+- Slave 2 Min Cell Volts  _(disabled)_
+- Slave 2 Max Cell Volts  _(disabled)_
+- Slave 2 Cycles  _(auto)_
+- Slave 2 State of Health  _(auto)_
+- Slave 2 In Power  _(auto)_
+- Slave 2 Out Power  _(auto)_
 - Status
 
 *Switches*
