@@ -18,16 +18,16 @@ class DeltaPro(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
-                .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
+                .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
 			LevelSensorEntity(client, "bmsMaster.f32ShowSoc", const.MAIN_BATTERY_LEVEL_F32, False)
-                .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bmsMaster.designCap", MAIN_DESIGN_CAPACITY, False),
-            CapacitySensorEntity(client, "bmsMaster.fullCap", MAIN_FULL_CAPACITY, False),
-            CapacitySensorEntity(client, "bmsMaster.remainCap", MAIN_REMAIN_CAPACITY, False),
+                .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
             LevelSensorEntity(client, "bmsMaster.soh", const.SOH),
 
             LevelSensorEntity(client, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
@@ -86,16 +86,16 @@ class DeltaPro(BaseDevice):
 
             # Optional Slave Batteries
             LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_N_BATTERY_LEVEL % 1, False, True)
-                .attr("bmsSlave1.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsSlave1.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bmsSlave1.remainCap", ATTR_REMAIN_CAPACITY, 0),
+                .attr("bmsSlave1.designCap", const.SLAVE_N_DESIGN_CAPACITY % 1, 0)
+                .attr("bmsSlave1.fullCap", const.SLAVE_N_FULL_CAPACITY % 1, 0)
+                .attr("bmsSlave1.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 1, 0),
 			LevelSensorEntity(client, "bmsSlave1.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_F32 % 1, False, True)
-                .attr("bmsSlave1.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsSlave1.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bmsSlave1.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bmsSlave1.designCap", SLAVE_N_DESIGN_CAPACITY % 1, False),
-            CapacitySensorEntity(client, "bmsSlave1.fullCap", SLAVE_N_FULL_CAPACITY % 1, False),
-            CapacitySensorEntity(client, "bmsSlave1.remainCap", SLAVE_N_REMAIN_CAPACITY % 1, False),
+                .attr("bmsSlave1.designCap",const.SLAVE_N_DESIGN_CAPACITY % 1, 0)
+                .attr("bmsSlave1.fullCap", const.SLAVE_N_FULL_CAPACITY % 1, 0)
+                .attr("bmsSlave1.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 1, 0),
+            CapacitySensorEntity(client, "bmsSlave1.designCap", const.SLAVE_N_DESIGN_CAPACITY % 1, False),
+            CapacitySensorEntity(client, "bmsSlave1.fullCap", const.SLAVE_N_FULL_CAPACITY % 1, False),
+            CapacitySensorEntity(client, "bmsSlave1.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 1, False),
             LevelSensorEntity(client, "bmsSlave1.soh", const.SLAVE_N_SOH % 1),
 
 
@@ -106,16 +106,16 @@ class DeltaPro(BaseDevice):
             WattsSensorEntity(client, "bmsSlave1.outputWatts", const.SLAVE_N_OUT_POWER % 1, False, True),
 
             LevelSensorEntity(client, "bmsSlave2.soc", const.SLAVE_N_BATTERY_LEVEL % 2, False, True)
-                .attr("bmsSlave2.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsSlave2.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bmsSlave2.remainCap", ATTR_REMAIN_CAPACITY, 0),
+                .attr("bmsSlave2.designCap", const.SLAVE_N_DESIGN_CAPACITY % 2, 0)
+                .attr("bmsSlave2.fullCap",const.SLAVE_N_FULL_CAPACITY % 2, 0)
+                .attr("bmsSlave2.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 2, 0),
 			LevelSensorEntity(client, "bmsSlave2.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_F32 % 2, False, True)
-                .attr("bmsSlave2.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsSlave2.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bmsSlave2.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bmsSlave2.designCap", SLAVE_N_DESIGN_CAPACITY % 2, False),
-            CapacitySensorEntity(client, "bmsSlave2.fullCap", SLAVE_N_FULL_CAPACITY % 2, False),
-            CapacitySensorEntity(client, "bmsSlave2.remainCap", SLAVE_N_REMAIN_CAPACITY % 2, False),
+                .attr("bmsSlave2.designCap", const.SLAVE_N_DESIGN_CAPACITY % 2, 0)
+                .attr("bmsSlave2.fullCap",const.SLAVE_N_FULL_CAPACITY % 2, 0)
+                .attr("bmsSlave2.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 2, 0),
+            CapacitySensorEntity(client, "bmsSlave2.designCap", const.SLAVE_N_DESIGN_CAPACITY % 2, False),
+            CapacitySensorEntity(client, "bmsSlave2.fullCap", const.SLAVE_N_FULL_CAPACITY % 2, False),
+            CapacitySensorEntity(client, "bmsSlave2.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 2, False),
             LevelSensorEntity(client, "bmsSlave2.soh", const.SLAVE_N_SOH % 2),
 			MilliVoltSensorEntity(client, "bmsSlave1.vol", const.SLAVE_N_BATTERY_VOLT % 1, False),
             MilliVoltSensorEntity(client, "bmsSlave1.minCellVol", const.SLAVE_N_MIN_CELL_VOLT % 1, False),
