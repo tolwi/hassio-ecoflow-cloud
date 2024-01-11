@@ -5,6 +5,7 @@
 - Main Design Capacity (`bmsMaster.designCap`)   _(disabled)_
 - Main Full Capacity (`bmsMaster.fullCap`)   _(disabled)_
 - Main Remain Capacity (`bmsMaster.remainCap`)   _(disabled)_
+- State of Health (`bmsMaster.soh`)
 - Battery Level (`ems.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
@@ -40,6 +41,7 @@
 - Slave 1 Design Capacity (`bmsSlave1.designCap`)   _(disabled)_
 - Slave 1 Full Capacity (`bmsSlave1.fullCap`)   _(disabled)_
 - Slave 1 Remain Capacity (`bmsSlave1.remainCap`)   _(disabled)_
+- Slave 1 State of Health (`bmsSlave1.soh`)
 - Slave 1 Battery Temperature (`bmsSlave1.temp`)   _(auto)_
 - Slave 1 In Power (`bmsSlave1.inputWatts`)   _(auto)_
 - Slave 1 Out Power (`bmsSlave1.outputWatts`)   _(auto)_
@@ -47,6 +49,7 @@
 - Slave 2 Design Capacity (`bmsSlave2.designCap`)   _(disabled)_
 - Slave 2 Full Capacity (`bmsSlave2.fullCap`)   _(disabled)_
 - Slave 2 Remain Capacity (`bmsSlave2.remainCap`)   _(disabled)_
+- Slave 2 State of Health (`bmsSlave2.soh`)
 - Slave 2 Battery Temperature (`bmsSlave2.temp`)   _(auto)_
 - Slave 2 In Power (`bmsSlave2.inputWatts`)   _(auto)_
 - Slave 2 Out Power (`bmsSlave2.outputWatts`)   _(auto)_

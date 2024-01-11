@@ -1,8 +1,6 @@
 from homeassistant.const import Platform
 
 from . import const, BaseDevice, EntityMigration, MigrationAction
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, MAIN_DESIGN_CAPACITY, \
-    MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY, SLAVE_DESIGN_CAPACITY, SLAVE_FULL_CAPACITY, SLAVE_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
@@ -18,12 +16,12 @@ class RiverPro(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
-                .attr("bmsMaster.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsMaster.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bmsMaster.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bmsMaster.designCap", MAIN_DESIGN_CAPACITY, False),
-            CapacitySensorEntity(client, "bmsMaster.fullCap", MAIN_FULL_CAPACITY, False),
-            CapacitySensorEntity(client, "bmsMaster.remainCap", MAIN_REMAIN_CAPACITY, False),
+                .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
 
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
@@ -64,12 +62,12 @@ class RiverPro(BaseDevice):
 
             # Optional Slave Batteries
             LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_BATTERY_LEVEL, False, True)
-                .attr("bmsSlave1.designCap", ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsSlave1.fullCap", ATTR_FULL_CAPACITY, 0)
-                .attr("bmsSlave1.remainCap", ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bmsSlave1.designCap", SLAVE_DESIGN_CAPACITY, False),
-            CapacitySensorEntity(client, "bmsSlave1.fullCap", SLAVE_FULL_CAPACITY, False),
-            CapacitySensorEntity(client, "bmsSlave1.remainCap", SLAVE_REMAIN_CAPACITY, False),
+                .attr("bmsSlave1.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsSlave1.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bmsSlave1.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bmsSlave1.designCap", const.SLAVE_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsSlave1.fullCap", const.SLAVE_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, "bmsSlave1.remainCap", const.SLAVE_REMAIN_CAPACITY, False),
 
             CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True),
             TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_BATTERY_TEMP, False, True)

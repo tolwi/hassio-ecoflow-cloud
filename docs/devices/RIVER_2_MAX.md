@@ -5,6 +5,7 @@
 - Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
 - Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_
 - Main Remain Capacity (`bms_bmsStatus.remainCap`)   _(disabled)_
+- State of Health (`bms_bmsStatus.soh`)
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Battery Charging State (`bms_emsStatus.chgState`)
 - Total In Power (`pd.wattsInSum`)

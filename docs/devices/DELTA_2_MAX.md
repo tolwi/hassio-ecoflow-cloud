@@ -5,6 +5,7 @@
 - Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
 - Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_
 - Main Remain Capacity (`bms_bmsStatus.remainCap`)   _(disabled)_
+- State of Health (`bms_bmsStatus.soh`)
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
@@ -31,6 +32,34 @@
 - Battery Volts (`bms_bmsStatus.vol`)   _(disabled)_
 - Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
+- Slave 1 Battery Level (`bms_slave_bmsSlaveStatus_1.soc`)   _(auto)_
+- Slave 1 Design Capacity (`bms_slave_bmsSlaveStatus_1.designCap`)   _(disabled)_
+- Slave 1 Full Capacity (`bms_slave_bmsSlaveStatus_1.fullCap`)   _(disabled)_
+- Slave 1 Remain Capacity (`bms_slave_bmsSlaveStatus_1.remainCap`)   _(disabled)_
+- Slave 1 Battery Temperature (`bms_slave_bmsSlaveStatus_1.temp`)   _(auto)_
+- Slave 1 Min Cell Temperature (`bms_slave_bmsSlaveStatus_1.minCellTemp`)   _(disabled)_
+- Slave 1 Max Cell Temperature (`bms_slave_bmsSlaveStatus_1.maxCellTemp`)   _(disabled)_
+- Slave 1 Battery Volts (`bms_slave_bmsSlaveStatus_1.vol`)   _(disabled)_
+- Slave 1 Min Cell Volts (`bms_slave_bmsSlaveStatus_1.minCellVol`)   _(disabled)_
+- Slave 1 Max Cell Volts (`bms_slave_bmsSlaveStatus_1.maxCellVol`)   _(disabled)_
+- Slave 1 Cycles (`bms_slave_bmsSlaveStatus_1.cycles`)   _(auto)_
+- Slave 1 State of Health (`bms_slave_bmsSlaveStatus_1.soh`)   _(auto)_
+- Slave 1 In Power (`bms_slave_bmsSlaveStatus_1.inputWatts`)   _(auto)_
+- Slave 1 Out Power (`bms_slave_bmsSlaveStatus_1.outputWatts`)   _(auto)_
+- Slave 2 Battery Level (`bms_slave_bmsSlaveStatus_2.soc`)   _(auto)_
+- Slave 2 Design Capacity (`bms_slave_bmsSlaveStatus_2.designCap`)   _(disabled)_
+- Slave 2 Full Capacity (`bms_slave_bmsSlaveStatus_2.fullCap`)   _(disabled)_
+- Slave 2 Remain Capacity (`bms_slave_bmsSlaveStatus_2.remainCap`)   _(disabled)_
+- Slave 2 Battery Temperature (`bms_slave_bmsSlaveStatus_2.temp`)   _(auto)_
+- Slave 2 Min Cell Temperature (`bms_slave_bmsSlaveStatus_2.minCellTemp`)   _(disabled)_
+- Slave 2 Max Cell Temperature (`bms_slave_bmsSlaveStatus_2.maxCellTemp`)   _(disabled)_
+- Slave 2 Battery Volts (`bms_slave_bmsSlaveStatus_2.vol`)   _(disabled)_
+- Slave 2 Min Cell Volts (`bms_slave_bmsSlaveStatus_2.minCellVol`)   _(disabled)_
+- Slave 2 Max Cell Volts (`bms_slave_bmsSlaveStatus_2.maxCellVol`)   _(disabled)_
+- Slave 2 Cycles (`bms_slave_bmsSlaveStatus_2.cycles`)   _(auto)_
+- Slave 2 State of Health (`bms_slave_bmsSlaveStatus_2.soh`)   _(auto)_
+- Slave 2 In Power (`bms_slave_bmsSlaveStatus_2.inputWatts`)   _(auto)_
+- Slave 2 Out Power (`bms_slave_bmsSlaveStatus_2.outputWatts`)   _(auto)_
 - Status
 
 *Switches*

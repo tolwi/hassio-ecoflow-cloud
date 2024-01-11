@@ -129,6 +129,7 @@ CHARGE_REMAINING_TIME = "Charge Remaining Time"
 DISCHARGE_REMAINING_TIME = "Discharge Remaining Time"
 
 CYCLES = "Cycles"
+SOH = "State of Health"
 
 SLAVE_BATTERY_LEVEL = "Slave Battery Level"
 SLAVE_N_BATTERY_LEVEL = "Slave %i Battery Level"
@@ -141,7 +142,14 @@ SLAVE_N_BATTERY_TEMP = "Slave %i Battery Temperature"
 SLAVE_MIN_CELL_TEMP = "Slave Min Cell Temperature"
 SLAVE_MAX_CELL_TEMP = "Slave Max Cell Temperature"
 
+SLAVE_N_MIN_CELL_TEMP = "Slave %i Min Cell Temperature"
+SLAVE_N_MAX_CELL_TEMP = "Slave %i Max Cell Temperature"
+
+
 SLAVE_CYCLES = "Slave Cycles"
+SLAVE_N_CYCLES = "Slave %i Cycles"
+SLAVE_SOH = "Slave State of Health"
+SLAVE_N_SOH = "Slave %i State of Health"
 
 SLAVE_IN_POWER = "Slave In Power"
 SLAVE_N_IN_POWER = "Slave %i In Power"

@@ -1,8 +1,6 @@
 from homeassistant.const import Platform
 
 from . import const, BaseDevice, EntityMigration, MigrationAction
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, MAIN_DESIGN_CAPACITY, \
-    MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY, SLAVE_N_DESIGN_CAPACITY, SLAVE_N_FULL_CAPACITY, SLAVE_N_REMAIN_CAPACITY
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, MinGenStartLevelEntity, \
@@ -30,6 +28,7 @@ class DeltaPro(BaseDevice):
             CapacitySensorEntity(client, "bmsMaster.designCap", MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, "bmsMaster.fullCap", MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, "bmsMaster.remainCap", MAIN_REMAIN_CAPACITY, False),
+            LevelSensorEntity(client, "bmsMaster.soh", const.SOH),
 
             LevelSensorEntity(client, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             LevelSensorEntity(client, "ems.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL_F32, False),
@@ -49,7 +48,6 @@ class DeltaPro(BaseDevice):
 
             OutWattsDcSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
             OutVoltDcSensorEntity(client, "mppt.outVol", const.DC_OUT_VOLTAGE),
-            # OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
 
             OutWattsSensorEntity(client, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
             OutWattsSensorEntity(client, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
@@ -98,6 +96,8 @@ class DeltaPro(BaseDevice):
             CapacitySensorEntity(client, "bmsSlave1.designCap", SLAVE_N_DESIGN_CAPACITY % 1, False),
             CapacitySensorEntity(client, "bmsSlave1.fullCap", SLAVE_N_FULL_CAPACITY % 1, False),
             CapacitySensorEntity(client, "bmsSlave1.remainCap", SLAVE_N_REMAIN_CAPACITY % 1, False),
+            LevelSensorEntity(client, "bmsSlave1.soh", const.SLAVE_N_SOH % 1),
+
 
             TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_N_BATTERY_TEMP % 1, False, True)
                 .attr("bmsSlave1.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
@@ -116,6 +116,7 @@ class DeltaPro(BaseDevice):
             CapacitySensorEntity(client, "bmsSlave2.designCap", SLAVE_N_DESIGN_CAPACITY % 2, False),
             CapacitySensorEntity(client, "bmsSlave2.fullCap", SLAVE_N_FULL_CAPACITY % 2, False),
             CapacitySensorEntity(client, "bmsSlave2.remainCap", SLAVE_N_REMAIN_CAPACITY % 2, False),
+            LevelSensorEntity(client, "bmsSlave2.soh", const.SLAVE_N_SOH % 2),
 			MilliVoltSensorEntity(client, "bmsSlave1.vol", const.SLAVE_N_BATTERY_VOLT % 1, False),
             MilliVoltSensorEntity(client, "bmsSlave1.minCellVol", const.SLAVE_N_MIN_CELL_VOLT % 1, False),
             MilliVoltSensorEntity(client, "bmsSlave1.maxCellVol", const.SLAVE_N_MAX_CELL_VOLT % 1, False),
