@@ -566,7 +566,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 60, switches: 6, sliders: 5, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 60, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
