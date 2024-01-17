@@ -68,6 +68,31 @@ DC_CHARGE_CURRENT_OPTIONS = {
     "8A": 8000
 }
 
+MAIN_MODE_OPTIONS = {
+    "Cool": 0,
+    "Heat": 1,
+    "Fan": 2
+}
+
+FAN_MODE_OPTIONS = {
+    "Low": 0,
+    "Medium": 1,
+    "High": 2
+}
+
+REMOTE_MODE_OPTIONS = {
+    "Startup": 1,
+    "Standby": 2,
+    "Shutdown": 3
+}
+
+POWER_SUB_MODE_OPTIONS = {
+    "Max": 0,
+    "Sleep": 1,
+    "Eco": 2,
+    "Manual": 3
+}
+
 COMBINED_BATTERY_LEVEL = "Battery Level"
 BATTERY_CHARGING_STATE = "Battery Charging State"
 
@@ -198,3 +223,8 @@ ATTR_MAX_CELL_VOLT = MAX_CELL_VOLT
 
 BATTERY_AMP = "Battery Current"
 SLAVE_BATTERY_AMP = "Slave Battery Current"
+
+FAN_MODE ="Wind speed"
+MAIN_MODE ="Main mode"
+REMOTE_MODE ="Remote startup/shutdown"
+POWER_SUB_MODE ="Sub-mode"

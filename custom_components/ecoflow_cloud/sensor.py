@@ -117,6 +117,9 @@ class DecicelsiusSensorEntity(TempSensorEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) / 10)
 
+class MilliCelsiusSensorEntity(TempSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 100)
 
 class VoltSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.VOLTAGE
