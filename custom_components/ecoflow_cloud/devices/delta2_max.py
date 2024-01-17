@@ -139,14 +139,14 @@ class Delta2Max(BaseDevice):
                                                  "params": {"minDsgSoc": int(value)}}),
 
             MinGenStartLevelEntity(client, "bms_emsStatus.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
-                                   lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
+                                   lambda value: {"moduleType": 2, "operateType": "openOilSoc",
                                                   "moduleSn": client.device_sn,
-                                                  "params": {"closeOilSoc": value}}),
+                                                  "params": {"openOilSoc": value}}),
 
             MaxGenStopLevelEntity(client, "bms_emsStatus.maxCloseOilEbSoc", const.GEN_AUTO_STOP_LEVEL, 50, 100,
-                                  lambda value: {"moduleType": 2, "operateType": "openOilSoc",
+                                  lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
                                                  "moduleSn": client.device_sn,
-                                                 "params": {"openOilSoc": value}}),
+                                                 "params": {"closeOilSoc": value}}),
 
             ChargingPowerEntity(client, "inv.SlowChgWatts", const.AC_CHARGING_POWER, 200, 2400,
                                 lambda value: {"moduleType": 3, "operateType": "acChgCfg",

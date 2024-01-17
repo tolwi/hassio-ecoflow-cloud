@@ -116,12 +116,12 @@ class Delta2(BaseDevice):
                                                          "minChgSoc": 0}}),
 
             MinGenStartLevelEntity(client, "bms_emsStatus.minOpenOilEb", const.GEN_AUTO_START_LEVEL, 0, 30,
-                                   lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
-                                                  "params": {"closeOilSoc": value}}),
+                                   lambda value: {"moduleType": 2, "operateType": "openOilSoc",
+                                                  "params": {"openOilSoc": value}}),
 
             MaxGenStopLevelEntity(client, "bms_emsStatus.maxCloseOilEb", const.GEN_AUTO_STOP_LEVEL, 50, 100,
-                                  lambda value: {"moduleType": 2, "operateType": "openOilSoc",
-                                                 "params": {"openOilSoc": value}}),
+                                  lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
+                                                 "params": {"closeOilSoc": value}}),
 
             ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 200, 1200,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
