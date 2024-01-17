@@ -82,12 +82,12 @@ class DeltaMax(BaseDevice):
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
             MaxBatteryLevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
-                                  lambda value: {"moduleType": 2, "operateType": "upsConfig",
-                                                 "params": {"maxChgSoc": int(value)}}),
+                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                 "params": {"id": 49, "maxChgSoc": value}}),
 
             MinBatteryLevelEntity(client, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
-                                  lambda value: {"moduleType": 2, "operateType": "dsgCfg",
-                                                 "params": {"minDsgSoc": int(value)}}),
+                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                 "params": {"id": 51, "maxChgSoc": value}}),
 
             MinGenStartLevelEntity(client, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
                                    lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
@@ -97,9 +97,9 @@ class DeltaMax(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "openOilSoc",
                                                  "params": {"openOilSoc": value}}),
 
-            ChargingPowerEntity(client, "inv.cfgFastChgWatt", const.AC_CHARGING_POWER, 400, 2200,
-                                lambda value: {"moduleType": 5, "operateType": "acChgCfg",
-                                               "params": {"chgWatts": int(value), "chgPauseFlag": 255}})
+            ChargingPowerEntity(client, "inv.cfgFastChgWatt", const.AC_CHARGING_POWER, 200, 2000,
+                                lambda value: {"moduleType": 0, "operateType": "TCP",
+                                               "params": {"slowChgPower": value, "id": 69}}),
 
         ]
 
