@@ -566,7 +566,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 60, switches: 6, sliders: 5, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 60, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -638,10 +638,12 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC Enabled 
 - X-Boost Enabled 
 - DC (12V) Enabled 
+- Backup Reserve Enabled 
 
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
+- Backup Reserve Level 
 - Generator Auto Start Level 
 - Generator Auto Stop Level 
 - AC Charging Power 
