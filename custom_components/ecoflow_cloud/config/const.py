@@ -22,11 +22,12 @@ class EcoflowModel(Enum):
     DELTA_PRO = 5,
     RIVER_MAX = 6,
     RIVER_PRO = 7,
-    DELTA_MAX = 8,
-    DELTA_2_MAX = 9,
+    DELTA_MAX = 8,   # productType = 13
+    DELTA_2_MAX = 9, # productType = 81
     DELTA_MINI = 15,   # productType = 15
-    POWERSTREAM = 51,
+    POWERSTREAM = 51, 
     GLACIER = 46,
+    WAVE_2 = 42, # eventually wrong
     DIAGNOSTIC = 99
 
     @classmethod

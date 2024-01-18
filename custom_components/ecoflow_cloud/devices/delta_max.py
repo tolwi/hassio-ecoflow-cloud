@@ -82,20 +82,20 @@ class DeltaMax(BaseDevice):
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
             MaxBatteryLevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
-                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                  lambda value: {"moduleType": 2, "operateType": "TCP",
                                                  "params": {"id": 49, "maxChgSoc": value}}),
 
             MinBatteryLevelEntity(client, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
-                                  lambda value: {"moduleType": 0, "operateType": "TCP",
-                                                 "params": {"id": 51, "maxChgSoc": value}}),
+                                  lambda value: {"moduleType": 2, "operateType": "TCP",
+                                                 "params": {"id": 51, "minDsgSoc": value}}),
 
             MinGenStartLevelEntity(client, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
-                                   lambda value: {"moduleType": 2, "operateType": "closeOilSoc",
-                                                  "params": {"closeOilSoc": value}}),
+                                   lambda value: {"moduleType": 2, "operateType": "TCP",
+                                                  "params": {"id": 52, "openOilSoc": value}}),
 
             MaxGenStopLevelEntity(client, "ems.maxCloseOilEbSoc", const.GEN_AUTO_STOP_LEVEL, 50, 100,
-                                  lambda value: {"moduleType": 2, "operateType": "openOilSoc",
-                                                 "params": {"openOilSoc": value}}),
+                                  lambda value: {"moduleType": 2, "operateType": "TCP",
+                                                 "params": {"id": 53, "closeOilSoc": value}}),
 
             ChargingPowerEntity(client, "inv.cfgFastChgWatt", const.AC_CHARGING_POWER, 200, 2000,
                                 lambda value: {"moduleType": 0, "operateType": "TCP",
@@ -106,7 +106,7 @@ class DeltaMax(BaseDevice):
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         return [
             BeeperEntity(client, "pd.beepState", const.BEEPER,
-                         lambda value: {"moduleType": 5, "operateType": "quietMode", "params": {"enabled": value}}),
+                         lambda value: {"moduleType": 5, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
 
             EnabledEntity(client, "pd.dcOutState", const.USB_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"enabled": value, "id": 34  }}),
