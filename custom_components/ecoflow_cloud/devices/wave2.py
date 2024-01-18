@@ -1,6 +1,6 @@
 from homeassistant.const import Platform
 
-from . import const, BaseDevice,
+from . import const, BaseDevice
 from .. import EcoflowMQTTClient
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSelectEntity
 from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
