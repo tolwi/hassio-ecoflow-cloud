@@ -120,14 +120,18 @@ class DeltaPro(BaseDevice):
 			MilliVoltSensorEntity(client, "bmsSlave1.vol", const.SLAVE_N_BATTERY_VOLT % 1, False),
             MilliVoltSensorEntity(client, "bmsSlave1.minCellVol", const.SLAVE_N_MIN_CELL_VOLT % 1, False),
             MilliVoltSensorEntity(client, "bmsSlave1.maxCellVol", const.SLAVE_N_MAX_CELL_VOLT % 1, False),
+            AmpSensorEntity(client, "bmsSlave1.amp", const.SLAVE_N_BATTERY_CURRENT % 1, False),
 			MilliVoltSensorEntity(client, "bmsSlave2.vol", const.SLAVE_N_BATTERY_VOLT % 2, False),
             MilliVoltSensorEntity(client, "bmsSlave2.minCellVol", const.SLAVE_N_MIN_CELL_VOLT % 2, False),
             MilliVoltSensorEntity(client, "bmsSlave2.maxCellVol", const.SLAVE_N_MAX_CELL_VOLT % 2, False),
+            AmpSensorEntity(client, "bmsSlave2.amp", const.SLAVE_N_BATTERY_CURRENT % 2, False),
             TempSensorEntity(client, "bmsSlave2.temp", const.SLAVE_N_BATTERY_TEMP % 2, False, True)
                 .attr("bmsSlave2.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
                 .attr("bmsSlave2.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             WattsSensorEntity(client, "bmsSlave2.inputWatts", const.SLAVE_N_IN_POWER % 2, False, True),
             WattsSensorEntity(client, "bmsSlave2.outputWatts", const.SLAVE_N_OUT_POWER % 2, False, True),
+            CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_N_CYCLES % 1, False),
+            CyclesSensorEntity(client, "bmsSlave2.cycles", const.SLAVE_N_CYCLES % 2, False),
             StatusSensorEntity(client),
         ]
 
@@ -158,7 +162,7 @@ class DeltaPro(BaseDevice):
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         return [
-            BeeperEntity(client, "mppt.beepState", const.BEEPER,
+            BeeperEntity(client, "pd.beepState", const.BEEPER,
                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
             EnabledEntity(client, "mppt.carState", const.DC_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP",
