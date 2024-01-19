@@ -94,6 +94,7 @@ POWER_SUB_MODE_OPTIONS = {
 }
 
 COMBINED_BATTERY_LEVEL = "Battery Level"
+COMBINED_BATTERY_LEVEL_F32 = "Battery Level (Precise)"
 BATTERY_CHARGING_STATE = "Battery Charging State"
 
 ATTR_DESIGN_CAPACITY = "Design Capacity (mAh)"
@@ -110,6 +111,8 @@ SLAVE_N_FULL_CAPACITY = "Slave %i Full Capacity"
 SLAVE_N_REMAIN_CAPACITY = "Slave %i Remain Capacity"
 
 MAIN_BATTERY_LEVEL = "Main Battery Level"
+MAIN_BATTERY_LEVEL_F32 = "Main Battery Level (Precise)"
+MAIN_BATTERY_CURRENT = "Main Battery Current"
 TOTAL_IN_POWER = "Total In Power"
 SOLAR_IN_POWER = "Solar In Power"
 SOLAR_1_IN_POWER = "Solar (1) In Power"
@@ -130,6 +133,7 @@ DISCHARGE_DC_ENERGY = "Battery Discharge Energy to DC"
 TOTAL_OUT_POWER = "Total Out Power"
 AC_OUT_POWER = "AC Out Power"
 DC_OUT_POWER = "DC Out Power"
+DC_OUT_VOLTAGE = "DC Out Voltage"
 DC_CAR_OUT_POWER = "DC Car Out Power"
 DC_ANDERSON_OUT_POWER = "DC Anderson Out Power"
 
@@ -154,6 +158,7 @@ SOH = "State of Health"
 
 SLAVE_BATTERY_LEVEL = "Slave Battery Level"
 SLAVE_N_BATTERY_LEVEL = "Slave %i Battery Level"
+SLAVE_N_BATTERY_LEVEL_F32 = "Slave %i Battery Level (Precise)"
 
 SLAVE_BATTERY_TEMP = "Slave Battery Temperature"
 SLAVE_N_BATTERY_TEMP = "Slave %i Battery Temperature"
@@ -183,7 +188,7 @@ SLAVE_MAX_CELL_VOLT = "Slave Max Cell Volts"
 SLAVE_N_BATTERY_VOLT = "Slave %i Battery Volts"
 SLAVE_N_MIN_CELL_VOLT = "Slave %i Min Cell Volts"
 SLAVE_N_MAX_CELL_VOLT = "Slave %i Max Cell Volts"
-
+SLAVE_N_BATTERY_CURRENT = "Slave %i Battery Current"
 
 MAX_CHARGE_LEVEL = "Max Charge Level"
 MIN_DISCHARGE_LEVEL = "Min Discharge Level"

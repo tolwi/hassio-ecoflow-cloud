@@ -7,9 +7,10 @@ from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevel
     MaxGenStopLevelEntity
 from ..select import DictSelectEntity, TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, InWattsSolarSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity,  VoltSensorEntity, \
+	InWattsSolarSensorEntity, InVoltSolarSensorEntity, InAmpSolarSensorEntity, OutVoltDcSensorEntity, \
     StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity
+    OutMilliVoltSensorEntity, AmpSensorEntity, CapacitySensorEntity
 from ..switch import BeeperEntity, EnabledEntity
 
 
@@ -20,16 +21,20 @@ class DeltaPro(BaseDevice):
                 .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
                 .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
                 .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+			LevelSensorEntity(client, "bmsMaster.f32ShowSoc", const.MAIN_BATTERY_LEVEL_F32, False)
+                .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             CapacitySensorEntity(client, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
-
             LevelSensorEntity(client, "bmsMaster.soh", const.SOH),
 
             LevelSensorEntity(client, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
-
+            LevelSensorEntity(client, "ems.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL_F32, False),
             WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            AmpSensorEntity(client, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT),
 
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
@@ -38,8 +43,11 @@ class DeltaPro(BaseDevice):
             OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
 
             InWattsSolarSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
+            InVoltSolarSensorEntity(client, "mppt.inVol", const.SOLAR_IN_VOLTAGE),
+            InAmpSolarSensorEntity(client, "mppt.inAmp", const.SOLAR_IN_CURRENT),
 
             OutWattsDcSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
+            OutVoltDcSensorEntity(client, "mppt.outVol", const.DC_OUT_VOLTAGE),
 
             OutWattsSensorEntity(client, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
             OutWattsSensorEntity(client, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
@@ -78,14 +86,18 @@ class DeltaPro(BaseDevice):
 
             # Optional Slave Batteries
             LevelSensorEntity(client, "bmsSlave1.soc", const.SLAVE_N_BATTERY_LEVEL % 1, False, True)
-                .attr("bmsSlave1.designCap", const.ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsSlave1.fullCap", const.ATTR_FULL_CAPACITY, 0)
-                .attr("bmsSlave1.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+                .attr("bmsSlave1.designCap", const.SLAVE_N_DESIGN_CAPACITY % 1, 0)
+                .attr("bmsSlave1.fullCap", const.SLAVE_N_FULL_CAPACITY % 1, 0)
+                .attr("bmsSlave1.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 1, 0),
+			LevelSensorEntity(client, "bmsSlave1.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_F32 % 1, False, True)
+                .attr("bmsSlave1.designCap",const.SLAVE_N_DESIGN_CAPACITY % 1, 0)
+                .attr("bmsSlave1.fullCap", const.SLAVE_N_FULL_CAPACITY % 1, 0)
+                .attr("bmsSlave1.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 1, 0),
             CapacitySensorEntity(client, "bmsSlave1.designCap", const.SLAVE_N_DESIGN_CAPACITY % 1, False),
             CapacitySensorEntity(client, "bmsSlave1.fullCap", const.SLAVE_N_FULL_CAPACITY % 1, False),
             CapacitySensorEntity(client, "bmsSlave1.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 1, False),
-
             LevelSensorEntity(client, "bmsSlave1.soh", const.SLAVE_N_SOH % 1),
+
 
             TempSensorEntity(client, "bmsSlave1.temp", const.SLAVE_N_BATTERY_TEMP % 1, False, True)
                 .attr("bmsSlave1.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
@@ -94,20 +106,32 @@ class DeltaPro(BaseDevice):
             WattsSensorEntity(client, "bmsSlave1.outputWatts", const.SLAVE_N_OUT_POWER % 1, False, True),
 
             LevelSensorEntity(client, "bmsSlave2.soc", const.SLAVE_N_BATTERY_LEVEL % 2, False, True)
-                .attr("bmsSlave2.designCap", const.ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsSlave2.fullCap", const.ATTR_FULL_CAPACITY, 0)
-                .attr("bmsSlave2.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+                .attr("bmsSlave2.designCap", const.SLAVE_N_DESIGN_CAPACITY % 2, 0)
+                .attr("bmsSlave2.fullCap",const.SLAVE_N_FULL_CAPACITY % 2, 0)
+                .attr("bmsSlave2.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 2, 0),
+			LevelSensorEntity(client, "bmsSlave2.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_F32 % 2, False, True)
+                .attr("bmsSlave2.designCap", const.SLAVE_N_DESIGN_CAPACITY % 2, 0)
+                .attr("bmsSlave2.fullCap",const.SLAVE_N_FULL_CAPACITY % 2, 0)
+                .attr("bmsSlave2.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 2, 0),
             CapacitySensorEntity(client, "bmsSlave2.designCap", const.SLAVE_N_DESIGN_CAPACITY % 2, False),
             CapacitySensorEntity(client, "bmsSlave2.fullCap", const.SLAVE_N_FULL_CAPACITY % 2, False),
             CapacitySensorEntity(client, "bmsSlave2.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 2, False),
-
             LevelSensorEntity(client, "bmsSlave2.soh", const.SLAVE_N_SOH % 2),
-
+			MilliVoltSensorEntity(client, "bmsSlave1.vol", const.SLAVE_N_BATTERY_VOLT % 1, False),
+            MilliVoltSensorEntity(client, "bmsSlave1.minCellVol", const.SLAVE_N_MIN_CELL_VOLT % 1, False),
+            MilliVoltSensorEntity(client, "bmsSlave1.maxCellVol", const.SLAVE_N_MAX_CELL_VOLT % 1, False),
+            AmpSensorEntity(client, "bmsSlave1.amp", const.SLAVE_N_BATTERY_CURRENT % 1, False),
+			MilliVoltSensorEntity(client, "bmsSlave2.vol", const.SLAVE_N_BATTERY_VOLT % 2, False),
+            MilliVoltSensorEntity(client, "bmsSlave2.minCellVol", const.SLAVE_N_MIN_CELL_VOLT % 2, False),
+            MilliVoltSensorEntity(client, "bmsSlave2.maxCellVol", const.SLAVE_N_MAX_CELL_VOLT % 2, False),
+            AmpSensorEntity(client, "bmsSlave2.amp", const.SLAVE_N_BATTERY_CURRENT % 2, False),
             TempSensorEntity(client, "bmsSlave2.temp", const.SLAVE_N_BATTERY_TEMP % 2, False, True)
                 .attr("bmsSlave2.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
                 .attr("bmsSlave2.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             WattsSensorEntity(client, "bmsSlave2.inputWatts", const.SLAVE_N_IN_POWER % 2, False, True),
             WattsSensorEntity(client, "bmsSlave2.outputWatts", const.SLAVE_N_OUT_POWER % 2, False, True),
+            CyclesSensorEntity(client, "bmsSlave1.cycles", const.SLAVE_N_CYCLES % 1, False),
+            CyclesSensorEntity(client, "bmsSlave2.cycles", const.SLAVE_N_CYCLES % 2, False),
             StatusSensorEntity(client),
         ]
 
@@ -138,7 +162,7 @@ class DeltaPro(BaseDevice):
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         return [
-            BeeperEntity(client, "mppt.beepState", const.BEEPER,
+            BeeperEntity(client, "pd.beepState", const.BEEPER,
                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
             EnabledEntity(client, "mppt.carState", const.DC_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP",
