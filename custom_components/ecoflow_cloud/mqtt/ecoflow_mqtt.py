@@ -185,6 +185,7 @@ class EcoflowMQTTClient:
             identifiers={(DOMAIN, self.device_sn)},
             manufacturer="EcoFlow",
             name=entry.title,
+            model=self.device_type,
         )
 
         self.client = mqtt_client.Client(client_id=f'ANDROID_-{str(uuid.uuid4()).upper()}_{auth.user_id}',
