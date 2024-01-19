@@ -13,15 +13,15 @@ class Wave2(BaseDevice):
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         return [
             # Power and Battery Entities
-            LevelSensorEntity(client, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
-                .attr("bms_bmsStatus.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False),
+            LevelSensorEntity(client, "bms.soc", const.MAIN_BATTERY_LEVEL)
+                .attr("bms.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, "bms.remainCap", const.MAIN_REMAIN_CAPACITY, False),
             
-            TempSensorEntity(client, "bms_bmsStatus.tmp", const.BATTERY_TEMP)
-                .attr("bms_bmsStatus.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
-                .attr("bms_bmsStatus.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
-            TempSensorEntity(client, "bms_bmsStatus.minCellTmp", const.MIN_CELL_TEMP, False),
-            TempSensorEntity(client, "bms_bmsStatus.maxCellTmp", const.MAX_CELL_TEMP, False),
+            TempSensorEntity(client, "bms.tmp", const.BATTERY_TEMP)
+                .attr("bms.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bms.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+            TempSensorEntity(client, "bms.minCellTmp", const.MIN_CELL_TEMP, False),
+            TempSensorEntity(client, "bms.maxCellTmp", const.MAX_CELL_TEMP, False),
 
             RemainSensorEntity(client, "pd.batChgRemain", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, "pd.batDsgRemain", const.DISCHARGE_REMAINING_TIME),
