@@ -148,7 +148,6 @@ USB_3_OUT_POWER = "USB (3) Out Power"
 USB_QC_1_OUT_POWER = "USB QC (1) Out Power"
 USB_QC_2_OUT_POWER = "USB QC (2) Out Power"
 
-
 REMAINING_TIME = "Remaining Time"
 CHARGE_REMAINING_TIME = "Charge Remaining Time"
 DISCHARGE_REMAINING_TIME = "Discharge Remaining Time"
@@ -168,7 +167,6 @@ SLAVE_MAX_CELL_TEMP = "Slave Max Cell Temperature"
 
 SLAVE_N_MIN_CELL_TEMP = "Slave %i Min Cell Temperature"
 SLAVE_N_MAX_CELL_TEMP = "Slave %i Max Cell Temperature"
-
 
 SLAVE_CYCLES = "Slave Cycles"
 SLAVE_N_CYCLES = "Slave %i Cycles"
@@ -219,7 +217,6 @@ MAX_CELL_TEMP = "Max Cell Temperature"
 ATTR_MIN_CELL_TEMP = MIN_CELL_TEMP
 ATTR_MAX_CELL_TEMP = MAX_CELL_TEMP
 
-
 BATTERY_VOLT = "Battery Volts"
 MIN_CELL_VOLT = "Min Cell Volts"
 MAX_CELL_VOLT = "Max Cell Volts"
@@ -229,7 +226,7 @@ ATTR_MAX_CELL_VOLT = MAX_CELL_VOLT
 BATTERY_AMP = "Battery Current"
 SLAVE_BATTERY_AMP = "Slave Battery Current"
 
-FAN_MODE ="Wind speed"
-MAIN_MODE ="Main mode"
-REMOTE_MODE ="Remote startup/shutdown"
-POWER_SUB_MODE ="Sub-mode"
+FAN_MODE = "Wind speed"
+MAIN_MODE = "Main mode"
+REMOTE_MODE = "Remote startup/shutdown"
+POWER_SUB_MODE = "Sub-mode"
