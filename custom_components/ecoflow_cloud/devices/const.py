@@ -35,7 +35,6 @@ UNIT_TIMEOUT_OPTIONS_LIMITED = {
     "30 min": 30,
     "1 hr": 60,
     "2 hr": 120,
-    "4 hr": 240,
     "6 hr": 360,
     "12 hr": 720
 }
@@ -51,10 +50,28 @@ AC_TIMEOUT_OPTIONS = {
     "24 hr": 1440,
 }
 
+AC_TIMEOUT_OPTIONS_LIMITED = {
+    "Never": 0,
+    "2 hr": 120,
+    "4 hr": 240,
+    "6 hr": 360,
+    "12 hr": 720,
+    "24 hr": 1440,
+}
+
 DC_TIMEOUT_OPTIONS = {
     "Never": 0,
     "30 min": 30,
     "1 hr": 60,
+    "2 hr": 120,
+    "4 hr": 240,
+    "6 hr": 360,
+    "12 hr": 720,
+    "24 hr": 1440,
+}
+
+DC_TIMEOUT_OPTIONS_LIMITED = {
+    "Never": 0,
     "2 hr": 120,
     "4 hr": 240,
     "6 hr": 360,
@@ -208,12 +225,18 @@ XBOOST_ENABLED = "X-Boost Enabled"
 AC_ALWAYS_ENABLED = "AC Always On"
 PV_PRIO = "Prio Solar Charging"
 BP_ENABLED = "Backup Reserve Enabled"
+AUTO_FAN_SPEED = "Auto Fan Speed"
+AC_SLOW_CHARGE = "AC Slow Charging"
 
 DC_MODE = "DC Mode"
 
 BATTERY_TEMP = "Battery Temperature"
 MIN_CELL_TEMP = "Min Cell Temperature"
 MAX_CELL_TEMP = "Max Cell Temperature"
+INV_IN_TEMP = "Inverter Inside Temperature"
+INV_OUT_TEMP = "Inverter Outside Temperature"
+DC_CAR_OUT_TEMP = "DC Temperature"
+USB_C_TEMP = "USB C Temperature"
 ATTR_MIN_CELL_TEMP = MIN_CELL_TEMP
 ATTR_MAX_CELL_TEMP = MAX_CELL_TEMP
 

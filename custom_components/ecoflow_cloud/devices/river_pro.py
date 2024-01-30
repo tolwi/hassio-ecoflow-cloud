@@ -4,9 +4,9 @@ from . import const, BaseDevice, EntityMigration, MigrationAction
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
-from ..select import DictSelectEntity
+from ..select import TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, InVoltSensorEntity, \
+    CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
     InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity
 from ..switch import EnabledEntity, BeeperEntity
@@ -37,6 +37,9 @@ class RiverPro(BaseDevice):
 
             OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
             OutWattsSensorEntity(client, "pd.typecWatts", const.TYPEC_OUT_POWER),
+            # disabled by default because they aren't terribly useful
+            TempSensorEntity(client, "pd.carTemp", const.DC_CAR_OUT_TEMP, False),
+            TempSensorEntity(client, "pd.typecTemp", const.USB_C_TEMP, False),
 
             OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),
             OutWattsSensorEntity(client, "pd.usb2Watts", const.USB_2_OUT_POWER),
@@ -49,6 +52,15 @@ class RiverPro(BaseDevice):
 
             TempSensorEntity(client, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
+            TempSensorEntity(client, "inv.inTemp", const.INV_IN_TEMP),
+            TempSensorEntity(client, "inv.outTemp", const.INV_OUT_TEMP),
+
+            # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
+            InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
+            InEnergySensorEntity(client, "pd.chgPowerAC", const.CHARGE_AC_ENERGY),
+            InEnergySensorEntity(client, "pd.chgPowerDC", const.CHARGE_DC_ENERGY),
+            OutEnergySensorEntity(client, "pd.dsgPowerAC", const.DISCHARGE_AC_ENERGY),
+            OutEnergySensorEntity(client, "pd.dsgPowerDC", const.DISCHARGE_DC_ENERGY),
 
             AmpSensorEntity(client, "bmsMaster.amp", const.BATTERY_AMP, False),
             MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False)
@@ -88,23 +100,34 @@ class RiverPro(BaseDevice):
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
         return [
-            MaxBatteryLevelEntity(client, "bmsMaster.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100, None),
+            MaxBatteryLevelEntity(client, "bmsMaster.maxChargeSoc", const.MAX_CHARGE_LEVEL, 30, 100,
+                                  lambda value: {"moduleType": 0, "operateType": "TCP",
+                                                 "params": {"id": 49, "maxChgSoc": value}}),
             # MinBatteryLevelEntity(client, "bmsMaster.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30, None),
         ]
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         return [
-            BeeperEntity(client, "pd.beepState", const.BEEPER, None),
-            EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED, None),
-            EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED, None)
+            BeeperEntity(client, "pd.beepState", const.BEEPER, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
+            EnabledEntity(client, "inv.acAutoOutConfig", const.AC_ALWAYS_ENABLED,
+                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 95, "acautooutConfig": value, "minAcoutSoc": 255}}),
+            EnabledEntity(client, "pd.carSwitch", const.DC_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 34, "enabled": value}}),
+            EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "enabled": value}}),
+            EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": value}}),
+            EnabledEntity(client, "inv.cfgAcChgModeFlg", const.AC_SLOW_CHARGE, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 65, "workMode": value}}),
+            EnabledEntity(client, "inv.cfgFanMode", const.AUTO_FAN_SPEED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 73, "fanMode": value}})
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
         return [
+            TimeoutDictSelectEntity(client, "pd.standByMode", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS_LIMITED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 33, "standByMode": value}}),
+            TimeoutDictSelectEntity(client, "pd.carDelayOffMin", const.DC_TIMEOUT, const.DC_TIMEOUT_OPTIONS_LIMITED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"cmdSet": 32, "id": 84, "carDelayOffMin": value}}),
+            TimeoutDictSelectEntity(client, "inv.cfgStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS_LIMITED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 153, "standByMins": value}})
 
-            DictSelectEntity(client, "pd.standByMode", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS, None),
-            DictSelectEntity(client, "inv.cfgStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS, None),
-
+			# lambda is confirmed correct, but pd.lcdOffSec is missing from status
+			# TimeoutDictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
+            #                        lambda value: {"moduleType": 0, "operateType": "TCP",
+            #                                       "params": {"lcdTime": value, "id": 39}})
         ]
 
     def migrate(self, version) -> list[EntityMigration]:
