@@ -13,6 +13,7 @@ from custom_components.ecoflow_cloud.devices.delta2_max import Delta2Max
 from custom_components.ecoflow_cloud.devices.powerstream import PowerStream
 from custom_components.ecoflow_cloud.devices.glacier import Glacier
 from custom_components.ecoflow_cloud.devices.wave2 import Wave2
+from custom_components.ecoflow_cloud.devices.smart_home_panel import SmartHomePanel
 
 devices: dict[str, BaseDevice] = {
     EcoflowModel.DELTA_2.name: Delta2(),
@@ -28,5 +29,6 @@ devices: dict[str, BaseDevice] = {
     EcoflowModel.POWERSTREAM.name: PowerStream(),
     EcoflowModel.GLACIER.name: Glacier(),
     EcoflowModel.WAVE_2.name: Wave2(),
+    EcoflowModel.SMART_HOME_PANEL.name: SmartHomePanel(),
     EcoflowModel.DIAGNOSTIC.name: DiagnosticDevice()
 }
