@@ -29,7 +29,7 @@ class ModeDictSelectEntity(DictSelectEntity):
                                                    "cmdSet": 11, "id": 16}})
 
     def _update_value(self, val: Any) -> bool:
-        _LOGGER.info(f"ModeDictSelectEntity._update_value = {val}")
+        _LOGGER.debug(f"ModeDictSelectEntity._update_value = {val}")
         return super()._update_value({"sta": val['ctrlSta'], "ctrlMode": val['ctrlMode']})
 
     def sample_value(self):
