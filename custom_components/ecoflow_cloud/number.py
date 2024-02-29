@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 
 from homeassistant.components.number import NumberMode
 from homeassistant.components.sensor import SensorDeviceClass
@@ -35,7 +35,7 @@ class ChargingPowerEntity(ValueUpdateEntity):
     _attr_device_class = SensorDeviceClass.POWER
 
     def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
+                 command: Callable[[int, Optional[dict[str, Any]]], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, min_value, max_value, command, enabled, auto_enable)
 
         self._attr_native_step = client.config_entry.options[OPTS_POWER_STEP]

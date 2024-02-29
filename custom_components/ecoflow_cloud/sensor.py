@@ -34,6 +34,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 
 class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
+# Consider binary sensors to be "diagnostic" sensors???
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def _update_value(self, val: Any) -> bool:
         self._attr_is_on = bool(val)
@@ -85,7 +87,7 @@ class RemainSensorEntity(BaseSensorEntity):
 
     def _update_value(self, val: Any) -> Any:
         ival = int(val)
-        if ival < 0 or ival > 5000:
+        if ival < 0 or ival >= 5999:
             ival = 0
 
         return super()._update_value(ival)
@@ -184,7 +186,8 @@ class DeciampSensorEntity(BaseSensorEntity):
 
 
 class WattsSensorEntity(BaseSensorEntity):
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
+# Consider power readings to be standard sensors???
+#    _attr_entity_category = EntityCategory.DIAGNOSTIC 
     _attr_device_class = SensorDeviceClass.POWER
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
@@ -192,6 +195,8 @@ class WattsSensorEntity(BaseSensorEntity):
 
 
 class EnergySensorEntity(BaseSensorEntity):
+# Consider energy readings to be "diagnostic" sensors???
+    _attr_entity_category = EntityCategory.DIAGNOSTIC 
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -205,6 +210,8 @@ class EnergySensorEntity(BaseSensorEntity):
 
 
 class CapacitySensorEntity(BaseSensorEntity):
+# Consider capacity readings to be "diagnostic" sensors???
+    _attr_entity_category = EntityCategory.DIAGNOSTIC 
     _attr_device_class = SensorDeviceClass.CURRENT
     _attr_native_unit_of_measurement = "mAh"
     _attr_state_class = SensorStateClass.MEASUREMENT
