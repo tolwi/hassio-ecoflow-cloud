@@ -19,8 +19,13 @@ from reactivex import Subject, Observable
 from .proto import powerstream_pb2 as powerstream, ecopacket_pb2 as ecopacket
 from .utils import BoundFifoList
 from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC, EcoflowModel
+import jsonpath_ng.ext as jp
 
 _LOGGER = logging.getLogger(__name__)
+
+FLAT_PARAMS = {
+    EcoflowModel.SMART_HOME_PANEL.name: False
+}
 
 
 class EcoflowException(Exception):
@@ -139,7 +144,9 @@ class EcoflowDataHolder:
         self.__get_reply_observable.on_next(self.get_reply)
 
     def update_to_target_state(self, target_state: dict[str, Any]):
-        self.params.update(target_state)
+        # key can be xpath!
+        for key, value in target_state.items():
+            jp.parse(key).update(self.params, value)
         self.__broadcast()
 
     def update_data(self, raw: dict[str, Any]):
@@ -171,6 +178,7 @@ class EcoflowMQTTClient:
         self.auth = auth
         self.config_entry = entry
         self.device_type = entry.data[CONF_DEVICE_TYPE]
+        self.flat_params = FLAT_PARAMS.get(self.device_type, True)
         self.device_sn = entry.data[CONF_DEVICE_ID]
 
         self._data_topic = f"/app/device/property/{self.device_sn}"
@@ -203,6 +211,9 @@ class EcoflowMQTTClient:
         _LOGGER.info(f"Connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}")
         self.client.connect(self.auth.mqtt_url, self.auth.mqtt_port, 30)
         self.client.loop_start()
+
+    def is_flat_params(self):
+        return self.flat_params
 
     def is_connected(self):
         return self.client.is_connected()

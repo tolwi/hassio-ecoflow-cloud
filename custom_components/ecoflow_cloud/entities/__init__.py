@@ -1,7 +1,9 @@
 from __future__ import annotations
 import inspect
+import logging
 from typing import Any, Callable, Optional, OrderedDict, Mapping
 
+import jsonpath_ng.ext as jp
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
@@ -10,6 +12,8 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import Entity, EntityCategory
 
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class EcoFlowAbstractEntity(Entity):
@@ -30,7 +34,11 @@ class EcoFlowAbstractEntity(Entity):
 
     @staticmethod
     def gen_unique_id(sn: str, key: str):
-        return 'ecoflow-' + sn + '-' + key.replace('.', '-').replace('_', '-')
+        return ('ecoflow-' + sn + '-' + key.replace('.', '-')
+                .replace('_', '-')
+                .replace('[', '-')
+                .replace(']', '-')
+                )
 
 
 class EcoFlowDictEntity(EcoFlowAbstractEntity):
@@ -39,6 +47,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
                  auto_enable: bool = False) -> object:
         super().__init__(client, title, mqtt_key)
         self._mqtt_key = mqtt_key
+        self._mqtt_key_expr = jp.parse(self.__adopted_mqtt_key())        
         self._auto_enable = auto_enable
         self._attr_entity_registry_enabled_default = enabled
         self.__attributes_mapping: dict[str, str] = {}
@@ -49,6 +58,12 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self.__attrs[title] = default
         return self
 
+    def __adopted_mqtt_key(self):
+        if self._client.is_flat_params():
+            return "'" + self._mqtt_key + "'"
+        else:
+            return self._mqtt_key
+
     @property
     def mqtt_key(self):
         return self._mqtt_key
@@ -58,7 +73,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         return self._auto_enable
 
     def send_set_message(self, target_value: Any, command: dict):
-        super().send_set_message({self._mqtt_key: target_value}, command)
+        super().send_set_message({self.__adopted_mqtt_key(): target_value}, command)
 
     @property
     def enabled_default(self):
@@ -76,12 +91,14 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
                 self.__attrs[title] = data[key]
 
         # update value
-        if self._mqtt_key in data:
+        values = self._mqtt_key_expr.find(data)
+        if len(values) == 1:
+        # if self._mqtt_key in data:
             self._attr_available = True
             if self._auto_enable:
                 self._attr_entity_registry_enabled_default = True
 
-            if self._update_value(data[self._mqtt_key]):
+            if self._update_value(values[0].value):
                 self.async_write_ha_state()
 
     @property
@@ -94,12 +111,12 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
 class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
     def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
-                 command: Callable[[int, Optional[dict[str, Any]]], dict[str, Any]] | None,
+                 command: Callable[[any, Optional[dict[str, Any]]], dict[str, Any]] | None,
                  enabled: bool = True, auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, enabled, auto_enable)
         self._command = command
 
-    def command_dict(self, value: int) -> dict[str, any] | None:
+    def command_dict(self, value: any) -> dict[str, any] | None:
         if self._command:
             p_count = len(inspect.signature(self._command).parameters)
             if p_count == 1:
@@ -114,7 +131,7 @@ class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
     _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True,
+                 command: Callable[[int, Optional[dict[str, Any]]], dict[str, any]] | None, enabled: bool = True,
                  auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
         self._attr_native_max_value = max_value

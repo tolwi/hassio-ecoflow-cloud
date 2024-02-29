@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -20,17 +20,18 @@ class DictSelectEntity(BaseSelectEntity):
     _attr_entity_category = EntityCategory.CONFIG
     _attr_available = False
 
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, options: dict[str, int],
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
+    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, options: dict[str, any],
+                 command: Callable[[any, Optional[dict[str, Any]]], dict[str, any]] | None, enabled: bool = True,
+                 auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
         self.__options_dict = options
         self._attr_options = list(options.keys())
 
-    def options_dict(self) -> dict[str, int]:
+    def options_dict(self) -> dict[str, any]:
         return self.__options_dict
 
     def _update_value(self, val: Any) -> bool:
-        ival = int(val)
+        ival = val
         lval = [k for k, v in self.__options_dict.items() if v == ival]
         if len(lval) == 1:
             self._attr_current_option = lval[0]
