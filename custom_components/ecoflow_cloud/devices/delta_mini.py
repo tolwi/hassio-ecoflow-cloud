@@ -40,7 +40,7 @@ class DeltaMini(BaseDevice):
 
             OutWattsDcSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
 
-            OutWattsSensorEntity(client, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
+            OutWattsDcSensorEntity(client, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
             OutWattsSensorEntity(client, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
 
             OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
@@ -93,7 +93,7 @@ class DeltaMini(BaseDevice):
             #                       lambda value: {"moduleType": 0, "operateType": "TCP",
             #                                      "params": {"closeOilSoc": value, "id": 53}}),
 
-            ChargingPowerEntity(client, "inv.cfgSlowChgWatts", const.AC_CHARGING_POWER, 200, 2900,
+            ChargingPowerEntity(client, "inv.cfgSlowChgWatts", const.AC_CHARGING_POWER, 200, 900,
                                 lambda value: {"moduleType": 0, "operateType": "TCP",
                                                "params": {"slowChgPower": value, "id": 69}}),
 
