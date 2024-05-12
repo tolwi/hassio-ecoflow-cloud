@@ -325,19 +325,19 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
                 # online, updated and outdated - reconnect
                 self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
                 self._client.reconnect()
-                self.async_write_ha_state()
+                self.schedule_update_ha_state()
 
         elif not self._client.is_connected():  # validate connection even for offline device
             self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
             self._client.reconnect()
-            self.async_write_ha_state()
+            self.schedule_update_ha_state()
 
     def __params_update(self, data: dict[str, Any]):
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._client.data.params_time()
         if self._online == 0:
             self._update_status(0)
 
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     def _update_status(self, data_outdated_sec):
         if data_outdated_sec > self.__check_interval_sec * self.DEADLINE_PHASE:
@@ -349,7 +349,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
         self._attrs[ATTR_STATUS_LAST_UPDATE] = utcnow()
         self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
@@ -390,4 +390,4 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
             else:
                 self._attr_native_value = "offline"
 
-            self.async_write_ha_state()
+            self.schedule_update_ha_state()
