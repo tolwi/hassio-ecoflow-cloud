@@ -1,0 +1,6 @@
+homeassistant==2024.5.5
+paho_mqtt==2.1.0
+protobuf==5.27.0
+reactivex==4.0.4
+# Requests==2.32.3
+#voluptuous==0.14.2

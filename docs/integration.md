@@ -20,8 +20,8 @@ Current integrations details:
 
 
 Use [diagnostic](https://www.home-assistant.io/integrations/diagnostics/) dump to find `data_key` and `action_command`:
-  - `data_key` 
-    
+  - `data_key`
+
     Compare values from mobile app with values in `data` section and try to define the particular key for the entity you want to add.
 
   - `action_command`
@@ -30,3 +30,18 @@ Use [diagnostic](https://www.home-assistant.io/integrations/diagnostics/) dump t
 
 
 _Note: if your device type is not supported - use **DIAGNOSTIC** type._
+
+## Quick start
+
+1. this project needs python 3.12 or newer
+1. Then you can run `pip install -r requirements.txt` in the root of the project
+
+Now all dependcies that you need are installed.
+
+Then you can modify the `debug.init.py` for your test.
+
+Don't forget to set the following environment variables:
+
+- `ecoflowUserName`
+- `ecoflowPassword`
+- `ecoflowSn`
