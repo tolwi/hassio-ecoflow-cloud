@@ -4,7 +4,8 @@ from datetime import timedelta, datetime
 from typing import Any, Mapping, OrderedDict
 
 from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
-from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass, SensorEntity)
+from homeassistant.components.sensor import (
+    SensorDeviceClass, SensorStateClass, SensorEntity)
 from homeassistant.config_entries import ConfigEntry
 
 from homeassistant.const import (PERCENTAGE,
@@ -38,7 +39,7 @@ class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
     def _update_value(self, val: Any) -> bool:
         self._attr_is_on = bool(val)
         return True
-    
+
 
 class ChargingStateSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -117,9 +118,11 @@ class DecicelsiusSensorEntity(TempSensorEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) / 10)
 
+
 class MilliCelsiusSensorEntity(TempSensorEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) / 100)
+
 
 class VoltSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.VOLTAGE
@@ -136,6 +139,11 @@ class MilliVoltSensorEntity(BaseSensorEntity):
     _attr_suggested_unit_of_measurement = UnitOfElectricPotential.VOLT
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 3
+
+
+class DeciMilliVoltSensorEntity(MilliVoltSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
 
 
 class InMilliVoltSensorEntity(MilliVoltSensorEntity):
@@ -226,6 +234,19 @@ class InWattsSolarSensorEntity(InWattsSensorEntity):
         return super()._update_value(int(val) / 10)
 
 
+class InRawWattsSolarSensorEntity(InWattsSensorEntity):
+    _attr_icon = "mdi:solar-power"
+
+
+class InRawTotalWattsSolarSensorEntity(InRawWattsSolarSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 1000)
+
+
+class InRawWattsAltSensorEntity(InWattsSensorEntity):
+    _attr_icon = "mdi:engine"
+
+
 class OutWattsSensorEntity(WattsSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
 
@@ -240,26 +261,31 @@ class OutWattsDcSensorEntity(WattsSensorEntity):
 class InVoltSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
+
 class InVoltSolarSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:solar-power"
 
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) / 10)
 
+
 class OutVoltDcSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
-    
+
     def _update_value(self, val: Any) -> bool:
-        return super()._update_value(int(val) / 10)      
+        return super()._update_value(int(val) / 10)
+
 
 class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
+
 
 class InAmpSolarSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:solar-power"
 
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val) * 10)
+
 
 class InEnergySensorEntity(EnergySensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
@@ -308,10 +334,12 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         self.async_on_remove(
             async_track_time_interval(self.hass, self.__check_status, timedelta(seconds=self.__check_interval_sec)))
 
-        self._update_status((utcnow() - self._client.data.params_time()).total_seconds())
+        self._update_status(
+            (utcnow() - self._client.data.params_time()).total_seconds())
 
     def __check_status(self, now: datetime):
-        data_outdated_sec = (now - self._client.data.params_time()).total_seconds()
+        data_outdated_sec = (
+            now - self._client.data.params_time()).total_seconds()
         phase = math.ceil(data_outdated_sec / self.__check_interval_sec)
         self._attrs[ATTR_STATUS_PHASE] = phase
         time_to_reconnect = phase in self.CONNECT_PHASES
@@ -364,7 +392,8 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
 
     async def async_added_to_hass(self):
 
-        get_reply_d = self._client.data.get_reply_observable().subscribe(self.__get_reply_update)
+        get_reply_d = self._client.data.get_reply_observable(
+        ).subscribe(self.__get_reply_update)
         self.async_on_remove(get_reply_d.dispose)
 
         await super().async_added_to_hass()
@@ -372,7 +401,8 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
     def _update_status(self, update_delta_sec):
         if self._client.is_connected():
             self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
-            self.send_get_message({"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
+            self.send_get_message(
+                {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
         else:
             super()._update_status(update_delta_sec)
 
