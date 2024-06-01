@@ -1,5 +1,6 @@
 from __future__ import annotations
 import inspect
+import json
 from typing import Any, Callable, Optional, OrderedDict, Mapping
 
 from homeassistant.components.number import NumberEntity
@@ -76,12 +77,22 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
                 self.__attrs[title] = data[key]
 
         # update value
-        if self._mqtt_key in data:
+        mqttkey = self._mqtt_key
+        splittedKey = mqttkey.split('.')
+        if splittedKey.__len__() > 1 and data.keys().__contains__(splittedKey[0]) and isinstance(data[splittedKey[0]], str):
+            jsonData = data[splittedKey[0]]
+            embeddedJsonObject = json.loads(jsonData)
+            realDataKey = next(iter(embeddedJsonObject))
+            # override data and key
+            data = embeddedJsonObject[realDataKey]
+            mqttkey = ''.join(splittedKey[-1:])
+
+        if mqttkey in data:
             self._attr_available = True
             if self._auto_enable:
                 self._attr_entity_registry_enabled_default = True
 
-            if self._update_value(data[self._mqtt_key]):
+        if mqttkey in data and self._update_value(data[mqttkey]):
                 self.schedule_update_ha_state()
 
     @property
