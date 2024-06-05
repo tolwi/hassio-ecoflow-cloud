@@ -253,3 +253,5 @@ FAN_MODE = "Wind speed"
 MAIN_MODE = "Main mode"
 REMOTE_MODE = "Remote startup/shutdown"
 POWER_SUB_MODE = "Sub-mode"
+
+PERMANENT_WATTS = "Permanent Watts"

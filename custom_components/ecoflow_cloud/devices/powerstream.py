@@ -1,4 +1,4 @@
-from . import BaseDevice
+from . import const, BaseDevice
 from .. import EcoflowMQTTClient
 from ..entities import (
     BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
@@ -9,7 +9,7 @@ from ..sensor import (
     DecivoltSensorEntity, InWattsSolarSensorEntity, LevelSensorEntity,
     MiscSensorEntity, RemainSensorEntity, StatusSensorEntity,
 )
-# from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
+from ..number import PermanentWatts
 # from ..select import DictSelectEntity
 
 class PowerStream(BaseDevice):
@@ -91,6 +91,10 @@ class PowerStream(BaseDevice):
             # MaxBatteryLevelEntity(client, "upperLimit", "Max Charge Level", 0, 30,
             #                       lambda value: {"moduleType": 0, "operateType": "TCP",
             #                                      "params": {"id": 00, "upperLimit": value}}),
+            PermanentWatts(client, "inv.permanentWatts", const.PERMANENT_WATTS, 0, 800,
+                            lambda value: {"cmdCode": "WN511_SET_PERMANENT_WATTS_PACK",
+                                            "moduleSn": client.device_sn,
+                                            "params": {"permanentWatts": int(value)}})
         ]
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
