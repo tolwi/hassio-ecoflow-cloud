@@ -1,0 +1,27 @@
+{
+    "title": "EcoFlow-Cloud",
+    "config": {
+      "step": {
+        "user": {
+          "data": {
+            "username": "Email do utilizador",
+            "password": "Palavra-passe do utilizador",
+            "type": "Tipo de dispositivo",
+            "name": "Nome do dispositivo",
+            "device_id": "SN do dispositivo"
+          }
+        }
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "data": {
+            "power_step": "Controlo deslizante da potência",
+            "refresh_period_sec": "Período de atualização dos dados (segundos)"
+          }
+        }
+      }
+    }
+  }
+  
