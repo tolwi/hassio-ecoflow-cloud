@@ -33,7 +33,7 @@
 - Status
 
 *Switches*
-- Beeper (`pd.beepState` -> `{"moduleType": 5, "operateType": "quietMode", "params": {"enabled": "VALUE"}}`)
+- Beeper (`pd.beepState` -> `{"moduleType": 5, "operateType": "TCP", "params": {"id": 38, "enabled": "VALUE"}}`)
 - USB Enabled (`pd.dcOutState` -> `{"moduleType": 0, "operateType": "TCP", "params": {"enabled": "VALUE", "id": 34}}`)
 - AC Always On (`pd.acAutoOnCfg` -> `{"moduleType": 1, "operateType": "acAutoOn", "params": {"cfg": "VALUE"}}`)
 - Prio Solar Charging (`pd.pvChgPrioSet` -> `{"moduleType": 1, "operateType": "pvChangePrio", "params": {"pvChangeSet": "VALUE"}}`)
@@ -42,11 +42,11 @@
 - DC (12V) Enabled (`mppt.carState` -> `{"moduleType": 0, "operateType": "TCP", "params": {"enabled": "VALUE", "id": 81}}`)
 
 *Sliders (numbers)*
-- Max Charge Level (`ems.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])
-- Min Discharge Level (`ems.minDsgSoc` -> `{"moduleType": 2, "operateType": "dsgCfg", "params": {"minDsgSoc": "VALUE"}}` [0 - 30])
-- Generator Auto Start Level (`ems.minOpenOilEbSoc` -> `{"moduleType": 2, "operateType": "closeOilSoc", "params": {"closeOilSoc": "VALUE"}}` [0 - 30])
-- Generator Auto Stop Level (`ems.maxCloseOilEbSoc` -> `{"moduleType": 2, "operateType": "openOilSoc", "params": {"openOilSoc": "VALUE"}}` [50 - 100])
-- AC Charging Power (`inv.cfgFastChgWatt` -> `{"moduleType": 5, "operateType": "acChgCfg", "params": {"chgWatts": "VALUE", "chgPauseFlag": 255}}` [400 - 2200])
+- Max Charge Level (`ems.maxChargeSoc` -> `{"moduleType": 2, "operateType": "TCP", "params": {"id": 49, "maxChgSoc": "VALUE"}}` [50 - 100])
+- Min Discharge Level (`ems.minDsgSoc` -> `{"moduleType": 2, "operateType": "TCP", "params": {"id": 51, "minDsgSoc": "VALUE"}}` [0 - 30])
+- Generator Auto Start Level (`ems.minOpenOilEbSoc` -> `{"moduleType": 2, "operateType": "TCP", "params": {"id": 52, "openOilSoc": "VALUE"}}` [0 - 30])
+- Generator Auto Stop Level (`ems.maxCloseOilEbSoc` -> `{"moduleType": 2, "operateType": "TCP", "params": {"id": 53, "closeOilSoc": "VALUE"}}` [50 - 100])
+- AC Charging Power (`inv.cfgFastChgWatt` -> `{"moduleType": 0, "operateType": "TCP", "params": {"slowChgPower": "VALUE", "id": 69}}` [200 - 2000])
 
 *Selects*
 

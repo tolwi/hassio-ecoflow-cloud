@@ -90,7 +90,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 29, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -103,6 +103,8 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Charging State
 - Total In Power
 - Total Out Power
+- Solar In Current
+- Solar In Voltage
 - AC In Power
 - AC Out Power
 - AC In Volts
@@ -110,10 +112,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Type-C In Power
 - Solar In Power
 - DC Out Power
-- Type-C (1) Out Power
+- Type-C Out Power
 - USB Out Power
 - Charge Remaining Time
 - Discharge Remaining Time
+- Remaining Time
 - Inv Out Temperature
 - Cycles
 - Battery Temperature
@@ -126,13 +129,16 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 *Switches*
 - AC Enabled 
+- AC Always On 
 - X-Boost Enabled 
 - DC (12V) Enabled 
+- Backup Reserve Enabled 
 
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
 - AC Charging Power 
+- Backup Reserve Level 
 
 *Selects*
 - DC (12V) Charge Current 
@@ -256,24 +262,30 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_PRO <i>(sensors: 53, switches: 6, sliders: 6, selects: 4)</i> </summary>
+<details><summary> DELTA_PRO <i>(sensors: 71, switches: 6, sliders: 6, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
+- Main Battery Level (Precise)  _(disabled)_
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
 - State of Health
 - Battery Level
+- Battery Level (Precise)  _(disabled)_
 - Total In Power
 - Total Out Power
+- Main Battery Current
 - AC In Power
 - AC Out Power
 - AC In Volts
 - AC Out Volts
 - Solar In Power
+- Solar In Voltage
+- Solar In Current
 - DC Out Power
+- DC Out Voltage
 - DC Car Out Power
 - DC Anderson Out Power
 - Type-C (1) Out Power
@@ -297,6 +309,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Discharge Energy to AC
 - Battery Discharge Energy to DC
 - Slave 1 Battery Level  _(auto)_
+- Slave 1 Battery Level (Precise)  _(disabled)_
 - Slave 1 Design Capacity  _(disabled)_
 - Slave 1 Full Capacity  _(disabled)_
 - Slave 1 Remain Capacity  _(disabled)_
@@ -305,13 +318,24 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave 1 In Power  _(auto)_
 - Slave 1 Out Power  _(auto)_
 - Slave 2 Battery Level  _(auto)_
+- Slave 2 Battery Level (Precise)  _(disabled)_
 - Slave 2 Design Capacity  _(disabled)_
 - Slave 2 Full Capacity  _(disabled)_
 - Slave 2 Remain Capacity  _(disabled)_
 - Slave 2 State of Health
+- Slave 1 Battery Volts  _(disabled)_
+- Slave 1 Min Cell Volts  _(disabled)_
+- Slave 1 Max Cell Volts  _(disabled)_
+- Slave 1 Battery Current  _(disabled)_
+- Slave 2 Battery Volts  _(disabled)_
+- Slave 2 Min Cell Volts  _(disabled)_
+- Slave 2 Max Cell Volts  _(disabled)_
+- Slave 2 Battery Current  _(disabled)_
 - Slave 2 Battery Temperature  _(auto)_
 - Slave 2 In Power  _(auto)_
 - Slave 2 Out Power  _(auto)_
+- Slave 1 Cycles  _(disabled)_
+- Slave 2 Cycles  _(disabled)_
 - Status
 
 *Switches*
@@ -398,7 +422,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_PRO <i>(sensors: 37, switches: 3, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_PRO <i>(sensors: 46, switches: 7, sliders: 1, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -416,6 +440,8 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC Out Volts
 - DC Out Power
 - Type-C Out Power
+- DC Temperature  _(disabled)_
+- USB C Temperature  _(disabled)_
 - USB (1) Out Power
 - USB (2) Out Power
 - USB (3) Out Power
@@ -423,6 +449,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Temperature
 - Min Cell Temperature  _(disabled)_
 - Max Cell Temperature  _(disabled)_
+- Inverter Inside Temperature
+- Inverter Outside Temperature
+- Solar In Energy
+- Battery Charge Energy from AC
+- Battery Charge Energy from DC
+- Battery Discharge Energy to AC
+- Battery Discharge Energy to DC
 - Battery Current  _(disabled)_
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
@@ -441,16 +474,21 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Status
 
 *Switches*
-- Beeper  _(read-only)_
-- AC Enabled  _(read-only)_
-- X-Boost Enabled  _(read-only)_
+- Beeper 
+- AC Always On 
+- DC (12V) Enabled 
+- AC Enabled 
+- X-Boost Enabled 
+- AC Slow Charging 
+- Auto Fan Speed 
 
 *Sliders (numbers)*
-- Max Charge Level  _(read-only)_
+- Max Charge Level 
 
 *Selects*
-- Unit Timeout  _(read-only)_
-- AC Timeout  _(read-only)_
+- Unit Timeout 
+- DC (12V) Timeout 
+- AC Timeout 
 
 </p></details>
 
@@ -774,6 +812,51 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Right Set Temperature 
 
 *Selects*
+
+</p></details>
+
+<details><summary> WAVE_2 <i>(sensors: 27, switches: 0, sliders: 1, selects: 4)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Remain Capacity  _(disabled)_
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Charge Remaining Time
+- Discharge Remaining Time
+- Condensation temperature  _(disabled)_
+- Return air temperature in condensation zone  _(disabled)_
+- Air outlet temperature  _(disabled)_
+- Evaporation temperature  _(disabled)_
+- Exhaust temperature  _(disabled)_
+- Evaporation zone return air temperature  _(disabled)_
+- Air outlet temperature  _(disabled)_
+- Ambient temperature  _(disabled)_
+- PV input power
+- Battery output power
+- PV charging power
+- AC input power
+- Power supply power
+- System power
+- Battery power
+- Motor operating power
+- Battery output power
+- AC input power
+- PV input power
+- Status
+
+*Switches*
+
+*Sliders (numbers)*
+- Set Temperature 
+
+*Selects*
+- Wind speed 
+- Main mode 
+- Remote startup/shutdown 
+- Sub-mode 
 
 </p></details>
 

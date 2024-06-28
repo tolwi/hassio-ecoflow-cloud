@@ -75,8 +75,8 @@
 - Max Charge Level (`bms_emsStatus.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "moduleSn": "MOCK", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])
 - Min Discharge Level (`bms_emsStatus.minDsgSoc` -> `{"moduleType": 2, "operateType": "dsgCfg", "moduleSn": "MOCK", "params": {"minDsgSoc": "VALUE"}}` [0 - 30])
 - Backup Reserve Level (`pd.bpPowerSoc` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": 1, "bpPowerSoc": "VALUE", "minDsgSoc": 0, "minChgSoc": 0}}` [5 - 100])
-- Generator Auto Start Level (`bms_emsStatus.minOpenOilEbSoc` -> `{"moduleType": 2, "operateType": "closeOilSoc", "moduleSn": "MOCK", "params": {"closeOilSoc": "VALUE"}}` [0 - 30])
-- Generator Auto Stop Level (`bms_emsStatus.maxCloseOilEbSoc` -> `{"moduleType": 2, "operateType": "openOilSoc", "moduleSn": "MOCK", "params": {"openOilSoc": "VALUE"}}` [50 - 100])
+- Generator Auto Start Level (`bms_emsStatus.minOpenOilEbSoc` -> `{"moduleType": 2, "operateType": "openOilSoc", "moduleSn": "MOCK", "params": {"openOilSoc": "VALUE"}}` [0 - 30])
+- Generator Auto Stop Level (`bms_emsStatus.maxCloseOilEbSoc` -> `{"moduleType": 2, "operateType": "closeOilSoc", "moduleSn": "MOCK", "params": {"closeOilSoc": "VALUE"}}` [50 - 100])
 - AC Charging Power (`inv.SlowChgWatts` -> `{"moduleType": 3, "operateType": "acChgCfg", "moduleSn": "MOCK", "params": {"slowChgWatts": "VALUE", "fastChgWatts": 255, "chgPauseFlag": 0}}` [200 - 2400])
 
 *Selects*
