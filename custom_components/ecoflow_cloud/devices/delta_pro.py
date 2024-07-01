@@ -176,7 +176,7 @@ class DeltaPro(BaseDevice):
             EnabledEntity(client, "pd.acautooutConfig", const.AC_ALWAYS_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP",
                                          "params": {"id": 95, "acautooutConfig": value}}),
-            EnabledEntity(client, "pd.bppowerSoc", const.BP_ENABLED,
+            EnabledEntity(client, "pd.watthisconfig", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 0, "operateType": "TCP",
                                                  "params": {"id": 94, "isConfig": value,
                                                             "bpPowerSoc": int(params.get("pd.bppowerSoc", 0)),
