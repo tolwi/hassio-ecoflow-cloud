@@ -124,10 +124,10 @@ class River2(BaseDevice):
             EnabledEntity(client, "pd.carState", const.DC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}}),
 
-            EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
+            EnabledEntity(client, "pd.watchIsConfig", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 1, "operateType": "watthConfig",
                                                  "params": {"isConfig": value,
-                                                            "bpPowerSoc": value,
+                                                            "bpPowerSoc": value * 50,
                                                             "minDsgSoc": 0,
                                                             "minChgSoc": 0}})
         ]
