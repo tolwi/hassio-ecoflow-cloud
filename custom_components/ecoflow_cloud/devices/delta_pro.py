@@ -179,7 +179,7 @@ class DeltaPro(BaseDevice):
             EnabledEntity(client, "pd.watthisconfig", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 0, "operateType": "TCP",
                                                  "params": {"id": 94, "isConfig": value,
-                                                            "bpPowerSoc": int(params.get("pd.bppowerSoc", 0)),
+                                                            "bpPowerSoc": value * 50),
                                                             "minDsgSoc": 0,
                                                             "maxChgSoc": 0}}),
         ]
