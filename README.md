@@ -492,6 +492,34 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
+<details><summary> RIVER_MINI <i>(sensors: 46, switches: 7, sliders: 1, selects: 3)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- Total In Power
+- Total Out Power
+- Solar In Current
+- Solar In Voltage
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+
+*Switches*
+- AC Enabled 
+- X-Boost Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+
+*Selects*
+
+</p></details>
+
 <details><summary> DELTA_MINI <i>(sensors: 33, switches: 4, sliders: 3, selects: 4)</i> </summary>
 <p>
 
