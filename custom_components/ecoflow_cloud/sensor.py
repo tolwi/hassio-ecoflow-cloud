@@ -1,5 +1,6 @@
 import math
 import logging
+import struct
 from datetime import timedelta, datetime
 from typing import Any, Mapping, OrderedDict
 
@@ -137,6 +138,9 @@ class MilliVoltSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 3
 
+class PackedMilliVoltSensorEntity(MilliVoltSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(struct.unpack('<I', struct.pack('>I', val)))
 
 class InMilliVoltSensorEntity(MilliVoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
