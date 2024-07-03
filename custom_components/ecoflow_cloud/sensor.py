@@ -140,12 +140,12 @@ class MilliVoltSensorEntity(BaseSensorEntity):
 
 class BeSensorEntity(BaseSensorEntity):
     def _update_value(self, val: Any) -> bool:
-        return super()._update_value(struct.unpack('<I', struct.pack('>I', val)))
+        return super()._update_value(int(struct.unpack('<I', struct.pack('>I', val))[0]))
 
-class BeVoltSensorEntity(BeSensorEntity):
+class BeMilliVoltSensorEntity(BeSensorEntity):
     _attr_device_class = SensorDeviceClass.VOLTAGE
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_native_unit_of_measurement = UnitOfElectricPotential.VOLT
+    _attr_native_unit_of_measurement = UnitOfElectricPotential.MILLIVOLT
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
