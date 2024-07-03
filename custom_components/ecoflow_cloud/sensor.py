@@ -138,9 +138,16 @@ class MilliVoltSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 3
 
-class PackedMilliVoltSensorEntity(MilliVoltSensorEntity):
+class BeSensorEntity(BaseSensorEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(struct.unpack('<I', struct.pack('>I', val)))
+
+class BeVoltSensorEntity(BeSensorEntity):
+    _attr_device_class = SensorDeviceClass.VOLTAGE
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfElectricPotential.VOLT
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_value = 0
 
 class InMilliVoltSensorEntity(MilliVoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"

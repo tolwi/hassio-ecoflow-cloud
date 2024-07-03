@@ -8,7 +8,7 @@ from ..select import TimeoutDictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
     InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity, PackedMilliVoltSensorEntity
+    OutMilliVoltSensorEntity, CapacitySensorEntity, BeVoltSensorEntity
 from ..switch import EnabledEntity, BeeperEntity
 
 class RiverMini(BaseDevice):
@@ -20,8 +20,8 @@ class RiverMini(BaseDevice):
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
             
-            PackedMilliVoltSensorEntity(client, "inv.invInVol", const.AC_IN_VOLT),
-            PackedMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+            BeVoltSensorEntity(client, "inv.invInVol", const.AC_IN_VOLT),
+            BeVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
             
             TempSensorEntity(client, "inv.inTemp", const.INV_IN_TEMP),
             TempSensorEntity(client, "inv.outTemp", const.INV_OUT_TEMP),
