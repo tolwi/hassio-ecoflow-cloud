@@ -496,10 +496,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 <p>
 
 *Sensors*
+- Cycles
+- Inv Out Temperature
+- Inv In Temperature
 - Main Battery Level
-- Main Design Capacity  _(disabled)_
-- Main Full Capacity  _(disabled)_
-- Main Remain Capacity  _(disabled)_
+- Main Design Capacity
+- Main Full Capacity
+- Main Remain Capacity
 - Total In Power
 - Total Out Power
 - Solar In Current
