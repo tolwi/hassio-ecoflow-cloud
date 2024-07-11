@@ -11,7 +11,7 @@
 - Solar In Voltage (`inv.dcInVol`)
 - AC In Power (`inv.inputWatts`)
 - AC Out Power (`inv.outputWatts`)
-- AC In Volts (`inv.acInVol`)
+- AC In Volts (`inv.invInVol`)
 - AC Out Volts (`inv.invOutVol`)
 - DC Out Power (`pd.carWatts`)
 - Type-C Out Power (`pd.typecWatts`)
