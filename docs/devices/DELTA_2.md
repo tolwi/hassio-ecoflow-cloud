@@ -31,6 +31,11 @@
 - Battery Volts (`bms_bmsStatus.vol`)   _(disabled)_
 - Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
+- Solar In Energy (`pd.chgSunPower`)
+- Battery Charge Energy from AC (`pd.chgPowerAc`)
+- Battery Charge Energy from DC (`pd.chgPowerDc`)
+- Battery Discharge Energy to AC (`pd.dsgPowerAc`)
+- Battery Discharge Energy to DC (`pd.dsgPowerDc`)
 - Slave Battery Level (`bms_slave.soc`)   _(auto)_
 - Slave Design Capacity (`bms_slave.designCap`)   _(disabled)_
 - Slave Full Capacity (`bms_slave.fullCap`)   _(disabled)_
