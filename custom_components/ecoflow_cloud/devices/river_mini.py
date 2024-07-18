@@ -4,9 +4,9 @@ from . import const, BaseDevice, EntityMigration, MigrationAction
 from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
 from ..number import MaxBatteryLevelEntity
-from ..select import TimeoutDictSelectEntity
+from ..select import DictSelectEntity
 from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
+    CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, InMilliVoltSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
     InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity, BeMilliVoltSensorEntity
 from ..switch import EnabledEntity, BeeperEntity
@@ -22,6 +22,9 @@ class RiverMini(BaseDevice):
             
             BeMilliVoltSensorEntity(client, "inv.invInVol", const.AC_IN_VOLT),
             BeMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+
+            InMilliVoltSensorEntity(client, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
+            AmpSensorEntity(client, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
             
             TempSensorEntity(client, "inv.inTemp", const.INV_IN_TEMP),
             TempSensorEntity(client, "inv.outTemp", const.INV_OUT_TEMP),
