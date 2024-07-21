@@ -1,16 +1,30 @@
 import math
 import logging
+import asyncio
 from datetime import timedelta, datetime
 from typing import Any, Mapping, OrderedDict
 
-from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
+from homeassistant.components.binary_sensor import (
+    BinarySensorEntity,
+    BinarySensorDeviceClass,
+)
 from homeassistant.components.sensor import (
-    SensorDeviceClass, SensorStateClass, SensorEntity)
+    SensorDeviceClass,
+    SensorStateClass,
+    SensorEntity,
+)
 from homeassistant.config_entries import ConfigEntry
 
-from homeassistant.const import (PERCENTAGE,
-                                 UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency,
-                                 UnitOfPower, UnitOfTemperature, UnitOfTime)
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfElectricCurrent,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfFrequency,
+    UnitOfPower,
+    UnitOfTemperature,
+    UnitOfTime,
+)
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
@@ -19,23 +33,38 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import utcnow
 from homeassistant.util.dt import UTC
 
-from . import DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_UPDATES, \
-    ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, ATTR_STATUS_PHASE
+from . import (
+    DOMAIN,
+    ATTR_STATUS_SN,
+    ATTR_STATUS_DATA_LAST_UPDATE,
+    ATTR_STATUS_UPDATES,
+    ATTR_STATUS_LAST_UPDATE,
+    ATTR_STATUS_RECONNECTS,
+    ATTR_STATUS_PHASE,
+)
 from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
 from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
-
     from .devices.registry import devices
+
+    # the following line waits here as long as possible,
+    # so the client.data object gets filled with the data
+    # from the mqtt queue.
+    # this helps to figure out the exact sensor layout in the devices implementation.
+    # 9 seconds is one second lower then the warning message of hass.
+    # One second should be enaugh time to configure all entities.
+    await asyncio.sleep(9)
     async_add_entities(devices[client.device_type].sensors(client))
 
 
 class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
-
     def _update_value(self, val: Any) -> bool:
         self._attr_is_on = bool(val)
         return True
@@ -332,14 +361,19 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         self.async_on_remove(params_d.dispose)
 
         self.async_on_remove(
-            async_track_time_interval(self.hass, self.__check_status, timedelta(seconds=self.__check_interval_sec)))
+            async_track_time_interval(
+                self.hass,
+                self.__check_status,
+                timedelta(seconds=self.__check_interval_sec),
+            )
+        )
 
         self._update_status(
-            (utcnow() - self._client.data.params_time()).total_seconds())
+            (utcnow() - self._client.data.params_time()).total_seconds()
+        )
 
     def __check_status(self, now: datetime):
-        data_outdated_sec = (
-            now - self._client.data.params_time()).total_seconds()
+        data_outdated_sec = (now - self._client.data.params_time()).total_seconds()
         phase = math.ceil(data_outdated_sec / self.__check_interval_sec)
         self._attrs[ATTR_STATUS_PHASE] = phase
         time_to_reconnect = phase in self.CONNECT_PHASES
@@ -351,12 +385,18 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
                 self._update_status(data_outdated_sec)
             elif time_to_reconnect:
                 # online, updated and outdated - reconnect
-                self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
+                self._attrs[ATTR_STATUS_RECONNECTS] = (
+                    self._attrs[ATTR_STATUS_RECONNECTS] + 1
+                )
                 self._client.reconnect()
                 self.schedule_update_ha_state()
 
-        elif not self._client.is_connected():  # validate connection even for offline device
-            self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
+        elif (
+            not self._client.is_connected()
+        ):  # validate connection even for offline device
+            self._attrs[ATTR_STATUS_RECONNECTS] = (
+                self._attrs[ATTR_STATUS_RECONNECTS] + 1
+            )
             self._client.reconnect()
             self.schedule_update_ha_state()
 
@@ -391,9 +431,9 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
         super().__init__(client)
 
     async def async_added_to_hass(self):
-
-        get_reply_d = self._client.data.get_reply_observable(
-        ).subscribe(self.__get_reply_update)
+        get_reply_d = self._client.data.get_reply_observable().subscribe(
+            self.__get_reply_update
+        )
         self.async_on_remove(get_reply_d.dispose)
 
         await super().async_added_to_hass()
@@ -402,7 +442,13 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
         if self._client.is_connected():
             self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
             self.send_get_message(
-                {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
+                {
+                    "version": "1.1",
+                    "moduleType": 0,
+                    "operateType": "latestQuotas",
+                    "params": {},
+                }
+            )
         else:
             super()._update_status(update_delta_sec)
 

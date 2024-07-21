@@ -31,13 +31,18 @@ class EcoFlowAbstractEntity(Entity):
 
     @staticmethod
     def gen_unique_id(sn: str, key: str):
-        return 'ecoflow-' + sn + '-' + key.replace('.', '-').replace('_', '-')
+        return "ecoflow-" + sn + "-" + key.replace(".", "-").replace("_", "-")
 
 
 class EcoFlowDictEntity(EcoFlowAbstractEntity):
-
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, enabled: bool = True,
-                 auto_enable: bool = False) -> object:
+    def __init__(
+        self,
+        client: EcoflowMQTTClient,
+        mqtt_key: str,
+        title: str,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ) -> object:
         super().__init__(client, title, mqtt_key)
         self._mqtt_key = mqtt_key
         self._auto_enable = auto_enable
@@ -78,14 +83,17 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
         # update value
         mqttkey = self._mqtt_key
-        splittedKey = mqttkey.split('.')
-        if splittedKey.__len__() > 1 and data.keys().__contains__(splittedKey[0]) and isinstance(data[splittedKey[0]], str):
+        splittedKey = mqttkey.split(".")
+        if (
+            splittedKey.__len__() > 1
+            and data.keys().__contains__(splittedKey[0])
+            and isinstance(data[splittedKey[0]], str)
+        ):
             jsonData = data[splittedKey[0]]
             embeddedJsonObject = json.loads(jsonData)
-            realDataKey = next(iter(embeddedJsonObject))
             # override data and key
-            data = embeddedJsonObject[realDataKey]
-            mqttkey = ''.join(splittedKey[-1:])
+            data = embeddedJsonObject[splittedKey[1]]
+            mqttkey = "".join(splittedKey[-1:])
 
         if mqttkey in data:
             self._attr_available = True
@@ -93,7 +101,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
                 self._attr_entity_registry_enabled_default = True
 
         if mqttkey in data and self._update_value(data[mqttkey]):
-                self.schedule_update_ha_state()
+            self.schedule_update_ha_state()
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
@@ -104,9 +112,15 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
 
 class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
-                 command: Callable[[int, Optional[dict[str, Any]]], dict[str, Any]] | None,
-                 enabled: bool = True, auto_enable: bool = False):
+    def __init__(
+        self,
+        client: EcoflowMQTTClient,
+        mqtt_key: str,
+        title: str,
+        command: Callable[[int, Optional[dict[str, Any]]], dict[str, Any]] | None,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ):
         super().__init__(client, mqtt_key, title, enabled, auto_enable)
         self._command = command
 
@@ -124,9 +138,17 @@ class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
 class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
     _attr_entity_category = EntityCategory.CONFIG
 
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True,
-                 auto_enable: bool = False):
+    def __init__(
+        self,
+        client: EcoflowMQTTClient,
+        mqtt_key: str,
+        title: str,
+        min_value: int,
+        max_value: int,
+        command: Callable[[int], dict[str, any]] | None,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ):
         super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
         self._attr_native_max_value = max_value
         self._attr_native_min_value = min_value
@@ -140,7 +162,6 @@ class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
 
 
 class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):
-
     def _update_value(self, val: Any) -> bool:
         if self._attr_native_value != val:
             self._attr_native_value = val
@@ -159,4 +180,3 @@ class BaseSelectEntity(SelectEntity, EcoFlowBaseCommandEntity):
 
 class BaseButtonEntity(ButtonEntity, EcoFlowBaseCommandEntity):
     pass
-
