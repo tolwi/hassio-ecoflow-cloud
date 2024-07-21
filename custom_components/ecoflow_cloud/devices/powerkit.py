@@ -690,7 +690,19 @@ class PowerKit(BaseDevice):
                 for subkey in json.loads(params[key]):
                     result = [
                         *result,
-                        # TODO: what excatly defines that this is switch one.
+                        # The powerkit DC switches have the following bitmask
+                        # 0 = 1 off
+                        # 1 = 2 off
+                        # 2 = 3 off
+                        # 3 = 4 off
+                        # 4 = 5 off
+                        # 5 = 6 off
+                        # 128 = 1 on
+                        # 129 = 2 on
+                        # 130 = 3 on
+                        # 131 = 4 on
+                        # 132 = 5 on
+                        # 133 = 6 on
                         EnabledEntity(
                             client,
                             f"lddc.{subkey}.dcOutState1",
@@ -701,7 +713,84 @@ class PowerKit(BaseDevice):
                                 "moduleSn": subkey,
                                 "moduleType": 15362,
                                 "operateType": "chSwitch",
-                                "params": {"bitsSwSta": value},
+                                "params": {
+                                    "bitsSwSta": 128 if value == 1 else 0,
+                                },
+                            },
+                        ),
+                        EnabledEntity(
+                            client,
+                            f"lddc.{subkey}.dcOutState2",
+                            "DC Switch 2",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15362,
+                                "operateType": "chSwitch",
+                                "params": {
+                                    "bitsSwSta": 129 if value == 1 else 1,
+                                },
+                            },
+                        ),
+                        EnabledEntity(
+                            client,
+                            f"lddc.{subkey}.dcOutState3",
+                            "DC Switch 3",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15362,
+                                "operateType": "chSwitch",
+                                "params": {
+                                    "bitsSwSta": 130 if value == 1 else 2,
+                                },
+                            },
+                        ),
+                        EnabledEntity(
+                            client,
+                            f"lddc.{subkey}.dcOutState4",
+                            "DC Switch 4",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15362,
+                                "operateType": "chSwitch",
+                                "params": {
+                                    "bitsSwSta": 131 if value == 1 else 3,
+                                },
+                            },
+                        ),
+                        EnabledEntity(
+                            client,
+                            f"lddc.{subkey}.dcOutState5",
+                            "DC Switch 5",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15362,
+                                "operateType": "chSwitch",
+                                "params": {
+                                    "bitsSwSta": 132 if value == 1 else 4,
+                                },
+                            },
+                        ),
+                        EnabledEntity(
+                            client,
+                            f"lddc.{subkey}.dcOutState6",
+                            "DC Switch 6",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15362,
+                                "operateType": "chSwitch",
+                                "params": {
+                                    "bitsSwSta": 133 if value == 1 else 5,
+                                },
                             },
                         ),
                     ]
