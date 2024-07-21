@@ -683,7 +683,30 @@ class PowerKit(BaseDevice):
         ]
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+        result: list[BaseSwitchEntity] = list()
+        params = client.data.params
+        for key in params:
+            if key == "lddc":
+                for subkey in json.loads(params[key]):
+                    result = [
+                        *result,
+                        # TODO: what excatly defines that this is switch one.
+                        EnabledEntity(
+                            client,
+                            f"lddc.{subkey}.dcOutState1",
+                            "DC Switch 1",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15362,
+                                "operateType": "chSwitch",
+                                "params": {"bitsSwSta": value},
+                            },
+                        ),
+                    ]
         return [
+            *result,
             BeeperEntity(
                 client,
                 "mppt.beepState",
@@ -692,16 +715,6 @@ class PowerKit(BaseDevice):
                     "moduleType": 5,
                     "operateType": "quietMode",
                     "params": {"enabled": value},
-                },
-            ),
-            EnabledEntity(
-                client,
-                "pd.dcOutState",
-                const.USB_ENABLED,
-                lambda value: {
-                    "moduleType": 15362,
-                    "operateType": "chSwitch",
-                    "params": {"bitsSwSta": value},
                 },
             ),
             EnabledEntity(
