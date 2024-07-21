@@ -15,19 +15,20 @@ DEFAULT_REFRESH_PERIOD_SEC: Final = 5
 
 
 class EcoflowModel(Enum):
-    DELTA_2 = 1,
-    RIVER_2 = 2,
-    RIVER_2_MAX = 3,
-    RIVER_2_PRO = 4,
-    DELTA_PRO = 5,
-    RIVER_MAX = 6,
-    RIVER_PRO = 7,
-    DELTA_MAX = 8,   # productType = 13
-    DELTA_2_MAX = 9, # productType = 81
-    DELTA_MINI = 15,   # productType = 15
-    POWERSTREAM = 51, 
-    GLACIER = 46,
-    WAVE_2 = 45, # productType = 45
+    DELTA_2 = (1,)
+    RIVER_2 = (2,)
+    RIVER_2_MAX = (3,)
+    RIVER_2_PRO = (4,)
+    DELTA_PRO = (5,)
+    RIVER_MAX = (6,)
+    RIVER_PRO = (7,)
+    DELTA_MAX = (8,)  # productType = 13
+    DELTA_2_MAX = (9,)  # productType = 81
+    DELTA_MINI = (15,)  # productType = 15
+    POWERSTREAM = (51,)
+    POWERKIT = (52,)
+    GLACIER = (46,)
+    WAVE_2 = (45,)  # productType = 45
     DIAGNOSTIC = 99
 
     @classmethod
