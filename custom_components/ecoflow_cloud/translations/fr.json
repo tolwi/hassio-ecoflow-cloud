@@ -1,27 +1,55 @@
 {
-    "title": "EcoFlow-Cloud",
-    "config": {
-      "step": {
-        "user": {
-          "data": {
-            "username": "Adresse e-mail",
-            "password": "Mot de passe",
-            "type": "Type d'appareil",
-            "name": "Nom de l'appareil",
-            "device_id": "Numéro de série"
-          }
+  "title": "EcoFlow-Cloud",
+  "config": {
+    "step": {
+      "user": {
+        "menu_options": {
+          "api": "Utiliser l'API publique",
+          "manual": "Utiliser l'API de l'application"
+        }
+      },
+      "api": {
+        "data": {
+          "access_key": "Clé d'accès",
+          "secret_key": "Clé secrète"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "Sélectionner l'appareil"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "Type d'appareil",
+          "device_name": "Nom de l'appareil",
+          "device_id": "Numéro de série"
+        }
+      },
+      "manual": {
+        "data": {
+          "username": "Adresse e-mail",
+          "password": "Mot de passe"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "Type d'appareil",
+          "device_name": "Nom de l'appareil",
+          "device_id": "Numéro de série"
         }
       }
-    },
-    "options": {
-      "step": {
-        "init": {
-          "data": {
-            "power_step": "Pas du curseur de puissance de charge",
-            "refresh_period_sec": "Durée actualisation des données (secondes)"
-          }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "power_step": "Pas du curseur de puissance de charge",
+          "refresh_period_sec": "Durée actualisation des données (secondes)",
+          "diagnostic_mode": "Mode diagnostic"
         }
       }
     }
   }
-  
+}

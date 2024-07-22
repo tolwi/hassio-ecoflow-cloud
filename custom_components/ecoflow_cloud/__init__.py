@@ -3,17 +3,16 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er
 
-
-from .config.const import CONF_DEVICE_TYPE, CONF_USERNAME, CONF_PASSWORD, OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, \
-    DEFAULT_REFRESH_PERIOD_SEC, CONF_DEVICE_ID
-from .mqtt.ecoflow_mqtt import EcoflowMQTTClient, EcoflowAuthentication
+from .api import EcoflowApiClient
+from .api.public_api import EcoflowPublicApiClient
+from .api.private_api import EcoflowPrivateApiClient
+from .config import const
 
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "ecoflow_cloud"
-CONFIG_VERSION = 3
+CONFIG_VERSION = 4
 
 _PLATFORMS = {
     Platform.NUMBER,
@@ -36,40 +35,27 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
     """Migrate old entry."""
     if config_entry.version == 1:
         from .devices.registry import devices as device_registry
-        device = device_registry[config_entry.data[CONF_DEVICE_TYPE]]
+        device = device_registry[config_entry.data[const.CONF_DEVICE_TYPE]]
 
         new_data = {**config_entry.data}
-        new_options = {OPTS_POWER_STEP: device.charging_power_step(),
-                       OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC}
+        new_options = {const.OPTS_POWER_STEP: device.charging_power_step(),
+                       const.OPTS_REFRESH_PERIOD_SEC: const.DEFAULT_REFRESH_PERIOD_SEC}
 
         config_entry.version = 2
         hass.config_entries.async_update_entry(config_entry, data=new_data, options=new_options)
         _LOGGER.info("Migration to version %s successful", config_entry.version)
 
-    if config_entry.version < CONFIG_VERSION:
-        from .devices.registry import devices as device_registry
-        from .entities import EcoFlowAbstractEntity
-        from .devices import EntityMigration, MigrationAction
+    if config_entry.version == 3:
+        new_data = {**config_entry.data}
+        new_data[const.CONF_DEVICE_TYPE] = new_data["type"]
+        new_data[const.CONF_DEVICE_NAME] = new_data["name"]
+        del new_data["type"]
+        del new_data["name"]
 
-        device = device_registry[config_entry.data[CONF_DEVICE_TYPE]]
-        device_sn = config_entry.data[CONF_DEVICE_ID]
-        entity_registry = er.async_get(hass)
-
-        for v in (config_entry.version, CONFIG_VERSION):
-            migrations: list[EntityMigration] = device.migrate(v)
-            for m in migrations:
-                if m.action == MigrationAction.REMOVE:
-                    entity_id = entity_registry.async_get_entity_id(
-                                                domain=m.domain,
-                                                platform=DOMAIN,
-                                                unique_id=EcoFlowAbstractEntity.gen_unique_id(sn=device_sn, key=m.key))
-
-                    if entity_id:
-                        _LOGGER.info(".... removing entity_id = %s", entity_id)
-                        entity_registry.async_remove(entity_id)
+        new_options = {**config_entry.options, const.OPTS_DIAGNOSTIC_MODE: False}
 
         config_entry.version = CONFIG_VERSION
-        hass.config_entries.async_update_entry(config_entry)
+        hass.config_entries.async_update_entry(config_entry, data=new_data, options=new_options)
         _LOGGER.info("Migration to version %s successful", config_entry.version)
 
     return True
@@ -79,13 +65,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
 
-    auth = EcoflowAuthentication(entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
-    await hass.async_add_executor_job(auth.authorize)
-    client = EcoflowMQTTClient(hass, entry, auth)
+    if const.CONF_USERNAME in entry.data and const.CONF_PASSWORD in entry.data:
+        api_client = EcoflowPrivateApiClient(entry.data[const.CONF_USERNAME], entry.data[const.CONF_PASSWORD])
 
-    hass.data[DOMAIN][entry.entry_id] = client
+    elif const.CONF_ACCESS_KEY in entry.data and const.CONF_SECRET_KEY in entry.data:
+        api_client = EcoflowPublicApiClient(entry.data[const.CONF_ACCESS_KEY], entry.data[const.CONF_SECRET_KEY])
+
+    else:
+        return False
+
+    await api_client.login()
+    api_client.configure_device(entry.data[const.CONF_DEVICE_ID], entry.data[const.CONF_DEVICE_NAME], entry.data[const.CONF_DEVICE_TYPE])
+    api_client.device.configure(int(entry.options[const.OPTS_REFRESH_PERIOD_SEC]), bool(entry.options[const.OPTS_DIAGNOSTIC_MODE]))
+    hass.data[DOMAIN][entry.entry_id] = api_client
+
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
+
+    await api_client.quota_all()
+
     entry.async_on_unload(entry.add_update_listener(update_listener))
+
     return True
 
 
@@ -93,7 +92,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     if not await hass.config_entries.async_unload_platforms(entry, _PLATFORMS):
         return False
 
-    client: EcoflowMQTTClient = hass.data[DOMAIN].pop(entry.entry_id)
+    client: EcoflowApiClient = hass.data[DOMAIN].pop(entry.entry_id)
     client.stop()
     return True
 

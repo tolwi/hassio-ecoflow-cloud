@@ -1,18 +1,16 @@
-from homeassistant.const import Platform
+from custom_components.ecoflow_cloud import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
+from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, TempSensorEntity, \
+    CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, \
+    AmpSensorEntity, InMilliVoltSensorEntity, \
+    BeMilliVoltSensorEntity
+from custom_components.ecoflow_cloud.switch import EnabledEntity
 
-from . import const, BaseDevice, EntityMigration, MigrationAction
-from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..number import MaxBatteryLevelEntity
-from ..select import DictSelectEntity
-from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, InMilliVoltSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
-    InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity, BeMilliVoltSensorEntity
-from ..switch import EnabledEntity, BeeperEntity
 
 class RiverMini(BaseDevice):
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "inv.soc", const.MAIN_BATTERY_LEVEL)
                     .attr("inv.maxChargeSoc", const.ATTR_DESIGN_CAPACITY, 0),
@@ -42,18 +40,18 @@ class RiverMini(BaseDevice):
             CyclesSensorEntity(client, "inv.cycles", const.CYCLES),
         ]
 
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
             MaxBatteryLevelEntity(client, "inv.maxChargeSoc", const.MAX_CHARGE_LEVEL, 30, 100,
                                   lambda value: {"moduleType": 0, "operateType": "TCP",
                                                  "params": {"id": 0, "maxChgSoc": value}}),
         ]
         
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return [
             EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "enabled": value}}),
             EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": value}}),
         ]
     
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return []

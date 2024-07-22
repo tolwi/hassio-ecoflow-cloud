@@ -4,7 +4,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from . import DOMAIN
-from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
+from .api import EcoflowApiClient
 
 
 def _to_serializable(x):
@@ -17,14 +17,14 @@ def _to_serializable(x):
 
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry):
-    client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
+    client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
     values = {
-        'device':    client.device_type,
-        'params':     dict(sorted(client.data.params.items())),
-        'set':       [dict(sorted(k.items())) for k in client.data.set],
-        'set_reply': [dict(sorted(k.items())) for k in client.data.set_reply],
-        'get':       [dict(sorted(k.items())) for k in client.data.get],
-        'get_reply': [dict(sorted(k.items())) for k in client.data.get_reply],
-        'raw_data': client.data.raw_data,
+        'device':    client.device.device_info.device_type,
+        'params':     dict(sorted(client.device.data.params.items())),
+        'set':       [dict(sorted(k.items())) for k in client.device.data.set],
+        'set_reply': [dict(sorted(k.items())) for k in client.device.data.set_reply],
+        'get':       [dict(sorted(k.items())) for k in client.device.data.get],
+        'get_reply': [dict(sorted(k.items())) for k in client.device.data.get_reply],
+        'raw_data': client.device.data.raw_data,
     }
     return values

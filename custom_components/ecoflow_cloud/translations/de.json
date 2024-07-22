@@ -3,11 +3,39 @@
   "config": {
     "step": {
       "user": {
+        "menu_options": {
+          "api": "Öffentliche API verwenden",
+          "manual": "Anwendungs-API verwenden"
+        }
+      },
+      "api": {
+        "data": {
+          "access_key": "Zugriffsschlüssel",
+          "secret_key": "Geheimer Schlüssel"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "Gerät auswählen"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "Gerätetyp",
+          "device_name": "Gerätename",
+          "device_id": "Seriennummer des Gerät"
+        }
+      },
+      "manual": {
         "data": {
           "username": "Benutzer-Email",
-          "password": "Benutzer-Passwort",
-          "type": "Gerätetyp",
-          "name": "Gerätename",
+          "password": "Benutzer-Passwort"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "Gerätetyp",
+          "device_name": "Gerätename",
           "device_id": "Seriennummer des Gerät"
         }
       }
@@ -18,7 +46,8 @@
       "init": {
         "data": {
           "power_step": "Ladeleistung (Schritte für Schieberegler)",
-          "refresh_period_sec": "Datenaktualisierung in Sekunden"
+          "refresh_period_sec": "Datenaktualisierung in Sekunden",
+          "diagnostic_mode": "Diagnosemodus"
         }
       }
     }

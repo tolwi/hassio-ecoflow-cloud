@@ -3,11 +3,39 @@
   "config": {
     "step": {
       "user": {
+        "menu_options": {
+          "api": "Use public API",
+          "manual": "Use application API"
+        }
+      },
+      "api": {
+        "data": {
+          "access_key": "Access key",
+          "secret_key": "Secret key"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "Select device"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "Device type",
+          "device_name": "Device name",
+          "device_id": "Device SN"
+        }
+      },
+      "manual": {
         "data": {
           "username": "User email",
-          "password": "User password",
-          "type": "Device type",
-          "name": "Device name",
+          "password": "User password"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "Device type",
+          "device_name": "Device name",
           "device_id": "Device SN"
         }
       }
@@ -18,7 +46,8 @@
       "init": {
         "data": {
           "power_step": "Charging power slider step",
-          "refresh_period_sec": "Data refresh period (sec)"
+          "refresh_period_sec": "Data refresh period (sec)",
+          "diagnostic_mode": "Diagnostic mode"
         }
       }
     }

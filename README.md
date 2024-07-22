@@ -492,25 +492,27 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_MINI <i>(sensors: 46, switches: 7, sliders: 1, selects: 3)</i> </summary>
+<details><summary> RIVER_MINI <i>(sensors: 17, switches: 2, sliders: 1, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
-- Cycles
-- Inv Out Temperature
-- Inv In Temperature
 - Main Battery Level
-- Main Design Capacity
-- Main Full Capacity
-- Main Remain Capacity
-- Total In Power
-- Total Out Power
-- Solar In Current
-- Solar In Voltage
 - AC In Power
 - AC Out Power
 - AC In Volts
 - AC Out Volts
+- Solar In Voltage
+- Solar In Current
+- Inverter Inside Temperature
+- Inverter Outside Temperature
+- Solar In Energy
+- Battery Charge Energy from AC
+- Battery Charge Energy from DC
+- Battery Discharge Energy to AC
+- Battery Discharge Energy to DC
+- Total In Power
+- Total Out Power
+- Cycles
 
 *Switches*
 - AC Enabled 
@@ -888,6 +890,220 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main mode 
 - Remote startup/shutdown 
 - Sub-mode 
+
+</p></details>
+
+<details><summary> DELTA 2 (API) <i>(sensors: 45, switches: 8, sliders: 6, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Total In Power
+- Total Out Power
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- Solar In Power
+- DC Out Power
+- Type-C (1) Out Power
+- Type-C (2) Out Power
+- USB (1) Out Power
+- USB (2) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Slave Battery Level  _(auto)_
+- Slave Design Capacity  _(disabled)_
+- Slave Full Capacity  _(disabled)_
+- Slave Remain Capacity  _(disabled)_
+- Slave State of Health
+- Slave Battery Temperature  _(auto)_
+- Slave Min Cell Temperature  _(disabled)_
+- Slave Max Cell Temperature  _(disabled)_
+- Slave Battery Volts  _(disabled)_
+- Slave Min Cell Volts  _(disabled)_
+- Slave Max Cell Volts  _(disabled)_
+- Slave Cycles  _(auto)_
+- Slave In Power  _(auto)_
+- Slave Out Power  _(auto)_
+- Status
+
+*Switches*
+- Beeper 
+- USB Enabled 
+- AC Always On 
+- Prio Solar Charging 
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+- Backup Reserve Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- Backup Reserve Level 
+- Generator Auto Start Level 
+- Generator Auto Stop Level 
+- AC Charging Power 
+
+*Selects*
+- DC (12V) Charge Current 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+- DC (12V) Timeout 
+
+</p></details>
+
+<details><summary> RIVER 2 (API) <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power
+- Total Out Power
+- Solar In Current
+- Solar In Voltage
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- Type-C In Power
+- Solar In Power
+- DC Out Power
+- Type-C Out Power
+- USB Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Status
+
+*Switches*
+- AC Enabled 
+- AC Always On 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+- Backup Reserve Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+- Backup Reserve Level 
+
+*Selects*
+- DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+
+</p></details>
+
+<details><summary> RIVER 2 Max (API) <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power
+- Total Out Power
+- Solar In Current
+- Solar In Voltage
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- Type-C In Power
+- Solar In Power
+- DC Out Power
+- Type-C Out Power
+- USB Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Status
+
+*Switches*
+- AC Enabled 
+- AC Always On 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+- Backup Reserve Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+- Backup Reserve Level 
+
+*Selects*
+- DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+
+</p></details>
+
+<details><summary> Smart Plug (API) <i>(sensors: 4, switches: 1, sliders: 1, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Temperature
+- Volts
+- Current
+- Power
+
+*Switches*
+- On 
+
+*Sliders (numbers)*
+- Brightness 
+
+*Selects*
 
 </p></details>
 

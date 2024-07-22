@@ -1,19 +1,26 @@
-from . import BaseDevice
-from .. import EcoflowMQTTClient
-from ..entities import (
+import logging
+
+from homeassistant.util import utcnow
+
+from custom_components.ecoflow_cloud.devices import BaseDevice
+from custom_components.ecoflow_cloud.entities import (
     BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
 )
-from ..sensor import (
+from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity, CentivoltSensorEntity, DeciampSensorEntity,
     DecicelsiusSensorEntity, DecihertzSensorEntity, DeciwattsSensorEntity,
     DecivoltSensorEntity, InWattsSolarSensorEntity, LevelSensorEntity,
     MiscSensorEntity, RemainSensorEntity, StatusSensorEntity,
 )
+from .proto import ecopacket_pb2 as ecopacket, powerstream_pb2 as powerstream
+from ...api import EcoflowApiClient
+
 # from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
 # from ..select import DictSelectEntity
+_LOGGER = logging.getLogger(__name__)
 
 class PowerStream(BaseDevice):
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             InWattsSolarSensorEntity(client, "pv1_input_watts", "Solar 1 Watts"),
             DecivoltSensorEntity(client, "pv1_input_volt", "Solar 1 Input Potential"),
@@ -82,7 +89,7 @@ class PowerStream(BaseDevice):
         ]
 
 
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
             # These will likely be some form of serialised data rather than JSON will look into it later
             # MinBatteryLevelEntity(client, "lowerLimit", "Min Disharge Level", 50, 100,
@@ -93,12 +100,55 @@ class PowerStream(BaseDevice):
             #                                      "params": {"id": 00, "upperLimit": value}}),
         ]
 
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return []
 
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
             # DictSelectEntity(client, "supplyPriority", "Power supply mode", {"Prioritize power supply", "Prioritize power storage"},
             #         lambda value: {"moduleType": 00, "operateType": "supplyPriority",
             #                     "params": {"supplyPriority": value}}),
         ]
+
+    def update_data(self, raw_data, data_type):
+        try:
+            payload =raw_data
+
+            while True:
+                packet = ecopacket.SendHeaderMsg()
+                packet.ParseFromString(payload)
+
+                _LOGGER.debug("cmd id %u payload \"%s\"", packet.msg.cmd_id, payload.hex())
+
+                if packet.msg.cmd_id != 1:
+                    _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
+
+                else:
+                    heartbeat = powerstream.InverterHeartbeat()
+                    heartbeat.ParseFromString(packet.msg.pdata)
+
+                    raw = {"params": {}}
+
+                    for descriptor in heartbeat.DESCRIPTOR.fields:
+                        if not heartbeat.HasField(descriptor.name):
+                            continue
+
+                        raw["params"][descriptor.name] = getattr(heartbeat, descriptor.name)
+
+                    _LOGGER.info("Found %u fields", len(raw["params"]))
+
+                    raw["timestamp"] = utcnow()
+                    self.data.update_data(raw)
+
+                if packet.ByteSize() >= len(payload):
+                    break
+
+                _LOGGER.info("Found another frame in payload")
+
+                packet_length = len(payload) - packet.ByteSize()
+                payload = payload[:packet_length]
+
+        except Exception as error:
+            _LOGGER.error(error)
+            _LOGGER.info(raw_data.hex())
+

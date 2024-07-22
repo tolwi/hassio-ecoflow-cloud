@@ -1,13 +1,22 @@
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Final
 
 from homeassistant import const
 
+CONF_AUTH_TYPE: Final = "auth_type"
+
 CONF_USERNAME: Final = const.CONF_USERNAME
 CONF_PASSWORD: Final = const.CONF_PASSWORD
-CONF_DEVICE_TYPE: Final = const.CONF_TYPE
-CONF_DEVICE_NAME: Final = const.CONF_NAME
-CONF_DEVICE_ID: Final = const.CONF_DEVICE_ID
+
+CONF_ACCESS_KEY: Final = "access_key"
+CONF_SECRET_KEY: Final = "secret_key"
+
+CONF_SELECT_DEVICE_KEY: Final = "select_device"
+
+CONF_DEVICE_TYPE: Final = "device_type"
+CONF_DEVICE_NAME: Final = "device_name"
+CONF_DEVICE_ID: Final = "device_id"
+OPTS_DIAGNOSTIC_MODE: Final = "diagnostic_mode"
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
 
@@ -34,3 +43,14 @@ class EcoflowModel(Enum):
     @classmethod
     def list(cls) -> list[str]:
         return [e.name for e in EcoflowModel]
+
+class EcoflowApiProducts (StrEnum):
+
+    DELTA_2 = "DELTA 2",
+    RIVER_2 = "RIVER 2",
+    RIVER_2_MAX = "RIVER 2 Max",
+    DIAGNOSTIC = "DIAGNOSTIC"
+
+    @classmethod
+    def list(cls) -> list[str]:
+        return [e for e in EcoflowApiProducts]

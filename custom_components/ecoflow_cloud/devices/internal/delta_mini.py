@@ -1,24 +1,22 @@
-from homeassistant.const import Platform
-
-from . import const, BaseDevice, EntityMigration, MigrationAction
-from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
-from ..select import DictSelectEntity, TimeoutDictSelectEntity
-from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
+from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
+from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, InWattsSolarSensorEntity, \
     StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity
-from ..switch import BeeperEntity, EnabledEntity
+from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
 class DeltaMini(BaseDevice):
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
-                .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
-                .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
-                .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+            .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
+            .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             CapacitySensorEntity(client, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
@@ -57,12 +55,12 @@ class DeltaMini(BaseDevice):
             CyclesSensorEntity(client, "bmsMaster.cycles", const.CYCLES),
 
             TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP, False)
-                .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
-                .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+            .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+            .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
 
             MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False)
-                .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
-                .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
+            .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
+            .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
 
             # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
             InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
@@ -74,7 +72,7 @@ class DeltaMini(BaseDevice):
             StatusSensorEntity(client),
         ]
 
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
             MaxBatteryLevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
                                   lambda value: {"moduleType": 0, "operateType": "TCP",
@@ -99,7 +97,7 @@ class DeltaMini(BaseDevice):
 
         ]
 
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return [
             BeeperEntity(client, "mppt.beepState", const.BEEPER,
                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
@@ -119,7 +117,7 @@ class DeltaMini(BaseDevice):
             #               lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"isConfig": value}}),
         ]
 
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
             DictSelectEntity(client, "mppt.cfgDcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
                              lambda value: {"moduleType": 0, "operateType": "TCP",
@@ -138,10 +136,3 @@ class DeltaMini(BaseDevice):
                                                    "params": {"standByMins": value, "id": 153}}),
 
         ]
-
-    def migrate(self, version) -> list[EntityMigration]:
-        if version == 2:
-            return [
-                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
-            ]
-        return []

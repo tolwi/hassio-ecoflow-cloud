@@ -1,25 +1,24 @@
-from homeassistant.const import Platform
-
-from . import const, BaseDevice, EntityMigration, MigrationAction
-from .const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, BATTERY_CHARGING_STATE, \
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
+from custom_components.ecoflow_cloud.devices.const import ATTR_DESIGN_CAPACITY, ATTR_FULL_CAPACITY, ATTR_REMAIN_CAPACITY, BATTERY_CHARGING_STATE, \
     MAIN_DESIGN_CAPACITY, MAIN_FULL_CAPACITY, MAIN_REMAIN_CAPACITY
-from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, BatteryBackupLevel
-from ..select import DictSelectEntity, TimeoutDictSelectEntity
-from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
+from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, BatteryBackupLevel
+from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InAmpSensorEntity, \
     InVoltSensorEntity, QuotasStatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, ChargingStateSensorEntity, CapacitySensorEntity
-from ..switch import EnabledEntity
+    OutMilliVoltSensorEntity, ChargingStateSensorEntity, CapacitySensorEntity, StatusSensorEntity
+from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 
-class River2(BaseDevice):
+class River2Max(BaseDevice):
 
-    def charging_power_step(self) -> int:
+    @staticmethod
+    def charging_power_step() -> int:
         return 50
 
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
                 .attr("bms_bmsStatus.designCap", ATTR_DESIGN_CAPACITY, 0)
@@ -75,12 +74,12 @@ class River2(BaseDevice):
             MilliVoltSensorEntity(client, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
             MilliVoltSensorEntity(client, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 
-            QuotasStatusSensorEntity(client),
+            self._status_sensor(client),
             # FanSensorEntity(client, "bms_emsStatus.fanLevel", "Fan Level"),
 
         ]
 
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
             MaxBatteryLevelEntity(client, "bms_emsStatus.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
                                   lambda value: {"moduleType": 2, "operateType": "upsConfig",
@@ -90,7 +89,7 @@ class River2(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
-            ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 100, 360,
+            ChargingPowerEntity(client, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 50, 660,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}}),
 
@@ -103,7 +102,7 @@ class River2(BaseDevice):
                                                          "minChgSoc": 0}}),
         ]
 
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return [
             EnabledEntity(client, "mppt.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 5, "operateType": "acOutCfg",
@@ -132,7 +131,7 @@ class River2(BaseDevice):
                                                             "minChgSoc": 0}})
         ]
 
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
             DictSelectEntity(client, "mppt.dcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
                              lambda value: {"moduleType": 5, "operateType": "dcChgCfg",
@@ -155,9 +154,5 @@ class River2(BaseDevice):
                                                    "params": {"standbyMins": value}})
         ]
 
-    def migrate(self, version) -> list[EntityMigration]:
-        if version == 2:
-            return [
-                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
-            ]
-        return []
+    def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
+        return QuotasStatusSensorEntity(client)

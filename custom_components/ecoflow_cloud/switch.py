@@ -7,17 +7,15 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import DOMAIN
+from .api import EcoflowApiClient
 from .entities import BaseSwitchEntity
-from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
-
-    from .devices.registry import devices
-    async_add_entities(devices[client.device_type].switches(client))
+    client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities(client.device.switches(client))
 
 
 class EnabledEntity(BaseSwitchEntity):
@@ -61,6 +59,7 @@ class BeeperEntity(DisabledEntity):
             return "mdi:volume-high"
         else:
             return "mdi:volume-mute"
+
 
 class InvertedBeeperEntity(EnabledEntity):
     _attr_entity_category = EntityCategory.CONFIG

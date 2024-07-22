@@ -5,23 +5,21 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.ecoflow_cloud import EcoflowMQTTClient, DOMAIN
-from custom_components.ecoflow_cloud.entities import BaseSelectEntity
+from . import DOMAIN
+from .api import EcoflowApiClient
+from .entities import BaseSelectEntity
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
-
-    from .devices.registry import devices
-    async_add_entities(devices[client.device_type].selects(client))
+    client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities(client.device.selects(client))
 
 
 class DictSelectEntity(BaseSelectEntity):
     _attr_entity_category = EntityCategory.CONFIG
     _attr_available = False
-
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, options: dict[str, int],
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
+    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str, options: dict[str, int],
+                 command: Callable[[int], dict[str, Any]] | None, enabled: bool = True, auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
         self.__options_dict = options
         self._attr_options = list(options.keys())
