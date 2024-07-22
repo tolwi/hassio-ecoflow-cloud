@@ -12,12 +12,17 @@ Current integrations details:
 - [DELTA_PRO](devices/DELTA_PRO.md)
 - [RIVER_MAX](devices/RIVER_MAX.md)
 - [RIVER_PRO](devices/RIVER_PRO.md)
+- [RIVER_MINI](devices/RIVER_MINI.md)
 - [DELTA_MINI](devices/DELTA_MINI.md)
 - [DELTA_MAX](devices/DELTA_MAX.md)
 - [DELTA_2_MAX](devices/DELTA_2_MAX.md)
 - [POWERSTREAM](devices/POWERSTREAM.md)
 - [GLACIER](devices/GLACIER.md)
-
+- [WAVE_2](devices/WAVE_2.md)
+- [DELTA_2](devices/DELTA_2-Public.md)
+- [RIVER_2](devices/RIVER_2-Public.md)
+- [RIVER_2_Max](devices/RIVER_2_Max-Public.md)
+- [Smart_Plug](devices/Smart_Plug-Public.md)
 
 Use [diagnostic](https://www.home-assistant.io/integrations/diagnostics/) dump to find `data_key` and `action_command`:
   - `data_key` 
