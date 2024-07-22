@@ -31,7 +31,7 @@ class RiverPro(BaseDevice):
             InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
 
-            InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
+            InMilliVoltSensorEntity(client, "inv.invInVol", const.AC_IN_VOLT),
             OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
 
             OutWattsSensorEntity(client, "pd.carWatts", const.DC_OUT_POWER),
