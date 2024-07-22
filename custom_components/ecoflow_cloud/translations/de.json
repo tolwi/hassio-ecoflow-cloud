@@ -46,7 +46,8 @@
       "init": {
         "data": {
           "power_step": "Ladeleistung (Schritte für Schieberegler)",
-          "refresh_period_sec": "Datenaktualisierung in Sekunden"
+          "refresh_period_sec": "Datenaktualisierung in Sekunden",
+          "diagnostic_mode": "Diagnosemodus"
         }
       }
     }

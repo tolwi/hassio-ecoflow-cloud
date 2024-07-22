@@ -313,9 +313,9 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         self.async_on_remove(
             async_track_time_interval(self.hass, self.__check_status, timedelta(seconds=self.__check_interval_sec)))
 
-        self._update_status((utcnow() - self._device.data.params_time()).total_seconds())
+        await self._update_status((utcnow() - self._device.data.params_time()).total_seconds())
 
-    def __check_status(self, now: datetime):
+    async def __check_status(self, now: datetime):
         data_outdated_sec = (now - self._device.data.params_time()).total_seconds()
         phase = math.ceil(data_outdated_sec / self.__check_interval_sec)
         self._attrs[ATTR_STATUS_PHASE] = phase
@@ -325,7 +325,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         if self._online == 1:
             if time_to_check_status or phase >= self.DEADLINE_PHASE:
                 # online and outdated - refresh status to detect if device went offline
-                self._update_status(data_outdated_sec)
+                await self._update_status(data_outdated_sec)
             elif time_to_reconnect:
                 # online, updated and outdated - reconnect
                 self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
@@ -337,14 +337,14 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
             self._client.mqtt_client.reconnect()
             self.schedule_update_ha_state()
 
-    def __params_update(self, data: dict[str, Any]):
+    async def __params_update(self, data: dict[str, Any]):
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time()
         if self._online == 0:
-            self._update_status(0)
+           await self._update_status(0)
 
         self.schedule_update_ha_state()
 
-    def _update_status(self, data_outdated_sec):
+    async def _update_status(self, data_outdated_sec):
         if data_outdated_sec > self.__check_interval_sec * self.DEADLINE_PHASE:
             self._online = 0
             self._attr_native_value = "assume_offline"
@@ -375,14 +375,14 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
 
         await super().async_added_to_hass()
         if self.do_init:
-            self._update_status(0, True)
+            await self._update_status(0, True)
 
-    def _update_status(self, update_delta_sec, force: bool = False):
+    async def _update_status(self, update_delta_sec, force: bool = False):
         if self._client.mqtt_client.is_connected() or force:
             self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
-            self._client.quota_all()
+            await self._client.quota_all()
         else:
-            super()._update_status(update_delta_sec)
+            await super()._update_status(update_delta_sec)
 
     def __get_reply_update(self, data: list[dict[str, Any]]):
         d = data[0]

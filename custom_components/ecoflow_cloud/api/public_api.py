@@ -3,7 +3,6 @@ import hmac
 import logging
 import random
 import time
-import uuid
 
 import aiohttp
 
@@ -15,6 +14,12 @@ _LOGGER = logging.getLogger(__name__)
 
 BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
 
+# from FB
+# client_id limits for MQTT connections
+# If you are using MQTT to connect to the API be aware that only 10 unique client IDs are allowed per day.
+# As such, it is suggested that you choose a static client_id for your application or integration to use consistently.
+# If your code generates a unique client_id (as mine did) for each connection,
+# you can exceed this limit very quickly when testing or debugging code.
 
 class EcoflowPublicApiClient(EcoflowApiClient):
 
@@ -28,7 +33,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
     async def login(self):
         _LOGGER.info(f"Requesting IoT MQTT credentials")
         response = await self.call_api("/certification")
-        self._accept_mqqt_certification(response, f'HomeAssistant-{str(uuid.uuid4()).upper()}')
+        self._accept_mqqt_certification(response)
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info(f"Requesting all devices")
@@ -47,6 +52,8 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             self.device = device_by_product[device_type](info)
         else:
             self.device = DiagnosticDevice(info)
+
+        self.mqtt_info.client_id = f'HomeAssistant-{device_sn}'
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.device)
 
 

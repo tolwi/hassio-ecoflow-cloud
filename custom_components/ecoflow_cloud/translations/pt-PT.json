@@ -46,7 +46,8 @@
       "init": {
         "data": {
           "power_step": "Controlo deslizante da potência",
-          "refresh_period_sec": "Período de atualização dos dados (segundos)"
+          "refresh_period_sec": "Período de atualização dos dados (segundos)",
+          "diagnostic_mode": "Modo de diagnóstico"
         }
       }
     }

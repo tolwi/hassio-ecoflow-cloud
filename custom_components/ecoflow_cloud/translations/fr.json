@@ -46,7 +46,8 @@
       "init": {
         "data": {
           "power_step": "Pas du curseur de puissance de charge",
-          "refresh_period_sec": "Durée actualisation des données (secondes)"
+          "refresh_period_sec": "Durée actualisation des données (secondes)",
+          "diagnostic_mode": "Mode diagnostic"
         }
       }
     }

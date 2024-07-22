@@ -30,7 +30,7 @@ devices: dict[str, Type[BaseDevice]] = {
     EcoflowModel.DELTA_PRO.name: internal_delta_pro.DeltaPro,
     EcoflowModel.RIVER_MAX.name: internal_river_max.RiverMax,
     EcoflowModel.RIVER_PRO.name: internal_river_pro.RiverPro,
-    EcoflowModel.RIVER_MINI.name: internal_river_mini.RiverMini(),
+    EcoflowModel.RIVER_MINI.name: internal_river_mini.RiverMini,
     EcoflowModel.DELTA_MINI.name: internal_delta_mini.DeltaMini,
     EcoflowModel.DELTA_MAX.name: internal_delta_max.DeltaMax,
     EcoflowModel.DELTA_2_MAX.name: internal_delta2_max.Delta2Max,

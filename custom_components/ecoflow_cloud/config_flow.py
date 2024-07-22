@@ -94,7 +94,8 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
         device = devices[user_input[const.CONF_DEVICE_TYPE]]
 
         options = {const.OPTS_POWER_STEP: device.charging_power_step(),
-                   const.OPTS_REFRESH_PERIOD_SEC: const.DEFAULT_REFRESH_PERIOD_SEC}
+                   const.OPTS_REFRESH_PERIOD_SEC: const.DEFAULT_REFRESH_PERIOD_SEC,
+                   const.OPTS_DIAGNOSTIC_MODE: user_input[const.CONF_DEVICE_TYPE] == "DIAGNOSTIC"}
 
         data = {
             const.CONF_USERNAME: self.username,
@@ -181,7 +182,8 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
         from .devices.registry import device_by_product
         device = device_by_product[user_input[const.CONF_DEVICE_TYPE]]
         options = {const.OPTS_POWER_STEP: device.charging_power_step(),
-                   const.OPTS_REFRESH_PERIOD_SEC: const.DEFAULT_REFRESH_PERIOD_SEC}
+                   const.OPTS_REFRESH_PERIOD_SEC: const.DEFAULT_REFRESH_PERIOD_SEC,
+                   const.OPTS_DIAGNOSTIC_MODE: user_input[const.CONF_DEVICE_TYPE] == "DIAGNOSTIC"}
         return self.async_create_entry(
             title=user_input[const.CONF_DEVICE_NAME],
             data={
@@ -214,9 +216,11 @@ class EcoflowOptionsFlow(OptionsFlow):
             step_id="init",
             last_step=True,
             data_schema=vol.Schema({
-                vol.Optional(const.OPTS_POWER_STEP,
+                vol.Required(const.OPTS_POWER_STEP,
                              default=self.config_entry.options[const.OPTS_POWER_STEP]): int,
-                vol.Optional(const.OPTS_REFRESH_PERIOD_SEC,
+                vol.Required(const.OPTS_REFRESH_PERIOD_SEC,
                              default=self.config_entry.options[const.OPTS_REFRESH_PERIOD_SEC]): int,
+                vol.Required(const.OPTS_DIAGNOSTIC_MODE,
+                             default=self.config_entry.options[const.OPTS_DIAGNOSTIC_MODE]): bool,
             })
         )

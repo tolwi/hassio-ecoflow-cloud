@@ -16,6 +16,7 @@ CONF_SELECT_DEVICE_KEY: Final = "select_device"
 CONF_DEVICE_TYPE: Final = "device_type"
 CONF_DEVICE_NAME: Final = "device_name"
 CONF_DEVICE_ID: Final = "device_id"
+OPTS_DIAGNOSTIC_MODE: Final = "diagnostic_mode"
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
 

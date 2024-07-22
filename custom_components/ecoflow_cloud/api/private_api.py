@@ -49,7 +49,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
             _LOGGER.info(f"Requesting IoT MQTT credentials")
             response = await self.__call_api("/iot-auth/app/certification")
-            self._accept_mqqt_certification(response, f'ANDROID_-{str(uuid.uuid4()).upper()}_{self.user_id}')
+            self._accept_mqqt_certification(response)
 
     async def quota_all(self):
         self.mqtt_client.send_get_message({"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
@@ -72,6 +72,8 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             self.device = devices[device_type](info)
         else:
             self.device = DiagnosticDevice(info)
+
+        self.mqtt_info.client_id = f'ANDROID_-{str(uuid.uuid4()).upper()}_{self.user_id}'
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.device)
 
 

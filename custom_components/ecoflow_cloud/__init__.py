@@ -52,8 +52,10 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         del new_data["type"]
         del new_data["name"]
 
+        new_options = {**config_entry.options, const.OPTS_DIAGNOSTIC_MODE: False}
+
         config_entry.version = CONFIG_VERSION
-        hass.config_entries.async_update_entry(config_entry, data=new_data)
+        hass.config_entries.async_update_entry(config_entry, data=new_data, options=new_options)
         _LOGGER.info("Migration to version %s successful", config_entry.version)
 
     return True
@@ -74,7 +76,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await api_client.login()
     api_client.configure_device(entry.data[const.CONF_DEVICE_ID], entry.data[const.CONF_DEVICE_NAME], entry.data[const.CONF_DEVICE_TYPE])
-    api_client.device.configure(int(entry.options[const.OPTS_REFRESH_PERIOD_SEC]), api_client.device.device_info.device_type == "DIAGNOSTIC")
+    api_client.device.configure(int(entry.options[const.OPTS_REFRESH_PERIOD_SEC]), bool(entry.options[const.OPTS_DIAGNOSTIC_MODE]))
     hass.data[DOMAIN][entry.entry_id] = api_client
 
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
