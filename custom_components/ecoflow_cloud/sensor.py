@@ -1,36 +1,30 @@
-import math
 import logging
+import math
 from datetime import timedelta, datetime
 from typing import Any, Mapping, OrderedDict
 
 from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
 from homeassistant.components.sensor import (SensorDeviceClass, SensorStateClass, SensorEntity)
 from homeassistant.config_entries import ConfigEntry
-
 from homeassistant.const import (PERCENTAGE,
                                  UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency,
                                  UnitOfPower, UnitOfTemperature, UnitOfTime)
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import utcnow
-from homeassistant.util.dt import UTC
 
 from . import DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_UPDATES, \
     ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, ATTR_STATUS_PHASE
+from .api import EcoflowApiClient
 from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
-from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 _LOGGER = logging.getLogger(__name__)
 
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
-
-    from .devices.registry import devices
-    async_add_entities(devices[client.device_type].sensors(client))
+    client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities(client.device.sensors(client))
 
 
 class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
@@ -287,13 +281,13 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     CHECK_PHASES = [2, 4, 6]
     CONNECT_PHASES = [3, 5, 7]
 
-    def __init__(self, client: EcoflowMQTTClient, check_interval_sec=30):
+    def __init__(self, client: EcoflowApiClient, check_interval_sec=30):
         super().__init__(client, "Status", "status")
         self._online = 0
         self.__check_interval_sec = check_interval_sec
         self._attrs = OrderedDict[str, Any]()
-        self._attrs[ATTR_STATUS_SN] = client.device_sn
-        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._client.data.params_time()
+        self._attrs[ATTR_STATUS_SN] = self._device.device_info.sn
+        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time()
         self._attrs[ATTR_STATUS_UPDATES] = 0
         self._attrs[ATTR_STATUS_LAST_UPDATE] = None
         self._attrs[ATTR_STATUS_RECONNECTS] = 0
@@ -302,16 +296,16 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
 
-        params_d = self._client.data.params_observable().subscribe(self.__params_update)
+        params_d = self._device.data.params_observable().subscribe(self.__params_update)
         self.async_on_remove(params_d.dispose)
 
         self.async_on_remove(
             async_track_time_interval(self.hass, self.__check_status, timedelta(seconds=self.__check_interval_sec)))
 
-        self._update_status((utcnow() - self._client.data.params_time()).total_seconds())
+        self._update_status((utcnow() - self._device.data.params_time()).total_seconds())
 
     def __check_status(self, now: datetime):
-        data_outdated_sec = (now - self._client.data.params_time()).total_seconds()
+        data_outdated_sec = (now - self._device.data.params_time()).total_seconds()
         phase = math.ceil(data_outdated_sec / self.__check_interval_sec)
         self._attrs[ATTR_STATUS_PHASE] = phase
         time_to_reconnect = phase in self.CONNECT_PHASES
@@ -324,16 +318,16 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
             elif time_to_reconnect:
                 # online, updated and outdated - reconnect
                 self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
-                self._client.reconnect()
+                self._client.mqtt_client.reconnect()
                 self.schedule_update_ha_state()
 
-        elif not self._client.is_connected():  # validate connection even for offline device
+        elif not self._client.mqtt_client.is_connected():  # validate connection even for offline device
             self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
-            self._client.reconnect()
+            self._client.mqtt_client.reconnect()
             self.schedule_update_ha_state()
 
     def __params_update(self, data: dict[str, Any]):
-        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._client.data.params_time()
+        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time()
         if self._online == 0:
             self._update_status(0)
 
@@ -359,20 +353,23 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 class QuotasStatusSensorEntity(StatusSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowMQTTClient):
+    def __init__(self, client: EcoflowApiClient, do_init: bool = False):
         super().__init__(client)
+        self.do_init = do_init
 
     async def async_added_to_hass(self):
 
-        get_reply_d = self._client.data.get_reply_observable().subscribe(self.__get_reply_update)
+        get_reply_d = self._device.data.get_reply_observable().subscribe(self.__get_reply_update)
         self.async_on_remove(get_reply_d.dispose)
 
         await super().async_added_to_hass()
+        if self.do_init:
+            self._update_status(0, True)
 
-    def _update_status(self, update_delta_sec):
-        if self._client.is_connected():
+    def _update_status(self, update_delta_sec, force: bool = False):
+        if self._client.mqtt_client.is_connected() or force:
             self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
-            self.send_get_message({"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
+            self._client.quota_all()
         else:
             super()._update_status(update_delta_sec)
 
@@ -385,8 +382,6 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
             if self._online == 1:
                 self._attrs[ATTR_STATUS_SN] = d["data"]["sn"]
                 self._attr_native_value = "online"
-
-                # ?? self._client.data.update_data(d["data"]["quotaMap"])
             else:
                 self._attr_native_value = "offline"
 

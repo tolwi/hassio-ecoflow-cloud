@@ -1,44 +1,57 @@
 from __future__ import annotations
-import inspect
-from typing import Any, Callable, Optional, OrderedDict, Mapping
 
+import inspect
+from typing import Any, Callable, OrderedDict, Mapping
+
+import jsonpath_ng.ext as jp
+from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.components.button import ButtonEntity
-from homeassistant.helpers.entity import Entity, EntityCategory
+from homeassistant.core import DOMAIN
+from homeassistant.helpers.entity import Entity, EntityCategory, DeviceInfo
 
-from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
 
 
 class EcoFlowAbstractEntity(Entity):
     _attr_has_entity_name = True
     _attr_should_poll = False
 
-    def __init__(self, client: EcoflowMQTTClient, title: str, key: str):
-        self._client = client
+    def __init__(self, client: EcoflowApiClient, title: str, key: str):
+        from custom_components.ecoflow_cloud.devices import BaseDevice
+        self._client: EcoflowApiClient = client
+        self._device: BaseDevice = client.device
         self._attr_name = title
-        self._attr_device_info = client.device_info_main
-        self._attr_unique_id = self.gen_unique_id(client.device_sn, key)
 
-    def send_get_message(self, command: dict):
-        self._client.send_get_message(command)
+        type_prefix = "api-" if self._device.device_info.public_api else ""
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{type_prefix}{self._device.device_info.sn}")},
+            manufacturer="EcoFlow",
+            name=self._device.device_info.name,
+            model=self._device.device_info.device_type,
+        )
 
-    def send_set_message(self, target_dict: dict[str, Any] | None, command: dict):
-        self._client.send_set_message(target_dict, command)
+        self._attr_unique_id = self.gen_unique_id(type_prefix, self._device.device_info.sn, key)
 
     @staticmethod
-    def gen_unique_id(sn: str, key: str):
-        return 'ecoflow-' + sn + '-' + key.replace('.', '-').replace('_', '-')
+    def gen_unique_id(type_prefix: str, sn: str, key: str):
+        return ('ecoflow-' + type_prefix + sn + '-' + key.replace('.', '-')
+                .replace('_', '-')
+                .replace('[', '-')
+                .replace(']', '-')
+                )
 
 
 class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, enabled: bool = True,
-                 auto_enable: bool = False) -> object:
+    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str, enabled: bool = True,
+                 auto_enable: bool = False):
         super().__init__(client, title, mqtt_key)
         self._mqtt_key = mqtt_key
+        self._mqtt_key_expr = jp.parse(self.__adopted_mqtt_key(self._mqtt_key))
+
         self._auto_enable = auto_enable
         self._attr_entity_registry_enabled_default = enabled
         self.__attributes_mapping: dict[str, str] = {}
@@ -49,6 +62,12 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self.__attrs[title] = default
         return self
 
+    def __adopted_mqtt_key(self, key: str):
+        if self._device.flat_json():
+            return "'" + key + "'"
+        else:
+            return key
+
     @property
     def mqtt_key(self):
         return self._mqtt_key
@@ -57,31 +76,31 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def auto_enable(self):
         return self._auto_enable
 
-    def send_set_message(self, target_value: Any, command: dict):
-        super().send_set_message({self._mqtt_key: target_value}, command)
-
     @property
     def enabled_default(self):
         return self._attr_entity_registry_enabled_default
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
-        d = self._client.data.params_observable().subscribe(self._updated)
+        d = self._device.data.params_observable().subscribe(self._updated)
         self.async_on_remove(d.dispose)
 
     def _updated(self, data: dict[str, Any]):
         # update attributes
         for key, title in self.__attributes_mapping.items():
-            if key in data:
-                self.__attrs[title] = data[key]
+            key_expr = jp.parse(self.__adopted_mqtt_key(key))
+            attr_values = key_expr.find(data)
+            if len(attr_values) == 1:
+                self.__attrs[title] = attr_values[0].value
 
         # update value
-        if self._mqtt_key in data:
+        values = self._mqtt_key_expr.find(data)
+        if len(values) == 1:
             self._attr_available = True
             if self._auto_enable:
                 self._attr_entity_registry_enabled_default = True
 
-            if self._update_value(data[self._mqtt_key]):
+            if self._update_value(values[0].value):
                 self.schedule_update_ha_state()
 
     @property
@@ -93,28 +112,32 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
 
 class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
-                 command: Callable[[int, Optional[dict[str, Any]]], dict[str, Any]] | None,
+    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str,
+                 command: Callable[[Any], dict[str, Any]] | Callable[[Any, dict[str, Any]], dict[str, Any]] | None,
                  enabled: bool = True, auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, enabled, auto_enable)
         self._command = command
 
-    def command_dict(self, value: int) -> dict[str, any] | None:
+    def command_dict(self, value: Any) -> dict[str, Any] | None:
         if self._command:
             p_count = len(inspect.signature(self._command).parameters)
             if p_count == 1:
                 return self._command(value)
             elif p_count == 2:
-                return self._command(value, self._client.data.params)
+                return self._command(value, self._device.data.params)
         else:
             return None
+
+    def send_set_message(self, target_value: Any, command: dict):
+        self._client.mqtt_client.send_set_message({self._mqtt_key: target_value}, command)
 
 
 class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
     _attr_entity_category = EntityCategory.CONFIG
 
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True,
+    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str, min_value: int, max_value: int,
+                 command: Callable[[int], dict[str, Any]] | Callable[[int, dict[str, Any]], dict[str, Any]] | None,
+                 enabled: bool = True,
                  auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
         self._attr_native_max_value = max_value
@@ -148,4 +171,3 @@ class BaseSelectEntity(SelectEntity, EcoFlowBaseCommandEntity):
 
 class BaseButtonEntity(ButtonEntity, EcoFlowBaseCommandEntity):
     pass
-

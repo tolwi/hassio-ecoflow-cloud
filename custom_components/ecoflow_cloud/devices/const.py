@@ -217,6 +217,11 @@ DC_CHARGE_CURRENT = "DC (12V) Charge Current"
 GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
 
+POWER = "Power"
+CURRENT = "Current"
+MAX_CURRENT = "Max Current"
+MODE_ON = "On"
+BRIGHTNESS = "Brightness"
 BEEPER = "Beeper"
 USB_ENABLED = "USB Enabled"
 AC_ENABLED = "AC Enabled"
@@ -230,6 +235,7 @@ AC_SLOW_CHARGE = "AC Slow Charging"
 
 DC_MODE = "DC Mode"
 
+TEMPERATURE = "Temperature"
 BATTERY_TEMP = "Battery Temperature"
 MIN_CELL_TEMP = "Min Cell Temperature"
 MAX_CELL_TEMP = "Max Cell Temperature"
@@ -240,6 +246,7 @@ USB_C_TEMP = "USB C Temperature"
 ATTR_MIN_CELL_TEMP = MIN_CELL_TEMP
 ATTR_MAX_CELL_TEMP = MAX_CELL_TEMP
 
+VOLT = "Volts"
 BATTERY_VOLT = "Battery Volts"
 MIN_CELL_VOLT = "Min Cell Volts"
 MAX_CELL_VOLT = "Max Cell Volts"

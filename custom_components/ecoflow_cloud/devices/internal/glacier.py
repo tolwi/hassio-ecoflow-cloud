@@ -1,20 +1,22 @@
-from . import const, BaseDevice
-from ..button import EnabledButtonEntity
-from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity, BaseButtonEntity
-from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..number import SetTempEntity
-from ..sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorEntity, TempSensorEntity, \
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
+from custom_components.ecoflow_cloud.button import EnabledButtonEntity
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity, BaseButtonEntity
+from custom_components.ecoflow_cloud.number import SetTempEntity
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, \
     MilliVoltSensorEntity, ChargingStateSensorEntity, \
     FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, CapacitySensorEntity
-from ..switch import EnabledEntity, InvertedBeeperEntity
+from custom_components.ecoflow_cloud.switch import EnabledEntity, InvertedBeeperEntity
 
 
 class Glacier(BaseDevice):
-    def charging_power_step(self) -> int:
+
+    @staticmethod
+    def charging_power_step() -> int:
         return 50
 
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             # Power and Battery Entities
             LevelSensorEntity(client, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
@@ -78,7 +80,7 @@ class Glacier(BaseDevice):
 
         ]
 
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
             SetTempEntity(client,"pd.tmpLSet", "Left Set Temperature",-25, 10,
                                   lambda value, params: {"moduleType": 1, "operateType": "temp",
@@ -100,7 +102,7 @@ class Glacier(BaseDevice):
 
         ]
 
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return [
             InvertedBeeperEntity(client, "pd.beepEn", const.BEEPER,
                          lambda value: {"moduleType": 1, "operateType": "beepEn", "params": {"flag": value}}),
@@ -114,7 +116,7 @@ class Glacier(BaseDevice):
 
         ]
     
-    def buttons(self, client: EcoflowMQTTClient) -> list[BaseButtonEntity]:
+    def buttons(self, client: EcoflowApiClient) -> list[BaseButtonEntity]:
         return [
             EnabledButtonEntity(client, "smlice", "Make Small Ice", lambda value: {"moduleType": 1, "operateType": "iceMake", "params": {"enable": 1, "iceShape": 0}}),
             EnabledButtonEntity(client, "lrgice", "Make Large Ice", lambda value: {"moduleType": 1, "operateType": "iceMake", "params": {"enable": 1, "iceShape": 1}}),
@@ -123,7 +125,7 @@ class Glacier(BaseDevice):
         ]    
         
 
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
 
         ]

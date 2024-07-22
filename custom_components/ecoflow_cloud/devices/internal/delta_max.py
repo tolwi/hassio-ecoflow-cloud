@@ -1,19 +1,17 @@
-from homeassistant.const import Platform
-
-from . import const, BaseDevice, EntityMigration, MigrationAction
-from .. import EcoflowMQTTClient
-from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
+from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
     MaxGenStopLevelEntity, MinGenStartLevelEntity
-from ..sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
     OutWattsDcSensorEntity
-from ..switch import BeeperEntity, EnabledEntity
+from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
 class DeltaMax(BaseDevice):
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
                 .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
@@ -79,7 +77,7 @@ class DeltaMax(BaseDevice):
             StatusSensorEntity(client),
         ]
 
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
             MaxBatteryLevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
                                   lambda value: {"moduleType": 2, "operateType": "TCP",
@@ -103,7 +101,7 @@ class DeltaMax(BaseDevice):
 
         ]
 
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return [
             BeeperEntity(client, "pd.beepState", const.BEEPER,
                          lambda value: {"moduleType": 5, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
@@ -128,7 +126,7 @@ class DeltaMax(BaseDevice):
 
         ]
 
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
             #DictSelectEntity(client, "mppt.cfgDcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
             #                 lambda value: {"moduleType": 5, "operateType": "dcChgCfg",
@@ -151,10 +149,3 @@ class DeltaMax(BaseDevice):
             #                                       "params": {"standbyMins": value}})
 
         ]
-
-    def migrate(self, version) -> list[EntityMigration]:
-        if version == 2:
-            return [
-                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
-            ]
-        return []

@@ -7,16 +7,14 @@ from homeassistant.const import PERCENTAGE, UnitOfPower, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import DOMAIN, OPTS_POWER_STEP
+from . import DOMAIN
+from .api import EcoflowApiClient
 from .entities import BaseNumberEntity
-from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
-
-    from .devices.registry import devices
-    async_add_entities(devices[client.device_type].numbers(client))
+    client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities(client.device.numbers(client))
 
 
 class ValueUpdateEntity(BaseNumberEntity):
@@ -34,36 +32,49 @@ class ChargingPowerEntity(ValueUpdateEntity):
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_device_class = SensorDeviceClass.POWER
 
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
+    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str, min_value: int, max_value: int,
+                 command: Callable[[int], dict[str, Any]] | None,
+                 enabled: bool = True, auto_enable: bool = False):
         super().__init__(client, mqtt_key, title, min_value, max_value, command, enabled, auto_enable)
+        self._attr_native_step = self._device.data.update_period_sec
 
-        self._attr_native_step = client.config_entry.options[OPTS_POWER_STEP]
+
+class MinMaxLevelEntity(ValueUpdateEntity):
+    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str,
+                 min_value: int, max_value: int,
+                 command: Callable[[int], dict[str, Any]] | None):
+        super().__init__(client, mqtt_key, title, min_value, max_value, command, True, False)
 
 
-class BatteryBackupLevel(ValueUpdateEntity):
+
+class BrightnessLevelEntity(MinMaxLevelEntity):
+    _attr_icon = "mdi:brightness-6"
+    _attr_native_unit_of_measurement = PERCENTAGE
+
+
+class BatteryBackupLevel(MinMaxLevelEntity):
     _attr_icon = "mdi:battery-charging-90"
     _attr_native_unit_of_measurement = PERCENTAGE
 
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str,
+    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str,
                  min_value: int, max_value: int,
                  min_key: str, max_key: str,
-                 command: Callable[[int], dict[str, any]] | None):
-        super().__init__(client, mqtt_key, title, min_value, max_value, command, True, False)
-        self.__min_key = min_key
-        self.__max_key = max_key
+                 command: Callable[[int], dict[str, Any]] | None):
+        super().__init__(client, mqtt_key, title, min_value, max_value, command)
+        self._min_key = min_key
+        self._max_key = max_key
 
     def _updated(self, data: dict[str, Any]):
-        if self.__min_key in data:
-            self._attr_native_min_value = int(data[self.__min_key]) + 5  # min + 5%
-        if self.__max_key in data:
-            self._attr_native_max_value = int(data[self.__max_key])
+        if self._min_key in data:
+            self._attr_native_min_value = int(data[self._min_key]) + 5  # min + 5%
+        if self._max_key in data:
+            self._attr_native_max_value = int(data[self._max_key])
         super()._updated(data)
 
 
 class LevelEntity(ValueUpdateEntity):
     _attr_native_unit_of_measurement = PERCENTAGE
-    
+
 
 class MinBatteryLevelEntity(LevelEntity):
     _attr_icon = "mdi:battery-charging-10"
@@ -83,4 +94,3 @@ class MaxGenStopLevelEntity(LevelEntity):
 
 class SetTempEntity(ValueUpdateEntity):
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
-    

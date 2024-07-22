@@ -1,19 +1,18 @@
-from homeassistant.const import Platform
-
-from . import const, BaseDevice, EntityMigration, MigrationAction
-from ..entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from ..mqtt.ecoflow_mqtt import EcoflowMQTTClient
-from ..number import MaxBatteryLevelEntity
-from ..select import TimeoutDictSelectEntity
-from ..sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, VoltSensorEntity, InVoltSensorEntity, \
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
+from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
+from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
+    CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, \
+    InVoltSensorEntity, \
     InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity
-from ..switch import EnabledEntity, BeeperEntity
+from custom_components.ecoflow_cloud.switch import EnabledEntity, BeeperEntity
 
 
 class RiverPro(BaseDevice):
-    def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
                 .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
@@ -98,7 +97,7 @@ class RiverPro(BaseDevice):
 
         ]
 
-    def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
             MaxBatteryLevelEntity(client, "bmsMaster.maxChargeSoc", const.MAX_CHARGE_LEVEL, 30, 100,
                                   lambda value: {"moduleType": 0, "operateType": "TCP",
@@ -106,7 +105,7 @@ class RiverPro(BaseDevice):
             # MinBatteryLevelEntity(client, "bmsMaster.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30, None),
         ]
 
-    def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return [
             BeeperEntity(client, "pd.beepState", const.BEEPER, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
             EnabledEntity(client, "inv.acAutoOutConfig", const.AC_ALWAYS_ENABLED,
@@ -118,7 +117,7 @@ class RiverPro(BaseDevice):
             EnabledEntity(client, "inv.cfgFanMode", const.AUTO_FAN_SPEED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 73, "fanMode": value}})
         ]
 
-    def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
             TimeoutDictSelectEntity(client, "pd.standByMode", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS_LIMITED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 33, "standByMode": value}}),
             TimeoutDictSelectEntity(client, "pd.carDelayOffMin", const.DC_TIMEOUT, const.DC_TIMEOUT_OPTIONS_LIMITED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"cmdSet": 32, "id": 84, "carDelayOffMin": value}}),
@@ -130,9 +129,3 @@ class RiverPro(BaseDevice):
             #                                       "params": {"lcdTime": value, "id": 39}})
         ]
 
-    def migrate(self, version) -> list[EntityMigration]:
-        if version == 2:
-            return [
-                EntityMigration("pd.soc", Platform.SENSOR, MigrationAction.REMOVE),
-            ]
-        return []

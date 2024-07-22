@@ -1,27 +1,54 @@
 {
-    "title": "EcoFlow-Cloud",
-    "config": {
-      "step": {
-        "user": {
-          "data": {
-            "username": "Email do utilizador",
-            "password": "Palavra-passe do utilizador",
-            "type": "Tipo de dispositivo",
-            "name": "Nome do dispositivo",
-            "device_id": "SN do dispositivo"
-          }
+  "title": "EcoFlow-Cloud",
+  "config": {
+    "step": {
+      "user": {
+        "menu_options": {
+          "api": "Usar API pública",
+          "manual": "Usar API do aplicativo"
+        }
+      },
+      "api": {
+        "data": {
+          "access_key": "Chave de acesso",
+          "secret_key": "Chave secreta"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "Selecionar dispositivo"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "Tipo de dispositivo",
+          "device_name": "Nome do dispositivo",
+          "device_id": "SN do dispositivo"
+        }
+      },
+      "manual": {
+        "data": {
+          "username": "Email do utilizador",
+          "password": "Palavra-passe do utilizador"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "Tipo de dispositivo",
+          "device_name": "Nome do dispositivo",
+          "device_id": "SN do dispositivo"
         }
       }
-    },
-    "options": {
-      "step": {
-        "init": {
-          "data": {
-            "power_step": "Controlo deslizante da potência",
-            "refresh_period_sec": "Período de atualização dos dados (segundos)"
-          }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "power_step": "Controlo deslizante da potência",
+          "refresh_period_sec": "Período de atualização dos dados (segundos)"
         }
       }
     }
   }
-  
+}

@@ -63,25 +63,25 @@
 - Status
 
 *Switches*
-- Beeper (`pd.beepMode` -> `{"moduleType": 1, "operateType": "quietCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE"}}`)
-- USB Enabled (`pd.dcOutState` -> `{"moduleType": 1, "operateType": "dcOutCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE"}}`)
-- AC Always On (`pd.newAcAutoOnCfg` -> `{"moduleType": 1, "operateType": "newAcAutoOnCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE", "minAcSoc": 5}}`)
-- AC Enabled (`inv.cfgAcEnabled` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "MOCK", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)
-- X-Boost Enabled (`inv.cfgAcXboost` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "MOCK", "params": {"xboost": "VALUE"}}`)
+- Beeper (`pd.beepMode` -> `{"moduleType": 1, "operateType": "quietCfg", "moduleSn": "SN", "params": {"enabled": "VALUE"}}`)
+- USB Enabled (`pd.dcOutState` -> `{"moduleType": 1, "operateType": "dcOutCfg", "moduleSn": "SN", "params": {"enabled": "VALUE"}}`)
+- AC Always On (`pd.newAcAutoOnCfg` -> `{"moduleType": 1, "operateType": "newAcAutoOnCfg", "moduleSn": "SN", "params": {"enabled": "VALUE", "minAcSoc": 5}}`)
+- AC Enabled (`inv.cfgAcEnabled` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "SN", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)
+- X-Boost Enabled (`inv.cfgAcXboost` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "SN", "params": {"xboost": "VALUE"}}`)
 - DC (12V) Enabled (`pd.carState` -> `{"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": "VALUE"}}`)
 - Backup Reserve Enabled (`pd.bpPowerSoc` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"bpPowerSoc": "VALUE", "minChgSoc": 0, "isConfig": "VALUE", "minDsgSoc": 0}}`)
 
 *Sliders (numbers)*
-- Max Charge Level (`bms_emsStatus.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "moduleSn": "MOCK", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])
-- Min Discharge Level (`bms_emsStatus.minDsgSoc` -> `{"moduleType": 2, "operateType": "dsgCfg", "moduleSn": "MOCK", "params": {"minDsgSoc": "VALUE"}}` [0 - 30])
+- Max Charge Level (`bms_emsStatus.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "moduleSn": "SN", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])
+- Min Discharge Level (`bms_emsStatus.minDsgSoc` -> `{"moduleType": 2, "operateType": "dsgCfg", "moduleSn": "SN", "params": {"minDsgSoc": "VALUE"}}` [0 - 30])
 - Backup Reserve Level (`pd.bpPowerSoc` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": 1, "bpPowerSoc": "VALUE", "minDsgSoc": 0, "minChgSoc": 0}}` [5 - 100])
-- Generator Auto Start Level (`bms_emsStatus.minOpenOilEbSoc` -> `{"moduleType": 2, "operateType": "openOilSoc", "moduleSn": "MOCK", "params": {"openOilSoc": "VALUE"}}` [0 - 30])
-- Generator Auto Stop Level (`bms_emsStatus.maxCloseOilEbSoc` -> `{"moduleType": 2, "operateType": "closeOilSoc", "moduleSn": "MOCK", "params": {"closeOilSoc": "VALUE"}}` [50 - 100])
-- AC Charging Power (`inv.SlowChgWatts` -> `{"moduleType": 3, "operateType": "acChgCfg", "moduleSn": "MOCK", "params": {"slowChgWatts": "VALUE", "fastChgWatts": 255, "chgPauseFlag": 0}}` [200 - 2400])
+- Generator Auto Start Level (`bms_emsStatus.minOpenOilEbSoc` -> `{"moduleType": 2, "operateType": "openOilSoc", "moduleSn": "SN", "params": {"openOilSoc": "VALUE"}}` [0 - 30])
+- Generator Auto Stop Level (`bms_emsStatus.maxCloseOilEbSoc` -> `{"moduleType": 2, "operateType": "closeOilSoc", "moduleSn": "SN", "params": {"closeOilSoc": "VALUE"}}` [50 - 100])
+- AC Charging Power (`inv.SlowChgWatts` -> `{"moduleType": 3, "operateType": "acChgCfg", "moduleSn": "SN", "params": {"slowChgWatts": "VALUE", "fastChgWatts": 255, "chgPauseFlag": 0}}` [200 - 2400])
 
 *Selects*
-- Screen Timeout (`pd.lcdOffSec` -> `{"moduleType": 1, "operateType": "lcdCfg", "moduleSn": "MOCK", "params": {"brighLevel": 255, "delayOff": "VALUE"}}` [Never (0), 10 sec (10), 30 sec (30), 1 min (60), 5 min (300), 30 min (1800)])
-- Unit Timeout (`inv.standbyMin` -> `{"moduleType": 1, "operateType": "standbyTime", "moduleSn": "MOCK", "params": {"standbyMin": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
-- AC Timeout (`mppt.carStandbyMin` -> `{"moduleType": 5, "operateType": "standbyTime", "moduleSn": "MOCK", "params": {"standbyMins": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
+- Screen Timeout (`pd.lcdOffSec` -> `{"moduleType": 1, "operateType": "lcdCfg", "moduleSn": "SN", "params": {"brighLevel": 255, "delayOff": "VALUE"}}` [Never (0), 10 sec (10), 30 sec (30), 1 min (60), 5 min (300), 30 min (1800)])
+- Unit Timeout (`inv.standbyMin` -> `{"moduleType": 1, "operateType": "standbyTime", "moduleSn": "SN", "params": {"standbyMin": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
+- AC Timeout (`mppt.carStandbyMin` -> `{"moduleType": 5, "operateType": "standbyTime", "moduleSn": "SN", "params": {"standbyMins": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
 
 
