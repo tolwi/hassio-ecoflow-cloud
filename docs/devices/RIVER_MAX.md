@@ -47,6 +47,7 @@
 - AC Enabled (`inv.cfgAcEnabled` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "enabled": "VALUE"}}`)
 - DC (12V) Enabled (`pd.carSwitch` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 34, "enabled": "VALUE"}}`)
 - X-Boost Enabled (`inv.cfgAcXboost` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": "VALUE"}}`)
+- Auto Fan Speed (`inv.cfgFanMode` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 73, "fanMode": "VALUE"}}`)
 
 *Sliders (numbers)*
 - Max Charge Level (`bmsMaster.maxChargeSoc` -> `_ command not available _` [30 - 100])

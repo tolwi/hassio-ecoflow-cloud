@@ -50,6 +50,22 @@ class DisabledEntity(BaseSwitchEntity):
             self.send_set_message(1, self.command_dict(1))
 
 
+class FanModeEntity(BaseSwitchEntity):  # for River Max
+
+    def _update_value(self, val: Any) -> bool:
+        _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
+        self._attr_is_on = val == 1
+        return True
+
+    def turn_on(self, **kwargs: Any) -> None:
+        if self._command:
+            self.send_set_message(1, self.command_dict(1))
+
+    def turn_off(self, **kwargs: Any) -> None:
+        if self._command:
+            self.send_set_message(3, self.command_dict(3))
+
+
 class BeeperEntity(DisabledEntity):
     _attr_entity_category = EntityCategory.CONFIG
 

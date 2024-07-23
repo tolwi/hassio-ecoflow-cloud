@@ -362,7 +362,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_MAX <i>(sensors: 40, switches: 4, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_MAX <i>(sensors: 40, switches: 5, sliders: 1, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
@@ -412,6 +412,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC Enabled 
 - DC (12V) Enabled 
 - X-Boost Enabled 
+- Auto Fan Speed 
 
 *Sliders (numbers)*
 - Max Charge Level  _(read-only)_
