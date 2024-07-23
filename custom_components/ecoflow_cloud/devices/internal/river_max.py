@@ -7,7 +7,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSenso
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, StatusSensorEntity, \
     InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity
-from custom_components.ecoflow_cloud.switch import EnabledEntity, BeeperEntity
+from custom_components.ecoflow_cloud.switch import EnabledEntity, BeeperEntity, FanModeEntity
 
 
 class RiverMax(BaseDevice):
@@ -95,8 +95,8 @@ class RiverMax(BaseDevice):
             BeeperEntity(client, "pd.beepState", const.BEEPER, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
             EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "enabled": value}}),
             EnabledEntity(client, "pd.carSwitch", const.DC_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 34, "enabled": value}}),
-            EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": value}})
-
+            EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": value}}),
+            FanModeEntity(client, "inv.cfgFanMode", const.AUTO_FAN_SPEED, lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 73, "fanMode": value}})
         ]
     
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
