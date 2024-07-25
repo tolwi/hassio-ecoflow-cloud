@@ -66,21 +66,24 @@ class BaseDevice(ABC):
     def buttons(self, client: EcoflowApiClient) -> list[ButtonEntity]:
         return []
 
-    def update_data(self, raw_data, data_type: str):
-        raw = self.prepare_data(raw_data)
-
-        if data_type == self.device_info.set_topic:
-            self.data.add_set_message(raw)
-        elif data_type == self.device_info.set_reply_topic:
-            self.data.add_set_reply_message(raw)
-        elif data_type == self.device_info.get_topic:
-            self.data.add_get_message(raw)
-        elif data_type == self.device_info.get_reply_topic:
-            self.data.add_get_reply_message(raw)
-        else:
+    def update_data(self, raw_data, data_type: str) -> bool:
+        if data_type == self.device_info.data_topic:
+            raw = self._prepare_data(raw_data)
             self.data.update_data(raw)
+        elif data_type == self.device_info.set_topic:
+            self.data.add_set_message(raw_data)
+        elif data_type == self.device_info.set_reply_topic:
+            self.data.add_set_reply_message(raw_data)
+        elif data_type == self.device_info.get_topic:
+            self.data.add_get_message(raw_data)
+        elif data_type == self.device_info.get_reply_topic:
+            self.data.add_get_reply_message(raw_data)
+        else:
+            return False
+        return True
 
-    def prepare_data(self, raw_data) -> dict[str, any]:
+
+    def _prepare_data(self, raw_data) -> dict[str, any]:
         try:
             payload = raw_data.decode("utf-8", errors='ignore')
             return json.loads(payload)

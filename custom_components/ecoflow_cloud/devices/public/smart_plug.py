@@ -38,8 +38,8 @@ class SmartPlug(BaseDevice):
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
 
-    def prepare_data(self, raw_data) -> dict[str, any]:
-        res = super().prepare_data(raw_data)
+    def _prepare_data(self, raw_data) -> dict[str, any]:
+        res = super()._prepare_data(raw_data)
 
         if "cmdFunc" in res and "cmdId" in res:
             new_params = {}

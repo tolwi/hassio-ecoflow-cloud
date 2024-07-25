@@ -6,8 +6,8 @@ from ...sensor import StatusSensorEntity
 
 class Delta2(InternalDelta2):
 
-    def prepare_data(self, raw_data) -> dict[str, any]:
-        res = super().prepare_data(raw_data)
+    def _prepare_data(self, raw_data) -> dict[str, any]:
+        res = super()._prepare_data(raw_data)
         res = to_plain(res)
         return res
 
