@@ -63,7 +63,7 @@ class EcoflowDataHolder:
 
     def add_get_reply_message(self, msg: dict[str, Any]):
 
-        if msg["operateType"] == "latestQuotas":
+        if "operateType" in msg and msg["operateType"] == "latestQuotas":
             online = int(msg["data"]["online"])
             if online == 1:
                 self.update_data({"params": msg["data"]["quotaMap"], "time": utcnow()})

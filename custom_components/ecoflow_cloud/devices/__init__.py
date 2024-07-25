@@ -71,13 +71,17 @@ class BaseDevice(ABC):
             raw = self._prepare_data(raw_data)
             self.data.update_data(raw)
         elif data_type == self.device_info.set_topic:
-            self.data.add_set_message(raw_data)
+            raw = self._prepare_data(raw_data)
+            self.data.add_set_message(raw)
         elif data_type == self.device_info.set_reply_topic:
-            self.data.add_set_reply_message(raw_data)
+            raw = self._prepare_data(raw_data)
+            self.data.add_set_reply_message(raw)
         elif data_type == self.device_info.get_topic:
-            self.data.add_get_message(raw_data)
+            raw = self._prepare_data(raw_data)
+            self.data.add_get_message(raw)
         elif data_type == self.device_info.get_reply_topic:
-            self.data.add_get_reply_message(raw_data)
+            raw = self._prepare_data(raw_data)
+            self.data.add_get_reply_message(raw)
         else:
             return False
         return True
