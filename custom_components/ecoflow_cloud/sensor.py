@@ -380,7 +380,7 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
     def _update_status(self, update_delta_sec, force: bool = False):
         if self._client.mqtt_client.is_connected() or force:
             self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
-            self.hass.async_run_job(self._client.quota_all)
+            self.hass.async_create_background_task(self._client.quota_all(), "get quota")
         else:
             super()._update_status(update_delta_sec)
 
