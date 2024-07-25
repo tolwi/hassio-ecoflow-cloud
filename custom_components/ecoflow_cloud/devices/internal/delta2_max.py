@@ -205,10 +205,10 @@ class Delta2Max(BaseDevice):
                           lambda value: {"moduleType": 5, "operateType": "mpptCar",
                                          "params": {"enabled": value}}),
 
-            EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
+            EnabledEntity(client, "pd.watchIsConfig", const.BP_ENABLED,
                           lambda value: {"moduleType": 1,
                                          "operateType": "watthConfig",
-                                         "params": {"bpPowerSoc": value,
+                                         "params": {"bpPowerSoc": value * 50,
                                                     "minChgSoc": 0,
                                                     "isConfig": value,
                                                     "minDsgSoc": 0}}),
