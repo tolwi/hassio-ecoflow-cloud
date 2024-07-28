@@ -2,7 +2,9 @@
 	"name": "Home Assistant Dev",
 	"context": "../core",
 	"dockerFile": "../core/Dockerfile.dev",
-	"postCreateCommand": "git submodule update --init --recursive && core/script/setup",
+	"initializeCommand": "git submodule update --init --recursive",
+	"onCreateCommand": "git submodule update --init --recursive",
+	"postCreateCommand": "core/script/setup",
 	"postStartCommand": "core/script/bootstrap",
 	"containerEnv": {
 	  "PYTHONASYNCIODEBUG": "1"
