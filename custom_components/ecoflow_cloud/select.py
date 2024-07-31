@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable, Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -9,10 +10,20 @@ from custom_components.ecoflow_cloud import EcoflowMQTTClient, DOMAIN
 from custom_components.ecoflow_cloud.entities import BaseSelectEntity
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+):
     client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
 
     from .devices.registry import devices
+
+    # the following line waits here as long as possible,
+    # so the client.data object gets filled with the data
+    # from the mqtt queue.
+    # this helps to figure out the exact sensor layout in the devices implementation.
+    # 9 seconds is one second lower then the warning message of hass.
+    # One second should be enaugh time to configure all entities.
+    await asyncio.sleep(9)
     async_add_entities(devices[client.device_type].selects(client))
 
 
@@ -20,8 +31,16 @@ class DictSelectEntity(BaseSelectEntity):
     _attr_entity_category = EntityCategory.CONFIG
     _attr_available = False
 
-    def __init__(self, client: EcoflowMQTTClient, mqtt_key: str, title: str, options: dict[str, int],
-                 command: Callable[[int], dict[str, any]] | None, enabled: bool = True, auto_enable: bool = False):
+    def __init__(
+        self,
+        client: EcoflowMQTTClient,
+        mqtt_key: str,
+        title: str,
+        options: dict[str, int],
+        command: Callable[[int], dict[str, any]] | None,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ):
         super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
         self.__options_dict = options
         self._attr_options = list(options.keys())

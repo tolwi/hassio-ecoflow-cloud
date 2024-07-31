@@ -39,7 +39,7 @@ from ..sensor import (
     OutMilliVoltSensorEntity,
     CapacitySensorEntity,
 )
-from ..switch import BeeperEntity, EnabledEntity
+from ..switch import BeeperEntity, BitMaskEnableEntity, EnabledEntity
 import json
 
 
@@ -703,9 +703,9 @@ class PowerKit(BaseDevice):
                         # 131 = 4 on
                         # 132 = 5 on
                         # 133 = 6 on
-                        EnabledEntity(
+                        BitMaskEnableEntity(
                             client,
-                            f"lddc.{subkey}.dcOutState1",
+                            f"lddc.{subkey}.dcChRelay.1",
                             "DC Switch 1",
                             lambda value: {
                                 "id": 123456789,
@@ -718,9 +718,9 @@ class PowerKit(BaseDevice):
                                 },
                             },
                         ),
-                        EnabledEntity(
+                        BitMaskEnableEntity(
                             client,
-                            f"lddc.{subkey}.dcOutState2",
+                            f"lddc.{subkey}.dcChRelay.2",
                             "DC Switch 2",
                             lambda value: {
                                 "id": 123456789,
@@ -733,9 +733,9 @@ class PowerKit(BaseDevice):
                                 },
                             },
                         ),
-                        EnabledEntity(
+                        BitMaskEnableEntity(
                             client,
-                            f"lddc.{subkey}.dcOutState3",
+                            f"lddc.{subkey}.dcChRelay.3",
                             "DC Switch 3",
                             lambda value: {
                                 "id": 123456789,
@@ -748,9 +748,9 @@ class PowerKit(BaseDevice):
                                 },
                             },
                         ),
-                        EnabledEntity(
+                        BitMaskEnableEntity(
                             client,
-                            f"lddc.{subkey}.dcOutState4",
+                            f"lddc.{subkey}.dcChRelay.4",
                             "DC Switch 4",
                             lambda value: {
                                 "id": 123456789,
@@ -763,9 +763,9 @@ class PowerKit(BaseDevice):
                                 },
                             },
                         ),
-                        EnabledEntity(
+                        BitMaskEnableEntity(
                             client,
-                            f"lddc.{subkey}.dcOutState5",
+                            f"lddc.{subkey}.dcChRelay.5",
                             "DC Switch 5",
                             lambda value: {
                                 "id": 123456789,
@@ -778,9 +778,9 @@ class PowerKit(BaseDevice):
                                 },
                             },
                         ),
-                        EnabledEntity(
+                        BitMaskEnableEntity(
                             client,
-                            f"lddc.{subkey}.dcOutState6",
+                            f"lddc.{subkey}.dcChRelay.6",
                             "DC Switch 6",
                             lambda value: {
                                 "id": 123456789,
