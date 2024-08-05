@@ -7,7 +7,7 @@ from custom_components.ecoflow_cloud import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.number import BrightnessLevelEntity
 from custom_components.ecoflow_cloud.sensor import TempSensorEntity, VoltSensorEntity, AmpSensorEntity, \
-    WattsSensorEntity
+    DeciwattsSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 
@@ -19,7 +19,7 @@ class SmartPlug(BaseDevice):
             VoltSensorEntity(client, "2_1.volt", const.VOLT),
             AmpSensorEntity(client, "2_1.current", const.CURRENT)
                 .attr("2_1.maxCur", const.MAX_CURRENT, 0),
-            WattsSensorEntity(client, "2_1.watts", const.POWER)
+            DeciwattsSensorEntity(client, "2_1.watts", const.POWER)
 
         ]
 
