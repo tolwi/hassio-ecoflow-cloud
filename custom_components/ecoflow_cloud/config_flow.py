@@ -72,9 +72,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors: Dict[str, str] = {}
         try:
-            if not await self.hass.async_add_executor_job(auth.login):
-                errors["base"] = "user_login_error"
-
+            await auth.login()
         except EcoflowException as e:  # pylint: disable=broad-except
             errors["base"] = str(e)
         except Exception:  # pylint: disable=broad-except
@@ -120,9 +118,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors: Dict[str, str] = {}
         try:
-            if not await self.hass.async_add_executor_job(auth.login):
-                errors["base"] = "cloud_login_error"
-
+            await auth.login()
         except EcoflowException as e:  # pylint: disable=broad-except
             errors["base"] = str(e)
         except Exception:  # pylint: disable=broad-except
