@@ -1,0 +1,468 @@
+{
+  "integration_manifest": {
+    "domain": "ecoflow_cloud",
+    "name": "Ecoflow-Cloud",
+    "codeowners": [
+      "tolwi"
+    ],
+    "config_flow": true,
+    "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
+    "iot_class": "cloud_push",
+    "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
+    "requirements": [
+      "paho-mqtt==1.6.1",
+      "reactivex==4.0.4",
+      "protobuf>=4.23.0",
+      "jsonpath-ng>=1.6.1"
+    ],
+    "version": "1.0.0-pre4",
+    "is_built_in": false
+  },
+  "data": {
+    "device": "PowerStream",
+    "params": {
+      "20_1.acOffFlag": 1,
+      "20_1.acSetWatts": 8000,
+      "20_1.antiBackFlowFlag": 8000,
+      "20_1.batErrCode": 0,
+      "20_1.batErrorInvLoadLimit": 8000,
+      "20_1.batInputCur": 0,
+      "20_1.batInputVolt": 524,
+      "20_1.batInputWatts": -670,
+      "20_1.batLoadLimitFlag": 0,
+      "20_1.batOffFlag": 0,
+      "20_1.batOpVolt": 549,
+      "20_1.batOutputLoadLimit": 6000,
+      "20_1.batSoc": 54,
+      "20_1.batStatue": 5,
+      "20_1.batSystem": 0,
+      "20_1.batTemp": 320,
+      "20_1.batWarningCode": 0,
+      "20_1.bmsReqChgAmp": 24070,
+      "20_1.bmsReqChgVol": 567920,
+      "20_1.bpType": 2,
+      "20_1.chgRemainTime": 1366,
+      "20_1.consNum": 0,
+      "20_1.consWatt": 0,
+      "20_1.dsgRemainTime": 5999,
+      "20_1.dynamicWatts": 0,
+      "20_1.espTempsensor": 51,
+      "20_1.feedProtect": 1,
+      "20_1.fisoRxyz": 2311041.8,
+      "20_1.floadLimitOut": 0,
+      "20_1.geneNum": 1,
+      "20_1.geneWatt": 0,
+      "20_1.gridConsWatts": 0,
+      "20_1.heartbeatFrequency": 15,
+      "20_1.historyBatInputWatts": 0,
+      "20_1.historyGridConsWatts": 0,
+      "20_1.historyInvOutputWatts": 0,
+      "20_1.historyInvToPlugWatts": 0,
+      "20_1.historyPermanentWatts": 0,
+      "20_1.historyPlugTotalWatts": 0,
+      "20_1.historyPvToInvWatts": 0,
+      "20_1.installCountry": 17477,
+      "20_1.installTown": 0,
+      "20_1.interfaceConnFlag": 7,
+      "20_1.invBrightness": 306,
+      "20_1.invDemandWatts": 0,
+      "20_1.invErrCode": 0,
+      "20_1.invFreq": 499,
+      "20_1.invInputVolt": 4679,
+      "20_1.invLoadLimitFlag": 8,
+      "20_1.invOnOff": 1,
+      "20_1.invOpVolt": 2330,
+      "20_1.invOutputCur": 497,
+      "20_1.invOutputLoadLimit": 6609,
+      "20_1.invOutputWatts": 0,
+      "20_1.invRelayStatus": 17,
+      "20_1.invStatue": 1,
+      "20_1.invTemp": 0,
+      "20_1.invToOtherWatts": 0,
+      "20_1.invToPlugWatts": 0,
+      "20_1.invWarnCode": 0,
+      "20_1.llcErrCode": 0,
+      "20_1.llcInputVolt": 0,
+      "20_1.llcOffFlag": 0,
+      "20_1.llcOpVolt": 4235,
+      "20_1.llcStatue": 3,
+      "20_1.llcTemp": 470,
+      "20_1.llcWarningCode": 0,
+      "20_1.lowerLimit": 15,
+      "20_1.meshId": 30656132,
+      "20_1.meshLayel": 1,
+      "20_1.mqttErr": 1,
+      "20_1.mqttErrTime": 1723094929,
+      "20_1.mqttLastDisReason": 0,
+      "20_1.mqttSockErrno": 128,
+      "20_1.mqttTlsLastErr": 32769,
+      "20_1.mqttTlsStackErr": 0,
+      "20_1.noiseFloor": 0,
+      "20_1.parentMac": 3588383778,
+      "20_1.permanentWatts": 0,
+      "20_1.plugTotalWatts": 0,
+      "20_1.pv1CtrlMpptOffFlag": 0,
+      "20_1.pv1ErrCode": 0,
+      "20_1.pv1InputCur": 11,
+      "20_1.pv1InputVolt": 304,
+      "20_1.pv1InputWatts": 330,
+      "20_1.pv1OpVolt": 3014,
+      "20_1.pv1RelayStatus": 0,
+      "20_1.pv1Statue": 4,
+      "20_1.pv1Temp": 440,
+      "20_1.pv1WarnCode": 0,
+      "20_1.pv2CtrlMpptOffFlag": 0,
+      "20_1.pv2ErrCode": 0,
+      "20_1.pv2InputCur": 10,
+      "20_1.pv2InputVolt": 304,
+      "20_1.pv2InputWatts": 340,
+      "20_1.pv2OpVolt": 3015,
+      "20_1.pv2RelayStatus": 0,
+      "20_1.pv2Statue": 4,
+      "20_1.pv2Temp": 440,
+      "20_1.pv2WarningCode": 0,
+      "20_1.pvPowerLimitAcPower": 6604,
+      "20_1.pvToInvWatts": 670,
+      "20_1.ratedPower": 8000,
+      "20_1.resetCount": 72,
+      "20_1.resetReason": 1,
+      "20_1.rssiThreshold": -25,
+      "20_1.rssiVariance": 0,
+      "20_1.selfMac": 871780672,
+      "20_1.spaceDemandWatts": 0,
+      "20_1.staIpAddr": -1157584704,
+      "20_1.stackFree": 75,
+      "20_1.stackMinFree": 35,
+      "20_1.supplyPriority": 0,
+      "20_1.updateTime": "2024-08-08 19:40:46",
+      "20_1.upperLimit": 100,
+      "20_1.uwloadLimitFlag": 5,
+      "20_1.uwlowLightFlag": 0,
+      "20_1.uwsocFlag": 0,
+      "20_1.wifiConnectChannel": 8,
+      "20_1.wifiEncryptMode": 3,
+      "20_1.wifiErr": 2,
+      "20_1.wifiErrTime": 1723094923,
+      "20_1.wifiFirmwareVersion": 11476,
+      "20_1.wifiRssi": -28,
+      "20_1.wirelessErrCode": 0,
+      "20_1.wirelessWarnCode": 0,
+      "20_134.task1": {
+        "taskIndex": 0,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task10": {
+        "taskIndex": 9,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task11": {
+        "taskIndex": 10,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task2": {
+        "taskIndex": 1,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task3": {
+        "taskIndex": 2,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task4": {
+        "taskIndex": 3,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task5": {
+        "taskIndex": 4,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task6": {
+        "taskIndex": 5,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task7": {
+        "taskIndex": 6,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task8": {
+        "taskIndex": 7,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.task9": {
+        "taskIndex": 8,
+        "type": 0,
+        "timeRange": {
+          "isConfig": false,
+          "timeData": 0,
+          "timeMode": 0,
+          "startTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "stopTime": {
+            "sec": 0,
+            "week": 0,
+            "min": 0,
+            "hour": 0,
+            "month": 0,
+            "year": 0,
+            "day": 0
+          },
+          "isEnable": false
+        }
+      },
+      "20_134.updateTime": "2024-08-08 13:29:05",
+      "2_1": {},
+      "2_2": {}
+    },
+    "set": [],
+    "set_reply": [],
+    "get": [],
+    "get_reply": [],
+    "raw_data": []
+  }
+}
