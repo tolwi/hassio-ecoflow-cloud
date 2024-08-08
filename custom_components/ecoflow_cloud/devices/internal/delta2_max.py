@@ -169,7 +169,7 @@ class Delta2Max(BaseDevice):
             ChargingPowerEntity(client, "inv.SlowChgWatts", const.AC_CHARGING_POWER, 200, 2400,
                                 lambda value: {"moduleType": 3, "operateType": "acChgCfg",
                                                "moduleSn": self.device_info.sn,
-                                               "params": {"slowChgWatts": int(value), "fastChgWatts": 255,
+                                               "params": {"slowChgWatts": int(value), "fastChgWatts": 2000,
                                                           "chgPauseFlag": 0}})
 
         ]

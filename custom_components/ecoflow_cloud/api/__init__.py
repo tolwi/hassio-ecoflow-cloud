@@ -26,6 +26,7 @@ class EcoflowApiClient:
         self.mqtt_info: EcoflowMqttInfo | None = None
         self.device = None
         self.mqtt_client = None
+        self.installation_site = None
 
     @abstractmethod
     async def login(self):

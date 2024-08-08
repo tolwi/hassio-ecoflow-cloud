@@ -15,10 +15,11 @@ BASE_URI = "https://api.ecoflow.com"
 
 class EcoflowPrivateApiClient(EcoflowApiClient):
 
-    def __init__(self, ecoflow_username: str, ecoflow_password: str):
+    def __init__(self, ecoflow_username: str, ecoflow_password: str, installation_site: str):
         super().__init__()
         self.ecoflow_password = ecoflow_password
         self.ecoflow_username = ecoflow_username
+        self.installation_site = installation_site
         self.user_id = None
         self.token = None
         self.user_name = None
@@ -65,7 +66,9 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             set_topic=f"/app/{self.user_id}/{device_sn}/thing/property/set",
             set_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/set_reply",
             get_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get",
-            get_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get_reply")
+            get_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get_reply",
+            client_id= f'HomeAssistant-{self.installation_site}-{device_type}'
+        )
 
         from ..devices.registry import devices
         if device_type in devices:
@@ -73,7 +76,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         else:
             self.device = DiagnosticDevice(info)
 
-        self.mqtt_info.client_id = f'ANDROID_-{str(uuid.uuid4()).upper()}_{self.user_id}'
+        self.mqtt_info.client_id = info.client_id
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.device)
 
 

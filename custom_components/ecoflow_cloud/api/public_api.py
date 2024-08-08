@@ -23,10 +23,11 @@ BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
 
 class EcoflowPublicApiClient(EcoflowApiClient):
 
-    def __init__(self,access_key: str, secret_key: str):
+    def __init__(self,access_key: str, secret_key: str, installation_site: str):
         super().__init__()
         self.access_key = access_key
         self.secret_key = secret_key
+        self.installation_site = installation_site
         self.nonce = str(random.randint(10000, 1000000))
         self.timestamp = str(int(time.time() * 1000))
 
@@ -53,7 +54,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         else:
             self.device = DiagnosticDevice(info)
 
-        self.mqtt_info.client_id = f'HomeAssistant-{device_sn}'
+        self.mqtt_info.client_id = info.client_id
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.device)
 
 
@@ -91,7 +92,8 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             set_reply_topic=f"/open/{self.mqtt_info.username}/{device_sn}/set_reply",
             get_topic=f"/open/{self.mqtt_info.username}/{device_sn}/get",
             get_reply_topic=f"/open/{self.mqtt_info.username}/{device_sn}/get_reply",
-            status_topic=f"/open/{self.mqtt_info.username}/{device_sn}/status"
+            status_topic=f"/open/{self.mqtt_info.username}/{device_sn}/status",
+            client_id= f'HomeAssistant-{self.installation_site}-{device_type}'
         )
 
 

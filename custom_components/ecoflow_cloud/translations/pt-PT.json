@@ -8,8 +8,15 @@
           "manual": "Usar API do aplicativo"
         }
       },
+      "reconfigure": {
+        "menu_options": {
+          "api": "Usar API pública",
+          "manual": "Usar API do aplicativo"
+        }
+      },
       "api": {
         "data": {
+          "installation_site": "Lugar de instalação",
           "access_key": "Chave de acesso",
           "secret_key": "Chave secreta"
         }
@@ -28,6 +35,7 @@
       },
       "manual": {
         "data": {
+          "installation_site": "Lugar de instalação",
           "username": "Email do utilizador",
           "password": "Palavra-passe do utilizador"
         }

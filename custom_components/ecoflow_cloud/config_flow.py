@@ -8,7 +8,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
 from . import DOMAIN, CONFIG_VERSION, CONF_ACCESS_KEY, CONF_SECRET_KEY, CONF_USERNAME, CONF_PASSWORD, \
-    CONF_SELECT_DEVICE_KEY, CONF_DEVICE_TYPE, CONF_DEVICE_NAME, CONF_DEVICE_ID, OPTS_DIAGNOSTIC_MODE, \
+    CONF_SELECT_DEVICE_KEY, CONF_DEVICE_TYPE, CONF_INSTALLATION_SITE, CONF_ENTRY_ID, CONF_DEVICE_NAME, CONF_DEVICE_ID, OPTS_DIAGNOSTIC_MODE, \
     OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, DEFAULT_REFRESH_PERIOD_SEC
 from .api import EcoflowException
 from .devices import EcoflowDeviceInfo
@@ -16,15 +16,16 @@ from .devices import EcoflowDeviceInfo
 _LOGGER = logging.getLogger(__name__)
 
 
-API_KEYS_AUTH_SCHEMA = vol.Schema({
-    vol.Required(CONF_ACCESS_KEY): str,
-    vol.Required(CONF_SECRET_KEY): str
-})
-
-USER_AUTH_SCHEMA = vol.Schema({
-    vol.Required(CONF_USERNAME): str,
-    vol.Required(CONF_PASSWORD): str
-})
+# API_KEYS_AUTH_SCHEMA = vol.Schema({
+#    vol.Required(CONF_INSTALLATION_SITE, default="Home"): str,
+#    vol.Required(CONF_ACCESS_KEY): str,
+#    vol.Required(CONF_SECRET_KEY): str
+# })
+# USER_AUTH_SCHEMA = vol.Schema({
+#    vol.Required(CONF_INSTALLATION_SITE, default="Home"): str,
+#    vol.Required(CONF_USERNAME): str,
+#    vol.Required(CONF_PASSWORD): str
+# })
 
 API_SELECT_DEVICE_SCHEMA = vol.Schema({
     vol.Required(CONF_SELECT_DEVICE_KEY): str
@@ -35,6 +36,9 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = CONFIG_VERSION
 
     def __init__(self) -> None:
+        self.installation_site = None
+        self.config_entry: ConfigEntry | None = None
+
         self.username = None
         self.password = None
 
@@ -54,15 +58,44 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
                 menu_options=["api", "manual"]
             )
 
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
+        if not user_input:
+            try:
+                if self.config_entry and self.config_entry.data and self.config_entry.data[CONF_USERNAME]:
+                    self.installation_site = self.config_entry.data[CONF_INSTALLATION_SITE]
+                    self.username = self.config_entry.data[CONF_USERNAME]
+                    self.password = self.config_entry.data[CONF_PASSWORD]
+            except NameError:
+                pass
+            try:
+                if self.config_entry and self.config_entry.data and self.config_entry.data[CONF_SECRET_KEY]:
+                    self.installation_site = self.config_entry.data[CONF_INSTALLATION_SITE]
+                    self.secret_key = self.config_entry.data[CONF_SECRET_KEY]
+                    self.access_key = self.config_entry.data[CONF_ACCESS_KEY]
+            except NameError:
+                pass
+
+            return self.async_show_menu(
+                step_id="reconfigure",
+                menu_options=["api", "manual"]
+            )
+
     async def async_step_manual(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+
+        USER_AUTH_SCHEMA = vol.Schema({
+            vol.Required(CONF_INSTALLATION_SITE, default="Home"): str,
+            vol.Required(CONF_USERNAME, default=self.username): str,
+            vol.Required(CONF_PASSWORD, default=self.password): str
+        })
         if not user_input:
             return self.async_show_form(step_id="manual", data_schema=USER_AUTH_SCHEMA)
 
+        self.installation_site = user_input.get(CONF_INSTALLATION_SITE)
         self.username = user_input.get(CONF_USERNAME)
         self.password = user_input.get(CONF_PASSWORD)
 
         from .api.private_api import EcoflowPrivateApiClient
-        auth = EcoflowPrivateApiClient(self.username, self.password)
+        auth = EcoflowPrivateApiClient(self.username, self.password, self.installation_site)
 
         errors: Dict[str, str] = {}
         try:
@@ -98,6 +131,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
                    OPTS_DIAGNOSTIC_MODE: user_input[CONF_DEVICE_TYPE] == "DIAGNOSTIC"}
 
         data = {
+            CONF_INSTALLATION_SITE: self.installation_site,
             CONF_USERNAME: self.username,
             CONF_PASSWORD: self.password,
             CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],
@@ -108,15 +142,21 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_create_entry(title=user_input[CONF_DEVICE_NAME], data=data, options=options)
 
     async def async_step_api(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        API_KEYS_AUTH_SCHEMA = vol.Schema({
+            vol.Required(CONF_INSTALLATION_SITE, default="Home"): str,
+            vol.Required(CONF_ACCESS_KEY, default=self.access_key): str,
+            vol.Required(CONF_SECRET_KEY, default=self.secret_key): str
+        })
 
         if not user_input:
             return self.async_show_form(step_id="api", data_schema=API_KEYS_AUTH_SCHEMA)
 
+        installation_site = user_input.get(CONF_INSTALLATION_SITE)
         access_key = user_input.get(CONF_ACCESS_KEY)
         secret_key = user_input.get(CONF_SECRET_KEY)
 
         from .api.public_api import EcoflowPublicApiClient
-        auth = EcoflowPublicApiClient(access_key, secret_key)
+        auth = EcoflowPublicApiClient(access_key, secret_key, installation_site)
 
         errors: Dict[str, str] = {}
         try:
@@ -138,6 +178,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
 
         self.set_device_list(devices)
 
+        self.installation_site = installation_site
         self.access_key = access_key
         self.secret_key = secret_key
 
@@ -157,6 +198,8 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
             data = existing_entry.data.copy()
             data[CONF_ACCESS_KEY] = self.access_key
             data[CONF_SECRET_KEY] = self.secret_key
+            data[CONF_INSTALLATION_SITE] = self.installation_site
+            data[CONF_ENTRY_ID] = existing_entry.entry_id
 
             if self.hass.config_entries.async_update_entry(existing_entry, data=data):
                 await self.hass.config_entries.async_reload(existing_entry.entry_id)
@@ -187,6 +230,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_create_entry(
             title=user_input[CONF_DEVICE_NAME],
             data={
+                CONF_INSTALLATION_SITE: self.installation_site,
                 CONF_ACCESS_KEY: self.access_key,
                 CONF_SECRET_KEY: self.secret_key,
                 CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],

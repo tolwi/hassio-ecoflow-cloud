@@ -15,8 +15,10 @@ _LOGGER = logging.getLogger(__name__)
 class EcoflowMQTTClient:
 
     def __init__(self, mqtt_info: EcoflowMqttInfo, device):
-        from ..devices import BaseDevice
 
+        from ..devices import BaseDevice
+        # Status pour ne pas boucler
+        self.__autorise = True
         self.__mqtt_info = mqtt_info
         self.__device : BaseDevice = device
         self.__client = mqtt_client.Client(client_id=self.__mqtt_info.client_id, clean_session=True, reconnect_on_failure=True)
@@ -36,11 +38,17 @@ class EcoflowMQTTClient:
 
     def reconnect(self) -> bool:
         try:
-            _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
-            self.__client.loop_stop(True)
-            self.__client.reconnect()
-            self.__client.loop_start()
-            return True
+            if self.__autorise:
+                _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
+                self.__client.loop_stop(True)
+                self.__client.reconnect()
+                self.__client.loop_start()
+                return True
+            else:
+                _LOGGER.info(f"No reconnection to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} -> Not authorised ({self.__device})")
+                self.stop()
+                return True
+
         except Exception as e:
             _LOGGER.error(e)
             return False
@@ -66,16 +74,24 @@ class EcoflowMQTTClient:
                 _LOGGER.error(f"Failed to connect to MQTT: connection timed out ({self.__device})")
             case 1:
                 _LOGGER.error(f"Failed to connect to MQTT: incorrect protocol version ({self.__device})")
+                self.__autorise = False
             case 2:
                 _LOGGER.error(f"Failed to connect to MQTT: invalid client identifier ({self.__device})")
+                self.__autorise = False
             case 3:
                 _LOGGER.error(f"Failed to connect to MQTT: server unavailable ({self.__device})")
             case 4:
                 _LOGGER.error(f"Failed to connect to MQTT: bad username or password ({self.__device})")
+                self.__autorise = False
             case 5:
                 _LOGGER.error(f"Failed to connect to MQTT: not authorised ({self.__device}) - {userdata}")
+                self.__autorise = False
             case _:
                 _LOGGER.error(f"Failed to connect to MQTT: another error occured: {rc} ({self.__device})")
+
+        if not self.__autorise:
+            _LOGGER.error(f"Authorisation:False / rc: {rc} ({self.__device})")
+            self.stop()
 
         return client
 
@@ -83,7 +99,7 @@ class EcoflowMQTTClient:
     def on_disconnect(self, client, userdata, rc):
         if rc != 0:
             _LOGGER.error(f"Unexpected MQTT disconnection: {rc}. Will auto-reconnect")
-            time.sleep(5)
+            time.sleep(30)
             # self.client.reconnect() ??
 
     def on_message(self, client, userdata, message):

@@ -2,6 +2,7 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from .data_bridge import to_plain
 
 from custom_components.ecoflow_cloud import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
@@ -40,19 +41,6 @@ class SmartPlug(BaseDevice):
 
     def _prepare_data(self, raw_data) -> dict[str, any]:
         res = super()._prepare_data(raw_data)
-
-        if "cmdFunc" in res and "cmdId" in res:
-            new_params = {}
-            prefix = f"{res['cmdFunc']}_{res['cmdId']}"
-
-            for (k, v) in raw_data["params"].items():
-                new_params[f"{prefix}.{k}"] = v
-
-            result = {"params": new_params}
-            for (k, v) in raw_data.items():
-                if k != "params":
-                    result[k] = v
-
-            return result
+        res = to_plain(res)
 
         return res
