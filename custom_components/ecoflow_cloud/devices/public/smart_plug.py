@@ -16,23 +16,23 @@ class SmartPlug(BaseDevice):
 
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
-            TempSensorEntity(client, "2_1.temp", const.TEMPERATURE),
-            VoltSensorEntity(client, "2_1.volt", const.VOLT),
-            AmpSensorEntity(client, "2_1.current", const.CURRENT)
+            TempSensorEntity(client, self, "2_1.temp", const.TEMPERATURE),
+            VoltSensorEntity(client, self, "2_1.volt", const.VOLT),
+            AmpSensorEntity(client, self, "2_1.current", const.CURRENT)
                 .attr("2_1.maxCur", const.MAX_CURRENT, 0),
-            DeciwattsSensorEntity(client, "2_1.watts", const.POWER)
+            DeciwattsSensorEntity(client, self, "2_1.watts", const.POWER)
 
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
-            BrightnessLevelEntity(client, "2_1.brightness", const.BRIGHTNESS, 0, 1023,
+            BrightnessLevelEntity(client, self, "2_1.brightness", const.BRIGHTNESS, 0, 1023,
                                   lambda value: {"cmdCode": "WN511_SOCKET_SET_BRIGHTNESS_PACK", "params": {"brightness": value}}),
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return [
-            EnabledEntity(client, "2_1.switchSta", const.MODE_ON,
+            EnabledEntity(client, self, "2_1.switchSta", const.MODE_ON,
                           lambda value: {"cmdCode": "WN511_SET_SUPPLY_PRIORITY_PACK", "params": {"plugSwitch": value}}),
         ]
 

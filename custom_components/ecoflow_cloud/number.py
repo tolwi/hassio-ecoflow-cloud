@@ -10,11 +10,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import DOMAIN
 from .api import EcoflowApiClient
 from .entities import BaseNumberEntity
+from .devices import BaseDevice
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(client.device.numbers(client))
+    for (sn, device) in client.devices.items():
+        async_add_entities(device.numbers(client))
 
 
 class ValueUpdateEntity(BaseNumberEntity):
@@ -32,18 +34,18 @@ class ChargingPowerEntity(ValueUpdateEntity):
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_device_class = SensorDeviceClass.POWER
 
-    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str, min_value: int, max_value: int,
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, min_value: int, max_value: int,
                  command: Callable[[int], dict[str, Any]] | None,
                  enabled: bool = True, auto_enable: bool = False):
-        super().__init__(client, mqtt_key, title, min_value, max_value, command, enabled, auto_enable)
+        super().__init__(client, device, mqtt_key, title, min_value, max_value, command, enabled, auto_enable)
         self._attr_native_step = self._device.data.update_period_sec
 
 
 class MinMaxLevelEntity(ValueUpdateEntity):
-    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str,
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str,
                  min_value: int, max_value: int,
                  command: Callable[[int], dict[str, Any]] | None):
-        super().__init__(client, mqtt_key, title, min_value, max_value, command, True, False)
+        super().__init__(client, device, mqtt_key, title, min_value, max_value, command, True, False)
 
 
 
@@ -56,11 +58,11 @@ class BatteryBackupLevel(MinMaxLevelEntity):
     _attr_icon = "mdi:battery-charging-90"
     _attr_native_unit_of_measurement = PERCENTAGE
 
-    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str,
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str,
                  min_value: int, max_value: int,
                  min_key: str, max_key: str,
                  command: Callable[[int], dict[str, Any]] | None):
-        super().__init__(client, mqtt_key, title, min_value, max_value, command)
+        super().__init__(client, device, mqtt_key, title, min_value, max_value, command)
         self._min_key = min_key
         self._max_key = max_key
 

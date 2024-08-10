@@ -8,24 +8,13 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
 from . import DOMAIN, CONFIG_VERSION, CONF_ACCESS_KEY, CONF_SECRET_KEY, CONF_USERNAME, CONF_PASSWORD, \
-    CONF_SELECT_DEVICE_KEY, CONF_DEVICE_TYPE, CONF_INSTALLATION_SITE, CONF_ENTRY_ID, CONF_DEVICE_NAME, CONF_DEVICE_ID, OPTS_DIAGNOSTIC_MODE, \
+    CONF_SELECT_DEVICE_KEY, CONF_DEVICE_TYPE, CONF_INSTALLATION_SITE, CONF_DEVICE_LIST, CONF_LOAD_AUTOMATIQUE, CONF_ENTRY_ID, CONF_DEVICE_NAME, CONF_DEVICE_ID, OPTS_DIAGNOSTIC_MODE, \
     OPTS_POWER_STEP, OPTS_REFRESH_PERIOD_SEC, DEFAULT_REFRESH_PERIOD_SEC
 from .api import EcoflowException
 from .devices import EcoflowDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 
-
-# API_KEYS_AUTH_SCHEMA = vol.Schema({
-#    vol.Required(CONF_INSTALLATION_SITE, default="Home"): str,
-#    vol.Required(CONF_ACCESS_KEY): str,
-#    vol.Required(CONF_SECRET_KEY): str
-# })
-# USER_AUTH_SCHEMA = vol.Schema({
-#    vol.Required(CONF_INSTALLATION_SITE, default="Home"): str,
-#    vol.Required(CONF_USERNAME): str,
-#    vol.Required(CONF_PASSWORD): str
-# })
 
 API_SELECT_DEVICE_SCHEMA = vol.Schema({
     vol.Required(CONF_SELECT_DEVICE_KEY): str
@@ -36,7 +25,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = CONFIG_VERSION
 
     def __init__(self) -> None:
-        self.installation_site = None
+        self.installation_site = "Home"
         self.config_entry: ConfigEntry | None = None
 
         self.username = None
@@ -44,6 +33,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
 
         self.secret_key = None
         self.access_key = None
+        self.load_automatique_device = False
         self.cloud_device = None
         self.cloud_devices: dict[str, EcoflowDeviceInfo] = {}
 
@@ -53,39 +43,71 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         if not user_input:
-            return self.async_show_menu(
-                step_id="user",
-                menu_options=["api", "manual"]
-            )
+            USER_STEP_SCHEMA = vol.Schema({
+                vol.Required(CONF_INSTALLATION_SITE, default=self.installation_site): str
+            })
+            return self.async_show_form(step_id="user", data_schema=USER_STEP_SCHEMA)
+        
+        self.installation_site = user_input.get(CONF_INSTALLATION_SITE)
+        unique_id = "api-" + self.installation_site
+        existing_entry = await self.async_set_unique_id(unique_id, raise_on_progress=False)
+        if existing_entry:
+            data = existing_entry.data.copy()
+            if CONF_USERNAME in data:
+                self.username = data[CONF_USERNAME]
+            if CONF_PASSWORD in data:
+                self.password = data[CONF_PASSWORD]
+            if CONF_SECRET_KEY in data:
+                self.secret_key = data[CONF_SECRET_KEY]
+            if CONF_ACCESS_KEY in data:
+             self.access_key = data[CONF_ACCESS_KEY]
+
+        return self.async_show_menu(
+            step_id="reconfigure_user",
+            menu_options=["api", "manual"]
+        )
 
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
-        if not user_input:
-            try:
-                if self.config_entry and self.config_entry.data and self.config_entry.data[CONF_USERNAME]:
-                    self.installation_site = self.config_entry.data[CONF_INSTALLATION_SITE]
-                    self.username = self.config_entry.data[CONF_USERNAME]
-                    self.password = self.config_entry.data[CONF_PASSWORD]
-            except NameError:
-                pass
-            try:
-                if self.config_entry and self.config_entry.data and self.config_entry.data[CONF_SECRET_KEY]:
-                    self.installation_site = self.config_entry.data[CONF_INSTALLATION_SITE]
-                    self.secret_key = self.config_entry.data[CONF_SECRET_KEY]
-                    self.access_key = self.config_entry.data[CONF_ACCESS_KEY]
-            except NameError:
-                pass
 
+        if not user_input:
+            USER_STEP_SCHEMA = vol.Schema({
+                vol.Required(CONF_INSTALLATION_SITE, default=self.installation_site): str
+            })
+            return self.async_show_form(step_id="reconfigure", data_schema=USER_STEP_SCHEMA)
+        
+        self.installation_site = user_input.get(CONF_INSTALLATION_SITE)
+        unique_id = "api-" + self.installation_site
+        existing_entry = await self.async_set_unique_id(unique_id, raise_on_progress=False)
+        if existing_entry:
+            data = existing_entry.data.copy()
+            if CONF_USERNAME in data:
+                self.username = data[CONF_USERNAME]
+            if CONF_PASSWORD in data:
+                self.password = data[CONF_PASSWORD]
+            if CONF_SECRET_KEY in data:
+                self.secret_key = data[CONF_SECRET_KEY]
+            if CONF_ACCESS_KEY in data:
+             self.access_key = data[CONF_ACCESS_KEY]
+            if CONF_LOAD_AUTOMATIQUE in data:
+             self.load_automatique_device = data[CONF_LOAD_AUTOMATIQUE]
+
+        return self.async_show_menu(
+            step_id="reconfigure_user",
+            menu_options=["api", "manual"]
+        )
+    async def async_step_reconfigure_user(self, user_input: dict[str, Any] | None = None):
+        if not user_input:
             return self.async_show_menu(
-                step_id="reconfigure",
+                step_id="reconfigure_user",
                 menu_options=["api", "manual"]
             )
 
     async def async_step_manual(self, user_input: dict[str, Any] | None = None) -> FlowResult:
 
         USER_AUTH_SCHEMA = vol.Schema({
-            vol.Required(CONF_INSTALLATION_SITE, default="Home"): str,
+            vol.Required(CONF_INSTALLATION_SITE, default=self.installation_site): str,
             vol.Required(CONF_USERNAME, default=self.username): str,
-            vol.Required(CONF_PASSWORD, default=self.password): str
+            vol.Required(CONF_PASSWORD, default=self.password): str,
         })
         if not user_input:
             return self.async_show_form(step_id="manual", data_schema=USER_AUTH_SCHEMA)
@@ -129,23 +151,53 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
         options = {OPTS_POWER_STEP: device.charging_power_step(),
                    OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
                    OPTS_DIAGNOSTIC_MODE: user_input[CONF_DEVICE_TYPE] == "DIAGNOSTIC"}
+        
+        unique_id = "api-" + self.installation_site
+        existing_entry = await self.async_set_unique_id(unique_id, raise_on_progress=False)
 
-        data = {
-            CONF_INSTALLATION_SITE: self.installation_site,
-            CONF_USERNAME: self.username,
-            CONF_PASSWORD: self.password,
-            CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],
-            CONF_DEVICE_NAME: user_input[CONF_DEVICE_NAME],
-            CONF_DEVICE_ID: user_input[CONF_DEVICE_ID],
-        }
+        if existing_entry:
+            data = existing_entry.data.copy()
+            data[CONF_USERNAME] = self.username
+            data[CONF_PASSWORD] = self.password
+            data[CONF_INSTALLATION_SITE] = self.installation_site
+            data[CONF_ENTRY_ID] = existing_entry.entry_id
+            to_delete = {}
+            for device_data in data[CONF_DEVICE_LIST]:
+                if device_data[CONF_DEVICE_ID] == self.cloud_device.sn:
+                    to_delete = device_data
+                    break
+            if to_delete:
+                data[CONF_DEVICE_LIST].remove(to_delete)
 
-        return self.async_create_entry(title=user_input[CONF_DEVICE_NAME], data=data, options=options)
+            data[CONF_DEVICE_LIST].append({
+                CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],
+                CONF_DEVICE_NAME: user_input[CONF_DEVICE_NAME],
+                CONF_DEVICE_ID: user_input[CONF_DEVICE_ID]
+            })
+            
+            if self.hass.config_entries.async_update_entry(existing_entry, data=data):
+                await self.hass.config_entries.async_reload(existing_entry.entry_id)
+            return self.async_abort(reason="updated_successfully")
+        else:
+            data = {
+                CONF_INSTALLATION_SITE: self.installation_site,
+                CONF_USERNAME: self.username,
+                CONF_PASSWORD: self.password,
+                CONF_DEVICE_LIST:[{
+                    CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],
+                    CONF_DEVICE_NAME: user_input[CONF_DEVICE_NAME],
+                    CONF_DEVICE_ID: user_input[CONF_DEVICE_ID]
+                }],
+            }
+            return self.async_create_entry(title=self.installation_site, data=data, options=options)
+
 
     async def async_step_api(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         API_KEYS_AUTH_SCHEMA = vol.Schema({
-            vol.Required(CONF_INSTALLATION_SITE, default="Home"): str,
+            vol.Required(CONF_INSTALLATION_SITE, default=self.installation_site): str,
             vol.Required(CONF_ACCESS_KEY, default=self.access_key): str,
-            vol.Required(CONF_SECRET_KEY, default=self.secret_key): str
+            vol.Required(CONF_SECRET_KEY, default=self.secret_key): str,
+            vol.Required(CONF_LOAD_AUTOMATIQUE, default=self.load_automatique_device): bool
         })
 
         if not user_input:
@@ -154,6 +206,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
         installation_site = user_input.get(CONF_INSTALLATION_SITE)
         access_key = user_input.get(CONF_ACCESS_KEY)
         secret_key = user_input.get(CONF_SECRET_KEY)
+        load_automatique_device = user_input.get(CONF_LOAD_AUTOMATIQUE)
 
         from .api.public_api import EcoflowPublicApiClient
         auth = EcoflowPublicApiClient(access_key, secret_key, installation_site)
@@ -170,17 +223,34 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
         if errors:
             return self.async_show_form(step_id="api", data_schema=API_KEYS_AUTH_SCHEMA, errors=errors)
 
-        try:
-            devices = await auth.fetch_all_available_devices()
-        except Exception:  # pylint: disable=broad-except
-            _LOGGER.exception("Unexpected exception in fetch device action")
-            return self.async_abort(reason="unknown")
-
-        self.set_device_list(devices)
-
         self.installation_site = installation_site
         self.access_key = access_key
         self.secret_key = secret_key
+        self.load_automatique_device = load_automatique_device
+
+        if  load_automatique_device:
+            unique_id = "api-" + self.installation_site
+            await self.async_set_unique_id(unique_id, raise_on_progress=False)
+            return self.async_create_entry(
+                title=self.installation_site,
+                data={
+                    CONF_INSTALLATION_SITE: self.installation_site,
+                    CONF_LOAD_AUTOMATIQUE: self.load_automatique_device,
+                    CONF_ACCESS_KEY: self.access_key,
+                    CONF_SECRET_KEY: self.secret_key
+                },
+                options={OPTS_POWER_STEP: 100,
+                   OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
+                   OPTS_DIAGNOSTIC_MODE: False}
+            )
+        else:
+            try:
+                devices = await auth.fetch_all_available_devices()
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception in fetch device action")
+                return self.async_abort(reason="unknown")
+
+            self.set_device_list(devices)
 
         return await self.async_step_select_device()
 
@@ -191,22 +261,12 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
                                             vol.Required(CONF_SELECT_DEVICE_KEY): vol.In(list(self.cloud_devices))
                                         }))
 
-        self.cloud_device = self.cloud_devices[user_input["select_device"]]
-        unique_id = "api-" + self.cloud_device.sn
-        existing_entry = await self.async_set_unique_id(unique_id, raise_on_progress=False)
-        if existing_entry:
-            data = existing_entry.data.copy()
-            data[CONF_ACCESS_KEY] = self.access_key
-            data[CONF_SECRET_KEY] = self.secret_key
-            data[CONF_INSTALLATION_SITE] = self.installation_site
-            data[CONF_ENTRY_ID] = existing_entry.entry_id
+        self.cloud_device = self.cloud_devices[user_input[CONF_SELECT_DEVICE_KEY]]
+        unique_id = "api-" + self.installation_site
+        await self.async_set_unique_id(unique_id, raise_on_progress=False)
 
-            if self.hass.config_entries.async_update_entry(existing_entry, data=data):
-                await self.hass.config_entries.async_reload(existing_entry.entry_id)
-            return self.async_abort(reason="updated_successfully")
-        else:
+        return await self.async_step_confirm_cloud_device()
 
-            return await self.async_step_confirm_cloud_device()
 
     async def async_step_confirm_cloud_device(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         from .devices.registry import device_by_product
@@ -227,19 +287,51 @@ class EcoflowConfigFlow(ConfigFlow, domain=DOMAIN):
         options = {OPTS_POWER_STEP: device.charging_power_step(),
                    OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
                    OPTS_DIAGNOSTIC_MODE: user_input[CONF_DEVICE_TYPE] == "DIAGNOSTIC"}
-        return self.async_create_entry(
-            title=user_input[CONF_DEVICE_NAME],
-            data={
-                CONF_INSTALLATION_SITE: self.installation_site,
-                CONF_ACCESS_KEY: self.access_key,
-                CONF_SECRET_KEY: self.secret_key,
+
+        unique_id = "api-" + self.installation_site
+        existing_entry = await self.async_set_unique_id(unique_id, raise_on_progress=False)
+        if existing_entry:
+            data = existing_entry.data.copy()
+            data[CONF_ACCESS_KEY] = self.access_key
+            data[CONF_SECRET_KEY] = self.secret_key
+            data[CONF_INSTALLATION_SITE] = self.installation_site
+            data[CONF_LOAD_AUTOMATIQUE] = self.load_automatique_device
+            data[CONF_ENTRY_ID] = existing_entry.entry_id
+            if CONF_DEVICE_LIST in data:
+                to_delete = {}
+                for device_data in data[CONF_DEVICE_LIST]:
+                    if device_data[CONF_DEVICE_ID] == self.cloud_device.sn:
+                        to_delete = device_data
+                if to_delete:
+                    data[CONF_DEVICE_LIST].remove(to_delete)
+            else:
+                data[CONF_DEVICE_LIST]=[]
+            data[CONF_DEVICE_LIST].append({
                 CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],
                 CONF_DEVICE_NAME: user_input[CONF_DEVICE_NAME],
-                CONF_DEVICE_ID: user_input[CONF_DEVICE_ID],
-            },
-            options=options
-        )
+                CONF_DEVICE_ID: user_input[CONF_DEVICE_ID]
+            })
 
+            if self.hass.config_entries.async_update_entry(existing_entry, data=data):
+                await self.hass.config_entries.async_reload(existing_entry.entry_id)
+            return self.async_abort(reason="updated_successfully")
+        else:
+            return self.async_create_entry(
+                title=self.installation_site,
+                data={
+                    CONF_INSTALLATION_SITE: self.installation_site,
+                    CONF_LOAD_AUTOMATIQUE: self.load_automatique_device,
+                    CONF_ACCESS_KEY: self.access_key,
+                    CONF_SECRET_KEY: self.secret_key,
+                    CONF_DEVICE_LIST:[{
+                        CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],
+                        CONF_DEVICE_NAME: user_input[CONF_DEVICE_NAME],
+                        CONF_DEVICE_ID: user_input[CONF_DEVICE_ID]
+                    }],
+                },
+                options=options
+            )
+    
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:

@@ -3,12 +3,16 @@
   "config": {
     "step": {
       "user": {
-        "menu_options": {
-          "api": "Usar API pública",
-          "manual": "Usar API do aplicativo"
+        "data": {
+          "installation_site": "Lugar de instalação"
         }
       },
       "reconfigure": {
+        "data": {
+          "installation_site": "Lugar de instalação"
+        }
+      },
+      "reconfigure_user": {
         "menu_options": {
           "api": "Usar API pública",
           "manual": "Usar API do aplicativo"
@@ -18,7 +22,8 @@
         "data": {
           "installation_site": "Lugar de instalação",
           "access_key": "Chave de acesso",
-          "secret_key": "Chave secreta"
+          "secret_key": "Chave secreta",
+          "load_automatique_device": "Carregamento automático do dispositivo"
         }
       },
       "select_device": {

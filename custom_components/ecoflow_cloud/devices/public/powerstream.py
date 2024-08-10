@@ -12,6 +12,6 @@ class PowerStream(InternalPowerStream):
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return StatusSensorEntity(client)
+        return StatusSensorEntity(client, self)
 
 

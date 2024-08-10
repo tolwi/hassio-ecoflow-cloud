@@ -52,12 +52,31 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             response = await self.__call_api("/iot-auth/app/certification")
             self._accept_mqqt_certification(response)
 
-    async def quota_all(self):
-        self.mqtt_client.send_get_message({"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
+    async def fetch_all_available_devices():
+        result = list()
+        return result
 
+    async def quota_all(self, device_sn: str):
+        self.mqtt_client.send_get_message(device_sn, {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
 
     def configure_device(self, device_sn: str, device_name: str, device_type: str):
-        info = EcoflowDeviceInfo(
+        info = self.__create_device_info(device_sn, device_name, device_type)
+
+        from ..devices.registry import devices
+        if device_type in devices:
+            self.device = devices[device_type](info)
+        else:
+            self.device = DiagnosticDevice(info)
+        self.addOrUpdateDevice(self.device)
+        
+        if self.mqtt_client:
+            self.mqtt_client.reconnect()
+        else:
+            self.mqtt_info.client_id = f'HomeAssistant-{self.installation_site}'
+            self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
+
+    def __create_device_info(self, device_sn: str, device_name: str, device_type: str) -> EcoflowDeviceInfo:
+        return EcoflowDeviceInfo(
             public_api=False,
             sn=device_sn,
             name=device_name,
@@ -69,16 +88,6 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             get_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get_reply",
             client_id= f'HomeAssistant-{self.installation_site}-{device_type}'
         )
-
-        from ..devices.registry import devices
-        if device_type in devices:
-            self.device = devices[device_type](info)
-        else:
-            self.device = DiagnosticDevice(info)
-
-        self.mqtt_info.client_id = info.client_id
-        self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.device)
-
 
     async def __call_api(self, endpoint: str, params: dict[str: any] | None = None) -> dict:
         async with aiohttp.ClientSession() as session:

@@ -54,14 +54,17 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         else:
             self.device = DiagnosticDevice(info)
 
-        self.mqtt_info.client_id = info.client_id
-        self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.device)
+        self.addOrUpdateDevice(self.device)
+        if self.mqtt_client:
+            self.mqtt_client.reconnect()
+        else:
+            self.mqtt_info.client_id = f'HomeAssistant-{self.installation_site}'
+            self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
 
-
-    async def quota_all(self):
-        raw = await self.call_api("/device/quota/all", {"sn": self.device.device_info.sn})
+    async def quota_all(self, device_sn: str):
+        raw = await self.call_api("/device/quota/all", {"sn": device_sn})
         if "data" in raw:
-            self.device.data.update_data({"params": raw["data"]})
+            self.devices[device_sn].data.update_data({"params": raw["data"]})
 
     async def call_api(self, endpoint: str, params: dict[str, str] = None) -> dict:
         async with aiohttp.ClientSession() as session:
