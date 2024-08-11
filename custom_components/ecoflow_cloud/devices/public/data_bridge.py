@@ -5,7 +5,9 @@ plain_to_status: dict[str, str] = {
         "bms_emsStatus": "emsStatus",
         "bms_bmsStatus": "bmsStatus",
         "inv": "invStatus",
-        "bms_slave": "bmsSlaveStatus"
+        "bms_slave": "bmsSlaveStatus",
+        "bms_slave_bmsSlaveStatus_1": "bmsSlaveStatus_1",
+        "bms_slave_bmsSlaveStatus_2": "bmsSlaveStatus_2"
 }
 
 status_to_plain = dict((v, k) for (k, v) in plain_to_status.items())

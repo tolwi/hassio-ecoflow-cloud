@@ -56,6 +56,8 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
         self._auto_enable = auto_enable
         self._attr_entity_registry_enabled_default = enabled
+        self._attr_entity_registry_visible_default = enabled
+        self._attr_available  = enabled
         self.__attributes_mapping: dict[str, str] = {}
         self.__attrs = OrderedDict[str, Any]()
 
@@ -101,6 +103,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
             self._attr_available = True
             if self._auto_enable:
                 self._attr_entity_registry_enabled_default = True
+                self._attr_entity_registry_visible_default = True
 
             if self._update_value(values[0].value):
                 self.schedule_update_ha_state()
