@@ -600,87 +600,35 @@ class PowerKit(BaseDevice):
         return result
 
     def numbers(self, client: EcoflowMQTTClient) -> list[BaseNumberEntity]:
-        return [
-            MaxBatteryLevelEntity(
-                client,
-                "bms_emsStatus.maxChargeSoc",
-                const.MAX_CHARGE_LEVEL,
-                50,
-                100,
-                lambda value: {
-                    "moduleType": 2,
-                    "operateType": "upsConfig",
-                    "params": {"maxChgSoc": int(value)},
-                },
-            ),
-            MinBatteryLevelEntity(
-                client,
-                "bms_emsStatus.minDsgSoc",
-                const.MIN_DISCHARGE_LEVEL,
-                0,
-                30,
-                lambda value: {
-                    "moduleType": 2,
-                    "operateType": "dsgCfg",
-                    "params": {"minDsgSoc": int(value)},
-                },
-            ),
-            BatteryBackupLevel(
-                client,
-                "pd.bpPowerSoc",
-                const.BACKUP_RESERVE_LEVEL,
-                5,
-                100,
-                "bms_emsStatus.minDsgSoc",
-                "bms_emsStatus.maxChargeSoc",
-                lambda value: {
-                    "moduleType": 1,
-                    "operateType": "watthConfig",
-                    "params": {
-                        "isConfig": 1,
-                        "bpPowerSoc": int(value),
-                        "minDsgSoc": 0,
-                        "minChgSoc": 0,
-                    },
-                },
-            ),
-            MinGenStartLevelEntity(
-                client,
-                "bms_emsStatus.minOpenOilEb",
-                const.GEN_AUTO_START_LEVEL,
-                0,
-                30,
-                lambda value: {
-                    "moduleType": 2,
-                    "operateType": "openOilSoc",
-                    "params": {"openOilSoc": value},
-                },
-            ),
-            MaxGenStopLevelEntity(
-                client,
-                "bms_emsStatus.maxCloseOilEb",
-                const.GEN_AUTO_STOP_LEVEL,
-                50,
-                100,
-                lambda value: {
-                    "moduleType": 2,
-                    "operateType": "closeOilSoc",
-                    "params": {"closeOilSoc": value},
-                },
-            ),
-            ChargingPowerEntity(
-                client,
-                "mppt.cfgChgWatts",
-                const.AC_CHARGING_POWER,
-                200,
-                1200,
-                lambda value: {
-                    "moduleType": 5,
-                    "operateType": "acChgCfg",
-                    "params": {"chgWatts": int(value), "chgPauseFlag": 255},
-                },
-            ),
-        ]
+        result: list[BaseSwitchEntity] = list()
+        params = client.data.params
+        for key in params:
+            if key == "ichigh":
+                for subkey in json.loads(params[key]):
+                    result = [
+                        *result,
+                        ChargingPowerEntity(
+                            client,
+                            f"ichigh.{subkey}.acMaxCurrSer",
+                            const.AC_CHARGING_POWER,
+                            1,
+                            16,  # This is not the real limit of the powerkit, but because it has a normal 230V plug, we don't allow here to go over 16A because you will maybe frie your socket
+                            lambda value: {
+                                "moduleType": 5,
+                                "operateType": "acChgCfg",
+                                "params": {
+                                    "id": 123456789,
+                                    "version": "1.0",
+                                    "sn": client.device_sn,
+                                    "moduleSn": subkey,
+                                    "moduleType": 15365,
+                                    "operateType": "dischgIcParaSet",
+                                    "params": {"acCurrMaxSet": value},
+                                },
+                            },
+                        ),
+                    ]
+        return [*result]
 
     def switches(self, client: EcoflowMQTTClient) -> list[BaseSwitchEntity]:
         result: list[BaseSwitchEntity] = list()
@@ -794,167 +742,85 @@ class PowerKit(BaseDevice):
                             },
                         ),
                     ]
+            if key == "ichigh":
+                for subkey in json.loads(params[key]):
+                    result = [
+                        *result,
+                        EnabledEntity(
+                            client,
+                            f"ichigh.{subkey}.passByModeEn",
+                            "Prioretize grid",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15365,
+                                "operateType": "dsgIcParaSet",
+                                "params": {
+                                    "dsgLowPwrEn": 255,
+                                    "pfcDsgModeEn": 255,
+                                    "passByCurrMax": 255,
+                                    "passByModeEn": 1 if value == 1 else 2,
+                                },
+                            },
+                            enableValue=1,
+                        ),
+                    ]
+            if key == "iclow":
+                for subkey in json.loads(params[key]):
+                    result = [
+                        *result,
+                        EnabledEntity(
+                            client,
+                            # TODO: reading is on ichigh and setting on iclow
+                            f"iclow.{subkey}.invSwSta",
+                            "AC Output",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15365,
+                                "operateType": "dischgIcParaSet",
+                                "params": {
+                                    "powerOn": 1 if value == 1 else 0,
+                                    "acCurrMaxSet": 255,
+                                    "acChgDisa": 255,
+                                    "acFrequencySet": 255,
+                                    "acVolSet": 255,
+                                },
+                            },
+                        ),
+                        EnabledEntity(
+                            client,
+                            f"iclow.{subkey}.chgDsgState",
+                            # That is the good button!
+                            "AC Charging",
+                            lambda value: {
+                                "id": 123456789,
+                                "version": "1.0",
+                                "moduleSn": subkey,
+                                "moduleType": 15365,
+                                "operateType": "dischgIcParaSet",
+                                "params": {
+                                    "acCurrMaxSet": 255,
+                                    "powerOn": 255,
+                                    "acChgDisa": 0 if value == 1 else 1,
+                                    "acFrequencySet": 255,
+                                    "wakeup": 1,
+                                    "standbyTime": 255,
+                                    "acRlyCtrlDisable": 255,
+                                    "acVolSet": 255,
+                                    "passByMaxCurr": 255,
+                                },
+                            },
+                        ),
+                    ]
         return [
             *result,
-            BeeperEntity(
-                client,
-                "mppt.beepState",
-                const.BEEPER,
-                lambda value: {
-                    "moduleType": 5,
-                    "operateType": "quietMode",
-                    "params": {"enabled": value},
-                },
-            ),
-            EnabledEntity(
-                client,
-                "pd.dcOutState",
-                const.USB_ENABLED,
-                lambda value: {
-                    "moduleType": 1,
-                    "operateType": "dcOutCfg",
-                    "params": {"enabled": value},
-                },
-            ),
-            EnabledEntity(
-                client,
-                "pd.acAutoOutConfig",
-                const.AC_ALWAYS_ENABLED,
-                lambda value, params: {
-                    "moduleType": 1,
-                    "operateType": "acAutoOutConfig",
-                    "params": {
-                        "acAutoOutConfig": value,
-                        "minAcOutSoc": int(params.get("bms_emsStatus.minDsgSoc", 0))
-                        + 5,
-                    },
-                },
-            ),
-            EnabledEntity(
-                client,
-                "pd.pvChgPrioSet",
-                const.PV_PRIO,
-                lambda value: {
-                    "moduleType": 1,
-                    "operateType": "pvChangePrio",
-                    "params": {"pvChangeSet": value},
-                },
-            ),
-            EnabledEntity(
-                client,
-                "mppt.cfgAcEnabled",
-                const.AC_ENABLED,
-                lambda value: {
-                    "moduleType": 5,
-                    "operateType": "acOutCfg",
-                    "params": {
-                        "enabled": value,
-                        "out_voltage": -1,
-                        "out_freq": 255,
-                        "xboost": 255,
-                    },
-                },
-            ),
-            EnabledEntity(
-                client,
-                "mppt.cfgAcXboost",
-                const.XBOOST_ENABLED,
-                lambda value: {
-                    "moduleType": 5,
-                    "operateType": "acOutCfg",
-                    "params": {
-                        "enabled": 255,
-                        "out_voltage": -1,
-                        "out_freq": 255,
-                        "xboost": value,
-                    },
-                },
-            ),
-            EnabledEntity(
-                client,
-                "pd.carState",
-                const.DC_ENABLED,
-                lambda value: {
-                    "moduleType": 5,
-                    "operateType": "mpptCar",
-                    "params": {"enabled": value},
-                },
-            ),
-            EnabledEntity(
-                client,
-                "pd.bpPowerSoc",
-                const.BP_ENABLED,
-                lambda value: {
-                    "moduleType": 1,
-                    "operateType": "watthConfig",
-                    "params": {
-                        "bpPowerSoc": value,
-                        "minChgSoc": 0,
-                        "isConfig": value,
-                        "minDsgSoc": 0,
-                    },
-                },
-            ),
         ]
 
     def selects(self, client: EcoflowMQTTClient) -> list[BaseSelectEntity]:
-        return [
-            DictSelectEntity(
-                client,
-                "mppt.dcChgCurrent",
-                const.DC_CHARGE_CURRENT,
-                const.DC_CHARGE_CURRENT_OPTIONS,
-                lambda value: {
-                    "moduleType": 5,
-                    "operateType": "dcChgCfg",
-                    "params": {"dcChgCfg": value},
-                },
-            ),
-            TimeoutDictSelectEntity(
-                client,
-                "pd.lcdOffSec",
-                const.SCREEN_TIMEOUT,
-                const.SCREEN_TIMEOUT_OPTIONS,
-                lambda value: {
-                    "moduleType": 1,
-                    "operateType": "lcdCfg",
-                    "params": {"brighLevel": 255, "delayOff": value},
-                },
-            ),
-            TimeoutDictSelectEntity(
-                client,
-                "pd.standbyMin",
-                const.UNIT_TIMEOUT,
-                const.UNIT_TIMEOUT_OPTIONS,
-                lambda value: {
-                    "moduleType": 1,
-                    "operateType": "standbyTime",
-                    "params": {"standbyMin": value},
-                },
-            ),
-            TimeoutDictSelectEntity(
-                client,
-                "mppt.acStandbyMins",
-                const.AC_TIMEOUT,
-                const.AC_TIMEOUT_OPTIONS,
-                lambda value: {
-                    "moduleType": 5,
-                    "operateType": "standbyTime",
-                    "params": {"standbyMins": value},
-                },
-            ),
-            TimeoutDictSelectEntity(
-                client,
-                "mppt.carStandbyMin",
-                const.DC_TIMEOUT,
-                const.DC_TIMEOUT_OPTIONS,
-                lambda value: {
-                    "moduleType": 5,
-                    "operateType": "carStandby",
-                    "params": {"standbyMins": value},
-                },
-            ),
-        ]
+        return []
 
     def migrate(self, version) -> list[EntityMigration]:
         if version == 2:

@@ -32,9 +32,28 @@ async def async_setup_entry(
 
 
 class EnabledEntity(BaseSwitchEntity):
+    def __init__(
+        self,
+        client: EcoflowMQTTClient,
+        mqtt_key: str,
+        title: str,
+        command: Callable[[int, dict[str, Any] | None], dict[str, Any]] | None,
+        enabled: bool = True,
+        auto_enable: bool = False,
+        enableValue: Any = None,
+    ):
+        super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
+        self._enable_value = enableValue
+
     def _update_value(self, val: Any) -> bool:
         _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
-        self._attr_is_on = bool(val)
+        if self._enable_value is not None:
+            if self._enable_value == val:
+                self._attr_is_on = True
+            else:
+                self._attr_is_on = False
+        else:
+            self._attr_is_on = bool(val)
         return True
 
     def turn_on(self, **kwargs: Any) -> None:
