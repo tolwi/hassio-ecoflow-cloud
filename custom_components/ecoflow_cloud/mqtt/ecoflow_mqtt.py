@@ -18,7 +18,12 @@ from reactivex import Subject, Observable
 
 from .proto import powerstream_pb2 as powerstream, ecopacket_pb2 as ecopacket
 from .utils import BoundFifoList
-from ..config.const import CONF_DEVICE_TYPE, CONF_DEVICE_ID, OPTS_REFRESH_PERIOD_SEC, EcoflowModel
+from ..config.const import (
+    CONF_DEVICE_TYPE,
+    CONF_DEVICE_ID,
+    OPTS_REFRESH_PERIOD_SEC,
+    EcoflowModel,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,10 +47,12 @@ class EcoflowAuthentication:
     def authorize(self):
         url = "https://api.ecoflow.com/auth/login"
         headers = {"lang": "en_US", "content-type": "application/json"}
-        data = {"email": self.ecoflow_username,
-                "password": base64.b64encode(self.ecoflow_password.encode()).decode(),
-                "scene": "IOT_APP",
-                "userType": "ECOFLOW"}
+        data = {
+            "email": self.ecoflow_username,
+            "password": base64.b64encode(self.ecoflow_password.encode()).decode(),
+            "scene": "IOT_APP",
+            "userType": "ECOFLOW",
+        }
 
         _LOGGER.info(f"Login to EcoFlow API {url}")
         request = requests.post(url, json=data, headers=headers)
@@ -56,7 +63,9 @@ class EcoflowAuthentication:
             self.user_id = response["data"]["user"]["userId"]
             user_name = response["data"]["user"].get("name", "<no user name>")
         except KeyError as key:
-            raise EcoflowException(f"Failed to extract key {key} from response: {response}")
+            raise EcoflowException(
+                f"Failed to extract key {key} from response: {response}"
+            )
 
         _LOGGER.info(f"Successfully logged in: {user_name}")
 
@@ -80,7 +89,9 @@ class EcoflowAuthentication:
 
     def get_json_response(self, request):
         if request.status_code != 200:
-            raise EcoflowException(f"Got HTTP status code {request.status_code}: {request.text}")
+            raise EcoflowException(
+                f"Got HTTP status code {request.status_code}: {request.text}"
+            )
 
         try:
             response = json.loads(request.text)
@@ -88,7 +99,9 @@ class EcoflowAuthentication:
         except KeyError as key:
             raise EcoflowException(f"Failed to extract key {key} from {response}")
         except Exception as error:
-            raise EcoflowException(f"Failed to parse response: {request.text} Error: {error}")
+            raise EcoflowException(
+                f"Failed to parse response: {request.text} Error: {error}"
+            )
 
         if response_message.lower() != "success":
             raise EcoflowException(f"{response_message}")
@@ -108,8 +121,12 @@ class EcoflowDataHolder:
 
         self.raw_data = BoundFifoList[dict[str, Any]]()
 
-        self.__params_time = utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
-        self.__params_broadcast_time = utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self.__params_time = utcnow().replace(
+            year=2000, month=1, day=1, hour=0, minute=0, second=0
+        )
+        self.__params_broadcast_time = utcnow().replace(
+            year=2000, month=1, day=1, hour=0, minute=0, second=0
+        )
         self.__params_observable = Subject[dict[str, Any]]()
 
         self.__set_reply_observable = Subject[list[dict[str, Any]]]()
@@ -146,10 +163,12 @@ class EcoflowDataHolder:
         self.__add_raw_data(raw)
         # self.__params_time = datetime.fromtimestamp(raw['timestamp'], UTC)
         self.__params_time = utcnow()
-        self.params['timestamp'] = raw['timestamp']
-        self.params.update(raw['params'])
+        self.params["timestamp"] = raw["timestamp"]
+        self.params.update(raw["params"])
 
-        if (utcnow() - self.__params_broadcast_time).total_seconds() > self.__update_period_sec:
+        if (
+            utcnow() - self.__params_broadcast_time
+        ).total_seconds() > self.__update_period_sec:
             self.__broadcast()
 
     def __broadcast(self):
@@ -165,9 +184,9 @@ class EcoflowDataHolder:
 
 
 class EcoflowMQTTClient:
-
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, auth: EcoflowAuthentication):
-
+    def __init__(
+        self, hass: HomeAssistant, entry: ConfigEntry, auth: EcoflowAuthentication
+    ):
         self.auth = auth
         self.config_entry = entry
         self.device_type = entry.data[CONF_DEVICE_TYPE]
@@ -175,11 +194,17 @@ class EcoflowMQTTClient:
 
         self._data_topic = f"/app/device/property/{self.device_sn}"
         self._set_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/set"
-        self._set_reply_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/set_reply"
+        self._set_reply_topic = (
+            f"/app/{auth.user_id}/{self.device_sn}/thing/property/set_reply"
+        )
         self._get_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/get"
-        self._get_reply_topic = f"/app/{auth.user_id}/{self.device_sn}/thing/property/get_reply"
+        self._get_reply_topic = (
+            f"/app/{auth.user_id}/{self.device_sn}/thing/property/get_reply"
+        )
 
-        self.data = EcoflowDataHolder(entry.options.get(OPTS_REFRESH_PERIOD_SEC), self.device_type == "DIAGNOSTIC")
+        self.data = EcoflowDataHolder(
+            entry.options.get(OPTS_REFRESH_PERIOD_SEC), self.device_type == "DIAGNOSTIC"
+        )
 
         self.device_info_main = DeviceInfo(
             identifiers={(DOMAIN, self.device_sn)},
@@ -188,8 +213,11 @@ class EcoflowMQTTClient:
             model=self.device_type,
         )
 
-        self.client = mqtt_client.Client(client_id=f'ANDROID_-{str(uuid.uuid4()).upper()}_{auth.user_id}',
-                                         clean_session=True, reconnect_on_failure=True)
+        self.client = mqtt_client.Client(
+            client_id=f"ANDROID_-{str(uuid.uuid4()).upper()}_{auth.user_id}",
+            clean_session=True,
+            reconnect_on_failure=True,
+        )
         self.client.username_pw_set(self.auth.mqtt_username, self.auth.mqtt_password)
         self.client.tls_set(certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED)
         self.client.tls_insecure_set(False)
@@ -200,7 +228,9 @@ class EcoflowMQTTClient:
         else:
             self.client.on_message = self.on_json_message
 
-        _LOGGER.info(f"Connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}")
+        _LOGGER.info(
+            f"Connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}"
+        )
         self.client.connect(self.auth.mqtt_url, self.auth.mqtt_port, 30)
         self.client.loop_start()
 
@@ -209,7 +239,9 @@ class EcoflowMQTTClient:
 
     def reconnect(self) -> bool:
         try:
-            _LOGGER.info(f"Re-connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}")
+            _LOGGER.info(
+                f"Re-connecting to MQTT Broker {self.auth.mqtt_url}:{self.auth.mqtt_port}"
+            )
             self.client.loop_stop(True)
             self.client.reconnect()
             self.client.loop_start()
@@ -221,9 +253,15 @@ class EcoflowMQTTClient:
     def on_connect(self, client, userdata, flags, rc):
         match rc:
             case 0:
-                self.client.subscribe([(self._data_topic, 1),
-                                       (self._set_topic, 1), (self._set_reply_topic, 1),
-                                       (self._get_topic, 1), (self._get_reply_topic, 1)])
+                self.client.subscribe(
+                    [
+                        (self._data_topic, 1),
+                        (self._set_topic, 1),
+                        (self._set_reply_topic, 1),
+                        (self._get_topic, 1),
+                        (self._get_reply_topic, 1),
+                    ]
+                )
                 _LOGGER.info(f"Subscribed to MQTT topic {self._data_topic}")
             case -1:
                 _LOGGER.error("Failed to connect to MQTT: connection timed out")
@@ -250,8 +288,14 @@ class EcoflowMQTTClient:
 
     def on_json_message(self, client, userdata, message):
         try:
-            payload = message.payload.decode("utf-8", errors='ignore')
-            raw = json.loads(payload)
+            payload = message.payload.decode("utf-8", errors="ignore")
+            try:
+                raw = json.loads(payload)
+            except:
+                # Sometimes there will be messages that are not json formatted.
+                # That happens for example when the ecoflow app connects to the
+                # mqtt topic.
+                return
 
             if message.topic == self._data_topic:
                 self.data.update_data(raw)
@@ -264,7 +308,9 @@ class EcoflowMQTTClient:
             elif message.topic == self._get_reply_topic:
                 self.data.add_get_reply_message(raw)
         except UnicodeDecodeError as error:
-            _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
+            _LOGGER.error(
+                f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one."
+            )
 
     def on_bytes_message(self, client, userdata, message):
         try:
@@ -274,7 +320,9 @@ class EcoflowMQTTClient:
                 packet = ecopacket.SendHeaderMsg()
                 packet.ParseFromString(payload)
 
-                _LOGGER.debug("cmd id %u payload \"%s\"", packet.msg.cmd_id, payload.hex())
+                _LOGGER.debug(
+                    'cmd id %u payload "%s"', packet.msg.cmd_id, payload.hex()
+                )
 
                 if packet.msg.cmd_id != 1:
                     _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
@@ -289,7 +337,9 @@ class EcoflowMQTTClient:
                         if not heartbeat.HasField(descriptor.name):
                             continue
 
-                        raw["params"][descriptor.name] = getattr(heartbeat, descriptor.name)
+                        raw["params"][descriptor.name] = getattr(
+                            heartbeat, descriptor.name
+                        )
 
                     _LOGGER.info("Found %u fields", len(raw["params"]))
 
@@ -313,16 +363,26 @@ class EcoflowMQTTClient:
 
     def __prepare_payload(self, command: dict):
         self.message_id += 1
-        payload = {"from": "HomeAssistant",
-                   "id": f"{self.message_id}",
-                   "version": "1.0"}
+        payload = {
+            "from": "HomeAssistant",
+            "id": f"{self.message_id}",
+            "version": "1.0",
+        }
         payload.update(command)
         return payload
 
     def __send(self, topic: str, message: str):
         try:
             info = self.client.publish(topic, message, 1)
-            _LOGGER.debug("Sending " + message + " :" + str(info) + "(" + str(info.is_published()) + ")")
+            _LOGGER.debug(
+                "Sending "
+                + message
+                + " :"
+                + str(info)
+                + "("
+                + str(info.is_published())
+                + ")"
+            )
         except RuntimeError as error:
             _LOGGER.error(error)
 
