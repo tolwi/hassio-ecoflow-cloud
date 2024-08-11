@@ -145,11 +145,6 @@ class EcoflowMQTTClient:
         except RuntimeError as error:
             _LOGGER.error(error)
 
-    def send_get_message(self, command: dict):
-        for (device_sn, device) in self.__devices.items():
-            payload = self.__prepare_payload(command)
-            self.__send(self.__devices[device_sn].device_info.get_topic, json.dumps(payload))
-
     def send_get_message(self, device_sn: str, command: dict):
         payload = self.__prepare_payload(command)
         self.__send(self.__devices[device_sn].device_info.get_topic, json.dumps(payload))
