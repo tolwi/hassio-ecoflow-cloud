@@ -8,19 +8,21 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import DOMAIN
 from .api import EcoflowApiClient
 from .entities import BaseSelectEntity
+from .devices import BaseDevice
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(client.device.selects(client))
+    for (sn, device) in client.devices.items():
+        async_add_entities(device.selects(client))
 
 
 class DictSelectEntity(BaseSelectEntity):
     _attr_entity_category = EntityCategory.CONFIG
     _attr_available = False
-    def __init__(self, client: EcoflowApiClient, mqtt_key: str, title: str, options: dict[str, int],
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, options: dict[str, int],
                  command: Callable[[int], dict[str, Any]] | None, enabled: bool = True, auto_enable: bool = False):
-        super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
+        super().__init__(client, device, mqtt_key, title, command, enabled, auto_enable)
         self.__options_dict = options
         self._attr_options = list(options.keys())
 

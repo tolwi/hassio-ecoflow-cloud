@@ -1,6 +1,7 @@
 import logging
 from abc import abstractmethod
 
+from typing import Any
 from aiohttp import ClientResponse
 from attr import dataclass
 
@@ -24,20 +25,41 @@ class EcoflowApiClient:
 
     def __init__(self):
         self.mqtt_info: EcoflowMqttInfo | None = None
-        self.device = None
+        self.devices: dict[str, Any] = {}
         self.mqtt_client = None
+        self.installation_site = None
 
     @abstractmethod
     async def login(self):
         pass
+    
+    @abstractmethod
+    async def fetch_all_available_devices(self):
+        pass
 
     @abstractmethod
-    async def quota_all(self):
+    async def quota_all(self, device_sn: str):
         pass
 
     @abstractmethod
     def configure_device(self, device_sn: str, device_name: str, device_type: str):
         pass
+
+    def addOrUpdateDevice(self, device ):
+        trouve=False
+        for (k, v) in self.devices.items():
+            if k == device.device_info.sn:
+                self.devices[k] = device
+                trouve=True
+                break
+        if not trouve:
+            self.devices[device.device_info.sn] = device
+    
+    def removeDevice(self, device ):
+        for (k, v) in self.devices.items():
+            if k == device.device_info.sn:
+                self.devices.pop(k)
+                break
 
     def _accept_mqqt_certification(self, resp_json: dict):
         _LOGGER.info(f"Received MQTT credentials: {resp_json}")

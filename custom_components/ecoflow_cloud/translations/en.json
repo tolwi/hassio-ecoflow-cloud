@@ -3,6 +3,16 @@
   "config": {
     "step": {
       "user": {
+        "data": {
+          "installation_site": "Installation site"
+        }
+      },
+      "reconfigure": {
+        "data": {
+          "installation_site": "Installation site"
+        }
+      },
+      "reconfigure_user": {
         "menu_options": {
           "api": "Use public API",
           "manual": "Use application API"
@@ -10,8 +20,10 @@
       },
       "api": {
         "data": {
+          "installation_site": "Installation site",
           "access_key": "Access key",
-          "secret_key": "Secret key"
+          "secret_key": "Secret key",
+          "load_automatique_device": "Automatic device charging"
         }
       },
       "select_device": {
@@ -28,6 +40,7 @@
       },
       "manual": {
         "data": {
+          "installation_site": "Installation site",
           "username": "User email",
           "password": "User password"
         }

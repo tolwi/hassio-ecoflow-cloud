@@ -15,7 +15,8 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(client.device.switches(client))
+    for (sn, device) in client.devices.items():
+        async_add_entities(device.switches(client))
 
 
 class EnabledEntity(BaseSwitchEntity):
