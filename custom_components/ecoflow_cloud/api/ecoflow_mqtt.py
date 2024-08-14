@@ -105,8 +105,7 @@ class EcoflowMQTTClient:
     def on_disconnect(self, client, userdata, rc):
         if rc != 0:
             _LOGGER.error(f"Unexpected MQTT disconnection: {rc}. Will auto-reconnect")
-            time.sleep(30)
-            # self.client.reconnect() ??
+            time.sleep(15)
 
     def on_message(self, client, userdata, message):
         try:

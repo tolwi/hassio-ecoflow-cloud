@@ -27,13 +27,15 @@ class SmartPlug(BaseDevice):
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
             BrightnessLevelEntity(client, self, "2_1.brightness", const.BRIGHTNESS, 0, 1023,
-                                  lambda value: {"cmdCode": "WN511_SOCKET_SET_BRIGHTNESS_PACK", "params": {"brightness": value}}),
+                                  lambda value: {"cmdCode": "WN511_SOCKET_SET_BRIGHTNESS_PACK", 
+                                                 "params": {"brightness": value}}),
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return [
             EnabledEntity(client, self, "2_1.switchSta", const.MODE_ON,
-                          lambda value: {"cmdCode": "WN511_SET_SUPPLY_PRIORITY_PACK", "params": {"plugSwitch": value}}),
+                          lambda value: {"cmdCode": "WN511_SOCKET_SET_PLUG_SWITCH_MESSAGE", 
+                                         "params": {"plugSwitch": value}}),
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
