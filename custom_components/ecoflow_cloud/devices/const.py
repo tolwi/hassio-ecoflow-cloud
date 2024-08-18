@@ -110,6 +110,11 @@ POWER_SUB_MODE_OPTIONS = {
     "Manual": 3
 }
 
+POWER_SUPPLY_PRIORITY_OPTIONS = {
+    "Prioritize power supply": 0,
+    "Prioritize power storage": 1
+}
+
 COMBINED_BATTERY_LEVEL = "Battery Level"
 COMBINED_BATTERY_LEVEL_F32 = "Battery Level (Precise)"
 BATTERY_CHARGING_STATE = "Battery Charging State"

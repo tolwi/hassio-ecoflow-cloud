@@ -127,7 +127,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     await api_client.login()
     devices_list: dict[str, DeviceConfLoader] = {}
 
-    if (CONF_LOAD_AUTOMATIQUE not in entry.data or entry.data[CONF_LOAD_AUTOMATIQUE] == False) and CONF_DEVICE_LIST in entry.data:
+    if (CONF_LOAD_AUTOMATIQUE not in entry.data or not entry.data[CONF_LOAD_AUTOMATIQUE]) and CONF_DEVICE_LIST in entry.data:
         for device_data in entry.data[CONF_DEVICE_LIST]:
             devices_list[device_data[CONF_DEVICE_ID]] = DeviceConfLoader(device_data[CONF_DEVICE_ID], device_data[CONF_DEVICE_NAME], device_data[CONF_DEVICE_TYPE])
 

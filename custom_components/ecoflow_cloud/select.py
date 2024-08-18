@@ -46,3 +46,6 @@ class DictSelectEntity(BaseSelectEntity):
 
 class TimeoutDictSelectEntity(DictSelectEntity):
     _attr_icon = "mdi:timer-outline"
+
+class PowerDictSelectEntity(DictSelectEntity):
+    _attr_icon = "mdi:battery-charging-wireless"
