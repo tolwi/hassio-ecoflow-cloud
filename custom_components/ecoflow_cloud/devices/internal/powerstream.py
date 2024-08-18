@@ -12,7 +12,7 @@ from custom_components.ecoflow_cloud.sensor import (
     DecivoltSensorEntity, InWattsSolarSensorEntity, LevelSensorEntity,
     MiscSensorEntity, RemainSensorEntity, StatusSensorEntity,
 )
-from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, BrightnessLevelEntity
+from custom_components.ecoflow_cloud.number import DeciChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, BrightnessLevelEntity
 from custom_components.ecoflow_cloud.select import PowerDictSelectEntity
 from ...api import EcoflowApiClient
 
@@ -106,7 +106,7 @@ class PowerStream(BaseDevice):
                                                 "cmdCode": "WN511_SET_BRIGHTNESS_PACK", 
                                                  "params": {"brightness": value}}),
 
-            ChargingPowerEntity(client, self, "20_1.permanentWatts", "Custom load power settings", 0, 800,
+            DeciChargingPowerEntity(client, self, "20_1.permanentWatts", "Custom load power settings (0.1 W)", 0, 8000,
                                 lambda value: {"sn": self.device_info.sn,
                                                "cmdCode": "WN511_SET_PERMANENT_WATTS_PACK",
                                                "params": {"permanentWatts": value}}),

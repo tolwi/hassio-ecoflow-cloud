@@ -142,7 +142,9 @@ class EcoflowMQTTClient:
             info = self.__client.publish(topic, message, 1)
             _LOGGER.debug("Sending " + message + " :" + str(info) + "(" + str(info.is_published()) + ")")
         except RuntimeError as error:
-            _LOGGER.error(error)
+            _LOGGER.error(error, "Error on topic " + topic + " and message " + message)
+        except Exception as error:
+            _LOGGER.debug(error, "Error on topic " + topic + " and message " + message)
 
     def send_get_message(self, device_sn: str, command: dict):
         payload = self.__prepare_payload(command)
