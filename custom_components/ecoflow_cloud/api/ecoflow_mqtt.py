@@ -30,9 +30,10 @@ class EcoflowMQTTClient:
         self.__client.on_connect = self.on_connect
         self.__client.on_disconnect = self.on_disconnect
         self.__client.on_message = self.on_message
+        self.__client.on_socket_close = self.on_socket_close
 
         _LOGGER.info(f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}")
-        self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, 10)
+        self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, 30)
 
     def is_connected(self):
         return self.__client.is_connected()
@@ -101,12 +102,16 @@ class EcoflowMQTTClient:
 
         return client
 
+    def on_socket_close(self, client, userdata, socket):
+        _LOGGER.error(f"Unexpected MQTT Socket disconnection : {str(socket)}")
 
     def on_disconnect(self, client, userdata, rc):
         if rc != 0:
             self.__error_count = self.__error_count+1
             _LOGGER.error(f"Unexpected MQTT disconnection: {rc} (Error count {self.__error_count}). Will auto-reconnect")
             time.sleep(15)
+            if self.__error_count % 1000 :
+                self.__error_count = 0 # reinit de temps en temps
 
     def on_message(self, client, userdata, message):
         try:
