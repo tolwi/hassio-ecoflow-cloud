@@ -41,6 +41,9 @@ class ChargingPowerEntity(ValueUpdateEntity):
         self._attr_native_step = self._device.data.update_period_sec
 
 
+class DeciChargingPowerEntity(ChargingPowerEntity):
+    _attr_mode = NumberMode.BOX
+
 class MinMaxLevelEntity(ValueUpdateEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str,
                  min_value: int, max_value: int,

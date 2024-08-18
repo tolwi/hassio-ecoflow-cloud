@@ -43,6 +43,7 @@ class EcoflowMQTTClient:
                 _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
                 self.__client.loop_stop(True)
                 self.__client.reconnect()
+                self.__client.loop_start()
                 return True
             else:
                 _LOGGER.info(f"No reconnection to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} -> Not authorised ")
@@ -142,7 +143,9 @@ class EcoflowMQTTClient:
             info = self.__client.publish(topic, message, 1)
             _LOGGER.debug("Sending " + message + " :" + str(info) + "(" + str(info.is_published()) + ")")
         except RuntimeError as error:
-            _LOGGER.error(error)
+            _LOGGER.error(error, "Error on topic " + topic + " and message " + message)
+        except Exception as error:
+            _LOGGER.debug(error, "Error on topic " + topic + " and message " + message)
 
     def send_get_message(self, device_sn: str, command: dict):
         payload = self.__prepare_payload(command)
