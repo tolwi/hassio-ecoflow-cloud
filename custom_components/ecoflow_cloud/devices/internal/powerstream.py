@@ -2,7 +2,7 @@ import logging
 
 from homeassistant.util import utcnow
 
-from custom_components.ecoflow_cloud.devices import BaseDevice
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import (
     BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
 )
@@ -12,10 +12,10 @@ from custom_components.ecoflow_cloud.sensor import (
     DecivoltSensorEntity, InWattsSolarSensorEntity, LevelSensorEntity,
     MiscSensorEntity, RemainSensorEntity, StatusSensorEntity,
 )
+from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, BrightnessLevelEntity
+from custom_components.ecoflow_cloud.select import PowerDictSelectEntity
 from ...api import EcoflowApiClient
 
-# from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
-# from ..select import DictSelectEntity
 _LOGGER = logging.getLogger(__name__)
 
 class PowerStream(BaseDevice):
@@ -91,13 +91,25 @@ class PowerStream(BaseDevice):
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
-            # These will likely be some form of serialised data rather than JSON will look into it later
-            # MinBatteryLevelEntity(client, self, "lowerLimit", "Min Disharge Level", 50, 100,
-            #                       lambda value: {"moduleType": 0, "operateType": "TCP",
-            #                                      "params": {"id": 00, "lowerLimit": value}}),
-            # MaxBatteryLevelEntity(client, self, "upperLimit", "Max Charge Level", 0, 30,
-            #                       lambda value: {"moduleType": 0, "operateType": "TCP",
-            #                                      "params": {"id": 00, "upperLimit": value}}),
+            MinBatteryLevelEntity(client, self, "20_1.lowerLimit", "Min Disharge Level", 0, 30,
+                                lambda value: {"sn": self.device_info.sn,
+                                               "cmdCode": "WN511_SET_BAT_LOWER_PACK",
+                                               "params": {"lowerLimit": value}}),
+
+            MaxBatteryLevelEntity(client, self, "20_1.upperLimit", "Max Charge Level", 70, 100,
+                                lambda value: {"sn": self.device_info.sn,
+                                               "cmdCode": "WN511_SET_BAT_UPPER_PACK",
+                                               "params": {"upperLimit": value}}),
+
+            BrightnessLevelEntity(client, self, "20_1.invBrightness", const.BRIGHTNESS, 0, 1023,
+                                  lambda value: {"sn": self.device_info.sn,
+                                                "cmdCode": "WN511_SET_BRIGHTNESS_PACK", 
+                                                 "params": {"brightness": value}}),
+
+            ChargingPowerEntity(client, self, "20_1.permanentWatts", "Custom load power settings", 0, 600,
+                                lambda value: {"sn": self.device_info.sn,
+                                               "cmdCode": "WN511_SET_PERMANENT_WATTS_PACK",
+                                               "params": {"permanentWatts": value}}),
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
@@ -105,7 +117,8 @@ class PowerStream(BaseDevice):
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
-            # DictSelectEntity(client, self, "supplyPriority", "Power supply mode", {"Prioritize power supply", "Prioritize power storage"},
-            #         lambda value: {"moduleType": 00, "operateType": "supplyPriority",
-            #                     "params": {"supplyPriority": value}}),
+            PowerDictSelectEntity(client, self, "20_1.supplyPriority", "Power supply mode", const.POWER_SUPPLY_PRIORITY_OPTIONS,
+                    lambda value: {"sn": self.device_info.sn,
+                                   "cmdCode": "WN511_SET_SUPPLY_PRIORITY_PACK",
+                                   "params": {"supplyPriority": value}}),
         ]
