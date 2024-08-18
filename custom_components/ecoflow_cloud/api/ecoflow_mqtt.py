@@ -21,6 +21,7 @@ class EcoflowMQTTClient:
         # Status pour ne pas boucler
         self.__autorise = True
         self.__mqtt_info = mqtt_info
+        self.__error_count = 0
         self.__devices: dict[str, BaseDevice] = devices
         self.__client = mqtt_client.Client(client_id=self.__mqtt_info.client_id, clean_session=True, reconnect_on_failure=True)
         self.__client.username_pw_set(self.__mqtt_info.username, self.__mqtt_info.password)
@@ -31,8 +32,7 @@ class EcoflowMQTTClient:
         self.__client.on_message = self.on_message
 
         _LOGGER.info(f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}")
-        self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, 30)
-        self.__client.loop_start()
+        self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, 10)
 
     def is_connected(self):
         return self.__client.is_connected()
@@ -43,11 +43,13 @@ class EcoflowMQTTClient:
                 _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
                 self.__client.loop_stop(True)
                 self.__client.reconnect()
-                self.__client.loop_start()
                 return True
             else:
-                _LOGGER.info(f"No reconnection to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} -> Not authorised ({self.__device})")
+                _LOGGER.info(f"No reconnection to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} -> Not authorised ")
                 self.stop()
+                if self.__error_count >= 10 :
+                    self.__error_count = 0
+                    self.__autorise = True
                 return True
 
         except Exception as e:
@@ -57,6 +59,7 @@ class EcoflowMQTTClient:
     def on_connect(self, client, userdata, flags, rc):
         match rc:
             case 0:
+                self.__client.loop_start()
                 topics = []
                 for (sn, device) in self.__devices.items():
                     _LOGGER.debug(f"Add Topics for  {sn}")
@@ -67,10 +70,6 @@ class EcoflowMQTTClient:
                         topics.append((device.device_info.set_topic, 1))
                     if device.device_info.set_reply_topic:
                         topics.append((device.device_info.set_reply_topic, 1))
-                    if device.device_info.get_topic:
-                        topics.append((device.device_info.get_topic, 1))
-                    if device.device_info.get_reply_topic:
-                        topics.append((device.device_info.get_reply_topic, 1))
                     if device.device_info.status_topic:
                         topics.append((device.device_info.status_topic, 1))
 
@@ -104,7 +103,8 @@ class EcoflowMQTTClient:
 
     def on_disconnect(self, client, userdata, rc):
         if rc != 0:
-            _LOGGER.error(f"Unexpected MQTT disconnection: {rc}. Will auto-reconnect")
+            self.__error_count = self.__error_count+1
+            _LOGGER.error(f"Unexpected MQTT disconnection: {rc} (Error count {self.__error_count}). Will auto-reconnect")
             time.sleep(15)
 
     def on_message(self, client, userdata, message):
