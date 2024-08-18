@@ -43,6 +43,7 @@ class EcoflowMQTTClient:
                 _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
                 self.__client.loop_stop(True)
                 self.__client.reconnect()
+                self.__client.loop_start()
                 return True
             else:
                 _LOGGER.info(f"No reconnection to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} -> Not authorised ")
