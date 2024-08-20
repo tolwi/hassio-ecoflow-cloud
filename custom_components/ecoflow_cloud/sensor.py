@@ -20,12 +20,14 @@ from . import DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_
     ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, ATTR_STATUS_PHASE
 from .api import EcoflowApiClient
 from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
+from .devices import BaseDevice
 
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(client.device.sensors(client))
+    for (sn, device) in client.devices.items():
+        async_add_entities(device.sensors(client))
 
 
 class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
@@ -195,7 +197,6 @@ class WattsSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
-
 class EnergySensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
@@ -292,8 +293,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     CHECK_PHASES = [2, 4, 6]
     CONNECT_PHASES = [3, 5, 7]
 
-    def __init__(self, client: EcoflowApiClient, check_interval_sec=30):
-        super().__init__(client, "Status", "status")
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, check_interval_sec=30):
+        super().__init__(client, device, "Status", "status")
         self._online = 0
         self.__check_interval_sec = check_interval_sec
         self._attrs = OrderedDict[str, Any]()
@@ -364,8 +365,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 class QuotasStatusSensorEntity(StatusSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowApiClient, do_init: bool = False):
-        super().__init__(client)
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, do_init: bool = False):
+        super().__init__(client, device)
         self.do_init = do_init
 
     async def async_added_to_hass(self):
@@ -380,7 +381,7 @@ class QuotasStatusSensorEntity(StatusSensorEntity):
     def _update_status(self, update_delta_sec, force: bool = False):
         if self._client.mqtt_client.is_connected() or force:
             self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
-            self.hass.async_create_background_task(self._client.quota_all(), "get quota")
+            self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
         else:
             super()._update_status(update_delta_sec)
 

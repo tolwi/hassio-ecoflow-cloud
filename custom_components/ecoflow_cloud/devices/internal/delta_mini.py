@@ -13,85 +13,85 @@ from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 class DeltaMini(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(client, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
+            LevelSensorEntity(client, self, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
             .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(client, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
-            CapacitySensorEntity(client, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
-            CapacitySensorEntity(client, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
+            CapacitySensorEntity(client, self, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, self, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
 
-            LevelSensorEntity(client, "bmsMaster.soh", const.SOH),
+            LevelSensorEntity(client, self, "bmsMaster.soh", const.SOH),
 
-            LevelSensorEntity(client, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
+            LevelSensorEntity(client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
 
-            WattsSensorEntity(client, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            WattsSensorEntity(client, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
+            WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
-            InWattsSensorEntity(client, "inv.inputWatts", const.AC_IN_POWER),
-            OutWattsSensorEntity(client, "inv.outputWatts", const.AC_OUT_POWER),
+            InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
+            OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),
 
-            InMilliVoltSensorEntity(client, "inv.acInVol", const.AC_IN_VOLT),
-            OutMilliVoltSensorEntity(client, "inv.invOutVol", const.AC_OUT_VOLT),
+            InMilliVoltSensorEntity(client, self, "inv.acInVol", const.AC_IN_VOLT),
+            OutMilliVoltSensorEntity(client, self, "inv.invOutVol", const.AC_OUT_VOLT),
 
-            InWattsSolarSensorEntity(client, "mppt.inWatts", const.SOLAR_IN_POWER),
+            InWattsSolarSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER),
 
-            OutWattsDcSensorEntity(client, "mppt.outWatts", const.DC_OUT_POWER),
+            OutWattsDcSensorEntity(client, self, "mppt.outWatts", const.DC_OUT_POWER),
 
-            OutWattsDcSensorEntity(client, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
-            OutWattsSensorEntity(client, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
+            OutWattsDcSensorEntity(client, self, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
+            OutWattsSensorEntity(client, self, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
 
-            OutWattsSensorEntity(client, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.typec2Watts", const.TYPEC_2_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.typec2Watts", const.TYPEC_2_OUT_POWER),
 
-            OutWattsSensorEntity(client, "pd.usb1Watts", const.USB_1_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.usb2Watts", const.USB_2_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.usb1Watts", const.USB_1_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.usb2Watts", const.USB_2_OUT_POWER),
 
-            OutWattsSensorEntity(client, "pd.qcUsb1Watts", const.USB_QC_1_OUT_POWER),
-            OutWattsSensorEntity(client, "pd.qcUsb2Watts", const.USB_QC_2_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.qcUsb1Watts", const.USB_QC_1_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.qcUsb2Watts", const.USB_QC_2_OUT_POWER),
 
-            RemainSensorEntity(client, "ems.chgRemainTime", const.CHARGE_REMAINING_TIME),
-            RemainSensorEntity(client, "ems.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
-            CyclesSensorEntity(client, "bmsMaster.cycles", const.CYCLES),
+            RemainSensorEntity(client, self, "ems.chgRemainTime", const.CHARGE_REMAINING_TIME),
+            RemainSensorEntity(client, self, "ems.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
+            CyclesSensorEntity(client, self, "bmsMaster.cycles", const.CYCLES),
 
-            TempSensorEntity(client, "bmsMaster.temp", const.BATTERY_TEMP, False)
+            TempSensorEntity(client, self, "bmsMaster.temp", const.BATTERY_TEMP, False)
             .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
             .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
 
-            MilliVoltSensorEntity(client, "bmsMaster.vol", const.BATTERY_VOLT, False)
+            MilliVoltSensorEntity(client, self, "bmsMaster.vol", const.BATTERY_VOLT, False)
             .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
 
             # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
-            InEnergySensorEntity(client, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
-            InEnergySensorEntity(client, "pd.chgPowerAc", const.CHARGE_AC_ENERGY),
-            InEnergySensorEntity(client, "pd.chgPowerDc", const.CHARGE_DC_ENERGY),
-            OutEnergySensorEntity(client, "pd.dsgPowerAc", const.DISCHARGE_AC_ENERGY),
-            OutEnergySensorEntity(client, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
+            InEnergySensorEntity(client, self, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
+            InEnergySensorEntity(client, self, "pd.chgPowerAc", const.CHARGE_AC_ENERGY),
+            InEnergySensorEntity(client, self, "pd.chgPowerDc", const.CHARGE_DC_ENERGY),
+            OutEnergySensorEntity(client, self, "pd.dsgPowerAc", const.DISCHARGE_AC_ENERGY),
+            OutEnergySensorEntity(client, self, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
 
-            StatusSensorEntity(client),
+            StatusSensorEntity(client, self),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
-            MaxBatteryLevelEntity(client, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
+            MaxBatteryLevelEntity(client, self, "ems.maxChargeSoc", const.MAX_CHARGE_LEVEL, 50, 100,
                                   lambda value: {"moduleType": 0, "operateType": "TCP",
                                                  "params": {"id": 49, "maxChgSoc": value}}),
-            MinBatteryLevelEntity(client, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
+            MinBatteryLevelEntity(client, self, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
                                   lambda value: {"moduleType": 0, "operateType": "TCP",
                                                  "params": {"id": 51, "minDsgSoc": value}}),
-            # MaxBatteryLevelEntity(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
+            # MaxBatteryLevelEntity(client, self, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
             #                       lambda value: {"moduleType": 0, "operateType": "TCP",
             #                                      "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0, "maxChgSoc": 0, "id": 94}}),
-            # MinGenStartLevelEntity(client, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
+            # MinGenStartLevelEntity(client, self, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
             #                        lambda value: {"moduleType": 0, "operateType": "TCP",
             #                                       "params": {"openOilSoc": value, "id": 52}}),
             #
-            # MaxGenStopLevelEntity(client, "ems.maxCloseOilEbSoc", const.GEN_AUTO_STOP_LEVEL, 50, 100,
+            # MaxGenStopLevelEntity(client, self, "ems.maxCloseOilEbSoc", const.GEN_AUTO_STOP_LEVEL, 50, 100,
             #                       lambda value: {"moduleType": 0, "operateType": "TCP",
             #                                      "params": {"closeOilSoc": value, "id": 53}}),
 
-            ChargingPowerEntity(client, "inv.cfgSlowChgWatts", const.AC_CHARGING_POWER, 200, 900,
+            ChargingPowerEntity(client, self, "inv.cfgSlowChgWatts", const.AC_CHARGING_POWER, 200, 900,
                                 lambda value: {"moduleType": 0, "operateType": "TCP",
                                                "params": {"slowChgPower": value, "id": 69}}),
 
@@ -99,39 +99,39 @@ class DeltaMini(BaseDevice):
 
     def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return [
-            BeeperEntity(client, "mppt.beepState", const.BEEPER,
+            BeeperEntity(client, self, "mppt.beepState", const.BEEPER,
                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
-            EnabledEntity(client, "mppt.carState", const.DC_ENABLED,
+            EnabledEntity(client, self, "mppt.carState", const.DC_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP",
                                          "params": {"id": 81, "enabled": value}}),
-            EnabledEntity(client, "inv.cfgAcEnabled", const.AC_ENABLED,
+            EnabledEntity(client, self, "inv.cfgAcEnabled", const.AC_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP",
                                          "params": {"id": 66, "enabled": value}}),
 
-            EnabledEntity(client, "inv.cfgAcXboost", const.XBOOST_ENABLED,
+            EnabledEntity(client, self, "inv.cfgAcXboost", const.XBOOST_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboost": value}}),
 
-            # EnabledEntity(client, "inv.acPassByAutoEn", const.AC_ALWAYS_ENABLED,
+            # EnabledEntity(client, self, "inv.acPassByAutoEn", const.AC_ALWAYS_ENABLED,
             #               lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 84, "enabled": value}}),
-            # EnabledEntity(client, "pd.bpPowerSoc", const.BP_ENABLED,
+            # EnabledEntity(client, self, "pd.bpPowerSoc", const.BP_ENABLED,
             #               lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"isConfig": value}}),
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
-            DictSelectEntity(client, "mppt.cfgDcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
+            DictSelectEntity(client, self, "mppt.cfgDcChgCurrent", const.DC_CHARGE_CURRENT, const.DC_CHARGE_CURRENT_OPTIONS,
                              lambda value: {"moduleType": 0, "operateType": "TCP",
                                             "params": {"currMa": value, "id": 71}}),
 
-            TimeoutDictSelectEntity(client, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
+            TimeoutDictSelectEntity(client, self, "pd.lcdOffSec", const.SCREEN_TIMEOUT, const.SCREEN_TIMEOUT_OPTIONS,
                                     lambda value: {"moduleType": 0, "operateType": "TCP",
                                                    "params": {"lcdTime": value, "id": 39}}),
 
-            TimeoutDictSelectEntity(client, "pd.standByMode", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS_LIMITED,
+            TimeoutDictSelectEntity(client, self, "pd.standByMode", const.UNIT_TIMEOUT, const.UNIT_TIMEOUT_OPTIONS_LIMITED,
                                     lambda value: {"moduleType": 0, "operateType": "TCP",
                                                    "params": {"standByMode": value, "id": 33}}),
 
-            TimeoutDictSelectEntity(client, "inv.cfgStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
+            TimeoutDictSelectEntity(client, self, "inv.cfgStandbyMin", const.AC_TIMEOUT, const.AC_TIMEOUT_OPTIONS,
                                     lambda value: {"moduleType": 0, "operateType": "TCP",
                                                    "params": {"standByMins": value, "id": 153}}),
 

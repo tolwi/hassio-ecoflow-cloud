@@ -110,6 +110,11 @@ POWER_SUB_MODE_OPTIONS = {
     "Manual": 3
 }
 
+POWER_SUPPLY_PRIORITY_OPTIONS = {
+    "Prioritize power supply": 0,
+    "Prioritize power storage": 1
+}
+
 COMBINED_BATTERY_LEVEL = "Battery Level"
 COMBINED_BATTERY_LEVEL_F32 = "Battery Level (Precise)"
 BATTERY_CHARGING_STATE = "Battery Charging State"
@@ -204,6 +209,7 @@ SLAVE_N_BATTERY_VOLT = "Slave %i Battery Volts"
 SLAVE_N_MIN_CELL_VOLT = "Slave %i Min Cell Volts"
 SLAVE_N_MAX_CELL_VOLT = "Slave %i Max Cell Volts"
 SLAVE_N_BATTERY_CURRENT = "Slave %i Battery Current"
+SLAVE_N_BATTERY_LEVEL_SOC = "Slave %i Battery level SOC"
 
 MAX_CHARGE_LEVEL = "Max Charge Level"
 MIN_DISCHARGE_LEVEL = "Min Discharge Level"
@@ -255,6 +261,7 @@ ATTR_MAX_CELL_VOLT = MAX_CELL_VOLT
 
 BATTERY_AMP = "Battery Current"
 SLAVE_BATTERY_AMP = "Slave Battery Current"
+BATTERY_LEVEL_SOC = "Battery level SOC"
 
 FAN_MODE = "Wind speed"
 MAIN_MODE = "Main mode"

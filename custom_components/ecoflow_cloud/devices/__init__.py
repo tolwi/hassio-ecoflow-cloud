@@ -26,6 +26,7 @@ class EcoflowDeviceInfo:
     get_topic: str | None
     get_reply_topic: str | None
     status_topic: str | None = None
+    client_id: str | None = None
 
 
 class BaseDevice(ABC):
@@ -36,6 +37,7 @@ class BaseDevice(ABC):
     def __init__(self, device_info: EcoflowDeviceInfo):
         super().__init__()
         self.device_info = device_info
+        self.serial_number = device_info.sn
 
     def configure(self, refresh_period: int, diag: bool = False):
         self.data = EcoflowDataHolder(refresh_period, diag)
@@ -89,11 +91,17 @@ class BaseDevice(ABC):
 
     def _prepare_data(self, raw_data) -> dict[str, any]:
         try:
-            payload = raw_data.decode("utf-8", errors='ignore')
-            return json.loads(payload)
-        except UnicodeDecodeError as error:
-            _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
-
+            try:
+                payload = raw_data.decode("utf-8", errors='ignore')
+                return json.loads(payload)
+            except UnicodeDecodeError as error:
+                _LOGGER.warning(f"UnicodeDecodeError: {error}. Trying to load json.")
+                return json.loads(raw_data)
+            except Exception as error:
+                _LOGGER.warning(f"Exception: {error}. Trying to load json.")
+                return json.loads(raw_data)
+        except Exception as error1:
+            _LOGGER.error(f"constant: {error1}. Ignoring message and waiting for the next one.")
 
 class DiagnosticDevice(BaseDevice):
 

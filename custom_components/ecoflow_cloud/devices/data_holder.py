@@ -75,7 +75,8 @@ class EcoflowDataHolder:
     def update_to_target_state(self, target_state: dict[str, Any]):
         # key can be xpath!
         for key, value in target_state.items():
-            jp.parse(key).update(self.params, value)
+            expr = jp.parse("'"+key+"'")
+            expr.update(self.params, value)
 
         self.__broadcast()
 
