@@ -50,11 +50,11 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
         from custom_components.ecoflow_cloud.devices.registry import device_by_product
         if device_type in device_by_product:
-            self.device = device_by_product[device_type](info)
+            device = device_by_product[device_type](info)
         else:
-            self.device = DiagnosticDevice(info)
+            device = DiagnosticDevice(info)
 
-        self.addOrUpdateDevice(self.device)
+        self.add_device(device)
         if self.mqtt_client:
             self.mqtt_client.reconnect()
         else:

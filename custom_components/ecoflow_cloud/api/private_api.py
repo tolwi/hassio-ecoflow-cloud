@@ -52,9 +52,8 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             response = await self.__call_api("/iot-auth/app/certification")
             self._accept_mqqt_certification(response)
 
-    async def fetch_all_available_devices():
-        result = list()
-        return result
+    async def fetch_all_available_devices(self):
+        return []
 
     async def quota_all(self, device_sn: str):
         self.mqtt_client.send_get_message(device_sn, {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
@@ -64,11 +63,10 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
         from ..devices.registry import devices
         if device_type in devices:
-            self.device = devices[device_type](info)
+            self.add_device(devices[device_type](info))
         else:
-            self.device = DiagnosticDevice(info)
-        self.addOrUpdateDevice(self.device)
-        
+            self.add_device(DiagnosticDevice(info))
+
         if self.mqtt_client:
             self.mqtt_client.reconnect()
         else:

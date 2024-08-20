@@ -25,21 +25,22 @@ class EcoFlowAbstractEntity(Entity):
         self._client: EcoflowApiClient = client
         self._device: BaseDevice = device
         self._attr_name = title
+        self._attr_unique_id = self.__gen_unique_id(self._device.device_info.sn, key)
 
-        type_prefix = "api-" if self._device.device_info.public_api else ""
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{type_prefix}{self._device.device_info.sn}")},
+    @property
+    def device_info(self) -> DeviceInfo | None:
+        return DeviceInfo(
+            identifiers={(DOMAIN, f"{self._type_prefix()}{self._device.device_info.sn}")},
             manufacturer="EcoFlow",
             name=self._device.device_info.name,
             model=self._device.device_info.device_type,
-            serial_number=self._device.device_info.sn,
         )
 
-        self._attr_unique_id = self.gen_unique_id(type_prefix, self._device.device_info.sn, key)
+    def _type_prefix(self):
+        return "api-" if self._device.device_info.public_api else ""
 
-    @staticmethod
-    def gen_unique_id(type_prefix: str, sn: str, key: str):
-        return ('ecoflow-' + type_prefix + sn + '-' + key.replace('.', '-')
+    def __gen_unique_id(self, sn: str, key: str):
+        return ('ecoflow-' + self._type_prefix() + sn + '-' + key.replace('.', '-')
                 .replace('_', '-')
                 .replace('[', '-')
                 .replace(']', '-')
@@ -51,8 +52,9 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, enabled: bool = True,
                  auto_enable: bool = False):
         super().__init__(client, device, title, mqtt_key)
-        self._mqtt_key = mqtt_key
-        self._mqtt_key_expr = jp.parse(self.__adopted_mqtt_key(self._mqtt_key))
+        self.__mqtt_key = mqtt_key
+        self._mqtt_key_adopted = self._adopt_json_key(mqtt_key)
+        self._mqtt_key_expr = jp.parse(self._mqtt_key_adopted)
 
         self._auto_enable = auto_enable
         self._attr_entity_registry_enabled_default = enabled
@@ -66,7 +68,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self.__attrs[title] = default
         return self
 
-    def __adopted_mqtt_key(self, key: str):
+    def _adopt_json_key(self, key: str):
         if self._device.flat_json():
             return "'" + key + "'"
         else:
@@ -74,7 +76,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
     @property
     def mqtt_key(self):
-        return self._mqtt_key
+        return self.__mqtt_key
 
     @property
     def auto_enable(self):
@@ -92,7 +94,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def _updated(self, data: dict[str, Any]):
         # update attributes
         for key, title in self.__attributes_mapping.items():
-            key_expr = jp.parse(self.__adopted_mqtt_key(key))
+            key_expr = jp.parse(self._adopt_json_key(key))
             attr_values = key_expr.find(data)
             if len(attr_values) == 1:
                 self.__attrs[title] = attr_values[0].value
@@ -134,7 +136,7 @@ class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
             return None
 
     def send_set_message(self, target_value: Any, command: dict):
-        self._client.mqtt_client.send_set_message(self._device.device_info.sn, {self._mqtt_key: target_value}, command)
+        self._client.mqtt_client.send_set_message(self._device.device_info.sn, {self._mqtt_key_adopted: target_value}, command)
 
 
 class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
