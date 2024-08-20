@@ -106,7 +106,7 @@ class Delta2(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "dsgCfg",
                                                  "params": {"minDsgSoc": int(value)}}),
 
-            BatteryBackupLevel(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
+            BatteryBackupLevel(client, self, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
                                "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc",
                                lambda value: {"moduleType": 1, "operateType": "watthConfig",
                                               "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0,

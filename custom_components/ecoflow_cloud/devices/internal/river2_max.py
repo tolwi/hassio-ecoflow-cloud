@@ -93,7 +93,7 @@ class River2Max(BaseDevice):
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}}),
 
-            BatteryBackupLevel(client, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
+            BatteryBackupLevel(client, self,"pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
                                "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc",
                                lambda value: {"moduleType": 1, "operateType": "watthConfig",
                                               "params": {"isConfig": 1,
