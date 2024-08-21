@@ -35,6 +35,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         _LOGGER.info(f"Requesting IoT MQTT credentials")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
+        self.mqtt_info.client_id = f'HomeAssistant-{self.installation_site}'
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info(f"Requesting all devices")
@@ -55,11 +56,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             device = DiagnosticDevice(info)
 
         self.add_device(device)
-        if self.mqtt_client:
-            self.mqtt_client.reconnect()
-        else:
-            self.mqtt_info.client_id = f'HomeAssistant-{self.installation_site}'
-            self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
+        return device
 
     async def quota_all(self, device_sn: str):
         raw = await self.call_api("/device/quota/all", {"sn": device_sn})

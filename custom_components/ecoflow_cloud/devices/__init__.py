@@ -20,13 +20,24 @@ class EcoflowDeviceInfo:
     sn: str
     name: str
     device_type: str
+    client_id: str
     data_topic: str
     set_topic: str
     set_reply_topic: str
     get_topic: str | None
     get_reply_topic: str | None
     status_topic: str | None = None
-    client_id: str | None = None
+
+    def topics(self) -> list[str]:
+        topics = [
+            self.data_topic,
+            self.get_topic,
+            self.get_reply_topic,
+            self.set_topic,
+            self.set_reply_topic,
+            self.status_topic
+        ]
+        return list(filter(lambda v: v is not None, topics))
 
 
 class BaseDevice(ABC):

@@ -18,7 +18,6 @@ class EcoflowMQTTClient:
     def __init__(self, mqtt_info: EcoflowMqttInfo, devices: dict[str, BaseDevice]):
 
         from ..devices import BaseDevice
-        # Status pour ne pas boucler
         self.__autorise = True
         self.__mqtt_info = mqtt_info
         self.__error_count = 0
@@ -30,7 +29,7 @@ class EcoflowMQTTClient:
         self.__client.on_connect = self.on_connect
         self.__client.on_disconnect = self.on_disconnect
         self.__client.on_message = self.on_message
-        self.__client.on_socket_close = self.on_socket_close
+        # self.__client.on_socket_close = self.on_socket_close
 
         _LOGGER.info(f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}")
         self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, 30)
@@ -65,15 +64,8 @@ class EcoflowMQTTClient:
                 topics = []
                 for (sn, device) in self.__devices.items():
                     _LOGGER.debug(f"Add Topics for  {sn}")
-
-                    if device.device_info.data_topic:
-                        topics.append((device.device_info.data_topic, 1))
-                    if device.device_info.set_topic:
-                        topics.append((device.device_info.set_topic, 1))
-                    if device.device_info.set_reply_topic:
-                        topics.append((device.device_info.set_reply_topic, 1))
-                    if device.device_info.status_topic:
-                        topics.append((device.device_info.status_topic, 1))
+                    for topic in device.device_info.topics():
+                        topics.append((topic, 1))
 
                 self.__client.subscribe(topics)
                 _LOGGER.info(f"Subscribed to MQTT topics {topics}")
@@ -101,9 +93,9 @@ class EcoflowMQTTClient:
             self.stop()
 
         return client
-
-    def on_socket_close(self, client, userdata, socket):
-        _LOGGER.error(f"Unexpected MQTT Socket disconnection : {str(socket)}")
+    #
+    # def on_socket_close(self, client, userdata, socket):
+    #     _LOGGER.error(f"Unexpected MQTT Socket disconnection : {str(socket)}")
 
     def on_disconnect(self, client, userdata, rc):
         if rc != 0:
@@ -115,21 +107,9 @@ class EcoflowMQTTClient:
 
     def on_message(self, client, userdata, message):
         try:
-            message_sn = None
             for (sn, device) in self.__devices.items():
-                TOPICS = [device.device_info.data_topic, device.device_info.set_topic, device.device_info.set_reply_topic, 
-                          device.device_info.get_topic, device.device_info.get_reply_topic,  device.device_info.status_topic]
-                match message.topic:
-                    case item if item in TOPICS:
-                        message_sn=sn
-                        break
-                    case _:
-                        pass
-            if message_sn:
-                _LOGGER.debug(f"Message for {message_sn} and Topic {message.payload}")
-                self.__devices[message_sn].update_data(message.payload, message.topic)
-            else:
-                _LOGGER.warn(f"No device for Topic {message.topic}")
+                if device.update_data(message.payload, message.topic):
+                    _LOGGER.debug(f"Message for {sn} and Topic {message.topic}")
         except UnicodeDecodeError as error:
             _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
 

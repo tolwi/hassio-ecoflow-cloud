@@ -163,9 +163,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             CONF_DEVICE_TYPE: deviceConf.device_type
         })
 
-        api_client.configure_device(deviceConf.sn, deviceConf.name, deviceConf.device_type)
-        api_client.devices[sn].configure(int(entry.options[OPTS_REFRESH_PERIOD_SEC]), bool(entry.options[OPTS_DIAGNOSTIC_MODE]))
+        device = api_client.configure_device(deviceConf.sn, deviceConf.name, deviceConf.device_type)
+        device.configure(int(entry.options[OPTS_REFRESH_PERIOD_SEC]), bool(entry.options[OPTS_DIAGNOSTIC_MODE]))
 
+    api_client.start()
     hass.data[DOMAIN][entry.entry_id] = api_client
 
     hass.config_entries.async_update_entry(entry, data=new_data, options=entry.options)

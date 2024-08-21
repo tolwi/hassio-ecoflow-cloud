@@ -23,11 +23,10 @@ class EcoflowMqttInfo:
 
 class EcoflowApiClient:
 
-    def __init__(self):
-        self.mqtt_info: EcoflowMqttInfo | None = None
-        self.devices: dict[str, Any] = {}
-        self.mqtt_client = None
-        self.installation_site = None
+    mqtt_info: EcoflowMqttInfo
+    devices: dict[str, Any] = {}
+    mqtt_client = None
+    installation_site: str
 
     @abstractmethod
     async def login(self):
@@ -80,6 +79,10 @@ class EcoflowApiClient:
             raise EcoflowException(f"{response_message}")
 
         return json_resp
+
+    def start(self):
+        from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient
+        self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
 
     def stop(self):
         self.mqtt_client.stop()
