@@ -1,12 +1,15 @@
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.button import EnabledButtonEntity
-from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity, BaseButtonEntity
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, \
+    BaseSelectEntity, BaseButtonEntity
 from custom_components.ecoflow_cloud.number import SetTempEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, \
-    MilliVoltSensorEntity, ChargingStateSensorEntity, \
-    FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, CapacitySensorEntity
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, SecondsRemainSensorEntity, \
+    TempSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, MilliVoltSensorEntity, \
+    ChargingStateSensorEntity, \
+    FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, CapacitySensorEntity, \
+    ReconnectStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity, InvertedBeeperEntity
 
 
@@ -76,7 +79,7 @@ class Glacier(BaseDevice):
             MiscBinarySensorEntity(client,"pd.iceAlert","Ice Alert"),
             MiscBinarySensorEntity(client,"pd.waterLine","Ice Water Level OK"),   
 
-            QuotasStatusSensorEntity(client, self)      
+            ReconnectStatusSensorEntity(client, self)
 
         ]
 

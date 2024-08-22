@@ -14,13 +14,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.util import utcnow
+from homeassistant.util import dt
 
-from . import DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_UPDATES, \
-    ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, ATTR_STATUS_PHASE
+from . import DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, \
+    ATTR_STATUS_PHASE, ATTR_MQTT_CONNECTED
 from .api import EcoflowApiClient
-from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
 from .devices import BaseDevice
+from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -289,112 +289,101 @@ class DecihertzSensorEntity(FrequencySensorEntity):
 
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    DEADLINE_PHASE = 10
-    CHECK_PHASES = [2, 4, 6]
-    CONNECT_PHASES = [3, 5, 7]
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, check_interval_sec=30):
+    def __init__(self, client: EcoflowApiClient,  device: BaseDevice, check_interval_sec=30):
         super().__init__(client, device, "Status", "status")
-        self._online = 0
-        self.__check_interval_sec = check_interval_sec
+        self._online = -1
+        self._last_update = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
         self._attrs = OrderedDict[str, Any]()
         self._attrs[ATTR_STATUS_SN] = self._device.device_info.sn
-        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time()
-        self._attrs[ATTR_STATUS_UPDATES] = 0
+        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = None
+        self._attrs[ATTR_MQTT_CONNECTED] = None
         self._attrs[ATTR_STATUS_LAST_UPDATE] = None
-        self._attrs[ATTR_STATUS_RECONNECTS] = 0
-        self._attrs[ATTR_STATUS_PHASE] = 0
+        self.__check_interval_sec = max(check_interval_sec, self._device.data.update_period_sec)
 
     async def async_added_to_hass(self):
-        await super().async_added_to_hass()
+        get_reply_d = self._device.data.status_observable().subscribe(self._status_update_consumer)
+        self.async_on_remove(get_reply_d.dispose)
 
-        params_d = self._device.data.params_observable().subscribe(self.__params_update)
+        params_d = self._device.data.params_observable().subscribe(self._params_update_consumer)
         self.async_on_remove(params_d.dispose)
 
         self.async_on_remove(
             async_track_time_interval(self.hass, self.__check_status, timedelta(seconds=self.__check_interval_sec)))
 
-        self._update_status((utcnow() - self._device.data.params_time()).total_seconds())
+        await super().async_added_to_hass()
 
-    async def __check_status(self, now: datetime):
-        data_outdated_sec = (now - self._device.data.params_time()).total_seconds()
-        phase = math.ceil(data_outdated_sec / self.__check_interval_sec)
-        self._attrs[ATTR_STATUS_PHASE] = phase
-        time_to_reconnect = phase in self.CONNECT_PHASES
-        time_to_check_status = phase in self.CHECK_PHASES
-
-        if self._online == 1:
-            if time_to_check_status or phase >= self.DEADLINE_PHASE:
-                # online and outdated - refresh status to detect if device went offline
-                self._update_status(data_outdated_sec)
-            elif time_to_reconnect:
-                # online, updated and outdated - reconnect
-                self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
-                self._client.mqtt_client.reconnect()
-                self.schedule_update_ha_state()
-
-        elif not self._client.mqtt_client.is_connected():  # validate connection even for offline device
-            self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
-            self._client.mqtt_client.reconnect()
+    def __check_status(self, now: datetime) -> None:
+        data_outdated_sec_f = (dt.utcnow() - self._last_update).total_seconds()
+        if self._actualize_status(int(data_outdated_sec_f), self.__check_interval_sec):
             self.schedule_update_ha_state()
 
-    def __params_update(self, data: dict[str, Any]):
-        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time()
-        if self._online == 0:
-           self._update_status(0)
-
-        self.schedule_update_ha_state()
-
-    def _update_status(self, data_outdated_sec):
-        if data_outdated_sec > self.__check_interval_sec * self.DEADLINE_PHASE:
+    def _actualize_status(self, data_outdated_sec: int, check_interval_sec: int) -> bool:
+        changed = False
+        if self._online != 0 and data_outdated_sec > check_interval_sec:
             self._online = 0
             self._attr_native_value = "assume_offline"
-        else:
+            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+            changed = True
+        elif self._online != 1 and 0 < data_outdated_sec <= check_interval_sec:
             self._online = 1
-            self._attr_native_value = "assume_online"
+            self._attr_native_value = "online"
+            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+            changed = True
+        # _LOGGER.info("....... %s: _actualize_status (%s, %s) --- %s", self._device.device_info.sn, str(data_outdated_sec),
+        #              str(check_interval_sec), self._attr_native_value)
+        return changed
 
-        self._attrs[ATTR_STATUS_LAST_UPDATE] = utcnow()
-        self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
+    def _status_update_consumer(self, data: dict[str, Any]):
+        self._attrs[ATTR_STATUS_LAST_UPDATE] = self.__timestamp_or_now(data)
+        self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+        if dict["status"] == 1:
+            self._online = 1
+            self._attr_native_value = "online"
+        else:
+            self._online = 0
+            self._attr_native_value = "offline"
+
+        self._last_update = max(self._attrs[ATTR_STATUS_LAST_UPDATE], self._last_update)
         self.schedule_update_ha_state()
+
+    def _params_update_consumer(self, data: dict[str, Any]):
+        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self.__timestamp_or_now(data)
+        self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+        self._last_update = max(self._attrs[ATTR_STATUS_DATA_LAST_UPDATE], self._last_update)
+        self._actualize_status(0, self.__check_interval_sec)
+        self.schedule_update_ha_state()
+
+    def __timestamp_or_now(self, data: dict[str, Any]):
+        res = dt.utcnow()
+        if "timestamp" in data:
+            res = dt.utc_from_timestamp(int(data["timestamp"]) / 1000)
+        return res
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
         return self._attrs
 
 
-class QuotasStatusSensorEntity(StatusSensorEntity):
+class ReconnectStatusSensorEntity(StatusSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, do_init: bool = False):
-        super().__init__(client, device)
-        self.do_init = do_init
+    CONNECT_PHASES = [3, 5, 7]
 
-    async def async_added_to_hass(self):
+    def __init__(self, client: EcoflowApiClient, check_interval_sec=30):
+        super().__init__(client, check_interval_sec)
+        self._attrs[ATTR_STATUS_PHASE] = 0
+        self._attrs[ATTR_STATUS_RECONNECTS] = 0
 
-        get_reply_d = self._device.data.get_reply_observable().subscribe(self.__get_reply_update)
-        self.async_on_remove(get_reply_d.dispose)
+    def _actualize_status(self, data_outdated_sec: int, check_interval_sec: int) -> bool:
+        phase = math.ceil(data_outdated_sec / check_interval_sec)
+        self._attrs[ATTR_STATUS_PHASE] = phase
+        time_to_reconnect = phase in self.CONNECT_PHASES
 
-        await super().async_added_to_hass()
-        if self.do_init:
-            self._update_status(0, True)
-
-    def _update_status(self, update_delta_sec, force: bool = False):
-        if self._client.mqtt_client.is_connected() or force:
-            self._attrs[ATTR_STATUS_UPDATES] = self._attrs[ATTR_STATUS_UPDATES] + 1
-            self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
+        if self._online == 1 and time_to_reconnect:
+            self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
+            self._client.mqtt_client.reconnect()
+            return True
         else:
-            super()._update_status(update_delta_sec)
+            return super()._actualize_status(data_outdated_sec, check_interval_sec)
 
-    def __get_reply_update(self, data: list[dict[str, Any]]):
-        d = data[0]
-        if d["operateType"] == "latestQuotas":
-            self._online = d["data"]["online"]
-            self._attrs[ATTR_STATUS_LAST_UPDATE] = utcnow()
-
-            if self._online == 1:
-                self._attrs[ATTR_STATUS_SN] = d["data"]["sn"]
-                self._attr_native_value = "online"
-            else:
-                self._attr_native_value = "offline"
-
-            self.schedule_update_ha_state()

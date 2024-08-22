@@ -3,10 +3,10 @@ from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, StatusSensorEntity, \
-    InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, \
+    TempSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity, BeeperEntity, FanModeEntity
 
 
@@ -81,7 +81,7 @@ class RiverMax(BaseDevice):
             MilliVoltSensorEntity(client, self, "bmsSlave1.maxCellVol", const.MAX_CELL_VOLT, False),
 
             CyclesSensorEntity(client, self, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True),
-            StatusSensorEntity(client, self),
+            ReconnectStatusSensorEntity(client, self),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:

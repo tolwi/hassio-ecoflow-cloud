@@ -3,11 +3,12 @@ from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
 from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, \
+    TempSensorEntity, \
     CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, \
     InVoltSensorEntity, \
-    InAmpSensorEntity, AmpSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity
+    InAmpSensorEntity, AmpSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity, BeeperEntity
 
 
@@ -93,7 +94,7 @@ class RiverPro(BaseDevice):
             MilliVoltSensorEntity(client, self, "bmsSlave1.maxCellVol", const.SLAVE_MAX_CELL_VOLT, False),
 
 
-            StatusSensorEntity(client, self),
+            ReconnectStatusSensorEntity(client, self),
 
         ]
 

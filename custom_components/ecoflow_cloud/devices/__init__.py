@@ -20,7 +20,6 @@ class EcoflowDeviceInfo:
     sn: str
     name: str
     device_type: str
-    client_id: str
     data_topic: str
     set_topic: str
     set_reply_topic: str

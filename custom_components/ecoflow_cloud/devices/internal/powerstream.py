@@ -10,7 +10,7 @@ from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity, CentivoltSensorEntity, DeciampSensorEntity,
     DecicelsiusSensorEntity, DecihertzSensorEntity, DeciwattsSensorEntity,
     DecivoltSensorEntity, InWattsSolarSensorEntity, LevelSensorEntity,
-    MiscSensorEntity, RemainSensorEntity, StatusSensorEntity,
+    MiscSensorEntity, RemainSensorEntity, StatusSensorEntity, ReconnectStatusSensorEntity,
 )
 from .proto import ecopacket_pb2 as ecopacket, powerstream_pb2 as powerstream
 from ...api import EcoflowApiClient
@@ -85,7 +85,7 @@ class PowerStream(BaseDevice):
             MiscSensorEntity(client, self,  "inv_brightness", "LED Brightness", False),
             MiscSensorEntity(client, self,  "heartbeat_frequency", "Heartbeat Frequency", False),
 
-            StatusSensorEntity(client)
+            ReconnectStatusSensorEntity(client)
         ]
 
 

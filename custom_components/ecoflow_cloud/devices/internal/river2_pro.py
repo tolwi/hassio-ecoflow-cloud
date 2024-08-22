@@ -4,9 +4,8 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, QuotasStatusSensorEntity, \
-    MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingStateSensorEntity, \
-    CapacitySensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, OutMilliVoltSensorEntity, ChargingStateSensorEntity, \
+    CapacitySensorEntity, ReconnectStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 
@@ -69,7 +68,7 @@ class River2Pro(BaseDevice):
             MilliVoltSensorEntity(client, self, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
             # FanSensorEntity(client, self, "bms_emsStatus.fanLevel", "Fan Level"),
 
-            QuotasStatusSensorEntity(client, self),
+            ReconnectStatusSensorEntity(client, self),
 
         ]
 

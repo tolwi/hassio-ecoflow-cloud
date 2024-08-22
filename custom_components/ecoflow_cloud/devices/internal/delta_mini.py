@@ -3,10 +3,11 @@ from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, \
+    TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, InWattsSolarSensorEntity, \
-    StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity
+    InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -69,7 +70,7 @@ class DeltaMini(BaseDevice):
             OutEnergySensorEntity(client, self, "pd.dsgPowerAc", const.DISCHARGE_AC_ENERGY),
             OutEnergySensorEntity(client, self, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
 
-            StatusSensorEntity(client, self),
+            ReconnectStatusSensorEntity(client, self),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:

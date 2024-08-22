@@ -3,10 +3,11 @@ from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
     MaxGenStopLevelEntity, MinGenStartLevelEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, StatusSensorEntity, MilliVoltSensorEntity, \
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
+    CyclesSensorEntity, \
+    InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
-    OutWattsDcSensorEntity
+    OutWattsDcSensorEntity, ReconnectStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -74,7 +75,7 @@ class DeltaMax(BaseDevice):
             #CyclesSensorEntity(client, self, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
             #InWattsSensorEntity(client, self, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),
             #OutWattsSensorEntity(client, self, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True)
-            StatusSensorEntity(client, self),
+            ReconnectStatusSensorEntity(client, self),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:

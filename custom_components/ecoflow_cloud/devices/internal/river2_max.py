@@ -7,8 +7,9 @@ from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatte
 from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InAmpSensorEntity, \
-    InVoltSensorEntity, QuotasStatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, ChargingStateSensorEntity, CapacitySensorEntity, StatusSensorEntity
+    InVoltSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity, ChargingStateSensorEntity, CapacitySensorEntity, StatusSensorEntity, \
+    ReconnectStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 
@@ -155,4 +156,4 @@ class River2Max(BaseDevice):
         ]
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return QuotasStatusSensorEntity(client, self)
+        return ReconnectStatusSensorEntity(client, self)

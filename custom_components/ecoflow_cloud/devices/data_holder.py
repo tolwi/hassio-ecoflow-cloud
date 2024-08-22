@@ -1,9 +1,8 @@
 import logging
-from datetime import datetime
 from typing import Any, List, TypeVar
 
 import jsonpath_ng.ext as jp
-from homeassistant.util import utcnow
+from homeassistant.util import utcnow, dt
 from reactivex import Subject, Observable
 
 _LOGGER = logging.getLogger(__name__)
@@ -32,18 +31,22 @@ class EcoflowDataHolder:
         self.get = BoundFifoList[dict[str, Any]]()
         self.get_reply = BoundFifoList[dict[str, Any]]()
         self.params = dict[str, Any]()
-
+        self.status = dict[str, Any]()
         self.raw_data = BoundFifoList[dict[str, Any]]()
 
-        self.__params_time = utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
-        self.__params_broadcast_time = utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
-        self.__params_observable = Subject[dict[str, Any]]()
 
+        self.__params_broadcast_time = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+
+        self.__params_observable = Subject[dict[str, Any]]()
+        self.__status_observable = Subject[dict[str, Any]]()
         self.__set_reply_observable = Subject[list[dict[str, Any]]]()
         self.__get_reply_observable = Subject[list[dict[str, Any]]]()
 
     def params_observable(self) -> Observable[dict[str, Any]]:
         return self.__params_observable
+
+    def status_observable(self) -> Observable[dict[str, Any]]:
+        return self.__status_observable
 
     def get_reply_observable(self) -> Observable[list[dict[str, Any]]]:
         return self.__get_reply_observable
@@ -79,16 +82,13 @@ class EcoflowDataHolder:
 
         self.__broadcast()
 
+    def update_status(self, raw: dict[str, Any]):
+        self.status.update({"timestamp" : raw.get('timestamp', 1), "status" : int(raw['params']['status'])})
+        self.__status_observable.on_next(self.status)
+
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
-        self.__params_time = utcnow()
-
         try:
-            if "timestamp" in raw:
-                self.params['timestamp'] = raw['timestamp']
-            elif "time" in raw:
-                self.params['timestamp'] = raw['time']
-
             self.params.update(raw['params'])
 
             if (utcnow() - self.__params_broadcast_time).total_seconds() > self.update_period_sec:
@@ -104,6 +104,3 @@ class EcoflowDataHolder:
     def __add_raw_data(self, raw: dict[str, Any]):
         if self.__collect_raw:
             self.raw_data.append(raw)
-
-    def params_time(self) -> datetime:
-        return self.__params_time

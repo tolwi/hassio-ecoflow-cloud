@@ -10,8 +10,8 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSenso
     TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, InWattsSolarSensorEntity, \
     InVoltSolarSensorEntity, InAmpSolarSensorEntity, OutVoltDcSensorEntity, \
-    StatusSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, AmpSensorEntity, CapacitySensorEntity
+    InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity, AmpSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -132,7 +132,7 @@ class DeltaPro(BaseDevice):
             WattsSensorEntity(client, self, "bmsSlave2.outputWatts", const.SLAVE_N_OUT_POWER % 2, False, True),
             CyclesSensorEntity(client, self, "bmsSlave1.cycles", const.SLAVE_N_CYCLES % 1, False),
             CyclesSensorEntity(client, self, "bmsSlave2.cycles", const.SLAVE_N_CYCLES % 2, False),
-            StatusSensorEntity(client, self),
+            ReconnectStatusSensorEntity(client, self),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:

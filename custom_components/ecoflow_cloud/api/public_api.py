@@ -3,16 +3,18 @@ import hmac
 import logging
 import random
 import time
+from datetime import datetime
 
 import aiohttp
+from homeassistant.util import dt
 
 from . import EcoflowApiClient
-from .ecoflow_mqtt import EcoflowMQTTClient
 from ..devices import DiagnosticDevice, EcoflowDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 
 BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
+
 
 # from FB
 # client_id limits for MQTT connections
@@ -23,7 +25,7 @@ BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
 
 class EcoflowPublicApiClient(EcoflowApiClient):
 
-    def __init__(self,access_key: str, secret_key: str, installation_site: str):
+    def __init__(self, access_key: str, secret_key: str, installation_site: str):
         super().__init__()
         self.access_key = access_key
         self.secret_key = secret_key
@@ -35,7 +37,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         _LOGGER.info(f"Requesting IoT MQTT credentials")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
-        self.mqtt_info.client_id = f'HomeAssistant-{self.installation_site}'
+        self.mqtt_info.client_id = f"HomeAssistant-{self.installation_site}-{datetime.strftime(dt.now(), '%Y%m%d')}"
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info(f"Requesting all devices")
@@ -90,12 +92,10 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             data_topic=f"/open/{self.mqtt_info.username}/{device_sn}/quota",
             set_topic=f"/open/{self.mqtt_info.username}/{device_sn}/set",
             set_reply_topic=f"/open/{self.mqtt_info.username}/{device_sn}/set_reply",
-            get_topic=f"/open/{self.mqtt_info.username}/{device_sn}/get",
-            get_reply_topic=f"/open/{self.mqtt_info.username}/{device_sn}/get_reply",
-            status_topic=f"/open/{self.mqtt_info.username}/{device_sn}/status",
-            client_id= f'HomeAssistant-{self.installation_site}-{device_type}'
+            get_topic=None,
+            get_reply_topic=None,
+            status_topic=f"/open/{self.mqtt_info.username}/{device_sn}/status"
         )
-
 
     def __gen_sign(self, query_params: str | None) -> str:
         target_str = f"accessKey={self.access_key}&nonce={self.nonce}&timestamp={self.timestamp}"

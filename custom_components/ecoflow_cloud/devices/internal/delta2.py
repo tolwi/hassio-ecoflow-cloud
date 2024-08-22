@@ -5,8 +5,8 @@ from ...number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLeve
     MaxGenStopLevelEntity, MinGenStartLevelEntity, BatteryBackupLevel
 from ...select import DictSelectEntity, TimeoutDictSelectEntity
 from ...sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, QuotasStatusSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity, StatusSensorEntity
+    InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity, CapacitySensorEntity, StatusSensorEntity, ReconnectStatusSensorEntity
 from ...switch import BeeperEntity, EnabledEntity
 
 
@@ -191,4 +191,4 @@ class Delta2(BaseDevice):
         ]
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return QuotasStatusSensorEntity(client, self)
+        return ReconnectStatusSensorEntity(client, self)

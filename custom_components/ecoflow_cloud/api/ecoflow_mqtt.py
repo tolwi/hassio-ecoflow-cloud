@@ -32,7 +32,8 @@ class EcoflowMQTTClient:
         # self.__client.on_socket_close = self.on_socket_close
 
         _LOGGER.info(f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}")
-        self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, 30)
+        self.__client.connect_async(self.__mqtt_info.url, self.__mqtt_info.port)
+        self.__client.loop_start()
 
     def is_connected(self):
         return self.__client.is_connected()
@@ -60,15 +61,11 @@ class EcoflowMQTTClient:
     def on_connect(self, client, userdata, flags, rc):
         match rc:
             case 0:
-                self.__client.loop_start()
-                topics = []
                 for (sn, device) in self.__devices.items():
                     _LOGGER.debug(f"Add Topics for  {sn}")
                     for topic in device.device_info.topics():
-                        topics.append((topic, 1))
-
-                self.__client.subscribe(topics)
-                _LOGGER.info(f"Subscribed to MQTT topics {topics}")
+                        self.__client.subscribe(topic, 1)
+                        _LOGGER.info(f"Subscribed to MQTT topics {topic}")
             case -1:
                 _LOGGER.error(f"Failed to connect to MQTT: connection timed out ({self.__mqtt_info.client_id})")
             case 1:
@@ -88,11 +85,10 @@ class EcoflowMQTTClient:
             case _:
                 _LOGGER.error(f"Failed to connect to MQTT: another error occured: {rc} ({self.__mqtt_info.client_id})")
 
-        if not self.__autorise:
-            _LOGGER.error(f"Authorisation:False / rc: {rc} ({self.__mqtt_info.client_id})")
-            self.stop()
+        # if not self.__autorise:
+        #     _LOGGER.error(f"Authorisation:False / rc: {rc} ({self.__mqtt_info.client_id})")
+        #     self.stop()
 
-        return client
     #
     # def on_socket_close(self, client, userdata, socket):
     #     _LOGGER.error(f"Unexpected MQTT Socket disconnection : {str(socket)}")

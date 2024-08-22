@@ -6,8 +6,7 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
 from custom_components.ecoflow_cloud.number import SetTempEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    WattsSensorEntity, QuotasStatusSensorEntity, \
-    MilliCelsiusSensorEntity, CapacitySensorEntity
+    WattsSensorEntity, MilliCelsiusSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
 
 
 class Wave2(BaseDevice):
@@ -55,8 +54,7 @@ class Wave2(BaseDevice):
             WattsSensorEntity(client, self, "power.acPwrI", "AC input power"),
             WattsSensorEntity(client, self, "power.mpptPwr ", "PV input power"),
 
-            QuotasStatusSensorEntity(client, self)
-
+            ReconnectStatusSensorEntity(client, self)
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:

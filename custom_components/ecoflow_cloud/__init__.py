@@ -28,6 +28,7 @@ ATTR_STATUS_SN = "SN"
 ATTR_STATUS_UPDATES = "status_request_count"
 ATTR_STATUS_LAST_UPDATE = "status_last_update"
 ATTR_STATUS_DATA_LAST_UPDATE = "data_last_update"
+ATTR_MQTT_CONNECTED = "mqtt_connected"
 ATTR_STATUS_RECONNECTS = "reconnects"
 ATTR_STATUS_PHASE = "status_phase"
 

@@ -83,8 +83,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             set_topic=f"/app/{self.user_id}/{device_sn}/thing/property/set",
             set_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/set_reply",
             get_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get",
-            get_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get_reply",
-            client_id= f'HomeAssistant-{self.installation_site}-{device_type}'
+            get_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get_reply"
         )
 
     async def __call_api(self, endpoint: str, params: dict[str: any] | None = None) -> dict:
