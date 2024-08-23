@@ -14,11 +14,11 @@ BASE_URI = "https://api.ecoflow.com"
 
 class EcoflowPrivateApiClient(EcoflowApiClient):
 
-    def __init__(self, ecoflow_username: str, ecoflow_password: str, installation_site: str):
+    def __init__(self, ecoflow_username: str, ecoflow_password: str, group: str):
         super().__init__()
         self.ecoflow_password = ecoflow_password
         self.ecoflow_username = ecoflow_username
-        self.installation_site = installation_site
+        self.group = group
         self.user_id = None
         self.token = None
         self.user_name = None
@@ -51,8 +51,8 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             response = await self.__call_api("/iot-auth/app/certification")
             self._accept_mqqt_certification(response)
 
-            # Should be ANDROID_..str.._user_id
-            self.mqtt_info.client_id = f'ANDROID_-{str(uuid.random_uuid_hex()).upper()}_{self.user_id}'
+            # Should be ANDROID_..str.._user_id !!!
+            self.mqtt_info.client_id = f'ANDROID_{str(uuid.random_uuid_hex()).upper()}_{self.user_id}'
 
     async def fetch_all_available_devices(self):
         return []
@@ -60,7 +60,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
     async def quota_all(self, device_sn: str):
         self.mqtt_client.send_get_message(device_sn, {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
 
-    def configure_device(self, device_sn: str, device_name: str, device_type: str):
+    def configure_device(self, device_sn: str, device_name: str, device_type: str, power_step: int = -1):
         info = self.__create_device_info(device_sn, device_name, device_type)
 
         from ..devices.registry import devices

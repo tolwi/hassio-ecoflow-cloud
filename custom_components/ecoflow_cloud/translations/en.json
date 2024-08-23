@@ -4,26 +4,25 @@
     "step": {
       "user": {
         "data": {
-          "installation_site": "Installation site"
-        }
-      },
-      "reconfigure": {
-        "data": {
-          "installation_site": "Installation site"
-        }
-      },
-      "reconfigure_user": {
-        "menu_options": {
-          "api": "Use public API",
-          "manual": "Use application API"
+          "group": "Device group"
         }
       },
       "api": {
+        "menu_options": {
+          "api_add_device": "Add device",
+          "remove_device": "Remove device",
+          "finish": "Finish"
+        },
         "data": {
-          "installation_site": "Installation site",
           "access_key": "Access key",
           "secret_key": "Secret key",
-          "load_automatique_device": "Automatic device charging"
+          "load_all_devices": "Automatic device loading"
+        }
+      },
+      "choose_type": {
+         "menu_options": {
+          "api": "Use public API",
+          "manual": "Use application API"
         }
       },
       "select_device": {
@@ -39,8 +38,12 @@
         }
       },
       "manual": {
+        "menu_options": {
+          "manual_add_device": "Add device",
+          "remove_device": "Remove device",
+          "finish": "Finish"
+        },
         "data": {
-          "installation_site": "Installation site",
           "username": "User email",
           "password": "User password"
         }
@@ -57,6 +60,11 @@
   "options": {
     "step": {
       "init": {
+        "data": {
+          "select_device": "Select device"
+        }
+      },
+      "options": {
         "data": {
           "power_step": "Charging power slider step",
           "refresh_period_sec": "Data refresh period (sec)",

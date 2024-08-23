@@ -9,9 +9,9 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.core import DOMAIN
 from homeassistant.helpers.entity import Entity, EntityCategory, DeviceInfo
 
+from custom_components.ecoflow_cloud import ECOFLOW_DOMAIN
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 
 from custom_components.ecoflow_cloud.devices import BaseDevice
@@ -30,7 +30,7 @@ class EcoFlowAbstractEntity(Entity):
     @property
     def device_info(self) -> DeviceInfo | None:
         return DeviceInfo(
-            identifiers={(DOMAIN, f"{self._type_prefix()}{self._device.device_info.sn}")},
+            identifiers={(ECOFLOW_DOMAIN, f"{self._type_prefix()}{self._device.device_info.sn}")},
             manufacturer="EcoFlow",
             name=self._device.device_info.name,
             model=self._device.device_info.device_type,

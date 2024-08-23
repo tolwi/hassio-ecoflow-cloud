@@ -5,14 +5,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import DOMAIN
+from . import ECOFLOW_DOMAIN
 from .api import EcoflowApiClient
 from .entities import BaseSelectEntity
 from .devices import BaseDevice
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
+    client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
     for (sn, device) in client.devices.items():
         async_add_entities(device.selects(client))
 
@@ -44,7 +44,7 @@ class DictSelectEntity(BaseSelectEntity):
             self.send_set_message(val, self.command_dict(val))
 
     def current_option(self) -> str | None:
-        return super().current_option()
+        return super().current_option
 
 class TimeoutDictSelectEntity(DictSelectEntity):
     _attr_icon = "mdi:timer-outline"

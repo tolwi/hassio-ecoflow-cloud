@@ -16,7 +16,7 @@ from custom_components.ecoflow_cloud.switch import EnabledEntity
 class River2Max(BaseDevice):
 
     @staticmethod
-    def charging_power_step() -> int:
+    def default_charging_power_step() -> int:
         return 50
 
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:

@@ -12,6 +12,7 @@ class EcoflowException(Exception):
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
 
+
 @dataclass
 class EcoflowMqttInfo:
     url: str
@@ -23,15 +24,15 @@ class EcoflowMqttInfo:
 
 class EcoflowApiClient:
 
-    mqtt_info: EcoflowMqttInfo
-    devices: dict[str, Any] = {}
-    mqtt_client = None
-    installation_site: str
+    def __init__(self):
+        self.mqtt_info: EcoflowMqttInfo
+        self.devices: dict[str, Any] = {}
+        self.mqtt_client = None
 
     @abstractmethod
     async def login(self):
         pass
-    
+
     @abstractmethod
     async def fetch_all_available_devices(self):
         pass
@@ -41,7 +42,7 @@ class EcoflowApiClient:
         pass
 
     @abstractmethod
-    def configure_device(self, device_sn: str, device_name: str, device_type: str):
+    def configure_device(self, device_sn: str, device_name: str, device_type: str, power_step=-1):
         pass
 
     def add_device(self, device):

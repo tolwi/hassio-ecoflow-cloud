@@ -4,52 +4,55 @@
     "step": {
       "user": {
         "data": {
-          "installation_site": "Site d'installation"
+          "group": "Groupe d'appareils"
         }
       },
-      "reconfigure": {
-        "data": {
-          "installation_site": "Site d'installation"
-        }
-      },
-      "reconfigure_user": {
+      "api": {
         "menu_options": {
+          "api_add_device": "Ajouter un appareil",
+          "remove_device": "Supprimer un appareil",
+          "finish": "Terminer"
+        },
+        "data": {
+          "access_key": "Clé d'accès",
+          "secret_key": "Clé secrète",
+          "load_all_devices": "Chargement automatique des appareils"
+        }
+      },
+      "choose_type": {
+         "menu_options": {
           "api": "Utiliser l'API publique",
           "manual": "Utiliser l'API de l'application"
         }
       },
-      "api": {
-        "data": {
-          "installation_site": "Site d'installation",
-          "access_key": "Clé d'accès",
-          "secret_key": "Clé secrète",
-          "load_automatique_device": "Chargement automatique des appareils"
-        }
-      },
       "select_device": {
         "data": {
-          "select_device": "Sélectionner l'appareil"
+          "select_device": "Sélectionner un appareil"
         }
       },
       "confirm_cloud_device": {
         "data": {
           "device_type": "Type d'appareil",
           "device_name": "Nom de l'appareil",
-          "device_id": "Numéro de série"
+          "device_id": "SN de l'appareil"
         }
       },
       "manual": {
+        "menu_options": {
+          "manual_add_device": "Ajouter un appareil",
+          "remove_device": "Supprimer un appareil",
+          "finish": "Terminer"
+        },
         "data": {
-          "installation_site": "Site d'installation",
-          "username": "Adresse e-mail",
-          "password": "Mot de passe"
+          "username": "E-mail de l'utilisateur",
+          "password": "Mot de passe de l'utilisateur"
         }
       },
       "manual_device_input": {
         "data": {
           "device_type": "Type d'appareil",
           "device_name": "Nom de l'appareil",
-          "device_id": "Numéro de série"
+          "device_id": "SN de l'appareil"
         }
       }
     }
@@ -58,8 +61,13 @@
     "step": {
       "init": {
         "data": {
+          "select_device": "Sélectionner un appareil"
+        }
+      },
+      "options": {
+        "data": {
           "power_step": "Pas du curseur de puissance de charge",
-          "refresh_period_sec": "Durée actualisation des données (secondes)",
+          "refresh_period_sec": "Période de rafraîchissement des données (sec)",
           "diagnostic_mode": "Mode diagnostic"
         }
       }

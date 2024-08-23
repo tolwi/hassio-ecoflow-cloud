@@ -4,26 +4,25 @@
     "step": {
       "user": {
         "data": {
-          "installation_site": "Installationsort"
-        }
-      },
-      "reconfigure": {
-        "data": {
-          "installation_site": "Installationsort"
-        }
-      },
-      "reconfigure_user": {
-        "menu_options": {
-          "api": "Öffentliche API verwenden",
-          "manual": "Anwendungs-API verwenden"
+          "group": "Gerätegruppe"
         }
       },
       "api": {
+        "menu_options": {
+          "api_add_device": "Gerät hinzufügen",
+          "remove_device": "Gerät entfernen",
+          "finish": "Abschließen"
+        },
         "data": {
-          "installation_site": "Installationsort",
           "access_key": "Zugriffsschlüssel",
-          "secret_key": "Geheimer Schlüssel",
-          "load_automatique_device": "Automatisches Laden des Geräts"
+          "secret_key": "Geheimschlüssel",
+          "load_all_devices": "Automatisches Laden von Geräten"
+        }
+      },
+      "choose_type": {
+         "menu_options": {
+          "api": "Öffentliche API verwenden",
+          "manual": "Anwendungs-API verwenden"
         }
       },
       "select_device": {
@@ -35,21 +34,25 @@
         "data": {
           "device_type": "Gerätetyp",
           "device_name": "Gerätename",
-          "device_id": "Seriennummer des Gerät"
+          "device_id": "Gerät SN"
         }
       },
       "manual": {
+        "menu_options": {
+          "manual_add_device": "Gerät hinzufügen",
+          "remove_device": "Gerät entfernen",
+          "finish": "Abschließen"
+        },
         "data": {
-          "installation_site": "Installationsort",
-          "username": "Benutzer-Email",
-          "password": "Benutzer-Passwort"
+          "username": "Benutzer-E-Mail",
+          "password": "Benutzerpasswort"
         }
       },
       "manual_device_input": {
         "data": {
           "device_type": "Gerätetyp",
           "device_name": "Gerätename",
-          "device_id": "Seriennummer des Gerät"
+          "device_id": "Gerät SN"
         }
       }
     }
@@ -58,8 +61,13 @@
     "step": {
       "init": {
         "data": {
-          "power_step": "Ladeleistung (Schritte für Schieberegler)",
-          "refresh_period_sec": "Datenaktualisierung in Sekunden",
+          "select_device": "Gerät auswählen"
+        }
+      },
+      "options": {
+        "data": {
+          "power_step": "Schieberegler-Schritt für Ladeleistung",
+          "refresh_period_sec": "Datenaktualisierungsperiode (Sek.)",
           "diagnostic_mode": "Diagnosemodus"
         }
       }

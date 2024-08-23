@@ -4,26 +4,25 @@
     "step": {
       "user": {
         "data": {
-          "installation_site": "Lugar de instalação"
-        }
-      },
-      "reconfigure": {
-        "data": {
-          "installation_site": "Lugar de instalação"
-        }
-      },
-      "reconfigure_user": {
-        "menu_options": {
-          "api": "Usar API pública",
-          "manual": "Usar API do aplicativo"
+          "group": "Grupo de dispositivos"
         }
       },
       "api": {
+        "menu_options": {
+          "api_add_device": "Adicionar dispositivo",
+          "remove_device": "Remover dispositivo",
+          "finish": "Concluir"
+        },
         "data": {
-          "installation_site": "Lugar de instalação",
           "access_key": "Chave de acesso",
           "secret_key": "Chave secreta",
-          "load_automatique_device": "Carregamento automático do dispositivo"
+          "load_all_devices": "Carregamento automático de dispositivos"
+        }
+      },
+      "choose_type": {
+         "menu_options": {
+          "api": "Usar API pública",
+          "manual": "Usar API do aplicativo"
         }
       },
       "select_device": {
@@ -39,10 +38,14 @@
         }
       },
       "manual": {
+        "menu_options": {
+          "manual_add_device": "Adicionar dispositivo",
+          "remove_device": "Remover dispositivo",
+          "finish": "Concluir"
+        },
         "data": {
-          "installation_site": "Lugar de instalação",
-          "username": "Email do utilizador",
-          "password": "Palavra-passe do utilizador"
+          "username": "E-mail do usuário",
+          "password": "Senha do usuário"
         }
       },
       "manual_device_input": {
@@ -58,8 +61,13 @@
     "step": {
       "init": {
         "data": {
-          "power_step": "Controlo deslizante da potência",
-          "refresh_period_sec": "Período de atualização dos dados (segundos)",
+          "select_device": "Selecionar dispositivo"
+        }
+      },
+      "options": {
+        "data": {
+          "power_step": "Incremento do controle deslizante de potência de carga",
+          "refresh_period_sec": "Período de atualização de dados (seg.)",
           "diagnostic_mode": "Modo de diagnóstico"
         }
       }

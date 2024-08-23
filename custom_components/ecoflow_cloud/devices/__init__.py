@@ -43,6 +43,7 @@ class BaseDevice(ABC):
 
     data: EcoflowDataHolder = None
     device_info: EcoflowDeviceInfo = None
+    power_step: int = -1
 
     def __init__(self, device_info: EcoflowDeviceInfo):
         super().__init__()
@@ -53,8 +54,14 @@ class BaseDevice(ABC):
         self.data = EcoflowDataHolder(refresh_period, diag)
 
     @staticmethod
-    def charging_power_step() -> int:
+    def default_charging_power_step() -> int:
         return 100
+
+    def charging_power_step(self) -> int:
+        if self.power_step == -1:
+            return self.default_charging_power_step()
+        else:
+            return self.power_step
 
     def flat_json(self) -> bool:
         return True

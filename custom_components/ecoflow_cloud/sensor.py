@@ -16,7 +16,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt
 
-from . import DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, \
+from . import ECOFLOW_DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, \
     ATTR_STATUS_PHASE, ATTR_MQTT_CONNECTED
 from .api import EcoflowApiClient
 from .devices import BaseDevice
@@ -25,7 +25,7 @@ from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
+    client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
     for (sn, device) in client.devices.items():
         async_add_entities(device.sensors(client))
 
@@ -370,8 +370,8 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
 
     CONNECT_PHASES = [3, 5, 7]
 
-    def __init__(self, client: EcoflowApiClient, check_interval_sec=30):
-        super().__init__(client, check_interval_sec)
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, check_interval_sec=30):
+        super().__init__(client, device, check_interval_sec)
         self._attrs[ATTR_STATUS_PHASE] = 0
         self._attrs[ATTR_STATUS_RECONNECTS] = 0
 

@@ -7,14 +7,14 @@ from homeassistant.const import PERCENTAGE, UnitOfPower, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import DOMAIN
+from . import ECOFLOW_DOMAIN
 from .api import EcoflowApiClient
 from .entities import BaseNumberEntity
 from .devices import BaseDevice
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    client: EcoflowApiClient = hass.data[DOMAIN][entry.entry_id]
+    client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
     for (sn, device) in client.devices.items():
         async_add_entities(device.numbers(client))
 
@@ -38,7 +38,7 @@ class ChargingPowerEntity(ValueUpdateEntity):
                  command: Callable[[int], dict[str, Any]] | None,
                  enabled: bool = True, auto_enable: bool = False):
         super().__init__(client, device, mqtt_key, title, min_value, max_value, command, enabled, auto_enable)
-        self._attr_native_step = self._device.data.update_period_sec
+        self._attr_native_step = self._device.charging_power_step()
 
 
 class DeciChargingPowerEntity(ChargingPowerEntity):

@@ -25,11 +25,11 @@ BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
 
 class EcoflowPublicApiClient(EcoflowApiClient):
 
-    def __init__(self, access_key: str, secret_key: str, installation_site: str):
+    def __init__(self, access_key: str, secret_key: str, group: str):
         super().__init__()
         self.access_key = access_key
         self.secret_key = secret_key
-        self.installation_site = installation_site
+        self.group = group
         self.nonce = str(random.randint(10000, 1000000))
         self.timestamp = str(int(time.time() * 1000))
 
@@ -37,18 +37,21 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         _LOGGER.info(f"Requesting IoT MQTT credentials")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
-        self.mqtt_info.client_id = f"HomeAssistant-{self.installation_site}-{datetime.strftime(dt.now(), '%Y%m%d')}"
+        self.mqtt_info.client_id = f"HomeAssistant-{self.group}-{datetime.strftime(dt.now(), '%Y%m%d')}"
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info(f"Requesting all devices")
         response = await self.call_api("/device/list")
         result = list()
         for device in response["data"]:
-            result.append(self.__create_device_info(device["sn"], device["deviceName"], device["productName"]))
+            sn = device["sn"]
+            product_name = device["productName"]
+            device_name = device.get("deviceName", f"{product_name}-{sn}")
+            result.append(self.__create_device_info(sn, device_name, product_name))
 
         return result
 
-    def configure_device(self, device_sn: str, device_name: str, device_type: str):
+    def configure_device(self, device_sn: str, device_name: str, device_type: str, power_step = -1):
         info = self.__create_device_info(device_sn, device_name, device_type)
 
         from custom_components.ecoflow_cloud.devices.registry import device_by_product
