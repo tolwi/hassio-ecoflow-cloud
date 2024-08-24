@@ -43,9 +43,6 @@ class DictSelectEntity(BaseSelectEntity):
             val = self.__options_dict[option]
             self.send_set_message(val, self.command_dict(val))
 
-    def current_option(self) -> str | None:
-        return super().current_option
-
 class TimeoutDictSelectEntity(DictSelectEntity):
     _attr_icon = "mdi:timer-outline"
 
