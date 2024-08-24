@@ -85,7 +85,7 @@ class PowerStream(BaseDevice):
             MiscSensorEntity(client, self,  "inv_brightness", "LED Brightness", False),
             MiscSensorEntity(client, self,  "heartbeat_frequency", "Heartbeat Frequency", False),
 
-            ReconnectStatusSensorEntity(client)
+            ReconnectStatusSensorEntity(client, self)
         ]
 
 
