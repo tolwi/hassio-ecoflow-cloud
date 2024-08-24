@@ -1,5 +1,7 @@
 import base64
+import hashlib
 import logging
+from time import time
 
 import aiohttp
 from homeassistant.util import uuid
@@ -53,6 +55,18 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
             # Should be ANDROID_..str.._user_id !!!
             self.mqtt_info.client_id = f'ANDROID_{str(uuid.random_uuid_hex()).upper()}_{self.user_id}'
+
+
+    # Failed to connect to MQTT: not authorised
+    def gen_client_id(self):
+        base = f'ANDROID_{str(uuid.random_uuid_hex()).upper()}_{self.user_id}'
+        millis = int(time() * 1000)
+        verify_info = "0000000000000000000000000000000000000000000000000000000000000000"
+        pub = verify_info[:32]
+        priv = verify_info[32:]
+        k = priv + base + str(millis)
+        res = base + "_" + pub + "_" + str(millis) + "_" + hashlib.md5(k.encode("utf-8")).hexdigest()
+        return res
 
     async def fetch_all_available_devices(self):
         return []

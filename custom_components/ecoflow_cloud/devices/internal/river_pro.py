@@ -8,7 +8,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSenso
     CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, \
     InVoltSensorEntity, \
     InAmpSensorEntity, AmpSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
+    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity, QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity, BeeperEntity
 
 
@@ -94,7 +94,7 @@ class RiverPro(BaseDevice):
             MilliVoltSensorEntity(client, self, "bmsSlave1.maxCellVol", const.SLAVE_MAX_CELL_VOLT, False),
 
 
-            ReconnectStatusSensorEntity(client, self),
+            QuotaStatusSensorEntity(client, self)
 
         ]
 

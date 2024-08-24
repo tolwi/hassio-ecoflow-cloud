@@ -7,7 +7,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSenso
     TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, InWattsSolarSensorEntity, \
     InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
+    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity, QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -70,7 +70,7 @@ class DeltaMini(BaseDevice):
             OutEnergySensorEntity(client, self, "pd.dsgPowerAc", const.DISCHARGE_AC_ENERGY),
             OutEnergySensorEntity(client, self, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
 
-            ReconnectStatusSensorEntity(client, self),
+            QuotaStatusSensorEntity(client, self)
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:

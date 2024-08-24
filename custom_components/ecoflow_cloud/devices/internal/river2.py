@@ -9,7 +9,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSens
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InAmpSensorEntity, \
     InVoltSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, ChargingStateSensorEntity, CapacitySensorEntity, StatusSensorEntity, \
-    ReconnectStatusSensorEntity
+    QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 
@@ -156,4 +156,4 @@ class River2(BaseDevice):
         ]
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return ReconnectStatusSensorEntity(client, self)
+        return QuotaStatusSensorEntity(client, self)

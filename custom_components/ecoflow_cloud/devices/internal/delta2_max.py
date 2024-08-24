@@ -8,7 +8,7 @@ from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
-    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
+    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -126,7 +126,7 @@ class Delta2Max(BaseDevice):
             LevelSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_SOC % 2, False, True),
 
                        
-            ReconnectStatusSensorEntity(client, self),
+            QuotaStatusSensorEntity(client, self)
 
         ]
 

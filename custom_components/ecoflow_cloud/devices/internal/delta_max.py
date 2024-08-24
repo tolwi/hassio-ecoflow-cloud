@@ -7,7 +7,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSens
     CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
-    OutWattsDcSensorEntity, ReconnectStatusSensorEntity
+    OutWattsDcSensorEntity, ReconnectStatusSensorEntity, QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -75,7 +75,7 @@ class DeltaMax(BaseDevice):
             #CyclesSensorEntity(client, self, "bms_slave.cycles", const.SLAVE_CYCLES, False, True),
             #InWattsSensorEntity(client, self, "bms_slave.inputWatts", const.SLAVE_IN_POWER, False, True),
             #OutWattsSensorEntity(client, self, "bms_slave.outputWatts", const.SLAVE_OUT_POWER, False, True)
-            ReconnectStatusSensorEntity(client, self),
+            QuotaStatusSensorEntity(client, self)
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:

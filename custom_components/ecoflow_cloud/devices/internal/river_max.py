@@ -5,8 +5,9 @@ from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, \
     TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, InEnergySensorEntity, OutEnergySensorEntity, \
+    MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity, BeeperEntity, FanModeEntity
 
 
@@ -81,7 +82,7 @@ class RiverMax(BaseDevice):
             MilliVoltSensorEntity(client, self, "bmsSlave1.maxCellVol", const.MAX_CELL_VOLT, False),
 
             CyclesSensorEntity(client, self, "bmsSlave1.cycles", const.SLAVE_CYCLES, False, True),
-            ReconnectStatusSensorEntity(client, self),
+            QuotaStatusSensorEntity(client, self)
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:

@@ -16,8 +16,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt
 
-from . import ECOFLOW_DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_LAST_UPDATE, ATTR_STATUS_RECONNECTS, \
-    ATTR_STATUS_PHASE, ATTR_MQTT_CONNECTED
+from . import ECOFLOW_DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_LAST_UPDATE, \
+    ATTR_STATUS_RECONNECTS, \
+    ATTR_STATUS_PHASE, ATTR_MQTT_CONNECTED, ATTR_QUOTA_REQUESTS
 from .api import EcoflowApiClient
 from .devices import BaseDevice
 from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
@@ -320,18 +321,16 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     def _actualize_status(self, data_outdated_sec: int, check_interval_sec: int) -> bool:
         changed = False
-        if self._online != 0 and data_outdated_sec > check_interval_sec:
+        if self._online != 0 and data_outdated_sec > check_interval_sec * 2:
             self._online = 0
             self._attr_native_value = "assume_offline"
             self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
             changed = True
-        elif self._online != 1 and 0 < data_outdated_sec <= check_interval_sec:
+        elif self._online != 1 and 0 < data_outdated_sec <= check_interval_sec * 2:
             self._online = 1
             self._attr_native_value = "online"
             self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
             changed = True
-        # _LOGGER.info("....... %s: _actualize_status (%s, %s) --- %s", self._device.device_info.sn, str(data_outdated_sec),
-        #              str(check_interval_sec), self._attr_native_value)
         return changed
 
     def _status_update_consumer(self, data: dict[str, Any]):
@@ -363,6 +362,31 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
         return self._attrs
+
+class QuotaStatusSensorEntity(StatusSensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, check_interval_sec=30):
+        super().__init__(client, device, check_interval_sec)
+        self._attrs[ATTR_QUOTA_REQUESTS] = 0
+
+    def _actualize_status(self, data_outdated_sec: int, check_interval_sec: int) -> bool:
+        changed = False
+        if self._online != 0 and data_outdated_sec > check_interval_sec * 4:
+            self._online = 0
+            self._attr_native_value = "assume_offline"
+            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+            changed = True
+        elif self._online != 0 and data_outdated_sec > check_interval_sec * 2:
+            self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
+            self._attrs[ATTR_QUOTA_REQUESTS] = self._attrs[ATTR_QUOTA_REQUESTS] + 1
+            changed = True
+        elif self._online != 1 and 0 < data_outdated_sec <= check_interval_sec * 2:
+            self._online = 1
+            self._attr_native_value = "online"
+            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+            changed = True
+        return changed
 
 
 class ReconnectStatusSensorEntity(StatusSensorEntity):

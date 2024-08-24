@@ -9,7 +9,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSens
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, MilliVoltSensorEntity, \
     ChargingStateSensorEntity, \
     FanSensorEntity, MiscBinarySensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, CapacitySensorEntity, \
-    ReconnectStatusSensorEntity
+    QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity, InvertedBeeperEntity
 
 
@@ -79,7 +79,7 @@ class Glacier(BaseDevice):
             MiscBinarySensorEntity(client,"pd.iceAlert","Ice Alert"),
             MiscBinarySensorEntity(client,"pd.waterLine","Ice Water Level OK"),   
 
-            ReconnectStatusSensorEntity(client, self)
+            QuotaStatusSensorEntity(client, self)
 
         ]
 

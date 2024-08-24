@@ -31,6 +31,7 @@ ATTR_STATUS_DATA_LAST_UPDATE = "data_last_update"
 ATTR_MQTT_CONNECTED = "mqtt_connected"
 ATTR_STATUS_RECONNECTS = "reconnects"
 ATTR_STATUS_PHASE = "status_phase"
+ATTR_QUOTA_REQUESTS = "quota_requests"
 
 CONF_AUTH_TYPE: Final = "auth_type"
 
