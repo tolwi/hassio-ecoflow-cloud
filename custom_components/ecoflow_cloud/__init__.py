@@ -130,6 +130,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             title = "Home_api"
             new_data[CONF_ACCESS_KEY] = config_entry.data[CONF_ACCESS_KEY]
             new_data[CONF_SECRET_KEY] = config_entry.data[CONF_SECRET_KEY]
+            new_data[CONF_LOAD_ALL_DEVICES] = False
         new_data[CONF_GROUP] = title
 
         hass.config_entries.async_update_entry(config_entry,
@@ -193,10 +194,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     devices_list: dict[str, DeviceData] = {}
     devices_options: dict[str, DeviceOptions] = {}
 
-    if not entry.data[CONF_LOAD_ALL_DEVICES]:
+    if CONF_LOAD_ALL_DEVICES not in entry.data or not entry.data[CONF_LOAD_ALL_DEVICES]:
         devices_list.update(extract_devices(entry))
         devices_options.update(extract_options(entry))
-
     else:
         try:
             from .devices.registry import device_by_product
