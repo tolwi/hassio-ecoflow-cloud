@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 from typing import Dict, Any
 
 import voluptuous as vol
@@ -40,8 +41,8 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
 
     def set_current_config_entry(self, config_entry: ConfigEntry) -> None:
         self.config_entry = config_entry
-        self.new_data = {**config_entry.data}
-        self.new_options = {**config_entry.options}
+        self.new_data = deepcopy(dict(config_entry.data))
+        self.new_options = deepcopy(dict(config_entry.options))
 
     def set_device_list(self, device_list: list[EcoflowDeviceInfo]) -> None:
         for device in device_list:
@@ -54,7 +55,14 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
     def update_or_create(self):
         if self.config_entry:
             _LOGGER.info(f".. reconfigure: entry = %s, data = %s, options = %s ", str(self.config_entry), str(self.new_data), str(self.new_options))
-            return self.async_update_reload_and_abort(self.config_entry, data=self.new_data, options=self.new_options, reason="reconfigure_successful")
+            if self.hass.config_entries.async_update_entry(
+                    entry=self.config_entry,
+                    data=self.new_data,
+                    options=self.new_options):
+                self.hass.config_entries.async_schedule_reload(self.config_entry.entry_id)
+                return self.async_abort(reason="reconfigure_successful")
+            else:
+                return self.async_abort(reason="reconfigure_failed")
         else:
             _LOGGER.info(f".. create: entry = %s, data = %s, options = %s ",
                          str(self.config_entry), str(self.new_data), str(self.new_options))
