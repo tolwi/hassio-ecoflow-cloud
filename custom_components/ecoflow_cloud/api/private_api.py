@@ -71,8 +71,14 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
     async def fetch_all_available_devices(self):
         return []
 
-    async def quota_all(self, device_sn: str):
-        self.mqtt_client.send_get_message(device_sn, {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
+    async def quota_all(self, device_sn: str | None):
+        if not device_sn:
+            target_devices = self.devices.keys()
+        else:
+            target_devices = [device_sn]
+
+        for sn in target_devices:
+            self.mqtt_client.send_get_message(sn, {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}})
 
     def configure_device(self, device_sn: str, device_name: str, device_type: str, power_step: int = -1):
         info = self.__create_device_info(device_sn, device_name, device_type)

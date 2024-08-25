@@ -218,10 +218,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     api_client.start()
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
-
-    for sn, device_data in devices_list.items():
-        _LOGGER.info("quota_all  : %s", sn)
-        await api_client.quota_all(sn)
+    await api_client.quota_all(None)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 

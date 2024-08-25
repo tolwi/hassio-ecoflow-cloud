@@ -5,8 +5,6 @@ import ssl
 import time
 from typing import Any
 
-import paho.mqtt.client as mqtt_client
-
 from custom_components.ecoflow_cloud.api import EcoflowMqttInfo
 from custom_components.ecoflow_cloud.devices import BaseDevice
 
@@ -18,6 +16,8 @@ class EcoflowMQTTClient:
     def __init__(self, mqtt_info: EcoflowMqttInfo, devices: dict[str, BaseDevice]):
 
         from ..devices import BaseDevice
+        import paho.mqtt.client as mqtt_client
+
         self.__autorise = True
         self.__mqtt_info = mqtt_info
         self.__error_count = 0

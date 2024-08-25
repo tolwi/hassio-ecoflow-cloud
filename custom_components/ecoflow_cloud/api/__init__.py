@@ -38,7 +38,7 @@ class EcoflowApiClient:
         pass
 
     @abstractmethod
-    async def quota_all(self, device_sn: str):
+    async def quota_all(self, device_sn: str | None):
         pass
 
     @abstractmethod

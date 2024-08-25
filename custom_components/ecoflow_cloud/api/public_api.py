@@ -37,7 +37,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         _LOGGER.info(f"Requesting IoT MQTT credentials")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
-        self.mqtt_info.client_id = f"HomeAssistant-{self.group}-{datetime.strftime(dt.now(), '%Y%m%d')}"
+        self.mqtt_info.client_id = f"HomeAssistant-{self.group}-{dt.now().day}"
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info(f"Requesting all devices")
@@ -47,7 +47,8 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             sn = device["sn"]
             product_name = device["productName"]
             device_name = device.get("deviceName", f"{product_name}-{sn}")
-            result.append(self.__create_device_info(sn, device_name, product_name))
+            status = int(device["online"])
+            result.append(self.__create_device_info(sn, device_name, product_name, status))
 
         return result
 
@@ -63,10 +64,21 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         self.add_device(device)
         return device
 
-    async def quota_all(self, device_sn: str):
-        raw = await self.call_api("/device/quota/all", {"sn": device_sn})
-        if "data" in raw:
-            self.devices[device_sn].data.update_data({"params": raw["data"]})
+    async def quota_all(self, device_sn: str | None):
+        if not device_sn:
+            target_devices = self.devices.keys()
+            # update all statuses
+            devices = await self.fetch_all_available_devices()
+            for device in devices:
+                if device.sn in self.devices:
+                    self.devices[device.sn].data.update_status({"params": {"status" : device.status}})
+        else:
+            target_devices = [device_sn]
+
+        for sn in target_devices:
+            raw = await self.call_api("/device/quota/all", {"sn": sn})
+            if "data" in raw:
+                self.devices[sn].data.update_data({"params": raw["data"]})
 
     async def call_api(self, endpoint: str, params: dict[str, str] = None) -> dict:
         async with aiohttp.ClientSession() as session:
@@ -86,12 +98,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             resp = await session.get(f"{BASE_URI}{endpoint}?{params_str}", headers=headers)
             return await self._get_json_response(resp)
 
-    def __create_device_info(self, device_sn: str, device_name: str, device_type: str) -> EcoflowDeviceInfo:
+    def __create_device_info(self, device_sn: str, device_name: str, device_type: str, status: int = -1) -> EcoflowDeviceInfo:
         return EcoflowDeviceInfo(
             public_api=True,
             sn=device_sn,
             name=device_name,
             device_type=device_type,
+            status=status,
             data_topic=f"/open/{self.mqtt_info.username}/{device_sn}/quota",
             set_topic=f"/open/{self.mqtt_info.username}/{device_sn}/set",
             set_reply_topic=f"/open/{self.mqtt_info.username}/{device_sn}/set_reply",
