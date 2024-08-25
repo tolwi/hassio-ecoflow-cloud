@@ -98,7 +98,7 @@ class PowerStream(BaseDevice):
                                                 "cmdCode": "WN511_SET_BRIGHTNESS_PACK",
                                                  "params": {"brightness": value}}),
 
-            DeciChargingPowerEntity(client, self, "20_1.permanentWatts", "Custom load power settings (0.1 W)", 0, 8000,
+            DeciChargingPowerEntity(client, self, "20_1.permanentWatts", "Custom load power settings", 0, 800,
                                 lambda value: {"sn": self.device_info.sn,
                                                "cmdCode": "WN511_SET_PERMANENT_WATTS_PACK",
                                                "params": {"permanentWatts": value}}),

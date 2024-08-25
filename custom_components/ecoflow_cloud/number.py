@@ -44,6 +44,14 @@ class ChargingPowerEntity(ValueUpdateEntity):
 class DeciChargingPowerEntity(ChargingPowerEntity):
     _attr_mode = NumberMode.BOX
 
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val) / 10)
+
+    async def async_set_native_value(self, value: float):
+        if self._command:
+            ival = int(value * 10)
+            self.send_set_message(ival, self.command_dict(ival))
+
 class MinMaxLevelEntity(ValueUpdateEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str,
                  min_value: int, max_value: int,
