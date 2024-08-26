@@ -56,7 +56,7 @@ class Glacier(BaseDevice):
             MilliVoltSensorEntity(client, self, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
             MilliVoltSensorEntity(client, self, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
 
-            MiscBinarySensorEntity(client,"pd.batFlag", "Battery Present"),
+            MiscBinarySensorEntity(client,self,"pd.batFlag", "Battery Present"),
 
             MiscSensorEntity(client, self, "pd.xt60InState", "XT60 State"),  
 
@@ -69,15 +69,15 @@ class Glacier(BaseDevice):
             DecicelsiusSensorEntity(client, self, "pd.tmpL", "Left Temperature"),            
             DecicelsiusSensorEntity(client, self, "pd.tmpR", "Right Temperature"),            
 
-            MiscBinarySensorEntity(client,"pd.flagTwoZone","Dual Zone Mode"),
+            MiscBinarySensorEntity(client, self,"pd.flagTwoZone","Dual Zone Mode"),
 
             SecondsRemainSensorEntity(client, self, "pd.iceTm", "Ice Time Remain"),
             LevelSensorEntity(client, self, "pd.icePercent", "Ice Percentage"),
 
             MiscSensorEntity(client, self, "pd.iceMkMode", "Ice Make Mode"), 
 
-            MiscBinarySensorEntity(client,"pd.iceAlert","Ice Alert"),
-            MiscBinarySensorEntity(client,"pd.waterLine","Ice Water Level OK"),   
+            MiscBinarySensorEntity(client, self,"pd.iceAlert","Ice Alert"),
+            MiscBinarySensorEntity(client,self, "pd.waterLine","Ice Water Level OK"),
 
             QuotaStatusSensorEntity(client, self)
 
@@ -85,19 +85,19 @@ class Glacier(BaseDevice):
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
-            SetTempEntity(client,"pd.tmpLSet", "Left Set Temperature",-25, 10,
+            SetTempEntity(client, self,"pd.tmpLSet", "Left Set Temperature",-25, 10,
                                   lambda value, params: {"moduleType": 1, "operateType": "temp",
                                                  "params": {"tmpM": int(params.get("pd.tmpMSet", 0)),
                                                             "tmpL": int(value),
                                                             "tmpR": int(params.get("pd.tmpRSet", 0))}}),
             
-            SetTempEntity(client,"pd.tmpMSet", "Combined Set Temperature",-25, 10,
+            SetTempEntity(client, self, "pd.tmpMSet", "Combined Set Temperature",-25, 10,
                                   lambda value, params: {"moduleType": 1, "operateType": "temp",
                                                  "params": {"tmpM": int(value),
                                                             "tmpL": int(params.get("pd.tmpLSet", 0)),
                                                             "tmpR": int(params.get("pd.tmpRSet", 0))}}),
 
-            SetTempEntity(client,"pd.tmpRSet", "Right Set Temperature",-25, 10,
+            SetTempEntity(client, self,"pd.tmpRSet", "Right Set Temperature",-25, 10,
                                   lambda value, params: {"moduleType": 1, "operateType": "temp",
                                                  "params": {"tmpM": int(params.get("pd.tmpMSet", 0)),
                                                             "tmpL": int(params.get("pd.tmpLSet", 0)),
