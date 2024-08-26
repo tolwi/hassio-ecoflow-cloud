@@ -291,7 +291,7 @@ class DecihertzSensorEntity(FrequencySensorEntity):
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowApiClient,  device: BaseDevice, check_interval_sec=30):
+    def __init__(self, client: EcoflowApiClient,  device: BaseDevice, check_interval_sec=60):
         super().__init__(client, device, "Status", "status")
         self._online = -1
         self._last_update = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
@@ -394,7 +394,7 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
 
     CONNECT_PHASES = [3, 5, 7]
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, check_interval_sec=30):
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, check_interval_sec=60):
         super().__init__(client, device, check_interval_sec)
         self._attrs[ATTR_STATUS_PHASE] = 0
         self._attrs[ATTR_STATUS_RECONNECTS] = 0
