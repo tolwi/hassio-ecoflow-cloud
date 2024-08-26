@@ -16,7 +16,7 @@ class PowerStream(BaseDevice):
             InWattsSolarSensorEntity(client, self, "20_1.pv1InputWatts", "Solar 1 Watts"),
             DecivoltSensorEntity(client, self, "20_1.pv1InputVolt", "Solar 1 Input Potential"),
             CentivoltSensorEntity(client, self, "20_1.pv1OpVolt", "Solar 1 Op Potential"),
-            DeciampSensorEntity(client, self, "20_1.pv1InputCur", "Solar 1 Currrent"),
+            DeciampSensorEntity(client, self, "20_1.pv1InputCur", "Solar 1 Current"),
             DecicelsiusSensorEntity(client, self, "20_1.pv1Temp", "Solar 1 Temperature"),
             MiscSensorEntity(client, self, "20_1.pv1RelayStatus", "Solar 1 Relay Status"),
             MiscSensorEntity(client, self, "20_1.pv1ErrCode", "Solar 1 Error Code", False),
@@ -83,7 +83,7 @@ class PowerStream(BaseDevice):
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
-            MinBatteryLevelEntity(client, self, "20_1.lowerLimit", "Min Disharge Level", 0, 30,
+            MinBatteryLevelEntity(client, self, "20_1.lowerLimit", "Min Discharge Level", 0, 30,
                                 lambda value: {"sn": self.device_info.sn,
                                                "cmdCode": "WN511_SET_BAT_LOWER_PACK",
                                                "params": {"lowerLimit": value}}),
