@@ -110,7 +110,8 @@ class PowerStream(BaseDevice):
             #                     "params": {"supplyPriority": value}}),
         ]
 
-    def update_data(self, raw_data, data_type):
+    def _prepare_data(self, raw_data) -> dict[str, any]:
+        raw = {"params": {}}
         try:
             payload =raw_data
 
@@ -127,8 +128,6 @@ class PowerStream(BaseDevice):
                     heartbeat = powerstream.InverterHeartbeat()
                     heartbeat.ParseFromString(packet.msg.pdata)
 
-                    raw = {"params": {}}
-
                     for descriptor in heartbeat.DESCRIPTOR.fields:
                         if not heartbeat.HasField(descriptor.name):
                             continue
@@ -138,7 +137,6 @@ class PowerStream(BaseDevice):
                     _LOGGER.info("Found %u fields", len(raw["params"]))
 
                     raw["timestamp"] = utcnow()
-                    self.data.update_data(raw)
 
                 if packet.ByteSize() >= len(payload):
                     break
@@ -151,4 +149,6 @@ class PowerStream(BaseDevice):
         except Exception as error:
             _LOGGER.error(error)
             _LOGGER.info(raw_data.hex())
+
+        return raw
 
