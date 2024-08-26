@@ -1,4 +1,4 @@
-## DELTA_2_MAX
+## DELTA_2_Max
 
 *Sensors*
 - Main Battery Level (`bms_bmsStatus.soc`)

@@ -20,18 +20,9 @@ Current integrations details:
 - [GLACIER](devices/GLACIER.md)
 - [WAVE_2](devices/WAVE_2.md)
 - [DELTA_2](devices/DELTA_2-Public.md)
+- [DELTA_2_Max](devices/DELTA_2_Max-Public.md)
 - [RIVER_2](devices/RIVER_2-Public.md)
 - [RIVER_2_Max](devices/RIVER_2_Max-Public.md)
 - [Smart_Plug](devices/Smart_Plug-Public.md)
-
-Use [diagnostic](https://www.home-assistant.io/integrations/diagnostics/) dump to find `data_key` and `action_command`:
-  - `data_key` 
-    
-    Compare values from mobile app with values in `data` section and try to define the particular key for the entity you want to add.
-
-  - `action_command`
-
-    Change value in mobile app and then find appropriate command in `commands` section by comparing params with the value you set in the app.
-
-
-_Note: if your device type is not supported - use **DIAGNOSTIC** type._
+- [PowerStream](devices/PowerStream-Public.md)
+- [Diagnostic](devices/Diagnostic-Public.md)
