@@ -89,16 +89,18 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         else:
             device = DiagnosticDevice(info)
 
+        device.power_step = power_step
         self.add_device(device)
 
         return device
 
-    def __create_device_info(self, device_sn: str, device_name: str, device_type: str) -> EcoflowDeviceInfo:
+    def __create_device_info(self, device_sn: str, device_name: str, device_type: str, status: int = -1) -> EcoflowDeviceInfo:
         return EcoflowDeviceInfo(
             public_api=False,
             sn=device_sn,
             name=device_name,
             device_type=device_type,
+            status=status,
             data_topic=f"/app/device/property/{device_sn}",
             set_topic=f"/app/{self.user_id}/{device_sn}/thing/property/set",
             set_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/set_reply",

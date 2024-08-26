@@ -61,6 +61,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         else:
             device = DiagnosticDevice(info)
 
+        device.power_step = power_step
         self.add_device(device)
         return device
 
