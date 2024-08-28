@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 import json
 import logging
 from abc import ABC, abstractmethod
@@ -8,6 +9,9 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.util import dt
 
 from .data_holder import EcoflowDataHolder
 from ..api import EcoflowApiClient
@@ -39,20 +43,38 @@ class EcoflowDeviceInfo:
         ]
         return list(filter(lambda v: v is not None, topics))
 
+@dataclasses.dataclass
+class EcoflowBroadcastDataHolder:
+    data_holder: EcoflowDataHolder
+    changed: bool
+
+class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataHolder]):
+    def __init__(self, hass, holder: EcoflowDataHolder, refresh_period: int) -> None:
+        """Initialize the coordinator."""
+        super().__init__(hass, _LOGGER, name="Ecoflow update coordinator", always_update=True,
+                         update_interval= datetime.timedelta(seconds=max(refresh_period, 5)),
+        )
+        self.holder = holder
+        self.__last_broadcast = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+
+    async def _async_update_data(self) -> EcoflowBroadcastDataHolder:
+        received_time = self.holder.last_received_time()
+        changed = self.__last_broadcast < received_time
+        self.__last_broadcast = received_time
+        return EcoflowBroadcastDataHolder(self.holder, changed)
 
 class BaseDevice(ABC):
 
-    data: EcoflowDataHolder = None
-    device_info: EcoflowDeviceInfo = None
-    power_step: int = -1
-
     def __init__(self, device_info: EcoflowDeviceInfo):
         super().__init__()
-        self.device_info = device_info
-        self.serial_number = device_info.sn
+        self.coordinator = None
+        self.data = None
+        self.device_info: EcoflowDeviceInfo = device_info
+        self.power_step: int = -1
 
-    def configure(self, refresh_period: int, diag: bool = False):
-        self.data = EcoflowDataHolder(refresh_period, diag)
+    def configure(self, hass: HomeAssistant, refresh_period: int, diag: bool = False):
+        self.data = EcoflowDataHolder(diag)
+        self.coordinator = EcoflowDeviceUpdateCoordinator(hass, self.data, refresh_period)
 
     @staticmethod
     def default_charging_power_step() -> int:

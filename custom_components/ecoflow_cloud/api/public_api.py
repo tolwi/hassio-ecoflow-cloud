@@ -37,7 +37,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         _LOGGER.info(f"Requesting IoT MQTT credentials")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
-        self.mqtt_info.client_id = f"HomeAssistant-{self.group}-{dt.now().day}"
+        self.mqtt_info.client_id = f"HomeAssistant_{self.group}_{datetime.strftime(dt.now(), '%Y%m%d')}"
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info(f"Requesting all devices")

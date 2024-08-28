@@ -127,7 +127,7 @@ def render_brief_summary():
     for dt, dev in devices.items():
         if dt != "DIAGNOSTIC":
             device = dev(device_info)
-            device.configure(10, False)
+            device.configure(None, 10, False)
             print("<details><summary> %s <i>(%s)</i> </summary>" % (dt, device_summary(device)))
             print("<p>")
             print(render_device_summary(device, True))
@@ -137,7 +137,7 @@ def render_brief_summary():
     for dt, dev in device_by_product.items():
         if dt != "DIAGNOSTIC":
             device = dev(device_info)
-            device.configure(10, False)
+            device.configure(None, 10, False)
             print("<details><summary> %s (API) <i>(%s)</i> </summary>" % (dt, device_summary(device)))
             print("<p>")
             print(render_device_summary(device, True))
@@ -149,7 +149,7 @@ def update_full_summary():
     for dt, dev in devices.items():
         if dt != "DIAGNOSTIC":
             device = dev(device_info)
-            device.configure(10, False)
+            device.configure(None, 10, False)
             with open("devices/%s.md" % dt, "w+") as f:
                 f.write("## %s\n" % dt)
                 f.write(render_device_summary(device))
@@ -160,7 +160,7 @@ def update_full_summary():
     for dt, dev in device_by_product.items():
         if dt != "DIAGNOSTIC":
             device = dev(device_info)
-            device.configure(10, False)
+            device.configure(None, 10, False)
             name = dt.replace(" ", "_")
             with open("devices/%s-Public.md" % name, "w+") as f:
                 f.write("## %s\n" % name)

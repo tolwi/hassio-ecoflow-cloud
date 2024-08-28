@@ -7,6 +7,7 @@ from typing import Any
 
 from custom_components.ecoflow_cloud.api import EcoflowMqttInfo
 from custom_components.ecoflow_cloud.devices import BaseDevice
+import paho.mqtt.client as mqtt_client
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,13 +17,11 @@ class EcoflowMQTTClient:
     def __init__(self, mqtt_info: EcoflowMqttInfo, devices: dict[str, BaseDevice]):
 
         from ..devices import BaseDevice
-        import paho.mqtt.client as mqtt_client
 
-        self.__autorise = True
+        self.connected = False
         self.__mqtt_info = mqtt_info
-        self.__error_count = 0
         self.__devices: dict[str, BaseDevice] = devices
-        self.__client = mqtt_client.Client(client_id=self.__mqtt_info.client_id, clean_session=True, reconnect_on_failure=True)
+        self.__client: mqtt_client.Client = mqtt_client.Client(client_id=self.__mqtt_info.client_id, reconnect_on_failure=True)
         self.__client.username_pw_set(self.__mqtt_info.username, self.__mqtt_info.password)
         self.__client.tls_set(certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED)
         self.__client.tls_insecure_set(False)
@@ -31,75 +30,50 @@ class EcoflowMQTTClient:
         self.__client.on_message = self.on_message
         # self.__client.on_socket_close = self.on_socket_close
 
-        _LOGGER.info(f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}")
+        _LOGGER.info(
+            f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}")
         self.__client.connect_async(self.__mqtt_info.url, self.__mqtt_info.port)
         self.__client.loop_start()
 
     def is_connected(self):
-        return self.__client.is_connected()
+        return self.connected
 
     def reconnect(self) -> bool:
         try:
-            if self.__autorise:
-                _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
-                self.__client.loop_stop(True)
-                self.__client.reconnect()
-                self.__client.loop_start()
-                return True
-            else:
-                _LOGGER.info(f"No reconnection to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} -> Not authorised ")
-                self.stop()
-                if self.__error_count >= 10 :
-                    self.__error_count = 0
-                    self.__autorise = True
-                return True
-
+            _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
+            self.__client.loop_stop(True)
+            self.__client.reconnect()
+            self.__client.loop_start()
+            return True
         except Exception as e:
             _LOGGER.error(e)
             return False
 
     def on_connect(self, client, userdata, flags, rc):
-        match rc:
-            case 0:
-                for (sn, device) in self.__devices.items():
-                    _LOGGER.debug(f"Add Topics for  {sn}")
-                    for topic in device.device_info.topics():
-                        self.__client.subscribe(topic, 1)
-                        _LOGGER.info(f"Subscribed to MQTT topics {topic}")
-            case -1:
-                _LOGGER.error(f"Failed to connect to MQTT: connection timed out ({self.__mqtt_info.client_id})")
-            case 1:
-                _LOGGER.error(f"Failed to connect to MQTT: incorrect protocol version ({self.__mqtt_info.client_id})")
-                self.__autorise = False
-            case 2:
-                _LOGGER.error(f"Failed to connect to MQTT: invalid client identifier ({self.__mqtt_info.client_id})")
-                self.__autorise = False
-            case 3:
-                _LOGGER.error(f"Failed to connect to MQTT: server unavailable ({self.__mqtt_info.client_id})")
-            case 4:
-                _LOGGER.error(f"Failed to connect to MQTT: bad username or password ({self.__mqtt_info.client_id})")
-                self.__autorise = False
-            case 5:
-                _LOGGER.error(f"Failed to connect to MQTT: not authorised ({self.__mqtt_info.client_id}) - {userdata}")
-                self.__autorise = False
-            case _:
-                _LOGGER.error(f"Failed to connect to MQTT: another error occured: {rc} ({self.__mqtt_info.client_id})")
-
-        # if not self.__autorise:
-        #     _LOGGER.error(f"Authorisation:False / rc: {rc} ({self.__mqtt_info.client_id})")
-        #     self.stop()
+        if rc == 0:
+            self.connected = True
+            for (sn, device) in self.__devices.items():
+                _LOGGER.debug(f"Add Topics for  {sn}")
+                for topic in device.device_info.topics():
+                    self.__client.subscribe(topic, 1)
+                    _LOGGER.info(f"Subscribed to MQTT topics {topic}")
+        else:
+            self.__log_with_reason("connect", client, userdata, rc)
 
     #
     # def on_socket_close(self, client, userdata, socket):
     #     _LOGGER.error(f"Unexpected MQTT Socket disconnection : {str(socket)}")
 
     def on_disconnect(self, client, userdata, rc):
+        if not self.connected:
+            # from homeassistant/components/mqtt/client.py
+            # This function is re-entrant and may be called multiple times
+            # when there is a broken pipe error.
+            return
+        self.connected = False
         if rc != 0:
-            self.__error_count = self.__error_count+1
-            _LOGGER.error(f"Unexpected MQTT disconnection: {rc} (Error count {self.__error_count}). Will auto-reconnect")
+            self.__log_with_reason("disconnect", client, userdata, rc)
             time.sleep(15)
-            if self.__error_count % 1000 :
-                self.__error_count = 0 # reinit de temps en temps
 
     def on_message(self, client, userdata, message):
         try:
@@ -108,6 +82,9 @@ class EcoflowMQTTClient:
                     _LOGGER.debug(f"Message for {sn} and Topic {message.topic}")
         except UnicodeDecodeError as error:
             _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
+
+    def __log_with_reason(self, action: str, client, userdata, rc):
+        _LOGGER.error(f"MQTT {action}: {mqtt_client.error_string(rc)} ({self.__mqtt_info.client_id}) - {userdata}")
 
     message_id = 999900000 + random.randint(10000, 99999)
 

@@ -1,7 +1,5 @@
 import logging
-import math
 import struct
-from datetime import timedelta, datetime
 from typing import Any, Mapping, OrderedDict
 
 from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
@@ -13,7 +11,6 @@ from homeassistant.const import (PERCENTAGE,
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt
 
 from . import ECOFLOW_DOMAIN, ATTR_STATUS_SN, ATTR_STATUS_DATA_LAST_UPDATE, ATTR_STATUS_LAST_UPDATE, \
@@ -291,73 +288,47 @@ class DecihertzSensorEntity(FrequencySensorEntity):
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowApiClient,  device: BaseDevice, check_interval_sec=60):
+    def __init__(self, client: EcoflowApiClient,  device: BaseDevice):
         super().__init__(client, device, "Status", "status")
         self._online = -1
         self._last_update = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self._skip_count = 0
+        self._offline_skip_count = int(120 / self.coordinator.update_interval.seconds) # 2 minutes
         self._attrs = OrderedDict[str, Any]()
         self._attrs[ATTR_STATUS_SN] = self._device.device_info.sn
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = None
         self._attrs[ATTR_MQTT_CONNECTED] = None
-        self._attrs[ATTR_STATUS_LAST_UPDATE] = None
-        self.__check_interval_sec = max(check_interval_sec, self._device.data.update_period_sec)
 
-    async def async_added_to_hass(self):
-        get_reply_d = self._device.data.status_observable().subscribe(self._status_update_consumer)
-        self.async_on_remove(get_reply_d.dispose)
+    def _handle_coordinator_update(self) -> None:
+        changed = False
+        update_time = self.coordinator.data.data_holder.last_received_time()
+        if self._last_update < update_time:
+            self._last_update = max(update_time, self._last_update)
+            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = update_time
+            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+            self._skip_count = 0
+            changed = True
+        else:
+            self._skip_count += 1
 
-        params_d = self._device.data.params_observable().subscribe(self._params_update_consumer)
-        self.async_on_remove(params_d.dispose)
+        changed = self._actualize_status() or changed
 
-        self.async_on_remove(
-            async_track_time_interval(self.hass, self.__check_status, timedelta(seconds=self.__check_interval_sec)))
-
-        await super().async_added_to_hass()
-
-    def __check_status(self, now: datetime) -> None:
-        data_outdated_sec_f = (dt.utcnow() - self._last_update).total_seconds()
-        if self._actualize_status(int(data_outdated_sec_f), self.__check_interval_sec):
+        if changed:
             self.schedule_update_ha_state()
 
-    def _actualize_status(self, data_outdated_sec: int, check_interval_sec: int) -> bool:
+    def _actualize_status(self) -> bool:
         changed = False
-        if self._online != 0 and data_outdated_sec > check_interval_sec * 2:
+        if self._online != 0 and self._skip_count >= self._offline_skip_count:
             self._online = 0
             self._attr_native_value = "assume_offline"
             self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
             changed = True
-        elif self._online != 1 and 0 < data_outdated_sec <= check_interval_sec * 2:
+        elif self._online != 1 and self._skip_count == 0:
             self._online = 1
             self._attr_native_value = "online"
             self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
             changed = True
         return changed
-
-    def _status_update_consumer(self, data: dict[str, Any]):
-        self._attrs[ATTR_STATUS_LAST_UPDATE] = self.__timestamp_or_now(data)
-        self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
-        if dict["status"] == 1:
-            self._online = 1
-            self._attr_native_value = "online"
-        else:
-            self._online = 0
-            self._attr_native_value = "offline"
-
-        self._last_update = max(self._attrs[ATTR_STATUS_LAST_UPDATE], self._last_update)
-        self.schedule_update_ha_state()
-
-    def _params_update_consumer(self, data: dict[str, Any]):
-        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self.__timestamp_or_now(data)
-        self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
-        self._last_update = max(self._attrs[ATTR_STATUS_DATA_LAST_UPDATE], self._last_update)
-        self._actualize_status(0, self.__check_interval_sec)
-        self.schedule_update_ha_state()
-
-    def __timestamp_or_now(self, data: dict[str, Any]):
-        res = dt.utcnow()
-        if "timestamp" in data:
-            res = dt.utc_from_timestamp(int(data["timestamp"]) / 1000)
-        return res
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
@@ -366,22 +337,22 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 class QuotaStatusSensorEntity(StatusSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, check_interval_sec=30):
-        super().__init__(client, device, check_interval_sec)
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice):
+        super().__init__(client, device)
         self._attrs[ATTR_QUOTA_REQUESTS] = 0
 
-    def _actualize_status(self, data_outdated_sec: int, check_interval_sec: int) -> bool:
+    def _actualize_status(self) -> bool:
         changed = False
-        if self._online != 0 and data_outdated_sec > check_interval_sec * 4:
+        if self._online != 0 and self._skip_count >= self._offline_skip_count * 2:
             self._online = 0
             self._attr_native_value = "assume_offline"
             self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
             changed = True
-        elif self._online != 0 and data_outdated_sec > check_interval_sec * 2:
+        elif self._online != 0 and self._skip_count >= self._offline_skip_count:
             self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
             self._attrs[ATTR_QUOTA_REQUESTS] = self._attrs[ATTR_QUOTA_REQUESTS] + 1
             changed = True
-        elif self._online != 1 and 0 < data_outdated_sec <= check_interval_sec * 2:
+        elif self._online != 1 and self._skip_count == 0:
             self._online = 1
             self._attr_native_value = "online"
             self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
@@ -394,20 +365,18 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
 
     CONNECT_PHASES = [3, 5, 7]
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, check_interval_sec=60):
-        super().__init__(client, device, check_interval_sec)
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice):
+        super().__init__(client, device)
         self._attrs[ATTR_STATUS_PHASE] = 0
         self._attrs[ATTR_STATUS_RECONNECTS] = 0
 
-    def _actualize_status(self, data_outdated_sec: int, check_interval_sec: int) -> bool:
-        phase = math.ceil(data_outdated_sec / check_interval_sec)
-        self._attrs[ATTR_STATUS_PHASE] = phase
-        time_to_reconnect = phase in self.CONNECT_PHASES
+    def _actualize_status(self) -> bool:
+        time_to_reconnect = self._skip_count in self.CONNECT_PHASES
 
         if self._online == 1 and time_to_reconnect:
             self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
             self._client.mqtt_client.reconnect()
             return True
         else:
-            return super()._actualize_status(data_outdated_sec, check_interval_sec)
+            return super()._actualize_status()
 

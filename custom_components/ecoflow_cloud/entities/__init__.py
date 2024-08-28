@@ -9,19 +9,20 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.helpers.entity import Entity, EntityCategory, DeviceInfo
+from homeassistant.helpers.entity import EntityCategory, DeviceInfo
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.ecoflow_cloud import ECOFLOW_DOMAIN
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceUpdateCoordinator
 
-from custom_components.ecoflow_cloud.devices import BaseDevice
 
-
-class EcoFlowAbstractEntity(Entity):
+class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
     _attr_has_entity_name = True
     _attr_should_poll = False
 
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str, key: str):
+        super().__init__(device.coordinator)
         self._client: EcoflowApiClient = client
         self._device: BaseDevice = device
         self._attr_name = title
@@ -52,6 +53,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, enabled: bool = True,
                  auto_enable: bool = False):
         super().__init__(client, device, title, mqtt_key)
+
         self.__mqtt_key = mqtt_key
         self._mqtt_key_adopted = self._adopt_json_key(mqtt_key)
         self._mqtt_key_expr = jp.parse(self._mqtt_key_adopted)
@@ -88,8 +90,12 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
-        d = self._device.data.params_observable().subscribe(self._updated)
-        self.async_on_remove(d.dispose)
+        # d = self._device.data.params_observable().subscribe(self._updated)
+        # self.async_on_remove(d.dispose)
+
+    def _handle_coordinator_update(self) -> None:
+        if self.coordinator.data.changed:
+            self._updated(self.coordinator.data.data_holder.params)
 
     def _updated(self, data: dict[str, Any]):
         # update attributes

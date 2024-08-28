@@ -7,7 +7,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSens
     CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
-    OutWattsDcSensorEntity, ReconnectStatusSensorEntity, QuotaStatusSensorEntity
+    OutWattsDcSensorEntity, QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
