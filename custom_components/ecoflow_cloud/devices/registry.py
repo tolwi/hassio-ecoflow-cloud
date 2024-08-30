@@ -14,7 +14,8 @@ from .internal import (delta2 as internal_delta2,
                        powerstream as internal_powerstream,
                        glacier as internal_glacier,
                        wave2 as internal_wave2, )
-from .public import (delta2 as public_delta2,
+from .public import (delta_pro as public_delta_pro,
+                     delta2 as public_delta2,
                      delta2_max as public_delta2_max,
                      river2 as public_river2,
                      river2_max as public_river2_max,
@@ -42,6 +43,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
 })
 
 device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]({
+    "DELTA Pro": public_delta_pro.DeltaPro,
     "DELTA 2": public_delta2.Delta2,
     "DELTA 2 Max": public_delta2_max.Delta2Max,
     "RIVER 2": public_river2.River2,
