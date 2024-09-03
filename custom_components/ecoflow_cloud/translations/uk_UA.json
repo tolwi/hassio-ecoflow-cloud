@@ -1,0 +1,76 @@
+{
+  "title": "EcoFlow-Cloud",
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "group": "Група пристроїв"
+        }
+      },
+      "api": {
+        "menu_options": {
+          "api_add_device": "Додати пристрій",
+          "remove_device": "Видалити пристрій",
+          "finish": "Завершити"
+        },
+        "data": {
+          "access_key": "Access key",
+          "secret_key": "Secret key",
+          "load_all_devices": "Автоматичне завантаження пристроїв"
+        }
+      },
+      "choose_type": {
+         "menu_options": {
+          "api": "Використовувати public API",
+          "manual": "Використовувати application API"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "Вибрати пристрій"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "Тип пристрою",
+          "device_name": "Назва пристрою",
+          "device_id": "SN пристрою"
+        }
+      },
+      "manual": {
+        "menu_options": {
+          "manual_add_device": "Додати пристрій",
+          "remove_device": "Видалити пристрій",
+          "finish": "Завершити"
+        },
+        "data": {
+          "username": "Email користувача",
+          "password": "Password користувача"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "Тип пристрою",
+          "device_name": "Назва пристрою",
+          "device_id": "SN пристрою"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "select_device": "Вибрати пристрій"
+        }
+      },
+      "options": {
+        "data": {
+          "power_step": "Крок регулятора потужності заряджання",
+          "refresh_period_sec": "Період оновлення даних (сек)",
+          "diagnostic_mode": "Діагностичний режим"
+        }
+      }
+    }
+  }
+}
