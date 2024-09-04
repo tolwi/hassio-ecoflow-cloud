@@ -107,6 +107,9 @@ class TempSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = -1
 
+class CelsiusSensorEntity(TempSensorEntity):
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val))
 
 class DecicelsiusSensorEntity(TempSensorEntity):
     def _update_value(self, val: Any) -> bool:
