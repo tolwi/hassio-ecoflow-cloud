@@ -5,7 +5,7 @@ from ...entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, Ba
 from ...number import MinBatteryLevelEntity, MaxBatteryLevelEntity, BrightnessLevelEntity, DeciChargingPowerEntity
 from ...select import PowerDictSelectEntity
 from ...sensor import StatusSensorEntity, InWattsSolarSensorEntity, DecivoltSensorEntity, CentivoltSensorEntity, \
-    DeciampSensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, LevelSensorEntity, DeciwattsSensorEntity, \
+    DeciampSensorEntity, CelsiusSensorEntity, DecicelsiusSensorEntity, MiscSensorEntity, LevelSensorEntity, DeciwattsSensorEntity, \
     AmpSensorEntity, RemainSensorEntity, DecihertzSensorEntity
 
 
@@ -13,6 +13,8 @@ class PowerStream(BaseDevice):
 
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
+            CelsiusSensorEntity(client, self, "20_1.espTempsensor", "ESP Temperature"),
+            
             InWattsSolarSensorEntity(client, self, "20_1.pv1InputWatts", "Solar 1 Watts"),
             DecivoltSensorEntity(client, self, "20_1.pv1InputVolt", "Solar 1 Input Potential"),
             CentivoltSensorEntity(client, self, "20_1.pv1OpVolt", "Solar 1 Op Potential"),
