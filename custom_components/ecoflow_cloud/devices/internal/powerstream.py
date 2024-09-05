@@ -12,7 +12,6 @@ from custom_components.ecoflow_cloud.sensor import (
     DecivoltSensorEntity, InWattsSolarSensorEntity, LevelSensorEntity,
     MiscSensorEntity, RemainSensorEntity, StatusSensorEntity, ReconnectStatusSensorEntity,
 )
-from .proto import ecopacket_pb2 as ecopacket, powerstream_pb2 as powerstream
 from ...api import EcoflowApiClient
 
 # from ..number import MinBatteryLevelEntity, MaxBatteryLevelEntity
@@ -112,6 +111,7 @@ class PowerStream(BaseDevice):
 
     def _prepare_data(self, raw_data) -> dict[str, any]:
         raw = {"params": {}}
+        from .proto import ecopacket_pb2 as ecopacket, powerstream_pb2 as powerstream
         try:
             payload =raw_data
 
