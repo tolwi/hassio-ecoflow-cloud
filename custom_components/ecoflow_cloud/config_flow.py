@@ -172,6 +172,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         from .devices.registry import devices
         if not user_input:
             device_list = list(devices.keys())
+            device_list.remove("DIAGNOSTIC")
             return self.async_show_form(step_id="manual_device_input", data_schema=vol.Schema({
                 vol.Required(CONF_DEVICE_TYPE): selector.SelectSelector(
                     selector.SelectSelectorConfig(options=device_list,
