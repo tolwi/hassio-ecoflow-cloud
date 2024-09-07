@@ -162,8 +162,8 @@ class DeltaPro(BaseDevice):
                          lambda value: {"operateType": "TCP", "params": {"cmdSet": 32, "id": 38, "enabled": value}}),
             EnabledEntity(client, self, "mppt.carState", const.DC_ENABLED,
                           lambda value: {"operateType": "TCP", "params": {"cmdSet": 32, "id": 81, "enabled": value}}),
-            EnabledEntity(client, self, "inv.cfgAcEnabled", const.BYPASS_AC,
-                          lambda value: {"operateType": "TCP", "params": {"cmdSet": 32, "id": 84, "enabled": value}}),
+            EnabledEntity(client, self, "inv.cfgAcEnabled", const.AC_ENABLED,
+                          lambda value: {"operateType": "TCP", "params": {"cmdSet": 32, "id": 66, "enabled": value}}),
 
             EnabledEntity(client, self, "inv.cfgAcXboost", const.XBOOST_ENABLED,
                           lambda value: {"operateType": "TCP", "params": {"cmdSet": 32, "id": 66, "xboost": value}}),
