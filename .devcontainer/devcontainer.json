@@ -10,7 +10,10 @@
 	  "PYTHONASYNCIODEBUG": "1"
 	},
 	"features": {
-	  "ghcr.io/devcontainers/features/github-cli:1": {}
+	  "ghcr.io/devcontainers/features/github-cli:1": {},
+	  "ghcr.io/devcontainers/features/powershell": {
+		"modules": "Microsoft.PowerShell.SecretManagement"
+	  }
 	},
 	// Port 5683 udp is used by Shelly integration
 	"appPort": ["8123:8123", "5683:5683/udp"],
@@ -18,14 +21,15 @@
 	"customizations": {
 	  "vscode": {
 		"extensions": [
-		  "charliermarsh.ruff",
-		  "ms-python.pylint",
-		  "ms-python.vscode-pylance",
-		  "visualstudioexptteam.vscodeintellicode",
-		  "redhat.vscode-yaml",
-		  "esbenp.prettier-vscode",
-		  "GitHub.vscode-pull-request-github",
-		  "GitHub.copilot"
+			"charliermarsh.ruff",
+			"ms-python.pylint",
+			"ms-python.vscode-pylance",
+			"visualstudioexptteam.vscodeintellicode",
+			"redhat.vscode-yaml",
+			"esbenp.prettier-vscode",
+			"GitHub.vscode-pull-request-github",
+			"GitHub.copilot",
+			"rpdswtk.vsmqtt"
 		],
 		// Please keep this file in sync with settings in home-assistant/.vscode/settings.default.json
 		"settings": {
