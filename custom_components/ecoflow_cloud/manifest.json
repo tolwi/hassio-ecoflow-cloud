@@ -5,6 +5,7 @@
     "@tolwi"
   ],
   "config_flow": true,
+  "dependencies": ["mqtt"],
   "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
   "iot_class": "cloud_push",
   "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
