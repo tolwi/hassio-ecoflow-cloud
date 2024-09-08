@@ -1,5 +1,5 @@
 from homeassistant.const import Platform
-from typing import Any
+from typing import Any, Callable
 
 from . import const, BaseDevice, EntityMigration, MigrationAction
 from .. import EcoflowMQTTClient
@@ -44,6 +44,24 @@ import json
 
 
 class PowerKit(BaseDevice):
+    def __init__(self) -> None:
+        self.dcSwitchFunction: Callable[[str, int], dict[str, Any]] = (
+            lambda sn, value: {
+                "id": 123456789,
+                "version": "1.0",
+                "moduleSn": sn,
+                "moduleType": 15362,
+                "operateType": "chSwitch",
+                "params": {
+                    "bitsSwSta": value,
+                },
+            }
+        )
+        """
+        Variable contains a function to set the state of the DC switch of the DC distribution panel
+        """
+        super().__init__()
+
     def sensors(self, client: EcoflowMQTTClient) -> list[BaseSensorEntity]:
         result: list[BaseSensorEntity] = list()
         params = client.data.params
@@ -638,108 +656,41 @@ class PowerKit(BaseDevice):
                 for subkey in json.loads(params[key]):
                     result = [
                         *result,
-                        # The powerkit DC switches have the following bitmask
-                        # 0 = 1 off
-                        # 1 = 2 off
-                        # 2 = 3 off
-                        # 3 = 4 off
-                        # 4 = 5 off
-                        # 5 = 6 off
-                        # 128 = 1 on
-                        # 129 = 2 on
-                        # 130 = 3 on
-                        # 131 = 4 on
-                        # 132 = 5 on
-                        # 133 = 6 on
                         BitMaskEnableEntity(
                             client,
                             f"lddc.{subkey}.dcChRelay.1",
                             "DC Switch 1",
-                            lambda value: {
-                                "id": 123456789,
-                                "version": "1.0",
-                                "moduleSn": subkey,
-                                "moduleType": 15362,
-                                "operateType": "chSwitch",
-                                "params": {
-                                    "bitsSwSta": 128 if value == 1 else 0,
-                                },
-                            },
+                            self.dcSwitchFunction,
                         ),
                         BitMaskEnableEntity(
                             client,
                             f"lddc.{subkey}.dcChRelay.2",
                             "DC Switch 2",
-                            lambda value: {
-                                "id": 123456789,
-                                "version": "1.0",
-                                "moduleSn": subkey,
-                                "moduleType": 15362,
-                                "operateType": "chSwitch",
-                                "params": {
-                                    "bitsSwSta": 129 if value == 1 else 1,
-                                },
-                            },
+                            self.dcSwitchFunction,
                         ),
                         BitMaskEnableEntity(
                             client,
                             f"lddc.{subkey}.dcChRelay.3",
                             "DC Switch 3",
-                            lambda value: {
-                                "id": 123456789,
-                                "version": "1.0",
-                                "moduleSn": subkey,
-                                "moduleType": 15362,
-                                "operateType": "chSwitch",
-                                "params": {
-                                    "bitsSwSta": 130 if value == 1 else 2,
-                                },
-                            },
+                            self.dcSwitchFunction,
                         ),
                         BitMaskEnableEntity(
                             client,
                             f"lddc.{subkey}.dcChRelay.4",
                             "DC Switch 4",
-                            lambda value: {
-                                "id": 123456789,
-                                "version": "1.0",
-                                "moduleSn": subkey,
-                                "moduleType": 15362,
-                                "operateType": "chSwitch",
-                                "params": {
-                                    "bitsSwSta": 131 if value == 1 else 3,
-                                },
-                            },
+                            self.dcSwitchFunction,
                         ),
                         BitMaskEnableEntity(
                             client,
                             f"lddc.{subkey}.dcChRelay.5",
                             "DC Switch 5",
-                            lambda value: {
-                                "id": 123456789,
-                                "version": "1.0",
-                                "moduleSn": subkey,
-                                "moduleType": 15362,
-                                "operateType": "chSwitch",
-                                "params": {
-                                    "bitsSwSta": 132 if value == 1 else 4,
-                                },
-                            },
+                            self.dcSwitchFunction,
                         ),
                         BitMaskEnableEntity(
                             client,
                             f"lddc.{subkey}.dcChRelay.6",
                             "DC Switch 6",
-                            lambda value: {
-                                "id": 123456789,
-                                "version": "1.0",
-                                "moduleSn": subkey,
-                                "moduleType": 15362,
-                                "operateType": "chSwitch",
-                                "params": {
-                                    "bitsSwSta": 133 if value == 1 else 5,
-                                },
-                            },
+                            self.dcSwitchFunction,
                         ),
                     ]
             if key == "ichigh":
