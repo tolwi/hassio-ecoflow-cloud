@@ -638,7 +638,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 63, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 67, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -656,6 +656,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC Out Volts
 - Solar (1) In Power
 - Solar (2) In Power
+- Solar (1) In Volts
+- Solar (2) In Volts
+- Solar (1) In Amps
+- Solar (2) In Amps
 - DC Out Power
 - Type-C (1) Out Power
 - Type-C (2) Out Power
@@ -1074,7 +1078,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA 2 Max (API) <i>(sensors: 63, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA 2 Max (API) <i>(sensors: 67, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -1092,6 +1096,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC Out Volts
 - Solar (1) In Power
 - Solar (2) In Power
+- Solar (1) In Volts
+- Solar (2) In Volts
+- Solar (1) In Amps
+- Solar (2) In Amps
 - DC Out Power
 - Type-C (1) Out Power
 - Type-C (2) Out Power
