@@ -980,7 +980,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 *Switches*
 - Beeper 
 - DC (12V) Enabled 
-- Bypass AC auto start 
+- AC Enabled 
 - X-Boost Enabled 
 - AC Always On 
 - Backup Reserve Enabled 
@@ -1292,6 +1292,60 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
+<details><summary> RIVER 2 Pro (API) <i>(sensors: 30, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power
+- Total Out Power
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- Type-C In Power
+- Solar In Power
+- DC Out Power
+- Type-C Out Power
+- USB Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Status
+
+*Switches*
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+
+*Selects*
+- DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+
+</p></details>
+
 <details><summary> Smart Plug (API) <i>(sensors: 4, switches: 1, sliders: 1, selects: 0)</i> </summary>
 <p>
 
@@ -1311,10 +1365,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> PowerStream (API) <i>(sensors: 57, switches: 0, sliders: 4, selects: 1)</i> </summary>
+<details><summary> PowerStream (API) <i>(sensors: 58, switches: 0, sliders: 4, selects: 1)</i> </summary>
 <p>
 
 *Sensors*
+- ESP Temperature
 - Solar 1 Watts
 - Solar 1 Input Potential
 - Solar 1 Op Potential
@@ -1385,7 +1440,6 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Power supply mode 
 
 </p></details>
-
 
 ## How to
 - [Add/update device](docs/integration.md)

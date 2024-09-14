@@ -1,6 +1,7 @@
 ## PowerStream
 
 *Sensors*
+- ESP Temperature (`20_1.espTempsensor`)
 - Solar 1 Watts (`20_1.pv1InputWatts`)
 - Solar 1 Input Potential (`20_1.pv1InputVolt`)
 - Solar 1 Op Potential (`20_1.pv1OpVolt`)

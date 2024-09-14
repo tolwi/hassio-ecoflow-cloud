@@ -76,7 +76,7 @@
 *Switches*
 - Beeper (`pd.beepState` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 38, "enabled": "VALUE"}}`)
 - DC (12V) Enabled (`mppt.carState` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 81, "enabled": "VALUE"}}`)
-- Bypass AC auto start (`inv.cfgAcEnabled` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 84, "enabled": "VALUE"}}`)
+- AC Enabled (`inv.cfgAcEnabled` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 66, "enabled": "VALUE"}}`)
 - X-Boost Enabled (`inv.cfgAcXboost` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 66, "xboost": "VALUE"}}`)
 - AC Always On (`pd.acautooutConfig` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 95, "acautooutConfig": "VALUE"}}`)
 - Backup Reserve Enabled (`pd.watthisconfig` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 94, "isConfig": "VALUE", "bpPowerSoc": -3333300, "minDsgSoc": 0, "maxChgSoc": 0}}`)
