@@ -145,7 +145,7 @@ class DeltaPro(BaseDevice):
                                                  "params": {"id": 51, "minDsgSoc": value}}),
             MaxBatteryLevelEntity(client, self, "pd.bppowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
                                   lambda value: {"moduleType": 0, "operateType": "TCP",
-                                                 "params": {"isConfig": 1, "bppowerSoc": int(value), "minDsgSoc": 0,
+                                                 "params": {"isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0,
                                                             "maxChgSoc": 0, "id": 94}}),
             MinGenStartLevelEntity(client, self, "ems.minOpenOilEbSoc", const.GEN_AUTO_START_LEVEL, 0, 30,
                                    lambda value: {"moduleType": 0, "operateType": "TCP",
@@ -180,7 +180,7 @@ class DeltaPro(BaseDevice):
             EnabledEntity(client, self, "pd.watthisconfig", const.BP_ENABLED,
                           lambda value, params: {"moduleType": 0, "operateType": "TCP",
                                                  "params": {"id": 94, "isConfig": value,
-                                                            "bppowerSoc": value * 50,
+                                                            "bpPowerSoc": value * 50,
                                                             "minDsgSoc": 0,
                                                             "maxChgSoc": 0}}),
         ]

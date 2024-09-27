@@ -141,7 +141,7 @@ class DeltaPro(BaseDevice):
                                   lambda value: {"operateType": "TCP", "params": {"cmdSet": 32, "id": 49, "maxChgSoc": value}}),
             MinBatteryLevelEntity(client, self, "ems.minDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
                                   lambda value: {"operateType": "TCP", "params": {"cmdSet": 32, "id": 51, "minDsgSoc": value}}),
-            MaxBatteryLevelEntity(client, self, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
+            MaxBatteryLevelEntity(client, self, "pd.bppowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
                                   lambda value: {"operateType": "TCP",
                                                  "params": {"cmdSet": 32, "isConfig": 1, "bpPowerSoc": int(value), "minDsgSoc": 0,
                                                             "maxChgSoc": 0, "id": 94}}),
