@@ -96,7 +96,7 @@ class DeltaMax(BaseDevice):
                                   lambda value: {"moduleType": 2, "operateType": "TCP",
                                                  "params": {"id": 53, "closeOilSoc": value}}),
 
-            ChargingPowerEntity(client, self, "inv.cfgFastChgWatt", const.AC_CHARGING_POWER, 200, 2000,
+            ChargingPowerEntity(client, self, "inv.cfgSlowChgWatts", const.AC_CHARGING_POWER, 100, 2000,
                                 lambda value: {"moduleType": 0, "operateType": "TCP",
                                                "params": {"slowChgPower": value, "id": 69}}),
 
