@@ -36,19 +36,11 @@ def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
 
             if "param" in raw_data:
                 for (k, v) in raw_data["param"].items():
-                    if isinstance(v, dict):
-                        for (l, w) in v.items():
-                            new_params[f"{prefix}.{k}.{l}"] = w
-                    else:
-                       new_params[f"{prefix}.{k}"] = v
+                    to_plain_child(prefix, new_params, k, v)
 
             if "params" in raw_data:
                 for (k, v) in raw_data["params"].items():
-                    if isinstance(v, dict):
-                        for (l, w) in v.items():
-                            new_params[f"{prefix}.{k}.{l}"] = w
-                    else:
-                       new_params[f"{prefix}.{k}"] = v
+                    to_plain_child(prefix, new_params, k, v)
 
             result = {"params": new_params}
             for (k, v) in raw_data.items():
@@ -58,3 +50,18 @@ def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
             return result
 
         return raw_data
+
+def to_plain_child(prefix, new_params, k, v):
+    if isinstance(v, dict):
+        for (l, w) in v.items():
+            if isinstance(v, dict):
+                to_plain_child(f"{prefix}.{k}", new_params, l, w)
+            elif isinstance(v, list):
+                to_plain_child(f"{prefix}.{k}", new_params, l, w)
+            else:
+                new_params[f"{prefix}.{k}.{l}"] = w
+    elif isinstance(v, list):
+        for l, w in enumerate(v):
+            new_params[f"{prefix}.{k}.{l}"] = w
+    else:
+        new_params[f"{prefix}.{k}"] = v
