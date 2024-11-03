@@ -36,11 +36,19 @@ def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
 
             if "param" in raw_data:
                 for (k, v) in raw_data["param"].items():
-                    new_params[f"{prefix}.{k}"] = v
+                    if isinstance(v, dict):
+                        for (l, w) in v.items():
+                            new_params[f"{prefix}.{k}.{l}"] = w
+                    else:
+                       new_params[f"{prefix}.{k}"] = v
 
             if "params" in raw_data:
                 for (k, v) in raw_data["params"].items():
-                    new_params[f"{prefix}.{k}"] = v
+                    if isinstance(v, dict):
+                        for (l, w) in v.items():
+                            new_params[f"{prefix}.{k}.{l}"] = w
+                    else:
+                       new_params[f"{prefix}.{k}"] = v
 
             result = {"params": new_params}
             for (k, v) in raw_data.items():
