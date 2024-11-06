@@ -52,5 +52,6 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[Ba
     "RIVER 2 Pro": public_river2_pro.River2Pro,
     "Smart Plug": public_smart_plug.SmartPlug,
     "PowerStream": public_powerstream.PowerStream,
+    "Smart Home Panel": public_smart_home_panel.SmartHomePanel,
     "Diagnostic": DiagnosticDevice
 })
