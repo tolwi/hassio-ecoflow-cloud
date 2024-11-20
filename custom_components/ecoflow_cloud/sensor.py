@@ -383,3 +383,15 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
         else:
             return super()._actualize_status()
 
+class SolarPowerSensorEntity(WattsSensorEntity):
+    _attr_entity_category = None
+    _attr_suggested_display_precision = 1
+    _attr_icon = "mdi:solar-power"
+
+class SolarAmpSensorEntity(AmpSensorEntity):
+    _attr_suggested_display_precision = 1
+    _attr_icon = "mdi:current-dc"
+
+class SystemPowerSensorEntity(WattsSensorEntity):
+    _attr_entity_category = None
+    _attr_suggested_display_precision = 1
