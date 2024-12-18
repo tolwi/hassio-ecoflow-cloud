@@ -2,11 +2,13 @@
 
 *Sensors*
 - Main Battery Level (`bmsMaster.soc`)
+- Main Battery Level (Precise) (`bmsMaster.f32ShowSoc`)   _(disabled)_
 - Main Design Capacity (`bmsMaster.designCap`)   _(disabled)_
 - Main Full Capacity (`bmsMaster.fullCap`)   _(disabled)_
 - Main Remain Capacity (`bmsMaster.remainCap`)   _(disabled)_
 - State of Health (`bmsMaster.soh`)
 - Battery Level (`ems.lcdShowSoc`)
+- Battery Level (Precise) (`ems.f32LcdShowSoc`)   _(disabled)_
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
 - AC In Power (`inv.inputWatts`)
@@ -14,7 +16,10 @@
 - AC In Volts (`inv.acInVol`)
 - AC Out Volts (`inv.invOutVol`)
 - Solar In Power (`mppt.inWatts`)
+- Solar In Voltage (`mppt.inVol`)
+- Solar In Current (`mppt.inAmp`)
 - DC Out Power (`mppt.outWatts`)
+- DC Out Voltage (`mppt.outVol`)
 - DC Car Out Power (`mppt.carOutWatts`)
 - DC Anderson Out Power (`mppt.dcdc12vWatts`)
 - Type-C (1) Out Power (`pd.typec1Watts`)
@@ -27,6 +32,7 @@
 - Discharge Remaining Time (`ems.dsgRemainTime`)
 - Cycles (`bmsMaster.cycles`)
 - Battery Temperature (`bmsMaster.temp`)   _(disabled)_
+- Main Battery Current (`bmsMaster.amp`)   _(disabled)_
 - Battery Volts (`bmsMaster.vol`)   _(disabled)_
 - Solar In Energy (`pd.chgSunPower`)
 - Battery Charge Energy from AC (`pd.chgPowerAc`)

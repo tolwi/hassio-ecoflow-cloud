@@ -84,7 +84,7 @@
 *Sliders (numbers)*
 - Max Charge Level (`ems.maxChargeSoc` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 49, "maxChgSoc": "VALUE"}}` [50 - 100])
 - Min Discharge Level (`ems.minDsgSoc` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 51, "minDsgSoc": "VALUE"}}` [0 - 30])
-- Backup Reserve Level (`pd.bpPowerSoc` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "isConfig": 1, "bpPowerSoc": "VALUE", "minDsgSoc": 0, "maxChgSoc": 0, "id": 94}}` [5 - 100])
+- Backup Reserve Level (`pd.bppowerSoc` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "isConfig": 1, "bpPowerSoc": "VALUE", "minDsgSoc": 0, "maxChgSoc": 0, "id": 94}}` [5 - 100])
 - Generator Auto Start Level (`ems.minOpenOilEbSoc` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "openOilSoc": "VALUE", "id": 52}}` [0 - 30])
 - Generator Auto Stop Level (`ems.maxCloseOilEbSoc` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "closeOilSoc": "VALUE", "id": 53}}` [50 - 100])
 - AC Charging Power (`inv.cfgSlowChgWatts` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "slowChgPower": "VALUE", "id": 69}}` [200 - 2900])

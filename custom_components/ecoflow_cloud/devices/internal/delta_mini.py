@@ -3,11 +3,12 @@ from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, \
-    TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, OutWattsDcSensorEntity, InWattsSolarSensorEntity, \
-    InEnergySensorEntity, OutEnergySensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity, ReconnectStatusSensorEntity, QuotaStatusSensorEntity
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
+    CyclesSensorEntity, \
+    InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
+    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
+    InEnergySensorEntity, OutEnergySensorEntity, OutWattsDcSensorEntity, QuotaStatusSensorEntity, \
+    AmpSensorEntity, InVoltSolarSensorEntity, InAmpSolarSensorEntity, OutVoltDcSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -15,9 +16,13 @@ class DeltaMini(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             LevelSensorEntity(client, self, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
-            .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
-            .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
-            .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+                .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            LevelSensorEntity(client, self, "bmsMaster.f32ShowSoc", const.MAIN_BATTERY_LEVEL_F32, False)
+                .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
+                .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
+                .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             CapacitySensorEntity(client, self, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, self, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
@@ -25,7 +30,7 @@ class DeltaMini(BaseDevice):
             LevelSensorEntity(client, self, "bmsMaster.soh", const.SOH),
 
             LevelSensorEntity(client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
-
+            LevelSensorEntity(client, self, "ems.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL_F32, False),
             WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
@@ -36,11 +41,14 @@ class DeltaMini(BaseDevice):
             OutMilliVoltSensorEntity(client, self, "inv.invOutVol", const.AC_OUT_VOLT),
 
             InWattsSolarSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER),
+            InVoltSolarSensorEntity(client, self, "mppt.inVol", const.SOLAR_IN_VOLTAGE),
+            InAmpSolarSensorEntity(client, self, "mppt.inAmp", const.SOLAR_IN_CURRENT),
 
             OutWattsDcSensorEntity(client, self, "mppt.outWatts", const.DC_OUT_POWER),
+            OutVoltDcSensorEntity(client, self, "mppt.outVol", const.DC_OUT_VOLTAGE),
 
             OutWattsDcSensorEntity(client, self, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
-            OutWattsSensorEntity(client, self, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
+            OutWattsDcSensorEntity(client, self, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
 
             OutWattsSensorEntity(client, self, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
             OutWattsSensorEntity(client, self, "pd.typec2Watts", const.TYPEC_2_OUT_POWER),
@@ -56,12 +64,13 @@ class DeltaMini(BaseDevice):
             CyclesSensorEntity(client, self, "bmsMaster.cycles", const.CYCLES),
 
             TempSensorEntity(client, self, "bmsMaster.temp", const.BATTERY_TEMP, False)
-            .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
-            .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+                .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+                .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
 
+            AmpSensorEntity(client, self, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT, False),
             MilliVoltSensorEntity(client, self, "bmsMaster.vol", const.BATTERY_VOLT, False)
-            .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
-            .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
+                .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
+                .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
 
             # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
             InEnergySensorEntity(client, self, "pd.chgSunPower", const.SOLAR_IN_ENERGY),

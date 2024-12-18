@@ -276,7 +276,6 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Level (Precise)  _(disabled)_
 - Total In Power
 - Total Out Power
-- Main Battery Current
 - AC In Power
 - AC Out Power
 - AC In Volts
@@ -300,6 +299,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Temperature
 - Min Cell Temperature  _(disabled)_
 - Max Cell Temperature  _(disabled)_
+- Main Battery Current  _(disabled)_
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
@@ -362,7 +362,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> RIVER_MAX <i>(sensors: 40, switches: 5, sliders: 1, selects: 2)</i> </summary>
+<details><summary> RIVER_MAX <i>(sensors: 49, switches: 5, sliders: 1, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -370,67 +370,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
-- Total In Power
-- Total Out Power
-- AC In Power
-- AC Out Power
-- AC In Volts
-- AC Out Volts
-- DC Out Power
-- Type-C Out Power
-- USB (1) Out Power
-- USB (2) Out Power
-- USB (3) Out Power
-- Remaining Time
-- Cycles
-- Battery Temperature
-- Min Cell Temperature  _(disabled)_
-- Max Cell Temperature  _(disabled)_
-- Battery Volts  _(disabled)_
-- Min Cell Volts  _(disabled)_
-- Max Cell Volts  _(disabled)_
-- Solar In Energy
-- Battery Charge Energy from AC
-- Battery Charge Energy from DC
-- Battery Discharge Energy to AC
-- Battery Discharge Energy to DC
-- Slave Battery Level  _(auto)_
-- Slave Design Capacity  _(disabled)_
-- Slave Full Capacity  _(disabled)_
-- Slave Remain Capacity  _(disabled)_
-- Slave Battery Temperature  _(auto)_
-- Slave Min Cell Temperature  _(disabled)_
-- Slave Max Cell Temperature  _(disabled)_
-- Battery Volts  _(disabled)_
-- Min Cell Volts  _(disabled)_
-- Max Cell Volts  _(disabled)_
-- Slave Cycles  _(auto)_
-- Status
-
-*Switches*
-- Beeper 
-- AC Enabled 
-- DC (12V) Enabled 
-- X-Boost Enabled 
-- Auto Fan Speed 
-
-*Sliders (numbers)*
-- Max Charge Level  _(read-only)_
-
-*Selects*
-- Unit Timeout 
-- AC Timeout 
-
-</p></details>
-
-<details><summary> RIVER_PRO <i>(sensors: 46, switches: 7, sliders: 1, selects: 3)</i> </summary>
-<p>
-
-*Sensors*
-- Main Battery Level
-- Main Design Capacity  _(disabled)_
-- Main Full Capacity  _(disabled)_
-- Main Remain Capacity  _(disabled)_
+- Battery Level
 - Total In Power
 - Total Out Power
 - Solar In Current
@@ -447,9 +387,14 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - USB (2) Out Power
 - USB (3) Out Power
 - Remaining Time
+- Cycles
 - Battery Temperature
 - Min Cell Temperature  _(disabled)_
 - Max Cell Temperature  _(disabled)_
+- Battery Current  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
 - Inverter Inside Temperature
 - Inverter Outside Temperature
 - Solar In Energy
@@ -457,21 +402,89 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Charge Energy from DC
 - Battery Discharge Energy to AC
 - Battery Discharge Energy to DC
-- Battery Current  _(disabled)_
-- Battery Volts  _(disabled)_
-- Min Cell Volts  _(disabled)_
-- Max Cell Volts  _(disabled)_
-- Cycles
 - Slave Battery Level  _(auto)_
 - Slave Design Capacity  _(disabled)_
 - Slave Full Capacity  _(disabled)_
 - Slave Remain Capacity  _(disabled)_
-- Slave Cycles  _(auto)_
 - Slave Battery Temperature  _(auto)_
+- Slave Min Cell Temperature  _(disabled)_
+- Slave Max Cell Temperature  _(disabled)_
 - Slave Battery Current  _(disabled)_
 - Slave Battery Volts  _(disabled)_
 - Slave Min Cell Volts  _(disabled)_
 - Slave Max Cell Volts  _(disabled)_
+- Slave Cycles  _(auto)_
+- Status
+
+*Switches*
+- Beeper 
+- AC Enabled 
+- DC (12V) Enabled 
+- X-Boost Enabled 
+- Auto Fan Speed 
+
+*Sliders (numbers)*
+- Max Charge Level 
+
+*Selects*
+- Unit Timeout 
+- DC (12V) Timeout 
+- AC Timeout 
+
+</p></details>
+
+<details><summary> RIVER_PRO <i>(sensors: 49, switches: 7, sliders: 1, selects: 3)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- Battery Level
+- Total In Power
+- Total Out Power
+- Solar In Current
+- Solar In Voltage
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- DC Out Power
+- Type-C Out Power
+- DC Temperature  _(disabled)_
+- USB C Temperature  _(disabled)_
+- USB (1) Out Power
+- USB (2) Out Power
+- USB (3) Out Power
+- Remaining Time
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Current  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Inverter Inside Temperature
+- Inverter Outside Temperature
+- Solar In Energy
+- Battery Charge Energy from AC
+- Battery Charge Energy from DC
+- Battery Discharge Energy to AC
+- Battery Discharge Energy to DC
+- Slave Battery Level  _(auto)_
+- Slave Design Capacity  _(disabled)_
+- Slave Full Capacity  _(disabled)_
+- Slave Remain Capacity  _(disabled)_
+- Slave Battery Temperature  _(auto)_
+- Slave Min Cell Temperature  _(disabled)_
+- Slave Max Cell Temperature  _(disabled)_
+- Slave Battery Current  _(disabled)_
+- Slave Battery Volts  _(disabled)_
+- Slave Min Cell Volts  _(disabled)_
+- Slave Max Cell Volts  _(disabled)_
+- Slave Cycles  _(auto)_
 - Status
 
 *Switches*
@@ -484,7 +497,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Auto Fan Speed 
 
 *Sliders (numbers)*
-- Max Charge Level 
+- Max Charge Level  _(read-only)_
 
 *Selects*
 - Unit Timeout 
@@ -526,16 +539,18 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_MINI <i>(sensors: 33, switches: 4, sliders: 3, selects: 4)</i> </summary>
+<details><summary> DELTA_MINI <i>(sensors: 39, switches: 4, sliders: 3, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
+- Main Battery Level (Precise)  _(disabled)_
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
 - State of Health
 - Battery Level
+- Battery Level (Precise)  _(disabled)_
 - Total In Power
 - Total Out Power
 - AC In Power
@@ -543,7 +558,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - AC In Volts
 - AC Out Volts
 - Solar In Power
+- Solar In Voltage
+- Solar In Current
 - DC Out Power
+- DC Out Voltage
 - DC Car Out Power
 - DC Anderson Out Power
 - Type-C (1) Out Power
@@ -556,6 +574,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Discharge Remaining Time
 - Cycles
 - Battery Temperature  _(disabled)_
+- Main Battery Current  _(disabled)_
 - Battery Volts  _(disabled)_
 - Solar In Energy
 - Battery Charge Energy from AC
@@ -583,23 +602,30 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_MAX <i>(sensors: 30, switches: 7, sliders: 5, selects: 0)</i> </summary>
+<details><summary> DELTA_MAX <i>(sensors: 70, switches: 7, sliders: 5, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
+- Main Battery Level (Precise)  _(disabled)_
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
+- State of Health
 - Battery Level
+- Battery Level (Precise)  _(disabled)_
 - Total In Power
 - Total Out Power
+- Main Battery Current
 - AC In Power
 - AC Out Power
 - AC In Volts
 - AC Out Volts
 - Solar In Power
+- Solar In Voltage
+- Solar In Current
 - DC Out Power
+- DC Out Voltage
 - Type-C (1) Out Power
 - Type-C (2) Out Power
 - USB (1) Out Power
@@ -616,6 +642,39 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Solar In Energy
+- Battery Charge Energy from AC
+- Battery Charge Energy from DC
+- Battery Discharge Energy to AC
+- Battery Discharge Energy to DC
+- Slave 1 Battery Level  _(auto)_
+- Slave 1 Battery Level (Precise)  _(disabled)_
+- Slave 1 Design Capacity  _(disabled)_
+- Slave 1 Full Capacity  _(disabled)_
+- Slave 1 Remain Capacity  _(disabled)_
+- Slave 1 State of Health
+- Slave 1 Battery Temperature  _(auto)_
+- Slave 1 In Power  _(auto)_
+- Slave 1 Out Power  _(auto)_
+- Slave 2 Battery Level  _(auto)_
+- Slave 2 Battery Level (Precise)  _(disabled)_
+- Slave 2 Design Capacity  _(disabled)_
+- Slave 2 Full Capacity  _(disabled)_
+- Slave 2 Remain Capacity  _(disabled)_
+- Slave 2 State of Health
+- Slave 1 Battery Volts  _(disabled)_
+- Slave 1 Min Cell Volts  _(disabled)_
+- Slave 1 Max Cell Volts  _(disabled)_
+- Slave 1 Battery Current  _(disabled)_
+- Slave 2 Battery Volts  _(disabled)_
+- Slave 2 Min Cell Volts  _(disabled)_
+- Slave 2 Max Cell Volts  _(disabled)_
+- Slave 2 Battery Current  _(disabled)_
+- Slave 2 Battery Temperature  _(auto)_
+- Slave 2 In Power  _(auto)_
+- Slave 2 Out Power  _(auto)_
+- Slave 1 Cycles  _(disabled)_
+- Slave 2 Cycles  _(disabled)_
 - Status
 
 *Switches*
