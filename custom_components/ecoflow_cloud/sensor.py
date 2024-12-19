@@ -212,7 +212,6 @@ class EnergySensorEntity(BaseSensorEntity):
 
 
 class CapacitySensorEntity(BaseSensorEntity):
-    _attr_device_class = SensorDeviceClass.CURRENT
     _attr_native_unit_of_measurement = "mAh"
     _attr_state_class = SensorStateClass.MEASUREMENT
 

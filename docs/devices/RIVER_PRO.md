@@ -5,6 +5,7 @@
 - Main Design Capacity (`bmsMaster.designCap`)   _(disabled)_
 - Main Full Capacity (`bmsMaster.fullCap`)   _(disabled)_
 - Main Remain Capacity (`bmsMaster.remainCap`)   _(disabled)_
+- Battery Level (`pd.soc`)
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
 - Solar In Current (`inv.dcInAmp`)
@@ -21,9 +22,14 @@
 - USB (2) Out Power (`pd.usb2Watts`)
 - USB (3) Out Power (`pd.usb3Watts`)
 - Remaining Time (`pd.remainTime`)
+- Cycles (`bmsMaster.cycles`)
 - Battery Temperature (`bmsMaster.temp`)
 - Min Cell Temperature (`bmsMaster.minCellTemp`)   _(disabled)_
 - Max Cell Temperature (`bmsMaster.maxCellTemp`)   _(disabled)_
+- Battery Current (`bmsMaster.amp`)   _(disabled)_
+- Battery Volts (`bmsMaster.vol`)   _(disabled)_
+- Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
+- Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
 - Inverter Inside Temperature (`inv.inTemp`)
 - Inverter Outside Temperature (`inv.outTemp`)
 - Solar In Energy (`pd.chgSunPower`)
@@ -31,17 +37,14 @@
 - Battery Charge Energy from DC (`pd.chgPowerDC`)
 - Battery Discharge Energy to AC (`pd.dsgPowerAC`)
 - Battery Discharge Energy to DC (`pd.dsgPowerDC`)
-- Battery Current (`bmsMaster.amp`)   _(disabled)_
-- Battery Volts (`bmsMaster.vol`)   _(disabled)_
-- Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
-- Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
-- Cycles (`bmsMaster.cycles`)
 - Slave Battery Level (`bmsSlave1.soc`)   _(auto)_
 - Slave Design Capacity (`bmsSlave1.designCap`)   _(disabled)_
 - Slave Full Capacity (`bmsSlave1.fullCap`)   _(disabled)_
 - Slave Remain Capacity (`bmsSlave1.remainCap`)   _(disabled)_
 - Slave Cycles (`bmsSlave1.cycles`)   _(auto)_
 - Slave Battery Temperature (`bmsSlave1.temp`)   _(auto)_
+- Slave Min Cell Temperature (`bmsSlave1.minCellTemp`)   _(disabled)_
+- Slave Max Cell Temperature (`bmsSlave1.maxCellTemp`)   _(disabled)_
 - Slave Battery Current (`bmsSlave1.amp`)   _(disabled)_
 - Slave Battery Volts (`bmsSlave1.vol`)   _(disabled)_
 - Slave Min Cell Volts (`bmsSlave1.minCellVol`)   _(disabled)_
