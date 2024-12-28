@@ -35,12 +35,15 @@ class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
 
     @property
     def device_info(self) -> DeviceInfo | None:
+        name = self._device.device_data.name
+        if self._device.device_data.display_name:
+            name = self._device.device_data.display_name
         return DeviceInfo(
             identifiers={
                 (ECOFLOW_DOMAIN, f"{self._type_prefix()}{self._device.device_data.sn}")
             },
             manufacturer="EcoFlow",
-            name=self._device.device_data.name,
+            name=name,
             model=self._device.device_data.device_type,
         )
 

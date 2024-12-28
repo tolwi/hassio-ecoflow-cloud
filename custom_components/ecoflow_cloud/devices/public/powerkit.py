@@ -1,7 +1,7 @@
 from homeassistant.const import Platform
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
-from ...DeviceData import DeviceData
+from ...DeviceData import DeviceData, ChildDeviceData
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 
 from .. import EcoflowDeviceInfo, const, BaseDevice
@@ -63,6 +63,36 @@ class PowerKit(BaseDevice):
         """
         Variable contains a function to set the state of the DC switch of the DC distribution panel
         """
+        if device_data.device_type != "PowerKit":
+            childData: ChildDeviceData = cast(ChildDeviceData, device_data)
+            if device_data.device_type.startswith("bp"):
+                device_data.display_name = (
+                    f"PowerKit Battery ({childData.parent.sn}.{childData.sn})"
+                )
+            elif device_data.device_type == "iclow":
+                device_data.display_name = (
+                    f"PowerKit Bms ({childData.parent.sn}.{childData.sn})"
+                )
+            elif device_data.device_type == "kitscc":
+                device_data.display_name = (
+                    f"PowerKit Mppt ({childData.parent.sn}.{childData.sn})"
+                )
+            elif device_data.device_type == "bbcout":
+                device_data.display_name = (
+                    f"PowerKit Hub DC Out ({childData.parent.sn}.{childData.sn})"
+                )
+            elif device_data.device_type == "bbcin":
+                device_data.display_name = (
+                    f"PowerKit Hub DC In ({childData.parent.sn}.{childData.sn})"
+                )
+            elif device_data.device_type == "lddc":
+                device_data.display_name = f"PowerKit Distrubution Panel DC Out ({childData.parent.sn}.{childData.sn})"
+            elif device_data.device_type == "ichigh":
+                device_data.display_name = (
+                    f"PowerKit Hub AC Out ({childData.parent.sn}.{childData.sn})"
+                )
+            elif device_data.device_type == "ldac":
+                device_data.display_name = f"PowerKit Distrubution Panel AC Out ({childData.parent.sn}.{childData.sn})"
         super().__init__(device_info, device_data)
 
     def configure(self, hass: HomeAssistant, refresh_period: int, diag: bool = False):
@@ -116,7 +146,7 @@ class PowerKit(BaseDevice):
             CapacitySensorEntity(
                 client, self, f"fullCap", f"max Capacity battery ({mainKey})"
             ),
-            ChargingStateSensorEntity(
+            LevelSensorEntity(
                 client,
                 self,
                 "soc",
