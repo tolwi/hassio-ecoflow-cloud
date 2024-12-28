@@ -110,6 +110,11 @@ POWER_SUB_MODE_OPTIONS = {
     "Manual": 3
 }
 
+POWER_SUPPLY_PRIORITY_OPTIONS = {
+    "Prioritize power supply": 0,
+    "Prioritize power storage": 1
+}
+
 COMBINED_BATTERY_LEVEL = "Battery Level"
 COMBINED_BATTERY_LEVEL_F32 = "Battery Level (Precise)"
 BATTERY_CHARGING_STATE = "Battery Charging State"
@@ -136,6 +141,10 @@ TOTAL_IN_POWER = "Total In Power"
 SOLAR_IN_POWER = "Solar In Power"
 SOLAR_1_IN_POWER = "Solar (1) In Power"
 SOLAR_2_IN_POWER = "Solar (2) In Power"
+SOLAR_1_IN_VOLTS = "Solar (1) In Volts"
+SOLAR_2_IN_VOLTS = "Solar (2) In Volts"
+SOLAR_1_IN_AMPS = "Solar (1) In Amps"
+SOLAR_2_IN_AMPS = "Solar (2) In Amps"
 AC_IN_POWER = "AC In Power"
 AC_IN_VOLT = "AC In Volts"
 DC_BATTERY_POWER = "DC Battery Power"
@@ -207,6 +216,7 @@ SLAVE_N_BATTERY_VOLT = "Slave %i Battery Volts"
 SLAVE_N_MIN_CELL_VOLT = "Slave %i Min Cell Volts"
 SLAVE_N_MAX_CELL_VOLT = "Slave %i Max Cell Volts"
 SLAVE_N_BATTERY_CURRENT = "Slave %i Battery Current"
+SLAVE_N_BATTERY_LEVEL_SOC = "Slave %i Battery level SOC"
 
 MAX_CHARGE_LEVEL = "Max Charge Level"
 MIN_DISCHARGE_LEVEL = "Min Discharge Level"
@@ -220,9 +230,15 @@ DC_CHARGE_CURRENT = "DC (12V) Charge Current"
 GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
 
+POWER = "Power"
+CURRENT = "Current"
+MAX_CURRENT = "Max Current"
+MODE_ON = "On"
+BRIGHTNESS = "Brightness"
 BEEPER = "Beeper"
 USB_ENABLED = "USB Enabled"
 AC_ENABLED = "AC Enabled"
+BYPASS_AC = "Bypass AC auto start"
 DC_ENABLED = "DC (12V) Enabled"
 XBOOST_ENABLED = "X-Boost Enabled"
 AC_ALWAYS_ENABLED = "AC Always On"
@@ -233,6 +249,7 @@ AC_SLOW_CHARGE = "AC Slow Charging"
 
 DC_MODE = "DC Mode"
 
+TEMPERATURE = "Temperature"
 BATTERY_TEMP = "Battery Temperature"
 MIN_CELL_TEMP = "Min Cell Temperature"
 MAX_CELL_TEMP = "Max Cell Temperature"
@@ -243,6 +260,7 @@ USB_C_TEMP = "USB C Temperature"
 ATTR_MIN_CELL_TEMP = MIN_CELL_TEMP
 ATTR_MAX_CELL_TEMP = MAX_CELL_TEMP
 
+VOLT = "Volts"
 BATTERY_VOLT = "Battery Volts"
 MIN_CELL_VOLT = "Min Cell Volts"
 MAX_CELL_VOLT = "Max Cell Volts"
@@ -251,6 +269,7 @@ ATTR_MAX_CELL_VOLT = MAX_CELL_VOLT
 
 BATTERY_AMP = "Battery Current"
 SLAVE_BATTERY_AMP = "Slave Battery Current"
+BATTERY_LEVEL_SOC = "Battery level SOC"
 
 FAN_MODE = "Wind speed"
 MAIN_MODE = "Main mode"

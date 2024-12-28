@@ -7,10 +7,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from custom_components.ecoflow_cloud.devices import (
+    BaseDevice,
+)
 
-from . import DOMAIN
+from . import ECOFLOW_DOMAIN
+from .api import EcoflowApiClient
 from .entities import BaseSwitchEntity
-from .mqtt.ecoflow_mqtt import EcoflowMQTTClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,24 +21,16 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ):
-    client: EcoflowMQTTClient = hass.data[DOMAIN][entry.entry_id]
-
-    from .devices.registry import devices
-
-    # the following line waits here as long as possible,
-    # so the client.data object gets filled with the data
-    # from the mqtt queue.
-    # this helps to figure out the exact sensor layout in the devices implementation.
-    # 9 seconds is one second lower then the warning message of hass.
-    # One second should be enaugh time to configure all entities.
-    await asyncio.sleep(9)
-    async_add_entities(devices[client.device_type].switches(client))
+    client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
+    for sn, device in client.devices.items():
+        async_add_entities(device.switches(client))
 
 
 class EnabledEntity(BaseSwitchEntity):
     def __init__(
         self,
-        client: EcoflowMQTTClient,
+        client: EcoflowApiClient,
+        device: BaseDevice,
         mqtt_key: str,
         title: str,
         command: Callable[[int, dict[str, Any] | None], dict[str, Any]] | None,
@@ -43,7 +38,7 @@ class EnabledEntity(BaseSwitchEntity):
         auto_enable: bool = False,
         enableValue: Any = None,
     ):
-        super().__init__(client, mqtt_key, title, command, enabled, auto_enable)
+        super().__init__(client, device, mqtt_key, title, command, enabled, auto_enable)
         self._enable_value = enableValue
 
     def _update_value(self, val: Any) -> bool:
@@ -91,7 +86,8 @@ class BitMaskEnableEntity(EnabledEntity):
 
     def __init__(
         self,
-        client: EcoflowMQTTClient,
+        client: EcoflowApiClient,
+        device: BaseDevice,
         switchKey: str,
         title: str,
         command: Callable[[str, int, dict[str, Any] | None], dict[str, Any]]
@@ -113,22 +109,23 @@ class BitMaskEnableEntity(EnabledEntity):
         :param bool auto_enable: defines if this switch is enabled by default
         """
         # TODO: We don't know right now a good solution to the problem of lambda overloading
-        test = list(inspect.signature(command).parameters.items())
-        name, param = test[0]
-        type = param.annotation
+
         splittedKey = switchKey.split(".")
         self.switchNumber = int(splittedKey[-1])
         self.bitmask = "000000"
         mqtt_key = ".".join(splittedKey[:-1])
         super().__init__(
             client,
+            device,
             mqtt_key,
             title,
-            lambda value: command(splittedKey[1], value),
+            lambda value: command(device.device_data.sn, value),
             enabled,
             auto_enable,
         )
-        self.unique_id = self.gen_unique_id(client.device_sn, switchKey)
+        self._attr_unique_id = self._gen_unique_id(
+            self._device.device_data.sn, switchKey
+        )
 
     def _update_value(self, val: Any) -> bool:
         self.bitmask = ("{0:06b}".format(val))[::-1]
@@ -168,6 +165,21 @@ class DisabledEntity(BaseSwitchEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         if self._command:
             self.send_set_message(1, self.command_dict(1))
+
+
+class FanModeEntity(BaseSwitchEntity):  # for River Max
+    def _update_value(self, val: Any) -> bool:
+        _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
+        self._attr_is_on = val == 1
+        return True
+
+    def turn_on(self, **kwargs: Any) -> None:
+        if self._command:
+            self.send_set_message(1, self.command_dict(1))
+
+    def turn_off(self, **kwargs: Any) -> None:
+        if self._command:
+            self.send_set_message(3, self.command_dict(3))
 
 
 class BeeperEntity(DisabledEntity):

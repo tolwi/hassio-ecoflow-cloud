@@ -5,13 +5,14 @@
     "@tolwi"
   ],
   "config_flow": true,
+  "dependencies": ["mqtt"],
   "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
   "iot_class": "cloud_push",
   "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
   "requirements": [
     "paho-mqtt==1.6.1",
-    "reactivex==4.0.4",
-    "protobuf>=4.23.0"
+    "protobuf>=4.23.0",
+    "jsonpath-ng>=1.6.1"
   ],
-  "version": "0.13.3"
+  "version": "1.2.0"
 }

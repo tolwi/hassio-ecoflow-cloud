@@ -4,10 +4,54 @@
     "step": {
       "user": {
         "data": {
+          "group": "Device group"
+        }
+      },
+      "api": {
+        "menu_options": {
+          "api_add_device": "Add device",
+          "remove_device": "Remove device",
+          "finish": "Finish"
+        },
+        "data": {
+          "access_key": "Access key",
+          "secret_key": "Secret key",
+          "load_all_devices": "Automatic device loading"
+        }
+      },
+      "choose_type": {
+         "menu_options": {
+          "api": "Use public API",
+          "manual": "Use application API"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "Select device"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "Device type",
+          "device_name": "Device name",
+          "device_id": "Device SN"
+        }
+      },
+      "manual": {
+        "menu_options": {
+          "manual_add_device": "Add device",
+          "remove_device": "Remove device",
+          "finish": "Finish"
+        },
+        "data": {
           "username": "User email",
-          "password": "User password",
-          "type": "Device type",
-          "name": "Device name",
+          "password": "User password"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "Device type",
+          "device_name": "Device name",
           "device_id": "Device SN"
         }
       }
@@ -17,8 +61,14 @@
     "step": {
       "init": {
         "data": {
+          "select_device": "Select device"
+        }
+      },
+      "options": {
+        "data": {
           "power_step": "Charging power slider step",
-          "refresh_period_sec": "Data refresh period (sec)"
+          "refresh_period_sec": "Data refresh period (sec)",
+          "diagnostic_mode": "Diagnostic mode"
         }
       }
     }

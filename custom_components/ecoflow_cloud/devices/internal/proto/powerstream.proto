@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+message InverterHeartbeat {
+    optional uint32 inv_error_code = 1;
+    optional uint32 inv_warning_code = 3;
+    optional uint32 pv1_error_code = 2;
+    optional uint32 pv1_warning_code = 4;
+    optional uint32 pv2_error_code = 5;
+    optional uint32 pv2_warning_code = 6;
+    optional uint32 bat_error_code = 7;
+    optional uint32 bat_warning_code = 8;
+    optional uint32 llc_error_code = 9;
+    optional uint32 llc_warning_code = 10;
+    optional uint32 pv1_status = 11;
+    optional uint32 pv2_status = 12;
+    optional uint32 bat_status = 13;
+    optional uint32 llc_status = 14;
+    optional uint32 inv_status = 15;
+    optional int32 pv1_input_volt = 16;
+    optional int32 pv1_op_volt = 17;
+    optional int32 pv1_input_cur = 18;
+    optional int32 pv1_input_watts = 19;
+    optional int32 pv1_temp = 20;
+    optional int32 pv2_input_volt = 21;
+    optional int32 pv2_op_volt = 22;
+    optional int32 pv2_input_cur = 23;
+    optional int32 pv2_input_watts = 24;
+    optional int32 pv2_temp = 25;
+    optional int32 bat_input_volt = 26;
+    optional int32 bat_op_volt = 27;
+    optional int32 bat_input_cur = 28;
+    optional int32 bat_input_watts = 29;
+    optional int32 bat_temp = 30;
+    optional uint32 bat_soc = 31;
+    optional int32 llc_input_volt = 32;
+    optional int32 llc_op_volt = 33;
+    optional int32 llc_temp = 34;
+    optional int32 inv_input_volt = 35;
+    optional int32 inv_op_volt = 36;
+    optional int32 inv_output_cur = 37;
+    optional int32 inv_output_watts = 38;
+    optional int32 inv_temp = 39;
+    optional int32 inv_freq = 40;
+    optional int32 inv_dc_cur = 41;
+    optional int32 bp_type = 42;
+    optional int32 inv_relay_status = 43;
+    optional int32 pv1_relay_status = 44;
+    optional int32 pv2_relay_status = 45;
+    optional uint32 install_country = 46;
+    optional uint32 install_town = 47;
+    optional uint32 permanent_watts = 48;
+    optional uint32 dynamic_watts = 49;
+    optional uint32 supply_priority = 50;
+    optional uint32 lower_limit = 51;
+    optional uint32 upper_limit = 52;
+    optional uint32 inv_on_off = 53;
+    optional uint32 wireless_error_code = 54;
+    optional uint32 wireless_warning_code = 55;
+    optional uint32 inv_brightness = 56;
+    optional uint32 heartbeat_frequency = 57;
+    optional uint32 rated_power = 58;
+    optional uint32 battery_charge_remain = 59;
+    optional uint32 battery_discharge_remain = 60;
+}
+
+message PermanentWattsPack
+{
+    optional uint32 permanent_watts = 1;
+}
+
+message SupplyPriorityPack
+{
+    optional uint32 supply_priority = 1;
+}
+
+message BatLowerPack
+{
+    optional int32 lower_limit = 1;
+}
+
+message BatUpperPack
+{
+    optional int32 upper_limit = 1;
+}
+
+message BrightnessPack
+{
+    optional int32 brightness = 1;
+}
+
+message PowerItem
+{
+    optional uint32 timestamp = 1;
+    optional sint32 timezone = 2;
+    optional uint32 inv_to_grid_power = 3;
+    optional uint32 inv_to_plug_power = 4;
+    optional int32 battery_power = 5;
+    optional uint32 pv1_output_power = 6;
+    optional uint32 pv2_output_power = 7;
+}
+
+message PowerPack
+{
+    optional uint32 sys_seq = 1;
+    repeated PowerItem sys_power_stream = 2;
+}
+
+message PowerAckPack
+{
+    optional uint32 sys_seq = 1;
+}
+
+message NodeMassage
+{
+    optional string sn = 1;
+    optional bytes mac = 2;
+}
+
+message MeshChildNodeInfo
+{
+    optional uint32 topology_type = 1;
+    optional uint32 mesh_protocol = 2;
+    optional uint32 max_sub_device_num = 3;
+    optional bytes parent_mac_id = 4;
+    optional bytes mesh_id = 5;
+    repeated NodeMassage sub_device_list = 6;
+}

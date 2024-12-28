@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+message Header
+{
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src= 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+    optional int32 time_snap = 18;
+    optional int32 is_rw_cmd = 19;
+    optional int32 is_queue = 20;
+    optional int32 ack_type= 21;
+    optional string code = 22;
+    optional string from = 23;
+    optional string module_sn = 24;
+    optional string device_sn = 25;
+}
+
+message SendHeaderMsg
+{
+    optional Header msg = 1;
+}
+
+message SendMsgHart
+{
+    optional int32 link_id = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src = 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 ack_type = 13;
+    optional int32 seq = 14;
+    optional int32 time_snap = 15;
+    optional int32 is_rw_cmd = 16;
+    optional int32 is_queue = 17;
+    optional int32 product_id = 18;
+    optional int32 version = 19;
+}
