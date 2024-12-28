@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Copy hassio ecoflow cloud",
+      "label": "Reset homeassistant",
       "type": "shell",
-      "command": "rm -Rf ${workspaceFolder}/core/config/custom_components && rm -Rf ${workspaceFolder}/core/homeassistant/custom_components && cp -Rf ${workspaceFolder}/custom_components ${workspaceFolder}/core/config/custom_components"
+      "command": "rm -Rf ${workspaceFolder}/core/config/ && mkdir ${workspaceFolder}/core/config/ && ln -s ${workspaceFolder}/custom_components ${workspaceFolder}/core/config/custom_components",
     },
     {
       "label": "Run Home Assistant Core",
@@ -172,8 +172,7 @@
       },
       "options": {
         "cwd": "${workspaceFolder}/core",
-      },
-      "dependsOn": ["Copy hassio ecoflow cloud"]
+      }
     },
     {
       "label": "Run scaffold",
