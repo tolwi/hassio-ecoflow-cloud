@@ -10,6 +10,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceRegistry
 from homeassistant.helpers.entity_registry import EntityRegistry
+from .devices.registry import device_support_sub_devices
 
 from .DeviceData import ChildDeviceData, DeviceData
 
@@ -100,8 +101,9 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             all_sub_devices = []
             for sn, device_data in self.new_data[CONF_DEVICE_LIST].items():
                 device_data: DeviceData
-                # TODO: maybe we need to register here in the device list all the missing devices
-                # TODO: add check, to only do it for devices that support sub devices
+                if device_data.device_type not in device_support_sub_devices:
+                    # skip here all devices that do not support sub devices
+                    continue
                 allDeviceInfo = await self.auth.call_api(
                     f"/device/quota/all", {"sn": device_data.sn}
                 )

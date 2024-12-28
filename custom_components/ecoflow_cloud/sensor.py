@@ -1,7 +1,4 @@
 import logging
-import asyncio
-from datetime import timedelta, datetime
-import math
 import struct
 from typing import Any, Mapping, OrderedDict
 
@@ -15,7 +12,6 @@ from homeassistant.components.sensor import (
     SensorEntity,
 )
 from homeassistant.config_entries import ConfigEntry
-
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfElectricCurrent,
@@ -26,12 +22,10 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfTime,
 )
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.util import dt, utcnow
+from homeassistant.util import dt
 
 from . import (
     ECOFLOW_DOMAIN,
@@ -54,13 +48,6 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
-    # the following line waits here as long as possible,
-    # so the client.data object gets filled with the data
-    # from the mqtt queue.
-    # this helps to figure out the exact sensor layout in the devices implementation.
-    # 9 seconds is one second lower then the warning message of hass.
-    # One second should be enaugh time to configure all entities.
-    await asyncio.sleep(9)
     for sn, device in client.devices.items():
         async_add_entities(device.sensors(client))
 
@@ -390,44 +377,6 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
         if changed:
             self.schedule_update_ha_state()
-        self.async_on_remove(
-            async_track_time_interval(
-                self.hass,
-                self.__check_status,
-                timedelta(seconds=self.__check_interval_sec),
-            )
-        )
-
-        self._update_status(
-            (utcnow() - self._client.data.params_time()).total_seconds()
-        )
-
-    def __check_status(self, now: datetime):
-        data_outdated_sec = (now - self._client.data.params_time()).total_seconds()
-        phase = math.ceil(data_outdated_sec / self.__check_interval_sec)
-        self._attrs[ATTR_STATUS_PHASE] = phase
-        time_to_reconnect = phase in self.CONNECT_PHASES
-        time_to_check_status = phase in self.CHECK_PHASES
-
-        if self._online == 1:
-            if time_to_check_status or phase >= self.DEADLINE_PHASE:
-                # online and outdated - refresh status to detect if device went offline
-                self._update_status(data_outdated_sec)
-            elif time_to_reconnect:
-                # online, updated and outdated - reconnect
-                self._attrs[ATTR_STATUS_RECONNECTS] = (
-                    self._attrs[ATTR_STATUS_RECONNECTS] + 1
-                )
-                self._client.reconnect()
-                self.schedule_update_ha_state()
-
-        elif (
-            not self._client.is_connected()
-        ):  # validate connection even for offline device
-            self._attrs[ATTR_STATUS_RECONNECTS] = (
-                self._attrs[ATTR_STATUS_RECONNECTS] + 1
-            )
-            self._client.reconnect()
 
     def _actualize_status(self) -> bool:
         changed = False
@@ -454,12 +403,6 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice):
         super().__init__(client, device)
         self._attrs[ATTR_QUOTA_REQUESTS] = 0
-
-    async def async_added_to_hass(self):
-        get_reply_d = self._client.data.get_reply_observable().subscribe(
-            self.__get_reply_update
-        )
-        self.async_on_remove(get_reply_d.dispose)
 
     def _actualize_status(self) -> bool:
         changed = False

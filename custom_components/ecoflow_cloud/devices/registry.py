@@ -67,3 +67,5 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
         "Diagnostic": DiagnosticDevice,
     }
 )
+
+device_support_sub_devices = ["Power Kits"]
