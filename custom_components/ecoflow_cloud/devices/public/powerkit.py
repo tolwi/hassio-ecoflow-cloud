@@ -95,9 +95,6 @@ class PowerKit(BaseDevice):
                 device_data.display_name = f"PowerKit Distrubution Panel AC Out ({childData.parent.sn}.{childData.sn})"
         super().__init__(device_info, device_data)
 
-    def configure(self, hass: HomeAssistant, refresh_period: int, diag: bool = False):
-        super().configure(hass, refresh_period, diag)
-
     def flat_json(self):
         return True
 
@@ -776,6 +773,7 @@ class PowerKit(BaseDevice):
                             "passByMaxCurr": 255,
                         },
                     },
+                    enableValue=2,
                 ),
             ]
         return []
