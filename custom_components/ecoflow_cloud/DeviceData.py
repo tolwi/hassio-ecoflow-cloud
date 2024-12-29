@@ -11,19 +11,16 @@ import dataclasses
 class DeviceData:
     sn: str
     name: str
-    display_name: str | None
     device_type: str
     options: DeviceOptions
+    display_name: str | None
 
 
 class DeviceDataImport(DeviceData):
     def __init__(self, data: dict[str, Any]):
         self.sn = data["sn"]
         self.name = data["name"]
-        if "display_name" in data:
-            self.display_name = data["display_name"]
-        else:
-            self.display_name = None
+        self.display_name = data.get("display_name", None)
         self.device_type = data["device_type"]
         self.options = DeviceOptionsImport(data.get("options", {}))
 
@@ -37,10 +34,7 @@ class ChildDeviceDataImport(ChildDeviceData):
     def __init__(self, data: dict[str, Any]):
         self.sn = data["sn"]
         self.name = data["name"]
-        if "display_name" in data:
-            self.display_name = data["display_name"]
-        else:
-            self.display_name = None
+        self.display_name = data.get("display_name", None)
         self.device_type = data["device_type"]
         self.options = DeviceOptionsImport(data.get("options", {}))
         self.parent = DeviceDataImport(data["parent"])
