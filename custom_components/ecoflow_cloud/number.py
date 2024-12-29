@@ -82,6 +82,18 @@ class DeciChargingPowerEntity(ChargingPowerEntity):
             self.send_set_message(ival, self.command_dict(ival))
 
 
+class AcChargingPowerInAmpereEntity(ValueUpdateEntity):
+    _attr_mode = NumberMode.BOX
+    _attr_native_step = 1
+
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val))
+
+    async def async_set_native_value(self, value: int):
+        if self._command:
+            self.send_set_message(value, self.command_dict(value))
+
+
 class MinMaxLevelEntity(ValueUpdateEntity):
     def __init__(
         self,

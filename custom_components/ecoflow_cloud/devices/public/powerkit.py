@@ -12,6 +12,7 @@ from ...entities import (
     BaseSelectEntity,
 )
 from ...number import (
+    AcChargingPowerInAmpereEntity,
     ChargingPowerEntity,
     MinBatteryLevelEntity,
     MaxBatteryLevelEntity,
@@ -633,25 +634,21 @@ class PowerKit(BaseDevice):
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         if self.device_data.device_type == "iclow":
             return [
-                ChargingPowerEntity(
+                AcChargingPowerInAmpereEntity(
                     client,
                     self,
-                    "acMaxCurrSer",
+                    "NotExisting",
                     const.AC_CHARGING_POWER,
-                    1,
+                    0,
                     16,  # This is not the real limit of the powerkit, but because it has a normal 230V plug, we don't allow here to go over 16A because you will maybe frie your socket
                     lambda value: {
-                        "moduleType": 5,
-                        "operateType": "acChgCfg",
-                        "params": {
-                            "id": 123456789,
-                            "version": "1.0",
-                            "sn": client.device_sn,
-                            "moduleSn": self.device_data.sn,
-                            "moduleType": 15365,
-                            "operateType": "dischgIcParaSet",
-                            "params": {"acCurrMaxSet": value},
-                        },
+                        "id": 123456789,
+                        "version": "1.0",
+                        "sn": self.device_data.parent.sn,
+                        "moduleSn": self.device_data.sn,
+                        "moduleType": 15365,
+                        "operateType": "dischgIcParaSet",
+                        "params": {"acCurrMaxSet": int(value)},
                     },
                 ),
             ]
