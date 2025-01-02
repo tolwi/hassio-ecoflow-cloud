@@ -312,6 +312,10 @@ class OutVoltDcSensorEntity(VoltSensorEntity):
         return super()._update_value(int(val) / 10)
 
 
+class OutAmpSensorEntity(AmpSensorEntity):
+    _attr_icon = "mdi:transmission-tower-export"
+
+
 class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 

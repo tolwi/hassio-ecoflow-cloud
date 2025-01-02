@@ -31,6 +31,7 @@ from ...sensor import (
     InWattsSolarSensorEntity,
     LevelSensorEntity,
     MiscSensorEntity,
+    OutAmpSensorEntity,
     RemainSensorEntity,
     TempSensorEntity,
     CyclesSensorEntity,
@@ -97,7 +98,7 @@ class PowerKit(BaseDevice):
         super().__init__(device_info, device_data)
 
     def flat_json(self):
-        return True
+        return False
 
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         params = self.data.params
@@ -565,8 +566,78 @@ class PowerKit(BaseDevice):
                 "Distributer DC Out Power",
                 True,
             ),  # 402
-            # OutWattsSensorEntity(client, "dcChWatt", const.DISTRIBUTER_DC_OUT_POWER, True), # [402, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            # OutWattsSensorEntity(client, "dcChCur", const.DISTRIBUTER_DC_OUT_POWER, True), # [15401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[0]", "DC Out 1", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[1]", "DC Out 2", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[2]", "DC Out 3", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[3]", "DC Out 4", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[4]", "DC Out 5", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[5]", "DC Out 6", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[6]", "DC Out 7", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[7]", "DC Out 8", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[8]", "DC Out 9", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[9]", "DC Out 10", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[10]", "DC Out 11", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "dcChWatt[11]", "DC Out 12", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[0]", "DC Ampere Out 1", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[1]", "DC Ampere Out 2", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[2]", "DC Ampere Out 3", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[3]", "DC Ampere Out 4", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[4]", "DC Ampere Out 5", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[5]", "DC Ampere Out 6", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[6]", "DC Ampere Out 7", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[7]", "DC Ampere Out 8", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[8]", "DC Ampere Out 9", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[9]", "DC Ampere Out 10", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[10]", "DC Ampere Out 11", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "dcChCur[11]", "DC Ampere Out 12", True
+            ),  # [140, 0, 0, 0, 0, 25]
             TempSensorEntity(
                 client,
                 self,
@@ -605,7 +676,42 @@ class PowerKit(BaseDevice):
                 "Distributer AC Out Power",
                 True,
             ),  # 165
-            # OutWattsSensorEntity(client, "acChWatt", const.DISTRIBUTER_DC_OUT_POWER, True), # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "acChWatt[0]", "AC Out 1", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "acChWatt[1]", "AC Out 2", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "acChWatt[2]", "AC Out 3", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "acChWatt[3]", "AC Out 4", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "acChWatt[4]", "AC Out 5", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutWattsSensorEntity(
+                client, self, "acChWatt[5]", "AC Out 6", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "acChCur[0]", "AC Ampere Out 1", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "acChCur[1]", "AC Ampere Out 2", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "acChCur[2]", "AC Ampere Out 3", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "acChCur[3]", "AC Ampere Out 4", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "acChCur[4]", "AC Ampere Out 5", True
+            ),  # [140, 0, 0, 0, 0, 25]
+            OutAmpSensorEntity(
+                client, self, "acChCur[5]", "AC Ampere Out 6", True
+            ),  # [140, 0, 0, 0, 0, 25]
             # OutWattsSensorEntity(client, "acChCur", const.DISTRIBUTER_DC_OUT_POWER, True), # [1028, 0, 0, 0, 0, 817]
             OutWattsSensorEntity(
                 client, self, "outWatts", "AC Inverter In Power", True
