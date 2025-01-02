@@ -117,6 +117,8 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         if device_data.device_type in devices:
             device = devices[device_data.device_type](info, device_data)
         elif device_data.parent.device_type in devices:
+            # this can be problematic if a parent chain is recursive (so a parent has a parent again)
+            # the current data structure alows this, but it is not supported here.
             device = devices[device_data.parent.device_type](info, device_data)
         else:
             device = DiagnosticDevice(info, device_data)

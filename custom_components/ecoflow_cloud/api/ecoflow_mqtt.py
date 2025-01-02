@@ -162,4 +162,5 @@ class EcoflowMQTTClient:
         for sn, device in self.__devices.items():
             for topic in device.device_info.topics():
                 topics.append(topic)
+        # Remove duplicates that can occur when multiple devices have the same topic (for example sub devices)
         return list(set(topics))
