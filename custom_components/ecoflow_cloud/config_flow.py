@@ -293,6 +293,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             DeviceOptions(
                 DEFAULT_REFRESH_PERIOD_SEC, device.default_charging_power_step(), False
             ),
+            None,
         )
 
         return await self.update_or_create()
