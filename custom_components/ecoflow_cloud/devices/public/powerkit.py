@@ -773,6 +773,26 @@ class PowerKit(BaseDevice):
                     enableValue=2,
                 ),
             ]
+        if self.device_data.device_type == "bbcin":
+            return [
+                EnabledEntity(
+                    client,
+                    self,
+                    "not_existing",  # we want to use dcOutSta here but it is again on another device (bbcout)
+                    "Main DC Output",
+                    lambda value: {
+                        "id": 123456789,
+                        "version": "1.0",
+                        "moduleSn": self.device_data.sn,
+                        "moduleType": 15362,
+                        "operateType": "dischgParaSet",
+                        "params": {
+                            "swSta": 1 if value == 1 else 0,
+                        },
+                    },
+                    enableValue=1,
+                ),
+            ]
         return []
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
