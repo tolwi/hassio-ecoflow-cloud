@@ -96,7 +96,9 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             target_devices = [device_sn]
 
         for sn in target_devices:
-            raw = await self.call_api("/device/quota/all", {"sn": sn})
+            raw = await self.call_api(
+                "/device/quota/all", {"sn": self.devices[sn].device_info.sn}
+            )
             if "data" in raw:
                 self.devices[sn].data.update_data({"params": raw["data"]})
 
