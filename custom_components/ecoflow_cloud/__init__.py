@@ -151,6 +151,8 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         return True
 
     elif config_entry.version in (5, 6):
+        new_data = dict(config_entry.data)
+        new_options = dict(config_entry.options)
         new_devices = dict[str, DeviceData]()
         for sn, device_info in config_entry.data[CONF_DEVICE_LIST].items():
             new_devices[sn] = DeviceData(
@@ -165,15 +167,15 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                 None,
             )
         # remove options for the devices, because they are now part of the devices
-        config_entry.options.pop("CONF_DEVICE_LIST")
+        new_options.pop(CONF_DEVICE_LIST)
         # update the data with the class structured data
-        config_entry.data[CONF_DEVICE_LIST] = new_devices
+        new_data[CONF_DEVICE_LIST] = new_devices
         # update the entry in home assistant
         hass.config_entries.async_update_entry(
             config_entry,
             version=7,
-            data=config_entry.data,
-            options=config_entry.options,
+            data=new_data,
+            options=new_options,
         )
         _LOGGER.info("Config entries updated to version %s", 7)
         return True
