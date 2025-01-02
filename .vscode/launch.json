@@ -12,9 +12,23 @@
             "console": "integratedTerminal",
             // "args": "${command:pickArgs}",
             "env": {
-                
+
             },
             "cwd": "${workspaceFolder}/custom_components/ecoflow_cloud"
+        },
+        {
+            "name": "Gen Docs",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "gen.py",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/:$PYTHONPATH"
+            },
+            "cwd": "${workspaceFolder}/docs",
+            "justMyCode": false,
+            "args": [
+                "--debug",
+            ]
         },
         {
             "name": "Home Assistant",

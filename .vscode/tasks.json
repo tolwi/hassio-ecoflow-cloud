@@ -4,7 +4,21 @@
     {
       "label": "Reset homeassistant",
       "type": "shell",
-      "command": "rm -Rf ${workspaceFolder}/core/config/ && mkdir ${workspaceFolder}/core/config/ && ln -s ${workspaceFolder}/custom_components ${workspaceFolder}/core/config/custom_components",
+      "command": "rm -Rf ${workspaceFolder}/core/config/ && mkdir ${workspaceFolder}/core/config/ && ln -s ${workspaceFolder}/custom_components ${workspaceFolder}/core/config/custom_components"
+    },
+    {
+      "label": "Generate Docs",
+      "type": "shell",
+      "options": {
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/:$PYTHONPATH"
+        },
+        "cwd": "${workspaceFolder}/docs"
+      },
+      "command": "python gen.py",
+      "problemMatcher": [
+        "$python"
+      ]
     },
     {
       "label": "Run Home Assistant Core",
@@ -12,26 +26,30 @@
       "command": "hass -c ./config",
       "group": "test",
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
         "panel": "new"
       },
       "problemMatcher": [],
-      "dependsOn": ["Compile English translations"]
+      "dependsOn": [
+        "Compile English translations"
+      ]
     },
     {
       "label": "Pytest",
       "type": "shell",
       "command": "python3 -m pytest --timeout=10 tests",
-      "dependsOn": ["Install all Test Requirements"],
+      "dependsOn": [
+        "Install all Test Requirements"
+      ],
       "group": {
         "kind": "test",
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
@@ -48,7 +66,7 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
@@ -65,7 +83,7 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
@@ -77,13 +95,15 @@
       "label": "Pylint",
       "type": "shell",
       "command": "pylint homeassistant",
-      "dependsOn": ["Install all Requirements"],
+      "dependsOn": [
+        "Install all Requirements"
+      ],
       "group": {
         "kind": "test",
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
@@ -96,13 +116,15 @@
       "detail": "Generate code coverage report for a given integration.",
       "type": "shell",
       "command": "python3 -m pytest ./tests/components/${input:integrationName}/ --cov=homeassistant.components.${input:integrationName} --cov-report term-missing --durations-min=1 --durations=0 --numprocesses=auto",
-      "dependsOn": ["Compile English translations"],
+      "dependsOn": [
+        "Compile English translations"
+      ],
       "group": {
         "kind": "test",
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
@@ -119,7 +141,7 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
@@ -136,7 +158,7 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
@@ -153,7 +175,7 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
@@ -171,7 +193,7 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       }
     },
     {
@@ -184,8 +206,8 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
-      },
+        "cwd": "${workspaceFolder}/core"
+      }
     },
     {
       "label": "Create new integration",
@@ -197,8 +219,8 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
-      },
+        "cwd": "${workspaceFolder}/core"
+      }
     },
     {
       "label": "Install integration requirements",
@@ -210,7 +232,7 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/core",
+        "cwd": "${workspaceFolder}/core"
       },
       "presentation": {
         "reveal": "always",
