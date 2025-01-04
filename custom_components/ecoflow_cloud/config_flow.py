@@ -10,6 +10,8 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceRegistry
 from homeassistant.helpers.entity_registry import EntityRegistry
+
+from custom_components.ecoflow_cloud import EcoflowPublicApiClient
 from .devices.registry import device_support_sub_devices
 
 from .DeviceData import ChildDeviceData, DeviceData
@@ -104,6 +106,10 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
                 if device_data.device_type not in device_support_sub_devices:
                     # skip here all devices that do not support sub devices
                     continue
+                if not isinstance(self.auth, EcoflowPublicApiClient):
+                    raise TypeError(
+                        "Only public api is supported for devices with sub devices"
+                    )
                 allDeviceInfo = await self.auth.call_api(
                     f"/device/quota/all", {"sn": device_data.sn}
                 )
