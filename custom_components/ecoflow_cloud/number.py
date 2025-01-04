@@ -18,13 +18,6 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
-    # the following line waits here as long as possible,
-    # so the client.data object gets filled with the data
-    # from the mqtt queue.
-    # this helps to figure out the exact sensor layout in the devices implementation.
-    # 9 seconds is one second lower then the warning message of hass.
-    # One second should be enaugh time to configure all entities.
-    await asyncio.sleep(9)
     for sn, device in client.devices.items():
         async_add_entities(device.numbers(client))
 

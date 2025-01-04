@@ -120,14 +120,7 @@ class PowerKit(BaseDevice):
         elif self.device_data.device_type == "ldac":
             return self.distributerACOutSensors(client, self.device_data.sn, params)
         return []
-
-        # TODO: Figure out some of the values
-        # TODO: Add in config data
-        # TODO: Add value editing
-        # TODO: Support batteries ✅
-        # TODO: Check AC Input
         # TODO: Check DC In via Smart Generator
-        # TODO: Attempt alternator charging
 
     def batterieSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
@@ -712,7 +705,6 @@ class PowerKit(BaseDevice):
             OutAmpSensorEntity(
                 client, self, "acChCur[5]", "AC Ampere Out 6", True
             ),  # [140, 0, 0, 0, 0, 25]
-            # OutWattsSensorEntity(client, "acChCur", const.DISTRIBUTER_DC_OUT_POWER, True), # [1028, 0, 0, 0, 0, 817]
             OutWattsSensorEntity(
                 client, self, "outWatts", "AC Inverter In Power", True
             ),  # 184

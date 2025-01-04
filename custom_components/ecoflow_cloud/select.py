@@ -12,17 +12,13 @@ from .entities import BaseSelectEntity
 from .devices import BaseDevice
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
-    # the following line waits here as long as possible,
-    # so the client.data object gets filled with the data
-    # from the mqtt queue.
-    # this helps to figure out the exact sensor layout in the devices implementation.
-    # 9 seconds is one second lower then the warning message of hass.
-    # One second should be enaugh time to configure all entities.
-    await asyncio.sleep(9)
-    for (sn, device) in client.devices.items():
+    for sn, device in client.devices.items():
         async_add_entities(device.selects(client))
+
 
 class DictSelectEntity(BaseSelectEntity):
     _attr_entity_category = EntityCategory.CONFIG
@@ -37,7 +33,7 @@ class DictSelectEntity(BaseSelectEntity):
         options: dict[str, int],
         command: Callable[[int], dict[str, Any]] | None,
         enabled: bool = True,
-        auto_enable: bool = False
+        auto_enable: bool = False,
     ):
         super().__init__(client, device, mqtt_key, title, command, enabled, auto_enable)
         self._options_dict = options
@@ -71,8 +67,10 @@ class DictSelectEntity(BaseSelectEntity):
             val = self._options_dict[option]
             self.send_set_message(val, self.command_dict(val))
 
+
 class TimeoutDictSelectEntity(DictSelectEntity):
     _attr_icon = "mdi:timer-outline"
+
 
 class PowerDictSelectEntity(DictSelectEntity):
     _attr_icon = "mdi:battery-charging-wireless"

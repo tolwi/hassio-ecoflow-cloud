@@ -74,9 +74,6 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
 
     async def update_or_create(self):
         if self.config_entry:
-            # TODO: findout what is inside the config entry.
-            # before this method is called or after it, we should call the quoata_all method
-            # and extract all the sub devices of the root device
             _LOGGER.info(
                 f".. reconfigure: entry = %s, data = %s, options = %s ",
                 str(self.config_entry),
@@ -114,7 +111,6 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
                     f"/device/quota/all", {"sn": device_data.sn}
                 )
                 for subDeviceType, subDevices in allDeviceInfo["data"].items():
-                    # TODO: create here all the sub devices from the main device
                     if isinstance(subDevices, list):
                         continue
                     for subDeviceKey, item in subDevices.items():
@@ -514,12 +510,6 @@ class EcoflowOptionsFlow(OptionsFlow):
                 ),
             )
 
-        # new_options = {**self.config_entry.options}
-        # new_options[CONF_DEVICE_LIST][self.selected_device.sn] = {
-        #     OPTS_POWER_STEP: user_input[OPTS_POWER_STEP],
-        #     OPTS_REFRESH_PERIOD_SEC: user_input[OPTS_REFRESH_PERIOD_SEC],
-        #     OPTS_DIAGNOSTIC_MODE: user_input[OPTS_DIAGNOSTIC_MODE],
-        # }
         self.devices[self.selected_device.sn].options = DeviceOptions(
             user_input[OPTS_REFRESH_PERIOD_SEC],
             user_input[OPTS_POWER_STEP],
