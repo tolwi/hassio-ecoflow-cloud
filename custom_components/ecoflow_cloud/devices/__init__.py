@@ -13,10 +13,15 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 
+from ..DeviceData import DeviceData
+
+from ..DeviceData import ChildDeviceData
+
 from .data_holder import EcoflowDataHolder
 from ..api import EcoflowApiClient
 
 _LOGGER = logging.getLogger(__name__)
+
 
 @dataclasses.dataclass
 class EcoflowDeviceInfo:
@@ -32,6 +37,8 @@ class EcoflowDeviceInfo:
     get_reply_topic: str | None
     status_topic: str | None = None
 
+    quota_all: str = "/iot-open/sign/device/quota/all"
+
     def topics(self) -> list[str]:
         topics = [
             self.data_topic,
@@ -39,23 +46,31 @@ class EcoflowDeviceInfo:
             self.get_reply_topic,
             self.set_topic,
             self.set_reply_topic,
-            self.status_topic
+            self.status_topic,
         ]
         return list(filter(lambda v: v is not None, topics))
+
 
 @dataclasses.dataclass
 class EcoflowBroadcastDataHolder:
     data_holder: EcoflowDataHolder
     changed: bool
 
+
 class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataHolder]):
     def __init__(self, hass, holder: EcoflowDataHolder, refresh_period: int) -> None:
         """Initialize the coordinator."""
-        super().__init__(hass, _LOGGER, name="Ecoflow update coordinator", always_update=True,
-                         update_interval= datetime.timedelta(seconds=max(refresh_period, 5)),
+        super().__init__(
+            hass,
+            _LOGGER,
+            name="Ecoflow update coordinator",
+            always_update=True,
+            update_interval=datetime.timedelta(seconds=max(refresh_period, 5)),
         )
         self.holder = holder
-        self.__last_broadcast = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self.__last_broadcast = dt.utcnow().replace(
+            year=2000, month=1, day=1, hour=0, minute=0, second=0
+        )
 
     async def _async_update_data(self) -> EcoflowBroadcastDataHolder:
         received_time = self.holder.last_received_time()
@@ -63,18 +78,29 @@ class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataH
         self.__last_broadcast = received_time
         return EcoflowBroadcastDataHolder(self.holder, changed)
 
-class BaseDevice(ABC):
 
-    def __init__(self, device_info: EcoflowDeviceInfo):
+class BaseDevice(ABC):
+    def __init__(self, device_info: EcoflowDeviceInfo, device_data: DeviceData):
         super().__init__()
         self.coordinator = None
         self.data = None
         self.device_info: EcoflowDeviceInfo = device_info
-        self.power_step: int = -1
+        self.power_step: int = device_data.options.power_step
+        self.device_data: DeviceData = device_data
 
-    def configure(self, hass: HomeAssistant, refresh_period: int, diag: bool = False):
-        self.data = EcoflowDataHolder(diag)
-        self.coordinator = EcoflowDeviceUpdateCoordinator(hass, self.data, refresh_period)
+    def configure(
+        self,
+        hass: HomeAssistant,
+        refresh_period: int,
+        diag: bool = False,
+    ):
+        if isinstance(self.device_data, ChildDeviceData):
+            self.data = EcoflowDataHolder(self.device_data.sn, diag)
+        else:
+            self.data = EcoflowDataHolder(None, diag)
+        self.coordinator = EcoflowDeviceUpdateCoordinator(
+            hass, self.data, refresh_period
+        )
 
     @staticmethod
     def default_charging_power_step() -> int:
@@ -128,11 +154,10 @@ class BaseDevice(ABC):
             return False
         return True
 
-
     def _prepare_data(self, raw_data) -> dict[str, any]:
         try:
             try:
-                payload = raw_data.decode("utf-8", errors='ignore')
+                payload = raw_data.decode("utf-8", errors="ignore")
                 return json.loads(payload)
             except UnicodeDecodeError as error:
                 _LOGGER.warning(f"UnicodeDecodeError: {error}. Trying to load json.")
@@ -141,10 +166,12 @@ class BaseDevice(ABC):
                 _LOGGER.warning(f"Exception: {error}. Trying to load json.")
                 return json.loads(raw_data)
         except Exception as error1:
-            _LOGGER.error(f"constant: {error1}. Ignoring message and waiting for the next one.")
+            _LOGGER.error(
+                f"constant: {error1}. Ignoring message and waiting for the next one."
+            )
+
 
 class DiagnosticDevice(BaseDevice):
-
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return []
 

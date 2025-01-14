@@ -1,10 +1,12 @@
 In order to add a new entity for a device type, following info is needed:
-- *sensor*: name, data_key
-- *switch*: name, data_key, action_command
-- *select*: name, data_key, action_command, options
-- *slider*: name, data_key, action_command, min, max
+
+- _sensor_: name, data_key
+- _switch_: name, data_key, action_command
+- _select_: name, data_key, action_command, options
+- _slider_: name, data_key, action_command, min, max
 
 Current integrations details:
+
 - [DELTA_2](devices/DELTA_2.md)
 - [RIVER_2](devices/RIVER_2.md)
 - [RIVER_2_MAX](devices/RIVER_2_MAX.md)

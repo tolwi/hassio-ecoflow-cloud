@@ -1,35 +1,97 @@
+from typing import List
 import json
 from unittest.mock import Mock
 
+from custom_components.ecoflow_cloud import DeviceData, DeviceOptions, ChildDeviceData
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo
-from custom_components.ecoflow_cloud.devices.registry import devices, device_by_product
-from custom_components.ecoflow_cloud.entities import EcoFlowBaseCommandEntity, BaseSwitchEntity, BaseSensorEntity, \
-    BaseNumberEntity, BaseSelectEntity, EcoFlowDictEntity
+from custom_components.ecoflow_cloud.devices.registry import (
+    devices,
+    device_by_product,
+    device_support_sub_devices,
+)
+from custom_components.ecoflow_cloud.entities import (
+    EcoFlowBaseCommandEntity,
+    BaseSwitchEntity,
+    BaseSensorEntity,
+    BaseNumberEntity,
+    BaseSelectEntity,
+    EcoFlowDictEntity,
+)
 
 MARKER_VALUE = -66666
 
-device_info = EcoflowDeviceInfo(public_api = False,
-    sn = "SN",
-    name = "NAME",
-    device_type = "TYPE",
-    data_topic = "DATA_TOPIC",
+multi_device_config = {
+    "Power Kits": [
+        "bbcin",
+        "bbcout",
+        "iclow",
+        "bpxxx",
+        "kitscc",
+        "lddc",
+        "ichigh",
+        "ldac",
+    ]
+}
+
+device_info = EcoflowDeviceInfo(
+    public_api=False,
+    sn="SN",
+    name="NAME",
+    device_type="TYPE",
+    data_topic="DATA_TOPIC",
     status=1,
-    set_topic = "SET_TOPIC",
-    set_reply_topic = "SET_REPLY_TOPIC",
-    get_topic = None,
-    get_reply_topic = None,
-    status_topic = None)
+    set_topic="SET_TOPIC",
+    set_reply_topic="SET_REPLY_TOPIC",
+    get_topic=None,
+    get_reply_topic=None,
+    status_topic=None,
+)
+device_options = DeviceOptions(0, 0, False)
 
 
-def device_summary(device: BaseDevice) -> str:
-    client = Mock()
-    client.device = device
-    return "sensors: %d, switches: %d, sliders: %d, selects: %d" % (
-        len(device.sensors(client)),
-        len(device.switches(client)),
-        len(device.numbers(client)),
-        len(device.selects(client))
-    )
+def get_device_data(deviceType: str) -> List[DeviceData]:
+    if deviceType in device_support_sub_devices:
+        if deviceType in multi_device_config:
+            return [
+                ChildDeviceData(
+                    "SN",
+                    "NAME",
+                    moduleType,
+                    device_options,
+                    "DISPLAY_NAME",
+                    DeviceData("SN", "NAME", "TYPE", device_options, None),
+                )
+                for moduleType in multi_device_config[deviceType]
+            ]
+        raise NotImplementedError(
+            "For all multi-device types, a configuration must be provided"
+        )
+    else:
+        return [DeviceData("SN", "NAME", "TYPE", device_options, None)]
+
+
+def get_devices(deviceType: str, dev: type[BaseDevice]) -> List[BaseDevice]:
+    real_devices = []
+    for device_data in get_device_data(deviceType):
+        device = dev(device_info, device_data)
+        device.configure(None, 10, False)
+        real_devices.append(device)
+    return real_devices
+
+
+def device_summary(base_devices: List[BaseDevice]) -> str:
+    total_sensors = 0
+    total_switches = 0
+    total_numbers = 0
+    total_selects = 0
+    for device in base_devices:
+        client = Mock()
+        client.device = device
+        total_sensors += len(device.sensors(client))
+        total_switches += len(device.switches(client))
+        total_numbers += len(device.numbers(client))
+        total_selects += len(device.selects(client))
+    return f"sensors: {total_sensors}, switches: {total_switches}, sliders: {total_numbers}, selects: {total_selects}"
 
 
 def command_ro(e: EcoFlowBaseCommandEntity) -> str:
@@ -89,7 +151,12 @@ def render_number(sw: BaseNumberEntity, brief: bool = False) -> str:
         return "- %s %s" % (sw.name, command_ro(sw))
     else:
         return "- %s (`%s` -> `%s` [%d - %d])" % (
-            sw.name, sw.mqtt_key, prepare_command(sw), int(sw.native_min_value), int(sw.native_max_value))
+            sw.name,
+            sw.mqtt_key,
+            prepare_command(sw),
+            int(sw.native_min_value),
+            int(sw.native_max_value),
+        )
 
 
 def render_select(sw: BaseSelectEntity, brief: bool = False) -> str:
@@ -97,7 +164,11 @@ def render_select(sw: BaseSelectEntity, brief: bool = False) -> str:
         return "- %s %s" % (sw.name, command_ro(sw))
     else:
         return "- %s (`%s` -> `%s` [%s])" % (
-            sw.name, sw.mqtt_key, prepare_command(sw), prepare_options(sw.options_dict()),)
+            sw.name,
+            sw.mqtt_key,
+            prepare_command(sw),
+            prepare_options(sw.options_dict()),
+        )
 
 
 def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
@@ -126,21 +197,35 @@ def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
 def render_brief_summary():
     for dt, dev in devices.items():
         if dt != "DIAGNOSTIC":
-            device = dev(device_info)
-            device.configure(None, 10, False)
-            print("<details><summary> %s <i>(%s)</i> </summary>" % (dt, device_summary(device)))
+            content = ""
+            real_devices = get_devices(dt, dev)
+            for device in real_devices:
+                if len(real_devices) > 1:
+                    content = content + f"\n### {device.device_data.device_type}\n"
+                content = content + render_device_summary(device, True)
+            print(
+                "<details><summary> %s <i>(%s)</i> </summary>"
+                % (dt, device_summary(real_devices))
+            )
             print("<p>")
-            print(render_device_summary(device, True))
+            print(content)
             print("</p></details>")
             print()
 
     for dt, dev in device_by_product.items():
         if dt != "DIAGNOSTIC":
-            device = dev(device_info)
-            device.configure(None, 10, False)
-            print("<details><summary> %s (API) <i>(%s)</i> </summary>" % (dt, device_summary(device)))
+            content = ""
+            real_devices = get_devices(dt, dev)
+            for device in real_devices:
+                if len(real_devices) > 1:
+                    content = content + f"\n### {device.device_data.device_type}\n"
+                content = content + render_device_summary(device, True)
+            print(
+                "<details><summary> %s (API) <i>(%s)</i> </summary>"
+                % (dt, device_summary(real_devices))
+            )
             print("<p>")
-            print(render_device_summary(device, True))
+            print(content)
             print("</p></details>")
             print()
 
@@ -148,23 +233,31 @@ def render_brief_summary():
 def update_full_summary():
     for dt, dev in devices.items():
         if dt != "DIAGNOSTIC":
-            device = dev(device_info)
-            device.configure(None, 10, False)
+            content = ""
+            real_devices = get_devices(dt, dev)
+            for device in real_devices:
+                if len(real_devices) > 1:
+                    content = content + f"\n### {device.device_data.device_type}\n"
+                content = content + render_device_summary(device)
             with open("devices/%s.md" % dt, "w+") as f:
                 f.write("## %s\n" % dt)
-                f.write(render_device_summary(device))
+                f.write(content)
                 f.write("\n\n")
 
             print("- [%s](devices/%s.md)" % (dt, dt))
 
     for dt, dev in device_by_product.items():
         if dt != "DIAGNOSTIC":
-            device = dev(device_info)
-            device.configure(None, 10, False)
+            content = ""
+            real_devices = get_devices(dt, dev)
+            for device in real_devices:
+                if len(real_devices) > 1:
+                    content = content + f"\n### {device.device_data.device_type}\n"
+                content = content + render_device_summary(device)
             name = dt.replace(" ", "_")
             with open("devices/%s-Public.md" % name, "w+") as f:
                 f.write("## %s\n" % name)
-                f.write(render_device_summary(device))
+                f.write(content)
                 f.write("\n\n")
 
             print("- [%s](devices/%s-Public.md)" % (name, name))
