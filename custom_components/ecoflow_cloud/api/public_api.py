@@ -15,9 +15,6 @@ from . import EcoflowApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
-BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
-
-
 # from FB
 # client_id limits for MQTT connections
 # If you are using MQTT to connect to the API be aware that only 10 unique client IDs are allowed per day.
@@ -27,8 +24,13 @@ BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
 
 
 class EcoflowPublicApiClient(EcoflowApiClient):
-    def __init__(self, access_key: str, secret_key: str, group: str):
+    def __init__(self, 
+                 api_domain: str, 
+                 access_key: str, 
+                 secret_key: str, 
+                 group: str):
         super().__init__()
+        self.api_domain = api_domain
         self.access_key = access_key
         self.secret_key = secret_key
         self.group = group
@@ -49,7 +51,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         result = list()
         for device in response["data"]:
             sn = device["sn"]
-            product_name = device["productName"]
+            product_name = device.get("productName", "undefined")
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
             result.append(
@@ -118,7 +120,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             }
 
             resp = await session.get(
-                f"{BASE_URI}{endpoint}?{params_str}", headers=headers
+                f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}", headers=headers
             )
             return await self._get_json_response(resp)
 

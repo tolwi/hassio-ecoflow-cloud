@@ -14,12 +14,14 @@ from ..DeviceData import ChildDeviceData
 
 _LOGGER = logging.getLogger(__name__)
 
-BASE_URI = "https://api.ecoflow.com"
-
-
 class EcoflowPrivateApiClient(EcoflowApiClient):
-    def __init__(self, ecoflow_username: str, ecoflow_password: str, group: str):
+    def __init__(self, 
+                 api_domain: str,
+                 ecoflow_username: str, 
+                 ecoflow_password: str, 
+                 group: str):
         super().__init__()
+        self.api_domain = api_domain
         self.ecoflow_password = ecoflow_password
         self.ecoflow_username = ecoflow_username
         self.group = group
@@ -29,7 +31,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
     async def login(self):
         async with aiohttp.ClientSession() as session:
-            url = f"{BASE_URI}/auth/login"
+            url = f"https://{self.api_domain}/auth/login"
             headers = {"lang": "en_US", "content-type": "application/json"}
             data = {
                 "email": self.ecoflow_username,
@@ -158,7 +160,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
                 req_params.update(params)
 
             resp = await session.get(
-                f"{BASE_URI}{endpoint}",
+                f"https://{self.api_domain}{endpoint}",
                 data=user_data,
                 params=req_params,
                 headers=headers,

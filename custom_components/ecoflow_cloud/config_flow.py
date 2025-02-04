@@ -21,6 +21,7 @@ from .DeviceOptions import DeviceOptions
 from . import (
     ECOFLOW_DOMAIN,
     CONFIG_VERSION,
+    CONF_API_HOST,
     CONF_ACCESS_KEY,
     CONF_SECRET_KEY,
     CONF_USERNAME,
@@ -83,12 +84,13 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             if self.hass.config_entries.async_update_entry(
                 entry=self.config_entry, data=self.new_data, options=self.new_options
             ):
+                # reload if changed
                 self.hass.config_entries.async_schedule_reload(
                     self.config_entry.entry_id
                 )
-                return self.async_abort(reason="reconfigure_successful")
-            else:
-                return self.async_abort(reason="reconfigure_failed")
+
+            return self.async_abort(reason="reconfigure_successful")
+
         else:
             _LOGGER.info(
                 f".. create: entry = %s, data = %s, options = %s ",
@@ -206,6 +208,9 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         user_auth_schema = vol.Schema(
             {
                 vol.Required(
+                    CONF_API_HOST, default="api.ecoflow.com"
+                ): str,
+                vol.Required(
                     CONF_USERNAME, default=self.new_data.get(CONF_USERNAME, "")
                 ): str,
                 vol.Required(
@@ -217,12 +222,14 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         if not user_input:
             return self.async_show_form(step_id="manual", data_schema=user_auth_schema)
 
+        self.new_data[CONF_API_HOST] = user_input.get(CONF_API_HOST)
         self.new_data[CONF_USERNAME] = user_input.get(CONF_USERNAME)
         self.new_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD)
 
         from .api.private_api import EcoflowPrivateApiClient
 
         self.auth = EcoflowPrivateApiClient(
+            self.new_data[CONF_API_HOST],
             self.new_data[CONF_USERNAME],
             self.new_data[CONF_PASSWORD],
             self.new_data[CONF_GROUP],
@@ -303,27 +310,33 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
     async def async_step_api(self, user_input: dict[str, Any] | None = None):
         api_keys_auth_schema = vol.Schema(
             {
+                vol.Required(CONF_API_HOST): selector.SelectSelector(
+                            selector.SelectSelectorConfig(
+                                options=["api-e.ecoflow.com", "api-a.ecoflow.com"],
+                                mode=selector.SelectSelectorMode.DROPDOWN,
+                            ),
+                        ),
                 vol.Required(
                     CONF_ACCESS_KEY, default=self.new_data.get(CONF_ACCESS_KEY, "")
                 ): str,
                 vol.Required(
                     CONF_SECRET_KEY, default=self.new_data.get(CONF_SECRET_KEY, "")
                 ): str,
-                # vol.Required(CONF_LOAD_ALL_DEVICES, default=self.new_data.get(CONF_LOAD_ALL_DEVICES, False)): bool
             }
         )
 
         if not user_input:
             return self.async_show_form(step_id="api", data_schema=api_keys_auth_schema)
 
+        self.new_data[CONF_API_HOST] = user_input.get(CONF_API_HOST)
         self.new_data[CONF_ACCESS_KEY] = user_input.get(CONF_ACCESS_KEY)
         self.new_data[CONF_SECRET_KEY] = user_input.get(CONF_SECRET_KEY)
-        # self.new_data[CONF_LOAD_ALL_DEVICES] = user_input.get(CONF_LOAD_ALL_DEVICES)
         self.new_data[CONF_LOAD_ALL_DEVICES] = False
 
         from .api.public_api import EcoflowPublicApiClient
 
         self.auth = EcoflowPublicApiClient(
+            self.new_data[CONF_API_HOST],
             self.new_data[CONF_ACCESS_KEY],
             self.new_data[CONF_SECRET_KEY],
             self.new_data[CONF_GROUP],

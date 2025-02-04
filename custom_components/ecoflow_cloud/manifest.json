@@ -12,7 +12,7 @@
   "requirements": [
     "paho-mqtt==1.6.1",
     "protobuf>=4.23.0",
-    "jsonpath-ng>=1.6.1"
+    "jsonpath-ng>=1.7.0"
   ],
-  "version": "1.2.0"
+  "version": "1.3.0-beta1"
 }

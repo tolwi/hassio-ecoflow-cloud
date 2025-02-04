@@ -352,6 +352,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     def __init__(self, client: EcoflowApiClient, device: BaseDevice):
         super().__init__(client, device, "Status", "status")
+        self._attr_force_update = False
+
         self._online = -1
         self._last_update = dt.utcnow().replace(
             year=2000, month=1, day=1, hour=0, minute=0, second=0
