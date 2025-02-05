@@ -3,13 +3,13 @@ import struct
 from typing import Any, Mapping, OrderedDict
 
 from homeassistant.components.binary_sensor import (
-    BinarySensorEntity,
     BinarySensorDeviceClass,
+    BinarySensorEntity,
 )
 from homeassistant.components.sensor import (
     SensorDeviceClass,
-    SensorStateClass,
     SensorEntity,
+    SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -27,19 +27,22 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt
 
-from . import (
-    ECOFLOW_DOMAIN,
-    ATTR_STATUS_SN,
-    ATTR_STATUS_DATA_LAST_UPDATE,
-    ATTR_STATUS_LAST_UPDATE,
-    ATTR_STATUS_RECONNECTS,
-    ATTR_STATUS_PHASE,
+from custom_components.ecoflow_cloud import (
     ATTR_MQTT_CONNECTED,
     ATTR_QUOTA_REQUESTS,
+    ATTR_STATUS_DATA_LAST_UPDATE,
+    ATTR_STATUS_PHASE,
+    ATTR_STATUS_RECONNECTS,
+    ATTR_STATUS_SN,
+    ECOFLOW_DOMAIN,
 )
-from .api import EcoflowApiClient
-from .devices import BaseDevice
-from .entities import BaseSensorEntity, EcoFlowAbstractEntity, EcoFlowDictEntity
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import BaseDevice
+from custom_components.ecoflow_cloud.entities import (
+    BaseSensorEntity,
+    EcoFlowAbstractEntity,
+    EcoFlowDictEntity,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -350,6 +353,8 @@ class DecihertzSensorEntity(FrequencySensorEntity):
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
+    offline_barrier_sec: int = 120  # 2 minutes
+
     def __init__(self, client: EcoflowApiClient, device: BaseDevice):
         super().__init__(client, device, "Status", "status")
         self._attr_force_update = False
@@ -360,8 +365,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         )
         self._skip_count = 0
         self._offline_skip_count = int(
-            120 / self.coordinator.update_interval.seconds
-        )  # 2 minutes
+            self.offline_barrier_sec / self.coordinator.update_interval.seconds
+        )
         self._attrs = OrderedDict[str, Any]()
         self._attrs[ATTR_STATUS_SN] = self._device.device_info.sn
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = None
@@ -372,9 +377,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         update_time = self.coordinator.data.data_holder.last_received_time()
         if self._last_update < update_time:
             self._last_update = max(update_time, self._last_update)
-            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = update_time
-            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
             self._skip_count = 0
+            self._actualize_attributes()
             changed = True
         else:
             self._skip_count += 1
@@ -389,14 +393,24 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         if self._online != 0 and self._skip_count >= self._offline_skip_count:
             self._online = 0
             self._attr_native_value = "assume_offline"
-            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+            self._actualize_attributes()
             changed = True
         elif self._online != 1 and self._skip_count == 0:
             self._online = 1
             self._attr_native_value = "online"
-            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+            self._actualize_attributes()
             changed = True
         return changed
+
+    def _actualize_attributes(self):
+        if self._online == 1:
+            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = (
+                f"< {self.offline_barrier_sec} sec"
+            )
+        else:
+            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._last_update
+
+        self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
