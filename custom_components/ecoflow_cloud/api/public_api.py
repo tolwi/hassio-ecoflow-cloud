@@ -1,20 +1,19 @@
+from datetime import datetime
 import hashlib
 import hmac
 import logging
 import random
 import time
-from datetime import datetime
 
 import aiohttp
+
 from homeassistant.util import dt
 
-from . import EcoflowApiClient
+from custom_components.ecoflow_cloud import ChildDeviceData, DeviceData
 from ..devices import DiagnosticDevice, EcoflowDeviceInfo
+from . import EcoflowApiClient
 
 _LOGGER = logging.getLogger(__name__)
-
-BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
-
 
 # from FB
 # client_id limits for MQTT connections
@@ -23,10 +22,15 @@ BASE_URI = "https://api-e.ecoflow.com/iot-open/sign"
 # If your code generates a unique client_id (as mine did) for each connection,
 # you can exceed this limit very quickly when testing or debugging code.
 
-class EcoflowPublicApiClient(EcoflowApiClient):
 
-    def __init__(self, access_key: str, secret_key: str, group: str):
+class EcoflowPublicApiClient(EcoflowApiClient):
+    def __init__(self, 
+                 api_domain: str, 
+                 access_key: str, 
+                 secret_key: str, 
+                 group: str):
         super().__init__()
+        self.api_domain = api_domain
         self.access_key = access_key
         self.secret_key = secret_key
         self.group = group
@@ -37,7 +41,9 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         _LOGGER.info(f"Requesting IoT MQTT credentials")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
-        self.mqtt_info.client_id = f"Hassio-{self.mqtt_info.username}-{self.group.replace(' ', '-')}"
+        self.mqtt_info.client_id = (
+            f"Hassio-{self.mqtt_info.username}-{self.group.replace(' ', '-')}"
+        )
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info("Requesting all devices")
@@ -49,23 +55,36 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 _LOGGER.warning(f"Skipping device due to missing keys: {device}")
                 continue
             sn = device["sn"]
-            product_name = device["productName"]
+            product_name = device.get("productName", "undefined")
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
-            result.append(self.__create_device_info(sn, device_name, product_name, status))
+            result.append(
+                self.__create_device_info(sn, device_name, product_name, status)
+            )
 
         return result
 
-    def configure_device(self, device_sn: str, device_name: str, device_type: str, power_step = -1):
-        info = self.__create_device_info(device_sn, device_name, device_type)
+    def configure_device(self, device_data: DeviceData):
+        if isinstance(device_data, ChildDeviceData):
+            info = self.__create_device_info(
+                device_data.parent.sn, device_data.name, device_data.parent.device_type
+            )
+        else:
+            info = self.__create_device_info(
+                device_data.sn, device_data.name, device_data.device_type
+            )
 
         from custom_components.ecoflow_cloud.devices.registry import device_by_product
-        if device_type in device_by_product:
-            device = device_by_product[device_type](info)
-        else:
-            device = DiagnosticDevice(info)
 
-        device.power_step = power_step
+        if device_data.device_type in device_by_product:
+            device = device_by_product[device_data.device_type](info, device_data)
+        elif device_data.parent.device_type in device_by_product:
+            device = device_by_product[device_data.parent.device_type](
+                info, device_data
+            )
+        else:
+            device = DiagnosticDevice(info, device_data)
+
         self.add_device(device)
         return device
 
@@ -76,12 +95,16 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             devices = await self.fetch_all_available_devices()
             for device in devices:
                 if device.sn in self.devices:
-                    self.devices[device.sn].data.update_status({"params": {"status" : device.status}})
+                    self.devices[device.sn].data.update_status(
+                        {"params": {"status": device.status}}
+                    )
         else:
             target_devices = [device_sn]
 
         for sn in target_devices:
-            raw = await self.call_api("/device/quota/all", {"sn": sn})
+            raw = await self.call_api(
+                "/device/quota/all", {"sn": self.devices[sn].device_info.sn}
+            )
             if "data" in raw:
                 self.devices[sn].data.update_data({"params": raw["data"]})
 
@@ -94,16 +117,20 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             sign = self.__gen_sign(params_str)
 
             headers = {
-                'accessKey': self.access_key,
-                'nonce': self.nonce,
-                'timestamp': self.timestamp,
-                'sign': sign
+                "accessKey": self.access_key,
+                "nonce": self.nonce,
+                "timestamp": self.timestamp,
+                "sign": sign,
             }
 
-            resp = await session.get(f"{BASE_URI}{endpoint}?{params_str}", headers=headers)
+            resp = await session.get(
+                f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}", headers=headers
+            )
             return await self._get_json_response(resp)
 
-    def __create_device_info(self, device_sn: str, device_name: str, device_type: str, status: int = -1) -> EcoflowDeviceInfo:
+    def __create_device_info(
+        self, device_sn: str, device_name: str, device_type: str, status: int = -1
+    ) -> EcoflowDeviceInfo:
         return EcoflowDeviceInfo(
             public_api=True,
             sn=device_sn,
@@ -115,11 +142,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             set_reply_topic=f"/open/{self.mqtt_info.username}/{device_sn}/set_reply",
             get_topic=None,
             get_reply_topic=None,
-            status_topic=f"/open/{self.mqtt_info.username}/{device_sn}/status"
+            status_topic=f"/open/{self.mqtt_info.username}/{device_sn}/status",
         )
 
     def __gen_sign(self, query_params: str | None) -> str:
-        target_str = f"accessKey={self.access_key}&nonce={self.nonce}&timestamp={self.timestamp}"
+        target_str = (
+            f"accessKey={self.access_key}&nonce={self.nonce}&timestamp={self.timestamp}"
+        )
         if query_params:
             target_str = query_params + "&" + target_str
 
@@ -137,8 +166,8 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
     def __encrypt_hmac_sha256(self, message: str, secret_key: str) -> str:
         # Convert the message and secret key to bytes
-        message_bytes = message.encode('utf-8')
-        secret_bytes = secret_key.encode('utf-8')
+        message_bytes = message.encode("utf-8")
+        secret_bytes = secret_key.encode("utf-8")
 
         # Create the HMAC
         hmac_obj = hmac.new(secret_bytes, message_bytes, hashlib.sha256)

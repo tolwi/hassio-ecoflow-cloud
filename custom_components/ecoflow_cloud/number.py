@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable, Any
 
 from homeassistant.components.number import NumberMode
@@ -13,9 +14,11 @@ from .entities import BaseNumberEntity
 from .devices import BaseDevice
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
-    for (sn, device) in client.devices.items():
+    for sn, device in client.devices.items():
         async_add_entities(device.numbers(client))
 
 
@@ -34,10 +37,29 @@ class ChargingPowerEntity(ValueUpdateEntity):
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_device_class = SensorDeviceClass.POWER
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, Any]] | None,
-                 enabled: bool = True, auto_enable: bool = False):
-        super().__init__(client, device, mqtt_key, title, min_value, max_value, command, enabled, auto_enable)
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        mqtt_key: str,
+        title: str,
+        min_value: int,
+        max_value: int,
+        command: Callable[[int], dict[str, Any]] | None,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ):
+        super().__init__(
+            client,
+            device,
+            mqtt_key,
+            title,
+            min_value,
+            max_value,
+            command,
+            enabled,
+            auto_enable,
+        )
         self._attr_native_step = self._device.charging_power_step()
 
 
@@ -52,12 +74,33 @@ class DeciChargingPowerEntity(ChargingPowerEntity):
             ival = int(value * 10)
             self.send_set_message(ival, self.command_dict(ival))
 
-class MinMaxLevelEntity(ValueUpdateEntity):
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str,
-                 min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, Any]] | None):
-        super().__init__(client, device, mqtt_key, title, min_value, max_value, command, True, False)
 
+class AcChargingPowerInAmpereEntity(ValueUpdateEntity):
+    _attr_mode = NumberMode.BOX
+    _attr_native_step = 1
+
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(int(val))
+
+    async def async_set_native_value(self, value: int):
+        if self._command:
+            self.send_set_message(value, self.command_dict(value))
+
+
+class MinMaxLevelEntity(ValueUpdateEntity):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        mqtt_key: str,
+        title: str,
+        min_value: int,
+        max_value: int,
+        command: Callable[[int], dict[str, Any]] | None,
+    ):
+        super().__init__(
+            client, device, mqtt_key, title, min_value, max_value, command, True, False
+        )
 
 
 class BrightnessLevelEntity(MinMaxLevelEntity):
@@ -69,10 +112,18 @@ class BatteryBackupLevel(MinMaxLevelEntity):
     _attr_icon = "mdi:battery-charging-90"
     _attr_native_unit_of_measurement = PERCENTAGE
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str,
-                 min_value: int, max_value: int,
-                 min_key: str, max_key: str,
-                 command: Callable[[int], dict[str, Any]] | None):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        mqtt_key: str,
+        title: str,
+        min_value: int,
+        max_value: int,
+        min_key: str,
+        max_key: str,
+        command: Callable[[int], dict[str, Any]] | None,
+    ):
         super().__init__(client, device, mqtt_key, title, min_value, max_value, command)
         self._min_key = min_key
         self._max_key = max_key
