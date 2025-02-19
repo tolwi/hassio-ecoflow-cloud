@@ -113,7 +113,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
                     f"/device/quota/all", {"sn": device_data.sn}
                 )
                 for subDeviceType, subDevices in allDeviceInfo["data"].items():
-                    if isinstance(subDevices, list):
+                    if not isinstance(subDevices, dict):
                         continue
                     for subDeviceKey, item in subDevices.items():
                         if not isinstance(item, (dict, list)):
