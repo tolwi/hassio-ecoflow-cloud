@@ -1,4 +1,3 @@
-import asyncio
 from typing import Callable, Any
 
 from homeassistant.config_entries import ConfigEntry

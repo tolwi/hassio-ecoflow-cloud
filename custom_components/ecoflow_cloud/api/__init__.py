@@ -5,7 +5,7 @@ from typing import Any
 from aiohttp import ClientResponse
 from attr import dataclass
 
-from custom_components.ecoflow_cloud import DeviceData
+from .. import DeviceData
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
-from .data_bridge import to_plain
-from ..internal.delta2 import Delta2 as InternalDelta2
 from ...api import EcoflowApiClient
 from ...sensor import StatusSensorEntity
+from ..internal.delta2 import Delta2 as InternalDelta2
+from .data_bridge import to_plain
 
 
 class Delta2(InternalDelta2):

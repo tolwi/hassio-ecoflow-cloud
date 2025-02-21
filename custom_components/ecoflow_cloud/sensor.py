@@ -27,7 +27,7 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt
 
-from custom_components.ecoflow_cloud import (
+from . import (
     ATTR_MQTT_CONNECTED,
     ATTR_QUOTA_REQUESTS,
     ATTR_STATUS_DATA_LAST_UPDATE,
@@ -36,9 +36,9 @@ from custom_components.ecoflow_cloud import (
     ATTR_STATUS_SN,
     ECOFLOW_DOMAIN,
 )
-from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.devices import BaseDevice
-from custom_components.ecoflow_cloud.entities import (
+from .api import EcoflowApiClient
+from .devices import BaseDevice
+from .entities import (
     BaseSensorEntity,
     EcoFlowAbstractEntity,
     EcoFlowDictEntity,

@@ -8,8 +8,8 @@ from typing import Any
 
 from homeassistant.core import callback
 
-from custom_components.ecoflow_cloud.api import EcoflowMqttInfo
-from custom_components.ecoflow_cloud.devices import BaseDevice
+from ..devices import BaseDevice
+from . import EcoflowMqttInfo
 
 _LOGGER = logging.getLogger(__name__)
 

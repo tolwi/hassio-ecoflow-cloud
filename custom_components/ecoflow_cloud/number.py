@@ -1,5 +1,4 @@
-import asyncio
-from typing import Callable, Any
+from typing import Any, Callable
 
 from homeassistant.components.number import NumberMode
 from homeassistant.components.sensor import SensorDeviceClass
@@ -10,8 +9,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import ECOFLOW_DOMAIN
 from .api import EcoflowApiClient
-from .entities import BaseNumberEntity
 from .devices import BaseDevice
+from .entities import BaseNumberEntity
 
 
 async def async_setup_entry(

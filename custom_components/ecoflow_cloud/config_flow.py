@@ -1,43 +1,43 @@
+from __future__ import annotations
 import logging
 from copy import deepcopy
-from typing import Dict, Any
+from typing import Any, Dict
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow, ConfigEntry, OptionsFlow
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    OptionsFlowWithConfigEntry,
+)
 from homeassistant.core import callback
-from homeassistant.helpers import selector
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import selector
 from homeassistant.helpers.device_registry import DeviceRegistry
 from homeassistant.helpers.entity_registry import EntityRegistry
 
-from custom_components.ecoflow_cloud import EcoflowPublicApiClient
-from .devices.registry import device_support_sub_devices
-
-from .DeviceData import ChildDeviceData, DeviceData
-
-from .DeviceOptions import DeviceOptions
-
 from . import (
-    ECOFLOW_DOMAIN,
-    CONFIG_VERSION,
-    CONF_API_HOST,
     CONF_ACCESS_KEY,
-    CONF_SECRET_KEY,
-    CONF_USERNAME,
-    CONF_PASSWORD,
-    CONF_SELECT_DEVICE_KEY,
-    CONF_DEVICE_TYPE,
-    CONF_DEVICE_LIST,
-    CONF_LOAD_ALL_DEVICES,
-    CONF_DEVICE_NAME,
+    CONF_API_HOST,
     CONF_DEVICE_ID,
+    CONF_DEVICE_LIST,
+    CONF_DEVICE_NAME,
+    CONF_DEVICE_TYPE,
+    CONF_GROUP,
+    CONF_PARENT_SN,
+    CONF_PASSWORD,
+    CONF_SECRET_KEY,
+    CONF_SELECT_DEVICE_KEY,
+    CONF_USERNAME,
+    CONFIG_VERSION,
+    DEFAULT_REFRESH_PERIOD_SEC,
+    ECOFLOW_DOMAIN,
     OPTS_DIAGNOSTIC_MODE,
     OPTS_POWER_STEP,
     OPTS_REFRESH_PERIOD_SEC,
-    DEFAULT_REFRESH_PERIOD_SEC,
+    DeviceData,
+    DeviceOptions,
     extract_devices,
-    CONF_GROUP,
 )
 from .api import EcoflowException
 from .devices import EcoflowDeviceInfo
@@ -76,7 +76,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
     async def update_or_create(self):
         if self.config_entry:
             _LOGGER.info(
-                f".. reconfigure: entry = %s, data = %s, options = %s ",
+                ".. reconfigure: entry = %s, data = %s, options = %s ",
                 str(self.config_entry),
                 str(self.new_data),
                 str(self.new_options),
@@ -93,44 +93,42 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
 
         else:
             _LOGGER.info(
-                f".. create: entry = %s, data = %s, options = %s ",
+                ".. create: entry = %s, data = %s, options = %s ",
                 str(self.config_entry),
                 str(self.new_data),
                 str(self.new_options),
             )
 
-            all_sub_devices = []
+            from .devices.registry import device_support_sub_devices
+
             for sn, device_data in self.new_data[CONF_DEVICE_LIST].items():
-                device_data: DeviceData
-                if device_data.device_type not in device_support_sub_devices:
+                if device_data[CONF_DEVICE_TYPE] not in device_support_sub_devices:
                     # skip here all devices that do not support sub devices
                     continue
+                from .api.public_api import EcoflowPublicApiClient
+
                 if not isinstance(self.auth, EcoflowPublicApiClient):
                     raise TypeError(
                         "Only public api is supported for devices with sub devices"
                     )
-                allDeviceInfo = await self.auth.call_api(
-                    f"/device/quota/all", {"sn": device_data.sn}
+                all_device_info = await self.auth.call_api(
+                    "/device/quota/all", {"sn": sn}
                 )
-                for subDeviceType, subDevices in allDeviceInfo["data"].items():
-                    if not isinstance(subDevices, dict):
+                for sub_device_type, sub_devices in all_device_info["data"].items():
+                    if not isinstance(sub_devices, dict):
                         continue
-                    for subDeviceKey, item in subDevices.items():
+                    for sub_device_sn, item in sub_devices.items():
                         if not isinstance(item, (dict, list)):
                             # skip all element that are simple
                             continue
-                        childDevice = ChildDeviceData(
-                            subDeviceKey,
-                            device_data.name + "." + subDeviceType + "." + subDeviceKey,
-                            subDeviceType,
-                            device_data.options,
-                            None,
-                            device_data,
+                        self.new_data[CONF_DEVICE_LIST][sub_device_sn] = {
+                            CONF_DEVICE_NAME: f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}",
+                            CONF_DEVICE_TYPE: sub_device_type,
+                            CONF_PARENT_SN: sn,
+                        }
+                        self.new_options[CONF_DEVICE_LIST][sub_device_sn] = (
+                            self.new_options[CONF_DEVICE_LIST][sn]
                         )
-                        all_sub_devices.append(childDevice)
-
-            for subdevice in all_sub_devices:
-                self.new_data[CONF_DEVICE_LIST][subdevice.sn] = subdevice
 
             return self.async_create_entry(
                 title=self.new_data[CONF_GROUP],
@@ -207,9 +205,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
     async def async_step_manual(self, user_input: dict[str, Any] | None = None):
         user_auth_schema = vol.Schema(
             {
-                vol.Required(
-                    CONF_API_HOST, default="api.ecoflow.com"
-                ): str,
+                vol.Required(CONF_API_HOST, default="api.ecoflow.com"): str,
                 vol.Required(
                     CONF_USERNAME, default=self.new_data.get(CONF_USERNAME, "")
                 ): str,
@@ -295,15 +291,15 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         if CONF_DEVICE_LIST not in self.new_data:
             self.new_data[CONF_DEVICE_LIST] = {}
 
-        self.new_data[CONF_DEVICE_LIST][sn] = DeviceData(
-            sn,
-            user_input[CONF_DEVICE_NAME],
-            user_input[CONF_DEVICE_TYPE],
-            DeviceOptions(
-                DEFAULT_REFRESH_PERIOD_SEC, device.default_charging_power_step(), False
-            ),
-            None,
-        )
+        self.new_data[CONF_DEVICE_LIST][sn] = {
+            CONF_DEVICE_NAME: user_input[CONF_DEVICE_NAME],
+            CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],
+        }
+        self.new_options[CONF_DEVICE_LIST][sn] = {
+            OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
+            OPTS_POWER_STEP: device.default_charging_power_step(),
+            OPTS_DIAGNOSTIC_MODE: False,
+        }
 
         return await self.update_or_create()
 
@@ -311,11 +307,11 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         api_keys_auth_schema = vol.Schema(
             {
                 vol.Required(CONF_API_HOST): selector.SelectSelector(
-                            selector.SelectSelectorConfig(
-                                options=["api-e.ecoflow.com", "api-a.ecoflow.com"],
-                                mode=selector.SelectSelectorMode.DROPDOWN,
-                            ),
-                        ),
+                    selector.SelectSelectorConfig(
+                        options=["api-e.ecoflow.com", "api-a.ecoflow.com"],
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    ),
+                ),
                 vol.Required(
                     CONF_ACCESS_KEY, default=self.new_data.get(CONF_ACCESS_KEY, "")
                 ): str,
@@ -331,7 +327,6 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         self.new_data[CONF_API_HOST] = user_input.get(CONF_API_HOST)
         self.new_data[CONF_ACCESS_KEY] = user_input.get(CONF_ACCESS_KEY)
         self.new_data[CONF_SECRET_KEY] = user_input.get(CONF_SECRET_KEY)
-        self.new_data[CONF_LOAD_ALL_DEVICES] = False
 
         from .api.public_api import EcoflowPublicApiClient
 
@@ -375,7 +370,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
 
     async def async_step_remove_device(self, user_input: dict[str, Any] | None = None):
         if len(self.local_devices) == 1:
-            return self.async_abort("remove_last_device")
+            return self.async_abort(reason="remove_last_device")
 
         if not user_input:
             return self.async_show_form(
@@ -455,30 +450,30 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         if CONF_DEVICE_LIST not in self.new_data:
             self.new_data[CONF_DEVICE_LIST] = {}
 
-        self.new_data[CONF_DEVICE_LIST][sn] = DeviceData(
-            sn,
-            user_input[CONF_DEVICE_NAME],
-            user_input[CONF_DEVICE_TYPE],
-            DeviceOptions(
-                DEFAULT_REFRESH_PERIOD_SEC, device.default_charging_power_step(), False
-            ),
-            None,
-        )
+        self.new_data[CONF_DEVICE_LIST][sn] = {
+            CONF_DEVICE_NAME: user_input[CONF_DEVICE_NAME],
+            CONF_DEVICE_TYPE: user_input[CONF_DEVICE_TYPE],
+        }
+        self.new_options[CONF_DEVICE_LIST][sn] = {
+            OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
+            OPTS_POWER_STEP: device.default_charging_power_step(),
+            OPTS_DIAGNOSTIC_MODE: False,
+        }
 
         return await self.update_or_create()
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+    def async_get_options_flow(config_entry: ConfigEntry) -> EcoflowOptionsFlow:
         return EcoflowOptionsFlow(config_entry)
 
 
-class EcoflowOptionsFlow(OptionsFlow):
+class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
     def __init__(self, config_entry: ConfigEntry) -> None:
-        self.config_entry = config_entry
+        super().__init__(config_entry)
         self.devices: dict[str, DeviceData] = extract_devices(self.config_entry)
         self.device_selector = {}
-        for sn, device in self.devices.items():
+        for _, device in self.devices.items():
             self.device_selector[f"{device.name} ({device.sn})"] = device
 
         self.selected_device = None
@@ -504,6 +499,7 @@ class EcoflowOptionsFlow(OptionsFlow):
             device_options: DeviceOptions = self.devices[
                 self.selected_device.sn
             ].options
+
             return self.async_show_form(
                 step_id="options",
                 last_step=True,
@@ -523,12 +519,11 @@ class EcoflowOptionsFlow(OptionsFlow):
                 ),
             )
 
-        self.devices[self.selected_device.sn].options = DeviceOptions(
-            user_input[OPTS_REFRESH_PERIOD_SEC],
-            user_input[OPTS_POWER_STEP],
-            user_input[OPTS_DIAGNOSTIC_MODE],
-        )
-        return self.async_create_entry(
-            title="",
-            data=self.devices[self.selected_device.sn].options,
-        )
+        new_options = {**self.config_entry.options}
+        new_options[CONF_DEVICE_LIST][self.selected_device.sn] = {
+            OPTS_POWER_STEP: user_input[OPTS_POWER_STEP],
+            OPTS_REFRESH_PERIOD_SEC: user_input[OPTS_REFRESH_PERIOD_SEC],
+            OPTS_DIAGNOSTIC_MODE: user_input[OPTS_DIAGNOSTIC_MODE],
+        }
+
+        return self.async_create_entry(title="", data=new_options)
