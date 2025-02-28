@@ -290,6 +290,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         sn = user_input[CONF_DEVICE_ID]
         if CONF_DEVICE_LIST not in self.new_data:
             self.new_data[CONF_DEVICE_LIST] = {}
+            self.new_options[CONF_DEVICE_LIST] = {}
 
         self.new_data[CONF_DEVICE_LIST][sn] = {
             CONF_DEVICE_NAME: user_input[CONF_DEVICE_NAME],
