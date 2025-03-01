@@ -419,15 +419,22 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
             self._attr_native_value = "assume_offline"
             self._actualize_attributes()
             changed = True
-        elif self._online != 1 and self._skip_count == 0:
-            self._online = 1
-            self._attr_native_value = "online"
-            self._actualize_attributes()
-            changed = True
+        elif self._skip_count == 0:
+            status = self.coordinator.data.data_holder.status.get("status")
+            if status == 0 and self._online != 1:
+                self._online = 1
+                self._attr_native_value = "offline"
+                self._actualize_attributes()
+                changed = True
+            elif status == 1 and self._online != 2:
+                self._online = 2
+                self._attr_native_value = "online"
+                self._actualize_attributes()
+                changed = True
         return changed
 
     def _actualize_attributes(self):
-        if self._online == 1:
+        if self._online in {1, 2}:
             self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = (
                 f"< {self.offline_barrier_sec} sec"
             )
