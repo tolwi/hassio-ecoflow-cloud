@@ -8,6 +8,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSenso
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
     InEnergySensorEntity, OutEnergySensorEntity, OutWattsDcSensorEntity, QuotaStatusSensorEntity, \
+    StatusSensorEntity, \
     MilliampSensorEntity, InVoltSolarSensorEntity, InMilliampSolarSensorEntity, OutVoltDcSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
@@ -129,7 +130,7 @@ class DeltaMax(BaseDevice):
             WattsSensorEntity(client, self, "bmsSlave2.outputWatts", const.SLAVE_N_OUT_POWER % 2, False, True),
             CyclesSensorEntity(client, self, "bmsSlave1.cycles", const.SLAVE_N_CYCLES % 1, False),
             CyclesSensorEntity(client, self, "bmsSlave2.cycles", const.SLAVE_N_CYCLES % 2, False),
-            QuotaStatusSensorEntity(client, self)
+            self._status_sensor(client)
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
@@ -204,3 +205,6 @@ class DeltaMax(BaseDevice):
             #                                       "params": {"standbyMins": value}})
 
         ]
+
+    def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
+        return QuotaStatusSensorEntity(client, self)
