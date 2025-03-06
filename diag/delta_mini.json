@@ -10,7 +10,7 @@
     "iot_class": "cloud_push",
     "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
     "requirements": [
-      "paho-mqtt==1.6.1",
+      "paho-mqtt>=1.6.1",
       "reactivex==4.0.4",
       "protobuf>=4.23.0"
     ],
