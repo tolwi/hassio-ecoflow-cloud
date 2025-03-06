@@ -6,20 +6,17 @@ from time import time
 import aiohttp
 from homeassistant.util import uuid
 
-from ..DeviceData import DeviceData
-
 from . import EcoflowException, EcoflowApiClient
+from .. import DeviceData
 from ..devices import EcoflowDeviceInfo, DiagnosticDevice
-from ..DeviceData import ChildDeviceData
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class EcoflowPrivateApiClient(EcoflowApiClient):
-    def __init__(self, 
-                 api_domain: str,
-                 ecoflow_username: str, 
-                 ecoflow_password: str, 
-                 group: str):
+    def __init__(
+        self, api_domain: str, ecoflow_username: str, ecoflow_password: str, group: str
+    ):
         super().__init__()
         self.api_domain = api_domain
         self.ecoflow_password = ecoflow_password
@@ -56,7 +53,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
             _LOGGER.info(f"Successfully logged in: {self.user_name}")
 
-            _LOGGER.info(f"Requesting IoT MQTT credentials")
+            _LOGGER.info("Requesting IoT MQTT credentials")
             response = await self.__call_api("/iot-auth/app/certification")
             self._accept_mqqt_certification(response)
 
@@ -105,7 +102,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             )
 
     def configure_device(self, device_data: DeviceData):
-        if isinstance(device_data, ChildDeviceData):
+        if device_data.parent is not None:
             info = self.__create_device_info(
                 device_data.parent.sn, device_data.name, device_data.parent.device_type
             )

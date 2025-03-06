@@ -1,51 +1,36 @@
-from homeassistant.const import Platform
-from typing import Any, Callable, cast
+from typing import Any, Callable
 
-from ...DeviceData import DeviceData, ChildDeviceData
-from custom_components.ecoflow_cloud.api import EcoflowApiClient
-
-from .. import EcoflowDeviceInfo, const, BaseDevice
+from ... import DeviceData
+from ...api import EcoflowApiClient
 from ...entities import (
-    BaseSensorEntity,
     BaseNumberEntity,
-    BaseSwitchEntity,
     BaseSelectEntity,
+    BaseSensorEntity,
+    BaseSwitchEntity,
 )
-from ...number import (
-    AcChargingPowerInAmpereEntity,
-    ChargingPowerEntity,
-    MinBatteryLevelEntity,
-    MaxBatteryLevelEntity,
-    MaxGenStopLevelEntity,
-    MinGenStartLevelEntity,
-    BatteryBackupLevel,
-)
-from ...select import DictSelectEntity, TimeoutDictSelectEntity
+from ...number import AcChargingPowerInAmpereEntity
 from ...sensor import (
     AmpSensorEntity,
+    CapacitySensorEntity,
     ChargingStateSensorEntity,
+    CyclesSensorEntity,
     DeciMilliVoltSensorEntity,
     FanSensorEntity,
     FrequencySensorEntity,
     InRawTotalWattsSolarSensorEntity,
+    InWattsSensorEntity,
     InWattsSolarSensorEntity,
     LevelSensorEntity,
+    MilliVoltSensorEntity,
     MiscSensorEntity,
     OutAmpSensorEntity,
+    OutMilliVoltSensorEntity,
+    OutWattsSensorEntity,
     RemainSensorEntity,
     TempSensorEntity,
-    CyclesSensorEntity,
-    InWattsSensorEntity,
-    OutWattsSensorEntity,
-    QuotaStatusSensorEntity,
-    MilliVoltSensorEntity,
-    InMilliVoltSensorEntity,
-    OutMilliVoltSensorEntity,
-    CapacitySensorEntity,
 )
-from ...switch import BeeperEntity, BitMaskEnableEntity, EnabledEntity
-import json
-from homeassistant.core import HomeAssistant
+from ...switch import BitMaskEnableEntity, EnabledEntity
+from .. import BaseDevice, EcoflowDeviceInfo, const
 
 
 class PowerKit(BaseDevice):
@@ -66,7 +51,7 @@ class PowerKit(BaseDevice):
         Variable contains a function to set the state of the DC switch of the DC distribution panel
         """
         if device_data.device_type != "PowerKit":
-            childData: ChildDeviceData = cast(ChildDeviceData, device_data)
+            childData = device_data
             if device_data.device_type.startswith("bp"):
                 device_data.display_name = (
                     f"PowerKit Battery ({childData.parent.sn}.{childData.sn})"

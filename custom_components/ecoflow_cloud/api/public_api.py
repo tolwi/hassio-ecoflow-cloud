@@ -1,4 +1,3 @@
-from datetime import datetime
 import hashlib
 import hmac
 import logging
@@ -7,11 +6,9 @@ import time
 
 import aiohttp
 
-from homeassistant.util import dt
-
-from custom_components.ecoflow_cloud import ChildDeviceData, DeviceData
-from ..devices import DiagnosticDevice, EcoflowDeviceInfo
 from . import EcoflowApiClient
+from .. import DeviceData
+from ..devices import DiagnosticDevice, EcoflowDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,11 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EcoflowPublicApiClient(EcoflowApiClient):
-    def __init__(self, 
-                 api_domain: str, 
-                 access_key: str, 
-                 secret_key: str, 
-                 group: str):
+    def __init__(self, api_domain: str, access_key: str, secret_key: str, group: str):
         super().__init__()
         self.api_domain = api_domain
         self.access_key = access_key
@@ -38,7 +31,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         self.timestamp = str(int(time.time() * 1000))
 
     async def login(self):
-        _LOGGER.info(f"Requesting IoT MQTT credentials")
+        _LOGGER.info("Requesting IoT MQTT credentials")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
         self.mqtt_info.client_id = (
@@ -65,7 +58,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         return result
 
     def configure_device(self, device_data: DeviceData):
-        if isinstance(device_data, ChildDeviceData):
+        if device_data.parent is not None:
             info = self.__create_device_info(
                 device_data.parent.sn, device_data.name, device_data.parent.device_type
             )
@@ -78,7 +71,10 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
         if device_data.device_type in device_by_product:
             device = device_by_product[device_data.device_type](info, device_data)
-        elif device_data.parent.device_type in device_by_product:
+        elif (
+            device_data.parent is not None
+            and device_data.parent.device_type in device_by_product
+        ):
             device = device_by_product[device_data.parent.device_type](
                 info, device_data
             )
@@ -124,7 +120,8 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             }
 
             resp = await session.get(
-                f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}", headers=headers
+                f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}",
+                headers=headers,
             )
             return await self._get_json_response(resp)
 

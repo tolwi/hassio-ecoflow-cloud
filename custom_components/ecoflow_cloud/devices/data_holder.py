@@ -2,7 +2,7 @@ import logging
 from typing import Any, List, TypeVar
 
 import jsonpath_ng.ext as jp
-from homeassistant.util import utcnow, dt
+from homeassistant.util import dt, utcnow
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class BoundFifoList(List):
 
 
 class EcoflowDataHolder:
-    def __init__(self, moduleSn: str = None, collect_raw: bool = False):
+    def __init__(self, module_sn: str = None, collect_raw: bool = False):
         self.__collect_raw = collect_raw
         self.set = BoundFifoList[dict[str, Any]]()
         self.set_reply = BoundFifoList[dict[str, Any]]()
@@ -29,7 +29,7 @@ class EcoflowDataHolder:
             year=2000, month=1, day=1, hour=0, minute=0, second=0
         )
 
-        self.moduleSn = moduleSn
+        self.module_sn = module_sn
 
         self.get = BoundFifoList[dict[str, Any]]()
         self.get_reply = BoundFifoList[dict[str, Any]]()
@@ -87,16 +87,16 @@ class EcoflowDataHolder:
     def update_data(self, raw: dict[str, Any]):
         self.__add_raw_data(raw)
         try:
-            if self.moduleSn is not None:
+            if self.module_sn is not None:
                 if "moduleSn" not in raw:
                     return
-                if raw["moduleSn"] != self.moduleSn:
+                if raw["moduleSn"] != self.module_sn:
                     return
             self.params.update(raw["params"])
             self.params_time = dt.utcnow()
 
         except Exception as error:
-            _LOGGER.error("Error updating data", error)
+            _LOGGER.error("Error updating data: %s", error)
 
     def __add_raw_data(self, raw: dict[str, Any]):
         if self.__collect_raw:
