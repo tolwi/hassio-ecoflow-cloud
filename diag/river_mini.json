@@ -2,7 +2,7 @@
     "custom_components": {
         "ecoflow_cloud": {
             "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
-            "requirements": ["paho-mqtt==1.6.1", "reactivex==4.0.4", "protobuf>=4.23.0"],
+            "requirements": ["paho-mqtt>=1.6.1", "reactivex==4.0.4", "protobuf>=4.23.0"],
             "version": "0.13.4"
         },
         "hacs": {
@@ -2431,7 +2431,7 @@
         "is_built_in": false,
         "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
         "name": "Ecoflow-Cloud",
-        "requirements": ["paho-mqtt==1.6.1", "reactivex==4.0.4", "protobuf>=4.23.0"],
+        "requirements": ["paho-mqtt>=1.6.1", "reactivex==4.0.4", "protobuf>=4.23.0"],
         "version": "0.13.4"
     },
     "setup_times": {
