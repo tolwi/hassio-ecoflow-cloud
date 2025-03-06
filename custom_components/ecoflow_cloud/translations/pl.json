@@ -1,0 +1,76 @@
+{
+  "title": "EcoFlow-Cloud",
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "group": "Grupa urządzeń"
+        }
+      },
+      "api": {
+        "menu_options": {
+          "api_add_device": "Dodaj urządzenie",
+          "remove_device": "Usuń urządzenie",
+          "finish": "Zakończ"
+        },
+        "data": {
+          "access_key": "Klucz dostępu",
+          "secret_key": "Klucz tajny",
+          "load_all_devices": "Automatyczne ładowanie urządzeń"
+        }
+      },
+      "choose_type": {
+        "menu_options": {
+          "api": "Użyj publicznego API",
+          "manual": "Użyj API aplikacji"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "Wybierz urządzenie"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "Typ urządzenia",
+          "device_name": "Nazwa urządzenia",
+          "device_id": "Numer seryjny urządzenia (SN)"
+        }
+      },
+      "manual": {
+        "menu_options": {
+          "manual_add_device": "Dodaj urządzenie",
+          "remove_device": "Usuń urządzenie",
+          "finish": "Zakończ"
+        },
+        "data": {
+          "username": "Adres e-mail użytkownika",
+          "password": "Hasło użytkownika"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "Typ urządzenia",
+          "device_name": "Nazwa urządzenia",
+          "device_id": "Numer seryjny urządzenia (SN)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "select_device": "Wybierz urządzenie"
+        }
+      },
+      "options": {
+        "data": {
+          "power_step": "Krok suwaka mocy ładowania",
+          "refresh_period_sec": "Okres odświeżania danych (sek)",
+          "diagnostic_mode": "Tryb diagnostyczny"
+        }
+      }
+    }
+  }
+}
