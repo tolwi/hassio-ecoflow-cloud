@@ -126,14 +126,17 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
                         if not isinstance(item, (dict, list)):
                             # skip all element that are simple
                             continue
-                        self.new_data[CONF_DEVICE_LIST][sub_device_sn] = {
+                        self.new_data[CONF_DEVICE_LIST][
+                            f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}"
+                        ] = {
                             CONF_DEVICE_NAME: f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}",
                             CONF_DEVICE_TYPE: sub_device_type,
                             CONF_PARENT_SN: sn,
                         }
-                        self.new_options[CONF_DEVICE_LIST][sub_device_sn] = (
-                            self.new_options[CONF_DEVICE_LIST][sn]
-                        )
+                        # use here the parents device options
+                        self.new_options[CONF_DEVICE_LIST][
+                            f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}"
+                        ] = self.new_options[CONF_DEVICE_LIST][sn]
 
             return self.async_create_entry(
                 title=self.new_data[CONF_GROUP],
