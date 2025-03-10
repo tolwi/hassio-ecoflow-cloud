@@ -101,7 +101,8 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
 
             from .devices.registry import device_support_sub_devices
 
-            for sn, device_data in self.new_data[CONF_DEVICE_LIST].items():
+            data = self.new_data[CONF_DEVICE_LIST]
+            for sn, device_data in data.copy().items():
                 if device_data[CONF_DEVICE_TYPE] not in device_support_sub_devices:
                     # skip here all devices that do not support sub devices
                     continue
@@ -114,27 +115,64 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
                 all_device_info = await self.auth.call_api(
                     "/device/quota/all", {"sn": sn}
                 )
-                for sub_device_type, sub_devices in all_device_info["data"].items():
+                potentialSubdevices = self.transform_potential_subdevices(
+                    all_device_info["data"]
+                )
+
+                for sub_device_type, sub_devices in potentialSubdevices.items():
                     if not isinstance(sub_devices, dict):
                         continue
                     for sub_device_sn, item in sub_devices.items():
                         if not isinstance(item, (dict, list)):
                             # skip all element that are simple
                             continue
-                        self.new_data[CONF_DEVICE_LIST][sub_device_sn] = {
+                        self.new_data[CONF_DEVICE_LIST][
+                            f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}"
+                        ] = {
                             CONF_DEVICE_NAME: f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}",
                             CONF_DEVICE_TYPE: sub_device_type,
                             CONF_PARENT_SN: sn,
                         }
-                        self.new_options[CONF_DEVICE_LIST][sub_device_sn] = (
-                            self.new_options[CONF_DEVICE_LIST][sn]
-                        )
+                        # use here the parents device options
+                        self.new_options[CONF_DEVICE_LIST][
+                            f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}"
+                        ] = self.new_options[CONF_DEVICE_LIST][sn]
 
             return self.async_create_entry(
                 title=self.new_data[CONF_GROUP],
                 data=self.new_data,
                 options=self.new_options,
             )
+
+    def transform_potential_subdevices(
+        self,
+        potential_subdevices: dict[str, Any],
+    ) -> dict[str, dict[str, dict[str, Any]]]:
+        """
+        Transform the potential subdevices dictionary into a nested dictionary format.
+
+        Args:
+            potential_subdevices (dict[str, Any]): The potential subdevices dictionary.
+
+        Returns:
+            dict[str, dict[str, dict[str, Any]]]: The transformed nested dictionary.
+        """
+        transformed = {}
+        for key, value in potential_subdevices.items():
+            parts = key.split(".")
+            if len(parts) != 3:
+                # we expect here that the dict is already in the transformed format
+                continue
+            main_key, sub_key, final_key = parts
+            if main_key not in transformed:
+                transformed[main_key] = {}
+            if sub_key not in transformed[main_key]:
+                transformed[main_key][sub_key] = {}
+            transformed[main_key][sub_key][final_key] = value
+        if not transformed:
+            # we expect here that the input dictionary was already in the correct format
+            return potential_subdevices
+        return transformed
 
     def remove_device(self, sn: str):
         # Get the device registry
