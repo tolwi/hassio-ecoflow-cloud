@@ -177,7 +177,8 @@ def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
     for sn, data in entry.data[CONF_DEVICE_LIST].items():
         if CONF_PARENT_SN in data:
             result[sn.split(".")[-1]].parent = parent
-
+    if not result:
+        result[parent.sn] = parent
     return result
 
 
