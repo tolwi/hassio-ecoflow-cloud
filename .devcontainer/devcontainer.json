@@ -2,7 +2,7 @@
 	"name": "Home Assistant Dev",
 	"context": "../core",
 	"dockerFile": "../core/Dockerfile.dev",
-	"initializeCommand": "git config --global --add safe.directory /workspaces/hassio-ecoflow-cloud && git submodule update --init --recursive",
+	"initializeCommand": "git submodule update --init --recursive",
 	"onCreateCommand": "git submodule update --init --recursive",
 	"postCreateCommand": "core/script/setup",
 	"postStartCommand": "core/script/bootstrap",
