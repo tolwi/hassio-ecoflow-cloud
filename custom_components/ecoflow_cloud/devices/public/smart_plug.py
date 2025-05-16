@@ -6,7 +6,7 @@ from homeassistant.components.switch import SwitchEntity
 from ...api import EcoflowApiClient
 from ...number import BrightnessLevelEntity
 from ...sensor import (
-    AmpSensorEntity,
+    MilliampSensorEntity,
     DeciwattsSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
@@ -21,7 +21,7 @@ class SmartPlug(BaseDevice):
         return [
             TempSensorEntity(client, self, "2_1.temp", const.TEMPERATURE),
             VoltSensorEntity(client, self, "2_1.volt", const.VOLT),
-            AmpSensorEntity(client, self, "2_1.current", const.CURRENT).attr(
+            MilliampSensorEntity(client, self, "2_1.current", const.CURRENT).attr(
                 "2_1.maxCur", const.MAX_CURRENT, 0
             ),
             DeciwattsSensorEntity(client, self, "2_1.watts", const.POWER),

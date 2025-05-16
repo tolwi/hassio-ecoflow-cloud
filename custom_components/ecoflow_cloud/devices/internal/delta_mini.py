@@ -8,7 +8,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSenso
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
     InEnergySensorEntity, OutEnergySensorEntity, OutWattsDcSensorEntity, QuotaStatusSensorEntity, \
-    AmpSensorEntity, InVoltSolarSensorEntity, InAmpSolarSensorEntity, OutVoltDcSensorEntity
+    MilliampSensorEntity, InVoltSolarSensorEntity, InMilliampSolarSensorEntity, OutVoltDcSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -42,7 +42,7 @@ class DeltaMini(BaseDevice):
 
             InWattsSolarSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER),
             InVoltSolarSensorEntity(client, self, "mppt.inVol", const.SOLAR_IN_VOLTAGE),
-            InAmpSolarSensorEntity(client, self, "mppt.inAmp", const.SOLAR_IN_CURRENT),
+            InMilliampSolarSensorEntity(client, self, "mppt.inAmp", const.SOLAR_IN_CURRENT),
 
             OutWattsDcSensorEntity(client, self, "mppt.outWatts", const.DC_OUT_POWER),
             OutVoltDcSensorEntity(client, self, "mppt.outVol", const.DC_OUT_VOLTAGE),
@@ -67,7 +67,7 @@ class DeltaMini(BaseDevice):
                 .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
                 .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
 
-            AmpSensorEntity(client, self, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT, False),
+            MilliampSensorEntity(client, self, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT, False),
             MilliVoltSensorEntity(client, self, "bmsMaster.vol", const.BATTERY_VOLT, False)
                 .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
                 .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
