@@ -31,8 +31,7 @@ def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
                 result[k] = v
 
         return result
-    else:
-        if "cmdFunc" in raw_data and "cmdId" in raw_data:
+    elif "cmdFunc" in raw_data and "cmdId" in raw_data:
             new_params = {}
             prefix = f"{raw_data['cmdFunc']}_{raw_data['cmdId']}"
 
@@ -50,5 +49,6 @@ def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
                     result[k] = v
 
             return result
-
-        return raw_data
+    else :
+        result = {"params": raw_data}
+        return result
