@@ -92,8 +92,16 @@ class EcoflowDataHolder:
                     return
                 if raw["moduleSn"] != self.module_sn:
                     return
-            self.params.update(raw["params"])
-            self.params_time = dt.utcnow()
+            if "params" in raw:
+                self.params.update(raw["params"])
+                self.params_time = dt.utcnow()
+            elif "param" in raw:
+                self.params.update(raw["param"])
+                self.params_time = dt.utcnow()
+            else:
+                self.params.update(raw)
+                self.params_time = dt.utcnow()
+
 
         except Exception as error:
             _LOGGER.error("Error updating data: %s", error)

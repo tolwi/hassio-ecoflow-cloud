@@ -275,3 +275,9 @@ FAN_MODE = "Wind speed"
 MAIN_MODE = "Main mode"
 REMOTE_MODE = "Remote startup/shutdown"
 POWER_SUB_MODE = "Sub-mode"
+
+# Smart Meter
+SMART_METER_POWER_GLOBAL = "Power Grid Global"
+SMART_METER_POWER_L1 = "Power Grid connection L1"
+SMART_METER_POWER_L2 = "Power Grid connection L2"
+SMART_METER_POWER_L3 = "Power Grid connection L3"
