@@ -16,6 +16,7 @@ from .internal import (
     glacier as internal_glacier,
     wave2 as internal_wave2,
     smart_meter as internal_smart_meter,
+    stream_ac as internal_stream_ac,
 )
 from .public import (
     delta_pro as public_delta_pro,
@@ -29,6 +30,7 @@ from .public import (
     delta_pro_3 as public_delta_pro_3,
     powerkit as public_powerkit,
     smart_meter as public_smart_meter,
+    stream_ac as public_stream_ac,
 )
 from ..devices import BaseDevice, DiagnosticDevice
 
@@ -49,6 +51,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "GLACIER": internal_glacier.Glacier,
         "WAVE_2": internal_wave2.Wave2,
         "SMART_METER": internal_smart_meter.SmartMeter,
+        "STREAM_AC": internal_stream_ac.StreamAC,
         "DIAGNOSTIC": DiagnosticDevice,
     }
 )
@@ -68,6 +71,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
         "Delta Pro 3": public_delta_pro_3.DeltaPro3,
         "Power Kits": public_powerkit.PowerKit,
         "Smart Meter": public_smart_meter.SmartMeter,
+        "Stream AC": public_stream_ac.StreamAC,
         "Diagnostic": DiagnosticDevice,
     }
 )

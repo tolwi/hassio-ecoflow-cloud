@@ -281,3 +281,9 @@ SMART_METER_POWER_GLOBAL = "Power Grid Global"
 SMART_METER_POWER_L1 = "Power Grid L1"
 SMART_METER_POWER_L2 = "Power Grid L2"
 SMART_METER_POWER_L3 = "Power Grid L3"
+
+# Stream AC
+STREAM_POWER_AC = "Power AC" # <0 import from home to battery / >0 export from battery to home
+STREAM_POWER_PV = "Power PV" # >0 external pv power estimate injection to home/battery
+STREAM_POWER_GRID = "Power Grid" # power from smart meter or shelly
+STREAM_POWER_BATTERY = "Power Battery" # <0 discharge battery / >0 charge batterie
