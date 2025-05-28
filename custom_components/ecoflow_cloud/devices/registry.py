@@ -71,7 +71,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
         "Delta Pro 3": public_delta_pro_3.DeltaPro3,
         "Power Kits": public_powerkit.PowerKit,
         "Smart Meter": public_smart_meter.SmartMeter,
-        "Stream AC": public_stream_ac.StreamAC,
+        "STREAM AC": public_stream_ac.StreamAC,
         "Diagnostic": DiagnosticDevice,
     }
 )
