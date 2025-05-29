@@ -152,9 +152,13 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
 def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
     result = dict[str, DeviceData]()
+    parent = None
     for sn, data in entry.data[CONF_DEVICE_LIST].items():
-        result[sn] = DeviceData(
-            sn,
+        realsn = sn
+        if CONF_PARENT_SN in data:
+            realsn = sn.split(".")[-1]
+        devicedata = DeviceData(
+            realsn,
             data[CONF_DEVICE_NAME],
             data[CONF_DEVICE_TYPE],
             DeviceOptions(
@@ -165,11 +169,16 @@ def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
             None,
             None,
         )
+        if CONF_PARENT_SN in data:
+            result[realsn] = devicedata
+        else:
+            parent = devicedata
 
     for sn, data in entry.data[CONF_DEVICE_LIST].items():
         if CONF_PARENT_SN in data:
-            result[sn].parent = result[data[CONF_PARENT_SN]]
-
+            result[sn.split(".")[-1]].parent = parent
+    if not result:
+        result[parent.sn] = parent
     return result
 
 
