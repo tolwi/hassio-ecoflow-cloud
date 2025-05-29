@@ -14,6 +14,7 @@ class StreamAC(BaseDevice):
             WattsSensorEntity(client, self, "powGetSysLoad", const.STREAM_GET_SYS_LOAD),
             WattsSensorEntity(client, self, "powGetSysLoadFromGrid", const.STREAM_GET_SYS_LOAD_FROM_GRID),
             WattsSensorEntity(client, self, "powGetSchuko1", const.STREAM_GET_SCHUKO1, False),
+            WattsSensorEntity(client, self, "powGetSchuko2", const.STREAM_GET_SCHUKO2, False),
             WattsSensorEntity(client, self, "gridConnectionPower", const.STREAM_POWER_AC),
             WattsSensorEntity(client, self, "powGetSysGrid", const.STREAM_POWER_GRID),
             WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV),

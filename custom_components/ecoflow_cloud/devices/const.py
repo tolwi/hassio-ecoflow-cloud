@@ -301,6 +301,7 @@ STREAM_POWER_PV = "Power PV" # >0 external pv power estimate injection to home/b
 STREAM_GET_SYS_LOAD = "Power Sys Load" # powGetSysLoad
 STREAM_GET_SYS_LOAD_FROM_GRID = "Power Sys Load From Grid" # powGetSysLoadFromGrid
 STREAM_GET_SCHUKO1 = "Power SCHUKO1" # powGetSchuko1
+STREAM_GET_SCHUKO2 = "Power SCHUKO2" # powGetSchuko2
 STREAM_POWER_GRID = "Power Grid" # power from smart meter or shelly
 STREAM_POWER_BATTERY = "Power Battery" # <0 discharge battery / >0 charge batterie
 STREAM_POWER_BATTERY_SOC = "Power Battery SOC" # <0 discharge battery / >0 charge batterie
