@@ -2,7 +2,7 @@ from typing import List
 import json
 from unittest.mock import Mock
 
-from custom_components.ecoflow_cloud import DeviceData, DeviceOptions, ChildDeviceData
+from custom_components.ecoflow_cloud import DeviceData, DeviceOptions
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo
 from custom_components.ecoflow_cloud.devices.registry import (
     devices,
@@ -53,13 +53,13 @@ def get_device_data(deviceType: str) -> List[DeviceData]:
     if deviceType in device_support_sub_devices:
         if deviceType in multi_device_config:
             return [
-                ChildDeviceData(
+                DeviceData(
                     "SN",
                     "NAME",
                     moduleType,
                     device_options,
                     "DISPLAY_NAME",
-                    DeviceData("SN", "NAME", "TYPE", device_options, None),
+                    DeviceData("SN", "NAME", "TYPE", device_options, None, None),
                 )
                 for moduleType in multi_device_config[deviceType]
             ]
@@ -67,14 +67,14 @@ def get_device_data(deviceType: str) -> List[DeviceData]:
             "For all multi-device types, a configuration must be provided"
         )
     else:
-        return [DeviceData("SN", "NAME", "TYPE", device_options, None)]
+        return [DeviceData("SN", "NAME", "TYPE", device_options, None, None)]
 
 
 def get_devices(deviceType: str, dev: type[BaseDevice]) -> List[BaseDevice]:
     real_devices = []
     for device_data in get_device_data(deviceType):
         device = dev(device_info, device_data)
-        device.configure(None, 10, False)
+        device.configure(None)
         real_devices.append(device)
     return real_devices
 

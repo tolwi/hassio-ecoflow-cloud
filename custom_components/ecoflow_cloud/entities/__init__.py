@@ -44,6 +44,7 @@ class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
             manufacturer="EcoFlow",
             name=name,
             model=self._device.device_data.device_type,
+            serial_number=self._device.device_data.sn,
         )
 
     def _type_prefix(self):
