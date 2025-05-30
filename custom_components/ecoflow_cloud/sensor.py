@@ -215,6 +215,14 @@ class CentivoltSensorEntity(DecivoltSensorEntity):
 class AmpSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.CURRENT
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_value = 0
+
+
+class MilliampSensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.CURRENT
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfElectricCurrent.MILLIAMPERE
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
@@ -323,7 +331,15 @@ class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
 
-class InAmpSolarSensorEntity(AmpSensorEntity):
+class OutMilliampSensorEntity(MilliampSensorEntity):
+    _attr_icon = "mdi:transmission-tower-export"
+
+
+class InMilliampSensorEntity(MilliampSensorEntity):
+    _attr_icon = "mdi:transmission-tower-import"
+
+
+class InMilliampSolarSensorEntity(MilliampSensorEntity):
     _attr_icon = "mdi:solar-power"
 
     def _update_value(self, val: Any) -> bool:

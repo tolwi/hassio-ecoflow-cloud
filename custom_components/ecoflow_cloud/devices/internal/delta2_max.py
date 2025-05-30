@@ -7,7 +7,7 @@ from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MinBatte
 from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InAmpSensorEntity, \
+    InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InMilliampSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
@@ -41,8 +41,8 @@ class Delta2Max(BaseDevice):
 
             InMilliVoltSensorEntity(client, self, "mppt.inVol", const.SOLAR_1_IN_VOLTS), 
             InMilliVoltSensorEntity(client, self, "mppt.pv2InVol", const.SOLAR_2_IN_VOLTS), 
-            InAmpSensorEntity(client, self, "mppt.inAmp", const.SOLAR_1_IN_AMPS),        
-            InAmpSensorEntity(client, self, "mppt.pv2InAmp", const.SOLAR_2_IN_AMPS),     
+            InMilliampSensorEntity(client, self, "mppt.inAmp", const.SOLAR_1_IN_AMPS),
+            InMilliampSensorEntity(client, self, "mppt.pv2InAmp", const.SOLAR_2_IN_AMPS),
 
             # OutWattsSensorEntity(client, self, "pd.carWatts", const.DC_OUT_POWER),
             # the same value as pd.carWatts

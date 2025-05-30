@@ -14,10 +14,10 @@ from ...number import (
 )
 from ...select import DictSelectEntity, TimeoutDictSelectEntity
 from ...sensor import (
-    AmpSensorEntity,
+    MilliampSensorEntity,
     CapacitySensorEntity,
     CyclesSensorEntity,
-    InAmpSolarSensorEntity,
+    InMilliampSolarSensorEntity,
     InEnergySensorEntity,
     InMilliVoltSensorEntity,
     InVoltSolarSensorEntity,
@@ -78,7 +78,7 @@ class DeltaPro(BaseDevice):
             ),
             WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
-            AmpSensorEntity(client, self, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT),
+            MilliampSensorEntity(client, self, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT),
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),
             InMilliVoltSensorEntity(client, self, "inv.acInVol", const.AC_IN_VOLT),
@@ -87,7 +87,7 @@ class DeltaPro(BaseDevice):
                 client, self, "mppt.inWatts", const.SOLAR_IN_POWER
             ),
             InVoltSolarSensorEntity(client, self, "mppt.inVol", const.SOLAR_IN_VOLTAGE),
-            InAmpSolarSensorEntity(client, self, "mppt.inAmp", const.SOLAR_IN_CURRENT),
+            InMilliampSolarSensorEntity(client, self, "mppt.inAmp", const.SOLAR_IN_CURRENT),
             OutWattsDcSensorEntity(client, self, "mppt.outWatts", const.DC_OUT_POWER),
             OutVoltDcSensorEntity(client, self, "mppt.outVol", const.DC_OUT_VOLTAGE),
             OutWattsSensorEntity(
@@ -279,7 +279,7 @@ class DeltaPro(BaseDevice):
                 const.SLAVE_N_MAX_CELL_VOLT % 1,
                 False,
             ),
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "bmsSlave1.amp", const.SLAVE_N_BATTERY_CURRENT % 1, False
             ),
             MilliVoltSensorEntity(
@@ -299,7 +299,7 @@ class DeltaPro(BaseDevice):
                 const.SLAVE_N_MAX_CELL_VOLT % 2,
                 False,
             ),
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "bmsSlave2.amp", const.SLAVE_N_BATTERY_CURRENT % 2, False
             ),
             TempSensorEntity(
