@@ -183,6 +183,7 @@ DISCHARGE_REMAINING_TIME = "Discharge Remaining Time"
 
 CYCLES = "Cycles"
 SOH = "State of Health"
+REAL_SOH = "Real State of Health"
 
 SLAVE_BATTERY_LEVEL = "Slave Battery Level"
 SLAVE_N_BATTERY_LEVEL = "Slave %i Battery Level"
@@ -287,8 +288,12 @@ SMART_METER_IN_AMPS_L3 = "Power Grid (L3) In Amps"
 SMART_METER_VOLT_L1 = "Power Grid (L1) Volts"
 SMART_METER_VOLT_L2 = "Power Grid (L2) Volts"
 SMART_METER_VOLT_L3 = "Power Grid (L3) Volts"
+SMART_METER_FLAG_L1 = "Flag L1"
+SMART_METER_FLAG_L2 = "Flag L2"
+SMART_METER_FLAG_L3 = "Flag L3"
 SMART_METER_RECORD_ACTIVE_TODAY = "Lifetime consumption"
 SMART_METER_RECORD_ACTIVE_TOTAL = "Lifetime net usage"
+SMART_METER_RECORD_REACTIVE_TODAY = "Lifetime injection (2)"
 SMART_METER_RECORD_REACTIVE_TOTAL = "Lifetime injection"
 SMART_METER_RECORD_ACTIVE_TODAY_L1 = "L1 Lifetime net usage"
 SMART_METER_RECORD_ACTIVE_TODAY_L2 = "L2 Lifetime net usage"
@@ -296,10 +301,17 @@ SMART_METER_RECORD_ACTIVE_TODAY_L3 = "L3 Lifetime net usage"
 
 # Stream AC
 STREAM_POWER_AC = "Power AC" # <0 import from home to battery / >0 export from battery to home
+STREAM_POWER_VOL = "Power Volts" # <0 import from home to battery / >0 export from battery to home
 STREAM_POWER_AC_SYS = "Power AC SYS" # <0 import from home to battery / >0 export from battery to home
-STREAM_POWER_PV = "Power PV" # >0 external pv power estimate injection to home/battery
+STREAM_POWER_PV_1 = "Power PV 1" # >0 external pv power estimate injection to home/battery
+STREAM_POWER_PV_2 = "Power PV 2" # >0 external pv power estimate injection to home/battery
+STREAM_POWER_PV_3 = "Power PV 3" # >0 external pv power estimate injection to home/battery
+STREAM_POWER_PV_4 = "Power PV 4" # >0 external pv power estimate injection to home/battery
+STREAM_POWER_PV_SUM = "Power PV Sum" # >0 external pv power estimate injection to home/battery
 STREAM_GET_SYS_LOAD = "Power Sys Load" # powGetSysLoad
+STREAM_GET_SYS_LOAD_FROM_BP = "Power Sys Load From Battery" # powGetSysLoadFromBp
 STREAM_GET_SYS_LOAD_FROM_GRID = "Power Sys Load From Grid" # powGetSysLoadFromGrid
+STREAM_GET_SYS_LOAD_FROM_PV = "Power Sys Load From PV" # powGetSysLoadFromPv
 STREAM_GET_SCHUKO1 = "Power SCHUKO1" # powGetSchuko1
 STREAM_GET_SCHUKO2 = "Power SCHUKO2" # powGetSchuko2
 STREAM_POWER_GRID = "Power Grid" # power from smart meter or shelly

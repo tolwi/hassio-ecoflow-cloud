@@ -3,7 +3,7 @@ from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, \
     BaseSelectEntity
 from custom_components.ecoflow_cloud.sensor import WattsSensorEntity, InAmpSensorEntity, MilliVoltSensorEntity, \
-    EnergySensorEntity
+    EnergySensorEntity, MiscBinarySensorEntity
 
 class SmartMeter(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
@@ -22,13 +22,19 @@ class SmartMeter(BaseDevice):
             MilliVoltSensorEntity(client, self, "gridConnectionVolL2", const.SMART_METER_VOLT_L2, False),
             MilliVoltSensorEntity(client, self, "gridConnectionVolL3", const.SMART_METER_VOLT_L3, False),
 
-            EnergySensorEntity(client, self, "gridConnectionDataRecord.todayActive", const.SMART_METER_RECORD_ACTIVE_TODAY),
-            EnergySensorEntity(client, self, "gridConnectionDataRecord.totalActiveEnergy", const.SMART_METER_RECORD_ACTIVE_TOTAL),
-            EnergySensorEntity(client, self, "gridConnectionDataRecord.totalReactiveEnergy", const.SMART_METER_RECORD_REACTIVE_TOTAL),
+            MiscBinarySensorEntity(client, self, "gridConnectionFlagL1", const.SMART_METER_FLAG_L1, False),
+            MiscBinarySensorEntity(client, self, "gridConnectionFlagL2", const.SMART_METER_FLAG_L2, False),
+            MiscBinarySensorEntity(client, self, "gridConnectionFlagL3", const.SMART_METER_FLAG_L3, False),
 
             EnergySensorEntity(client, self, "gridConnectionDataRecord.todayActiveL1", const.SMART_METER_RECORD_ACTIVE_TODAY_L1,False),
             EnergySensorEntity(client, self, "gridConnectionDataRecord.todayActiveL2", const.SMART_METER_RECORD_ACTIVE_TODAY_L2, False),
             EnergySensorEntity(client, self, "gridConnectionDataRecord.todayActiveL3", const.SMART_METER_RECORD_ACTIVE_TODAY_L3, False),
+
+            EnergySensorEntity(client, self, "gridConnectionDataRecord.todayActive", const.SMART_METER_RECORD_ACTIVE_TODAY),
+            EnergySensorEntity(client, self, "gridConnectionDataRecord.todayReactive", const.SMART_METER_RECORD_REACTIVE_TODAY, False),
+            EnergySensorEntity(client, self, "gridConnectionDataRecord.totalActiveEnergy", const.SMART_METER_RECORD_ACTIVE_TOTAL),
+            EnergySensorEntity(client, self, "gridConnectionDataRecord.totalReactiveEnergy", const.SMART_METER_RECORD_REACTIVE_TOTAL),
+
 
 
         ]
