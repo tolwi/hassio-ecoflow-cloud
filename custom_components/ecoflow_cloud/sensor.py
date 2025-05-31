@@ -98,7 +98,7 @@ class LevelSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
 
 
-class   RemainSensorEntity(BaseSensorEntity):
+class RemainSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.DURATION
     _attr_native_unit_of_measurement = UnitOfTime.MINUTES
     _attr_state_class = SensorStateClass.MEASUREMENT
