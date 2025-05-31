@@ -1,25 +1,4 @@
-# EcoFlow Cloud Integration for Home Assistant
-[![GitHub release](https://img.shields.io/github/release/tolwi/hassio-ecoflow-cloud?include_prereleases=&sort=semver&color=blue)](https://github.com/tolwi/hassio-ecoflow-cloud/releases/)
-[![issues - hassio-ecoflow-cloud](https://img.shields.io/github/issues/tolwi/hassio-ecoflow-cloud)](https://github.com/tolwi/hassio-ecoflow-cloud/issues)
-[![GH-code-size](https://img.shields.io/github/languages/code-size/tolwi/hassio-ecoflow-cloud?color=red)](https://github.com/tolwi/hassio-ecoflow-cloud)
-[![GH-last-commit](https://img.shields.io/github/last-commit/tolwi/hassio-ecoflow-cloud?style=flat-square)](https://github.com/tolwi/hassio-ecoflow-cloud/commits/main)
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![HACS validation](https://github.com/tolwi/hassio-ecoflow-cloud/workflows/Validate%20with%20hassfest%20and%20HACS/badge.svg)](https://github.com/tolwi/hassio-ecoflow-cloud/actions?query=workflow:"Validate%20with%20hassfest%20and%20HACS")
-
-Inspired by [hassio-ecoflow](https://github.com/vwt12eh8/hassio-ecoflow) and [ecoflow-mqtt-prometheus-exporter](https://github.com/berezhinskiy/ecoflow-mqtt-prometheus-exporter) this integration uses EcoFlow MQTT Broker `mqtt.ecoflow.com` to monitor and control the device.
-
-## Installation
-
-- Install as a custom repository via HACS
-- Manually download and extract to the custom_components directory
-
-Once installed, use Add Integration -> Ecoflow Cloud.
-
-## Disclaimers
-
-⚠️ Originally developed for personal use without a goal to cover all available device attributes
-
-## Current state
+## Current state :
 <details><summary> DELTA_2 <i>(sensors: 45, switches: 8, sliders: 6, selects: 5)</i> </summary>
 <p>
 
@@ -2040,5 +2019,4 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-## How to
-- [Add/update device](docs/integration.md)
+
