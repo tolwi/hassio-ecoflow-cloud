@@ -330,8 +330,8 @@ STREAM_STR_IN_POWER = "In Power %s"
 STREAM_OUT_POWER = "Out Power"
 STREAM_STR_OUT_POWER = "Out Power %s"
 
-STREAM_ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
-STREAM_ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
-STREAM_ACCU_DISCHARGE_CAP = "Cumulative Capacity Discharge (mAh)"
-STREAM_ACCU_DISCHARGE_ENERGY = "Cumulative Energy Discharge (Wh)"
+ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
+ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
+ACCU_DISCHARGE_CAP = "Cumulative Capacity Discharge (mAh)"
+ACCU_DISCHARGE_ENERGY = "Cumulative Energy Discharge (Wh)"
 

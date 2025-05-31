@@ -681,10 +681,14 @@
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 67, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 71, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Main Battery Level
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
@@ -1258,10 +1262,14 @@
 
 </p></details>
 
-<details><summary> DELTA 2 Max (API) <i>(sensors: 67, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA 2 Max (API) <i>(sensors: 71, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Main Battery Level
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_

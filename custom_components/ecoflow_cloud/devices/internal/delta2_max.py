@@ -8,13 +8,19 @@ from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InMilliampSensorEntity, \
-    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity
+    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity, \
+    CumulativeCapacitySensorEntity, EnergySensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
 class Delta2Max(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
+            CumulativeCapacitySensorEntity(client, self, "bms_bmsInfo.accuChgCap", const.ACCU_CHARGE_CAP, False),
+            EnergySensorEntity(client, self, "bms_bmsInfo.accuChgEnergy", const.ACCU_CHARGE_ENERGY),
+            CumulativeCapacitySensorEntity(client, self, "bms_bmsInfo.accuDsgCap", const.ACCU_DISCHARGE_CAP, False),
+            EnergySensorEntity(client, self, "bms_bmsInfo.accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY),
+
             LevelSensorEntity(client, self, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
             .attr("bms_bmsStatus.designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("bms_bmsStatus.fullCap", const.ATTR_FULL_CAPACITY, 0)

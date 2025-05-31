@@ -1,6 +1,10 @@
 ## DELTA_2_MAX
 
 *Sensors*
+- Cumulative Capacity Charge (mAh) (`bms_bmsInfo.accuChgCap`)   _(disabled)_
+- Cumulative Energy Charge (Wh) (`bms_bmsInfo.accuChgEnergy`)
+- Cumulative Capacity Discharge (mAh) (`bms_bmsInfo.accuDsgCap`)   _(disabled)_
+- Cumulative Energy Discharge (Wh) (`bms_bmsInfo.accuDsgEnergy`)
 - Main Battery Level (`bms_bmsStatus.soc`)
 - Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
 - Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_

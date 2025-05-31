@@ -10,13 +10,13 @@ class StreamAC(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             # "accuChgCap": 198511,
-            CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.STREAM_ACCU_CHARGE_CAP, False),
+            CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False),
             # "accuChgEnergy": 3992,
-            EnergySensorEntity(client, self, "accuChgEnergy", const.STREAM_ACCU_CHARGE_ENERGY),
+            EnergySensorEntity(client, self, "accuChgEnergy", const.ACCU_CHARGE_ENERGY),
             # "accuDsgCap": 184094,
-            CumulativeCapacitySensorEntity(client, self, "accuDsgCap", const.STREAM_ACCU_DISCHARGE_CAP, False),
+            CumulativeCapacitySensorEntity(client, self, "accuDsgCap", const.ACCU_DISCHARGE_CAP, False),
             # "accuDsgEnergy": 3646,
-            EnergySensorEntity(client, self, "accuDsgEnergy", const.STREAM_ACCU_DISCHARGE_ENERGY),
+            EnergySensorEntity(client, self, "accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY),
             # "actSoc": 46.0,
             # "amp": 44671,
             # "backupReverseSoc": 5,
