@@ -335,3 +335,7 @@ ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
 ACCU_DISCHARGE_CAP = "Cumulative Capacity Discharge (mAh)"
 ACCU_DISCHARGE_ENERGY = "Cumulative Energy Discharge (Wh)"
 
+SLAVE_N_ACCU_CHARGE_CAP = "Slave %i Cumulative Capacity Charge (mAh)"
+SLAVE_N_ACCU_CHARGE_ENERGY = "Slave %i Cumulative Energy Charge (Wh)"
+SLAVE_N_ACCU_DISCHARGE_CAP = "Slave %i Cumulative Capacity Discharge (mAh)"
+SLAVE_N_ACCU_DISCHARGE_ENERGY = "Slave %i Cumulative Energy Discharge (Wh)"

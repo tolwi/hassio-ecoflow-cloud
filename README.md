@@ -702,7 +702,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 71, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 79, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -746,6 +746,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
 - Battery level SOC  _(auto)_
+- Slave 1 Cumulative Capacity Charge (mAh)  _(auto)_
+- Slave 1 Cumulative Energy Charge (Wh)  _(disabled)_
+- Slave 1 Cumulative Capacity Discharge (mAh)  _(auto)_
+- Slave 1 Cumulative Energy Discharge (Wh)  _(disabled)_
 - Slave 1 Battery Level  _(auto)_
 - Slave 1 Design Capacity  _(disabled)_
 - Slave 1 Full Capacity  _(disabled)_
@@ -761,6 +765,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave 1 In Power  _(auto)_
 - Slave 1 Out Power  _(auto)_
 - Slave 1 Battery level SOC  _(auto)_
+- Slave 2 Cumulative Capacity Charge (mAh)  _(disabled)_
+- Slave 2 Cumulative Energy Charge (Wh)  _(auto)_
+- Slave 2 Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Slave 2 Cumulative Energy Discharge (Wh)  _(auto)_
 - Slave 2 Battery Level  _(auto)_
 - Slave 2 Design Capacity  _(disabled)_
 - Slave 2 Full Capacity  _(disabled)_
@@ -1025,13 +1033,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Min Cell Volts  _(disabled)_
 - Out Power
 - Power Battery
-- Power PV 1  _(disabled)_
-- Power PV 2  _(disabled)_
-- Power PV 3  _(disabled)_
-- Power PV 4  _(disabled)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
 - Power PV Sum
-- Power SCHUKO1  _(disabled)_
-- Power SCHUKO2  _(disabled)_
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
 - Power Grid
 - Power Sys Load
 - Power Sys Load From Battery
@@ -1077,13 +1085,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Min Cell Volts  _(disabled)_
 - Out Power
 - Power Battery
-- Power PV 1  _(disabled)_
-- Power PV 2  _(disabled)_
-- Power PV 3  _(disabled)_
-- Power PV 4  _(disabled)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
 - Power PV Sum
-- Power SCHUKO1  _(disabled)_
-- Power SCHUKO2  _(disabled)_
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
 - Power Grid
 - Power Sys Load
 - Power Sys Load From Battery
@@ -1283,7 +1291,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> DELTA 2 Max (API) <i>(sensors: 71, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA 2 Max (API) <i>(sensors: 79, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -1327,6 +1335,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
 - Battery level SOC  _(auto)_
+- Slave 1 Cumulative Capacity Charge (mAh)  _(auto)_
+- Slave 1 Cumulative Energy Charge (Wh)  _(disabled)_
+- Slave 1 Cumulative Capacity Discharge (mAh)  _(auto)_
+- Slave 1 Cumulative Energy Discharge (Wh)  _(disabled)_
 - Slave 1 Battery Level  _(auto)_
 - Slave 1 Design Capacity  _(disabled)_
 - Slave 1 Full Capacity  _(disabled)_
@@ -1342,6 +1354,10 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Slave 1 In Power  _(auto)_
 - Slave 1 Out Power  _(auto)_
 - Slave 1 Battery level SOC  _(auto)_
+- Slave 2 Cumulative Capacity Charge (mAh)  _(disabled)_
+- Slave 2 Cumulative Energy Charge (Wh)  _(auto)_
+- Slave 2 Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Slave 2 Cumulative Energy Discharge (Wh)  _(auto)_
 - Slave 2 Battery Level  _(auto)_
 - Slave 2 Design Capacity  _(disabled)_
 - Slave 2 Full Capacity  _(disabled)_
@@ -1983,13 +1999,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Min Cell Volts  _(disabled)_
 - Out Power
 - Power Battery
-- Power PV 1  _(disabled)_
-- Power PV 2  _(disabled)_
-- Power PV 3  _(disabled)_
-- Power PV 4  _(disabled)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
 - Power PV Sum
-- Power SCHUKO1  _(disabled)_
-- Power SCHUKO2  _(disabled)_
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
 - Power Grid
 - Power Sys Load
 - Power Sys Load From Battery
@@ -2035,13 +2051,13 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Min Cell Volts  _(disabled)_
 - Out Power
 - Power Battery
-- Power PV 1  _(disabled)_
-- Power PV 2  _(disabled)_
-- Power PV 3  _(disabled)_
-- Power PV 4  _(disabled)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
 - Power PV Sum
-- Power SCHUKO1  _(disabled)_
-- Power SCHUKO2  _(disabled)_
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
 - Power Grid
 - Power Sys Load
 - Power Sys Load From Battery
