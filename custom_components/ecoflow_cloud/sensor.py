@@ -259,16 +259,19 @@ class EnergySensorEntity(BaseSensorEntity):
         else:
             return False
 
-class CumulativeCapacitySensorEntity(EnergySensorEntity):
-    _attr_device_class = None
-    _attr_native_unit_of_measurement = "mAh"
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
-
-
 class CapacitySensorEntity(BaseSensorEntity):
     _attr_native_unit_of_measurement = "mAh"
     _attr_state_class = SensorStateClass.MEASUREMENT
 
+class CumulativeCapacitySensorEntity(CapacitySensorEntity):
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def _update_value(self, val: Any) -> bool:
+        ival = int(val)
+        if ival > 0:
+            return super()._update_value(ival)
+        else:
+            return False
 
 class DeciwattsSensorEntity(WattsSensorEntity):
     def _update_value(self, val: Any) -> bool:
