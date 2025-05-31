@@ -98,7 +98,7 @@ class LevelSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
 
 
-class RemainSensorEntity(BaseSensorEntity):
+class   RemainSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.DURATION
     _attr_native_unit_of_measurement = UnitOfTime.MINUTES
     _attr_state_class = SensorStateClass.MEASUREMENT
@@ -258,6 +258,11 @@ class EnergySensorEntity(BaseSensorEntity):
             return super()._update_value(ival)
         else:
             return False
+
+class CumulativeCapacitySensorEntity(EnergySensorEntity):
+    _attr_device_class = None
+    _attr_native_unit_of_measurement = "mAh"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
 
 
 class CapacitySensorEntity(BaseSensorEntity):

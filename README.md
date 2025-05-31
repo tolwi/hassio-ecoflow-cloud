@@ -998,10 +998,14 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> STREAM_AC <i>(sensors: 35, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> STREAM_AC <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
 - Cycles
@@ -1046,10 +1050,14 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> STREAM_ULTRA <i>(sensors: 35, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> STREAM_ULTRA <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
 - Cycles
@@ -1944,10 +1952,14 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> Stream AC (API) <i>(sensors: 35, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Stream AC (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
 - Cycles
@@ -1992,10 +2004,14 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
-<details><summary> Stream Ultra (API) <i>(sensors: 35, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Stream Ultra (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
 - Cycles

@@ -1,6 +1,10 @@
 ## STREAM_AC
 
 *Sensors*
+- Cumulative Capacity Charge (mAh) (`accuChgCap`)   _(disabled)_
+- Cumulative Energy Charge (Wh) (`accuChgEnergy`)
+- Cumulative Capacity Discharge (mAh) (`accuDsgCap`)   _(disabled)_
+- Cumulative Energy Discharge (Wh) (`accuDsgEnergy`)
 - Charge Remaining Time (`bmsChgRemTime`)   _(disabled)_
 - Discharge Remaining Time (`bmsDsgRemTime`)   _(disabled)_
 - Cycles (`cycles`)
