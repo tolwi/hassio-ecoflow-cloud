@@ -4,15 +4,19 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
     BaseSelectEntity
 from custom_components.ecoflow_cloud.sensor import WattsSensorEntity,LevelSensorEntity,CapacitySensorEntity, \
     InWattsSensorEntity,OutWattsSensorEntity, RemainSensorEntity, MilliVoltSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity
+    CyclesSensorEntity, EnergySensorEntity, CumulativeCapacitySensorEntity
 
 class StreamAC(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             # "accuChgCap": 198511,
+            CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False),
             # "accuChgEnergy": 3992,
+            EnergySensorEntity(client, self, "accuChgEnergy", const.ACCU_CHARGE_ENERGY),
             # "accuDsgCap": 184094,
+            CumulativeCapacitySensorEntity(client, self, "accuDsgCap", const.ACCU_DISCHARGE_CAP, False),
             # "accuDsgEnergy": 3646,
+            EnergySensorEntity(client, self, "accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY),
             # "actSoc": 46.0,
             # "amp": 44671,
             # "backupReverseSoc": 5,
@@ -152,19 +156,19 @@ class StreamAC(BaseDevice):
             # "powGetBpCms": 1915.0862,
             WattsSensorEntity(client, self, "powGetBpCms", const.STREAM_POWER_BATTERY),
             # "powGetPv": 0.0,
-            WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False),
+            WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True),
             # "powGetPv2": 0.0,
-            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False),
+            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False, True),
             # "powGetPv3": 0.0,
-            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False),
+            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False, True),
             # "powGetPv4": 0.0,
-            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False),
+            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
             # "powGetPvSum": 2051.3975,
             WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM),
             # "powGetSchuko1": 0.0,
-            WattsSensorEntity(client, self, "powGetSchuko1", const.STREAM_GET_SCHUKO1, False),
+            WattsSensorEntity(client, self, "powGetSchuko1", const.STREAM_GET_SCHUKO1, False, True),
             # "powGetSchuko2": 18.654325,
-            WattsSensorEntity(client, self, "powGetSchuko2", const.STREAM_GET_SCHUKO2, False),
+            WattsSensorEntity(client, self, "powGetSchuko2", const.STREAM_GET_SCHUKO2, False, True),
             # "powGetSysGrid": -135.0,
             WattsSensorEntity(client, self, "powGetSysGrid", const.STREAM_POWER_GRID),
             # "powGetSysLoad": 0.0,

@@ -7,6 +7,7 @@ plain_to_status: dict[str, str] = {
     "mppt": "mpptStatus",
     "bms_emsStatus": "emsStatus",
     "bms_bmsStatus": "bmsStatus",
+    "bms_bmsInfo": "bmsInfo",
     "inv": "invStatus",
     "bms_slave": "bmsSlaveStatus",
     "bms_slave_bmsSlaveStatus_1": "bmsSlaveStatus_1",

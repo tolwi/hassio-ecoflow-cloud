@@ -195,44 +195,44 @@ def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
 
 
 def render_brief_summary():
+    content_summary = "## Current state\n"
     for dt, dev in devices.items():
-        if dt != "DIAGNOSTIC":
+        if not dt.upper().startswith("DIAGNOSTIC"):
             content = ""
             real_devices = get_devices(dt, dev)
             for device in real_devices:
                 if len(real_devices) > 1:
                     content = content + f"\n### {device.device_data.device_type}\n"
                 content = content + render_device_summary(device, True)
-            print(
-                "<details><summary> %s <i>(%s)</i> </summary>"
-                % (dt, device_summary(real_devices))
-            )
-            print("<p>")
-            print(content)
-            print("</p></details>")
-            print()
+            content_summary+="<details><summary> %s <i>(%s)</i> </summary>" % (dt, device_summary(real_devices))
+            content_summary+="\n<p>\n"
+            content_summary+=content
+            content_summary+="\n</p></details>\n"
+            content_summary+= "\n"
 
     for dt, dev in device_by_product.items():
-        if dt != "DIAGNOSTIC":
+        if not dt.upper().startswith("DIAGNOSTIC"):
             content = ""
             real_devices = get_devices(dt, dev)
             for device in real_devices:
                 if len(real_devices) > 1:
                     content = content + f"\n### {device.device_data.device_type}\n"
                 content = content + render_device_summary(device, True)
-            print(
-                "<details><summary> %s (API) <i>(%s)</i> </summary>"
-                % (dt, device_summary(real_devices))
-            )
-            print("<p>")
-            print(content)
-            print("</p></details>")
-            print()
+            content_summary+="<details><summary> %s (API) <i>(%s)</i> </summary>" % (dt, device_summary(real_devices))
+
+            content_summary+="\n<p>\n"
+            content_summary +=content
+            content_summary+="\n</p></details>\n"
+            content_summary+="\n"
+    print(content_summary)
+    with open("summary.md" , "w+") as f_summary:
+        f_summary.write(content_summary)
+        f_summary.write("\n")
 
 
 def update_full_summary():
     for dt, dev in devices.items():
-        if dt != "DIAGNOSTIC":
+        if not dt.upper().startswith("DIAGNOSTIC"):
             content = ""
             real_devices = get_devices(dt, dev)
             for device in real_devices:
@@ -247,7 +247,7 @@ def update_full_summary():
             print("- [%s](devices/%s.md)" % (dt, dt))
 
     for dt, dev in device_by_product.items():
-        if dt != "DIAGNOSTIC":
+        if not dt.upper().startswith("DIAGNOSTIC"):
             content = ""
             real_devices = get_devices(dt, dev)
             for device in real_devices:
