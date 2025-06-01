@@ -148,7 +148,7 @@ class Delta2Max(BaseDevice):
 
                        
             QuotaStatusSensorEntity(client, self),
-            QuotaScheduledStatusSensorEntity(client, self, (30*60)) # reload every 30 min
+            QuotaScheduledStatusSensorEntity(client, self, (60*60)) # reload every 1h
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
