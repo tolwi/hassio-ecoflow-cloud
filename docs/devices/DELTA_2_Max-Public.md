@@ -80,6 +80,7 @@
 - Slave 2 Out Power (`bms_slave_bmsaSlaveStatus_2.outputWatts`)   _(auto)_
 - Slave 2 Battery level SOC (`bms_slave_bmsSlaveStatus_2.f32ShowSoc`)   _(auto)_
 - Status
+- Status (Scheduled)
 
 *Switches*
 - Beeper (`pd.beepMode` -> `{"moduleType": 1, "operateType": "quietCfg", "moduleSn": "SN", "params": {"enabled": "VALUE"}}`)

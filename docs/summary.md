@@ -681,7 +681,7 @@
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 79, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 80, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -764,6 +764,7 @@
 - Slave 2 Out Power  _(auto)_
 - Slave 2 Battery level SOC  _(auto)_
 - Status
+- Status (Scheduled)
 
 *Switches*
 - Beeper 
@@ -1270,7 +1271,7 @@
 
 </p></details>
 
-<details><summary> DELTA 2 Max (API) <i>(sensors: 79, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA 2 Max (API) <i>(sensors: 80, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -1353,6 +1354,7 @@
 - Slave 2 Out Power  _(auto)_
 - Slave 2 Battery level SOC  _(auto)_
 - Status
+- Status (Scheduled)
 
 *Switches*
 - Beeper 

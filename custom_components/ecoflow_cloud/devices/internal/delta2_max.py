@@ -9,7 +9,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSens
     CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InMilliampSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity, \
-    CumulativeCapacitySensorEntity, EnergySensorEntity
+    CumulativeCapacitySensorEntity, EnergySensorEntity, QuotaScheduledStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -147,8 +147,8 @@ class Delta2Max(BaseDevice):
             LevelSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_SOC % 2, False, True),
 
                        
-            QuotaStatusSensorEntity(client, self)
-
+            QuotaStatusSensorEntity(client, self),
+            QuotaScheduledStatusSensorEntity(client, self, (30*60)) # reload every 30 min
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
