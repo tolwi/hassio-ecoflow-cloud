@@ -1,6 +1,10 @@
 ## DELTA_2_Max
 
 *Sensors*
+- Cumulative Capacity Charge (mAh) (`bms_bmsInfo.accuChgCap`)   _(disabled)_
+- Cumulative Energy Charge (Wh) (`bms_bmsInfo.accuChgEnergy`)
+- Cumulative Capacity Discharge (mAh) (`bms_bmsInfo.accuDsgCap`)   _(disabled)_
+- Cumulative Energy Discharge (Wh) (`bms_bmsInfo.accuDsgEnergy`)
 - Main Battery Level (`bms_bmsStatus.soc`)
 - Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
 - Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_
@@ -37,6 +41,10 @@
 - Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
 - Battery level SOC (`bms_bmsStatus.f32ShowSoc`)   _(auto)_
+- Slave 1 Cumulative Capacity Charge (mAh) (`bms_slave_bmsSlaveInfo_1.accuChgCap`)   _(auto)_
+- Slave 1 Cumulative Energy Charge (Wh) (`bms_slave_bmsSlaveInfo_1.accuChgEnergy`)   _(disabled)_
+- Slave 1 Cumulative Capacity Discharge (mAh) (`bms_slave_bmsSlaveInfo_1.accuDsgCap`)   _(auto)_
+- Slave 1 Cumulative Energy Discharge (Wh) (`bms_slave_bmsSlaveInfo_1.accuDsgEnergy`)   _(disabled)_
 - Slave 1 Battery Level (`bms_slave_bmsSlaveStatus_1.soc`)   _(auto)_
 - Slave 1 Design Capacity (`bms_slave_bmsSlaveStatus_1.designCap`)   _(disabled)_
 - Slave 1 Full Capacity (`bms_slave_bmsSlaveStatus_1.fullCap`)   _(disabled)_
@@ -52,6 +60,10 @@
 - Slave 1 In Power (`bms_slave_bmsSlaveStatus_1.inputWatts`)   _(auto)_
 - Slave 1 Out Power (`bms_slave_bmsSlaveStatus_1.outputWatts`)   _(auto)_
 - Slave 1 Battery level SOC (`bms_slave_bmsSlaveStatus_1.f32ShowSoc`)   _(auto)_
+- Slave 2 Cumulative Capacity Charge (mAh) (`bms_slave_bmsSlaveInfo_2.accuChgCap`)   _(disabled)_
+- Slave 2 Cumulative Energy Charge (Wh) (`bms_slave_bmsSlaveInfo_2.accuChgEnergy`)   _(auto)_
+- Slave 2 Cumulative Capacity Discharge (mAh) (`bms_slave_bmsSlaveInfo_2.accuDsgCap`)   _(disabled)_
+- Slave 2 Cumulative Energy Discharge (Wh) (`bms_slave_bmsSlaveInfo_2.accuDsgEnergy`)   _(auto)_
 - Slave 2 Battery Level (`bms_slave_bmsSlaveStatus_2.soc`)   _(auto)_
 - Slave 2 Design Capacity (`bms_slave_bmsSlaveStatus_2.designCap`)   _(disabled)_
 - Slave 2 Full Capacity (`bms_slave_bmsSlaveStatus_2.fullCap`)   _(disabled)_
@@ -68,6 +80,7 @@
 - Slave 2 Out Power (`bms_slave_bmsaSlaveStatus_2.outputWatts`)   _(auto)_
 - Slave 2 Battery level SOC (`bms_slave_bmsSlaveStatus_2.f32ShowSoc`)   _(auto)_
 - Status
+- Status (Scheduled)
 
 *Switches*
 - Beeper (`pd.beepMode` -> `{"moduleType": 1, "operateType": "quietCfg", "moduleSn": "SN", "params": {"enabled": "VALUE"}}`)

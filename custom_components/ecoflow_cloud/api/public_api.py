@@ -111,6 +111,8 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
 
     async def call_api(self, endpoint: str, params: dict[str, str] = None) -> dict:
+        self.nonce = str(random.randint(10000, 1000000))
+        self.timestamp = str(int(time.time() * 1000))
         async with aiohttp.ClientSession() as session:
             params_str = ""
             if params is not None:
@@ -125,11 +127,14 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 "sign": sign,
             }
 
+            _LOGGER.debug(f"Request: %s %s.", str(endpoint), str(params_str))
             resp = await session.get(
                 f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}",
                 headers=headers,
             )
-            return await self._get_json_response(resp)
+            json_resp = await self._get_json_response(resp)
+            _LOGGER.debug(f"Request: %s %s. Response : %s", str(endpoint), str(params_str), str(json_resp))
+            return json_resp
 
     def __create_device_info(
         self, device_sn: str, device_name: str, device_type: str, status: int = -1

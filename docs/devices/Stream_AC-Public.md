@@ -1,6 +1,10 @@
 ## Stream_AC
 
 *Sensors*
+- Cumulative Capacity Charge (mAh) (`accuChgCap`)   _(disabled)_
+- Cumulative Energy Charge (Wh) (`accuChgEnergy`)
+- Cumulative Capacity Discharge (mAh) (`accuDsgCap`)   _(disabled)_
+- Cumulative Energy Discharge (Wh) (`accuDsgEnergy`)
 - Charge Remaining Time (`bmsChgRemTime`)   _(disabled)_
 - Discharge Remaining Time (`bmsDsgRemTime`)   _(disabled)_
 - Cycles (`cycles`)
@@ -16,13 +20,13 @@
 - Min Cell Volts (`minCellVol`)   _(disabled)_
 - Out Power (`outputWatts`)
 - Power Battery (`powGetBpCms`)
-- Power PV 1 (`powGetPv`)   _(disabled)_
-- Power PV 2 (`powGetPv2`)   _(disabled)_
-- Power PV 3 (`powGetPv3`)   _(disabled)_
-- Power PV 4 (`powGetPv4`)   _(disabled)_
+- Power PV 1 (`powGetPv`)   _(auto)_
+- Power PV 2 (`powGetPv2`)   _(auto)_
+- Power PV 3 (`powGetPv3`)   _(auto)_
+- Power PV 4 (`powGetPv4`)   _(auto)_
 - Power PV Sum (`powGetPvSum`)
-- Power SCHUKO1 (`powGetSchuko1`)   _(disabled)_
-- Power SCHUKO2 (`powGetSchuko2`)   _(disabled)_
+- Power SCHUKO1 (`powGetSchuko1`)   _(auto)_
+- Power SCHUKO2 (`powGetSchuko2`)   _(auto)_
 - Power Grid (`powGetSysGrid`)
 - Power Sys Load (`powGetSysLoad`)
 - Power Sys Load From Battery (`powGetSysLoadFromBp`)

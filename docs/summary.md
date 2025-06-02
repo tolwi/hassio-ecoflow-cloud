@@ -1,4 +1,4 @@
-## Current state :
+## Current state
 <details><summary> DELTA_2 <i>(sensors: 45, switches: 8, sliders: 6, selects: 5)</i> </summary>
 <p>
 
@@ -681,10 +681,14 @@
 
 </p></details>
 
-<details><summary> DELTA_2_MAX <i>(sensors: 67, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA_2_MAX <i>(sensors: 80, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Main Battery Level
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
@@ -721,6 +725,10 @@
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
 - Battery level SOC  _(auto)_
+- Slave 1 Cumulative Capacity Charge (mAh)  _(auto)_
+- Slave 1 Cumulative Energy Charge (Wh)  _(disabled)_
+- Slave 1 Cumulative Capacity Discharge (mAh)  _(auto)_
+- Slave 1 Cumulative Energy Discharge (Wh)  _(disabled)_
 - Slave 1 Battery Level  _(auto)_
 - Slave 1 Design Capacity  _(disabled)_
 - Slave 1 Full Capacity  _(disabled)_
@@ -736,6 +744,10 @@
 - Slave 1 In Power  _(auto)_
 - Slave 1 Out Power  _(auto)_
 - Slave 1 Battery level SOC  _(auto)_
+- Slave 2 Cumulative Capacity Charge (mAh)  _(disabled)_
+- Slave 2 Cumulative Energy Charge (Wh)  _(auto)_
+- Slave 2 Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Slave 2 Cumulative Energy Discharge (Wh)  _(auto)_
 - Slave 2 Battery Level  _(auto)_
 - Slave 2 Design Capacity  _(disabled)_
 - Slave 2 Full Capacity  _(disabled)_
@@ -752,6 +764,7 @@
 - Slave 2 Out Power  _(auto)_
 - Slave 2 Battery level SOC  _(auto)_
 - Status
+- Status (Scheduled)
 
 *Switches*
 - Beeper 
@@ -977,10 +990,14 @@
 
 </p></details>
 
-<details><summary> STREAM_AC <i>(sensors: 35, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> STREAM_AC <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
 - Cycles
@@ -996,13 +1013,13 @@
 - Min Cell Volts  _(disabled)_
 - Out Power
 - Power Battery
-- Power PV 1  _(disabled)_
-- Power PV 2  _(disabled)_
-- Power PV 3  _(disabled)_
-- Power PV 4  _(disabled)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
 - Power PV Sum
-- Power SCHUKO1  _(disabled)_
-- Power SCHUKO2  _(disabled)_
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
 - Power Grid
 - Power Sys Load
 - Power Sys Load From Battery
@@ -1025,10 +1042,14 @@
 
 </p></details>
 
-<details><summary> STREAM_ULTRA <i>(sensors: 35, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> STREAM_ULTRA <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
 - Cycles
@@ -1044,13 +1065,13 @@
 - Min Cell Volts  _(disabled)_
 - Out Power
 - Power Battery
-- Power PV 1  _(disabled)_
-- Power PV 2  _(disabled)_
-- Power PV 3  _(disabled)_
-- Power PV 4  _(disabled)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
 - Power PV Sum
-- Power SCHUKO1  _(disabled)_
-- Power SCHUKO2  _(disabled)_
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
 - Power Grid
 - Power Sys Load
 - Power Sys Load From Battery
@@ -1250,10 +1271,14 @@
 
 </p></details>
 
-<details><summary> DELTA 2 Max (API) <i>(sensors: 67, switches: 7, sliders: 6, selects: 3)</i> </summary>
+<details><summary> DELTA 2 Max (API) <i>(sensors: 80, switches: 7, sliders: 6, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Main Battery Level
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
@@ -1290,6 +1315,10 @@
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
 - Battery level SOC  _(auto)_
+- Slave 1 Cumulative Capacity Charge (mAh)  _(auto)_
+- Slave 1 Cumulative Energy Charge (Wh)  _(disabled)_
+- Slave 1 Cumulative Capacity Discharge (mAh)  _(auto)_
+- Slave 1 Cumulative Energy Discharge (Wh)  _(disabled)_
 - Slave 1 Battery Level  _(auto)_
 - Slave 1 Design Capacity  _(disabled)_
 - Slave 1 Full Capacity  _(disabled)_
@@ -1305,6 +1334,10 @@
 - Slave 1 In Power  _(auto)_
 - Slave 1 Out Power  _(auto)_
 - Slave 1 Battery level SOC  _(auto)_
+- Slave 2 Cumulative Capacity Charge (mAh)  _(disabled)_
+- Slave 2 Cumulative Energy Charge (Wh)  _(auto)_
+- Slave 2 Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Slave 2 Cumulative Energy Discharge (Wh)  _(auto)_
 - Slave 2 Battery Level  _(auto)_
 - Slave 2 Design Capacity  _(disabled)_
 - Slave 2 Full Capacity  _(disabled)_
@@ -1321,6 +1354,7 @@
 - Slave 2 Out Power  _(auto)_
 - Slave 2 Battery level SOC  _(auto)_
 - Status
+- Status (Scheduled)
 
 *Switches*
 - Beeper 
@@ -1923,10 +1957,14 @@
 
 </p></details>
 
-<details><summary> Stream AC (API) <i>(sensors: 35, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Stream AC (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
 - Cycles
@@ -1942,13 +1980,13 @@
 - Min Cell Volts  _(disabled)_
 - Out Power
 - Power Battery
-- Power PV 1  _(disabled)_
-- Power PV 2  _(disabled)_
-- Power PV 3  _(disabled)_
-- Power PV 4  _(disabled)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
 - Power PV Sum
-- Power SCHUKO1  _(disabled)_
-- Power SCHUKO2  _(disabled)_
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
 - Power Grid
 - Power Sys Load
 - Power Sys Load From Battery
@@ -1971,10 +2009,14 @@
 
 </p></details>
 
-<details><summary> Stream Ultra (API) <i>(sensors: 35, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Stream Ultra (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
 - Cycles
@@ -1990,13 +2032,13 @@
 - Min Cell Volts  _(disabled)_
 - Out Power
 - Power Battery
-- Power PV 1  _(disabled)_
-- Power PV 2  _(disabled)_
-- Power PV 3  _(disabled)_
-- Power PV 4  _(disabled)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
 - Power PV Sum
-- Power SCHUKO1  _(disabled)_
-- Power SCHUKO2  _(disabled)_
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
 - Power Grid
 - Power Sys Load
 - Power Sys Load From Battery

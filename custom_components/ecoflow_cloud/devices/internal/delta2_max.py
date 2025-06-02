@@ -8,13 +8,19 @@ from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InMilliampSensorEntity, \
-    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity
+    InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity, \
+    CumulativeCapacitySensorEntity, EnergySensorEntity, QuotaScheduledStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
 class Delta2Max(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
+            CumulativeCapacitySensorEntity(client, self, "bms_bmsInfo.accuChgCap", const.ACCU_CHARGE_CAP, False),
+            EnergySensorEntity(client, self, "bms_bmsInfo.accuChgEnergy", const.ACCU_CHARGE_ENERGY),
+            CumulativeCapacitySensorEntity(client, self, "bms_bmsInfo.accuDsgCap", const.ACCU_DISCHARGE_CAP, False),
+            EnergySensorEntity(client, self, "bms_bmsInfo.accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY),
+
             LevelSensorEntity(client, self, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
             .attr("bms_bmsStatus.designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("bms_bmsStatus.fullCap", const.ATTR_FULL_CAPACITY, 0)
@@ -77,6 +83,11 @@ class Delta2Max(BaseDevice):
             LevelSensorEntity(client, self, "bms_bmsStatus.f32ShowSoc", const.BATTERY_LEVEL_SOC, False, True),
 
             # Optional Slave 1 Battery
+            CumulativeCapacitySensorEntity(client, self, "bms_slave_bmsSlaveInfo_1.accuChgCap", const.SLAVE_N_ACCU_CHARGE_CAP % 1, False, True),
+            EnergySensorEntity(client, self, "bms_slave_bmsSlaveInfo_1.accuChgEnergy", const.SLAVE_N_ACCU_CHARGE_ENERGY % 1, False),
+            CumulativeCapacitySensorEntity(client, self, "bms_slave_bmsSlaveInfo_1.accuDsgCap", const.SLAVE_N_ACCU_DISCHARGE_CAP % 1, False, True),
+            EnergySensorEntity(client, self, "bms_slave_bmsSlaveInfo_1.accuDsgEnergy", const.SLAVE_N_ACCU_DISCHARGE_ENERGY % 1, False),
+
             LevelSensorEntity(client, self, "bms_slave_bmsSlaveStatus_1.soc", const.SLAVE_N_BATTERY_LEVEL % 1, False, True)
             .attr("bms_slave_bmsSlaveStatus_1.designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("bms_slave_bmsSlaveStatus_1.fullCap", const.ATTR_FULL_CAPACITY, 0)
@@ -104,6 +115,11 @@ class Delta2Max(BaseDevice):
             LevelSensorEntity(client, self, "bms_slave_bmsSlaveStatus_1.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_SOC % 1, False, True),
 
             # Optional Slave 2 Battery
+            CumulativeCapacitySensorEntity(client, self, "bms_slave_bmsSlaveInfo_2.accuChgCap", const.SLAVE_N_ACCU_CHARGE_CAP % 2, False),
+            EnergySensorEntity(client, self, "bms_slave_bmsSlaveInfo_2.accuChgEnergy", const.SLAVE_N_ACCU_CHARGE_ENERGY % 2, False, True),
+            CumulativeCapacitySensorEntity(client, self, "bms_slave_bmsSlaveInfo_2.accuDsgCap", const.SLAVE_N_ACCU_DISCHARGE_CAP % 2, False),
+            EnergySensorEntity(client, self, "bms_slave_bmsSlaveInfo_2.accuDsgEnergy", const.SLAVE_N_ACCU_DISCHARGE_ENERGY % 2, False, True),
+
             LevelSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.soc", const.SLAVE_N_BATTERY_LEVEL % 2, False, True)
             .attr("bms_slave_bmsSlaveStatus_2.designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("bms_slave_bmsSlaveStatus_2.fullCap", const.ATTR_FULL_CAPACITY, 0)
@@ -131,8 +147,8 @@ class Delta2Max(BaseDevice):
             LevelSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_SOC % 2, False, True),
 
                        
-            QuotaStatusSensorEntity(client, self)
-
+            QuotaStatusSensorEntity(client, self),
+            QuotaScheduledStatusSensorEntity(client, self, (60*60)) # reload every 1h
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
