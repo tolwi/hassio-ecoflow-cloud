@@ -1,5 +1,7 @@
 __pycache__
+ha-venv
 venv
+.venv
 .idea
 .DS_Store
 .vscode/settings.json
