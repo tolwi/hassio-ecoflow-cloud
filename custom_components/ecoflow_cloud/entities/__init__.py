@@ -168,6 +168,7 @@ class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
                 return self._command(value)
             elif p_count == 2:
                 return self._command(value, self._device.data.params)
+            return None
         else:
             return None
 
