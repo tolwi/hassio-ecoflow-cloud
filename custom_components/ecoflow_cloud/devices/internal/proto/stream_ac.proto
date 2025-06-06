@@ -136,10 +136,10 @@ syntax = "proto3";
 
     }
 
-    message Champ_cmd21_4 {
+    message CloudMetter {
         optional uint32 Champ_cmd21_4_field1 = 1;
         optional uint32 Champ_cmd21_4_field2 = 2;
-        optional string Champ_cmd21_4_field3 = 3;
+        optional string sn_metter = 3;
         optional uint32 Champ_cmd21_4_field4 = 4;
 
     }
@@ -147,16 +147,16 @@ syntax = "proto3";
     message Champ_cmd21_3 {
         optional uint32 Champ_cmd21_3_field282 = 282;
         optional uint32 Champ_cmd21_3_field460 = 460;
-        optional float Champ_cmd21_3_field515 = 515;
+        optional float powGetSysGrid = 515; // power grid
         optional float Champ_cmd21_3_field516 = 516;
-        optional float Champ_cmd21_3_field517 = 517;
-        optional float Champ_cmd21_3_field518 = 518;
+        optional float powGetPvSum = 517; // pv sum
+        optional float powGetBpCms = 518;
         optional float Champ_cmd21_3_field602 = 602;
-        optional float Champ_cmd21_3_field616 = 616;
-        optional Champ_cmd21_4 Champ_cmd21_3_champ_cmd21_4 = 785;
-        optional float Champ_cmd21_3_field992 = 992;
-        optional float Champ_cmd21_3_field1003 = 1003;
-        optional float Champ_cmd21_3_field1004 = 1004;
+        optional float gridConnectionPower = 616;
+        optional CloudMetter cloudMetter = 785;
+        optional float sysGridConnectionPower = 992;
+        optional float powGetSchuko1 = 1003;
+        optional float powGetSchuko2 = 1004;
 
     }
 
