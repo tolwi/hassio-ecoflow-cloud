@@ -155,8 +155,8 @@ syntax = "proto3";
         optional float gridConnectionPower = 616;
         optional CloudMetter cloudMetter = 785;
         optional float sysGridConnectionPower = 992;
-        optional float powGetSchuko1 = 1003;
-        optional float powGetSchuko2 = 1004;
+        optional float powGetSysLoadFromBp = 1003;
+        optional float powGetSysLoadFromGrid = 1004;
 
     }
 

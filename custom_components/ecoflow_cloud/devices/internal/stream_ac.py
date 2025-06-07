@@ -281,80 +281,34 @@ class StreamAC(BaseDevice):
                 packet.ParseFromString(payload)
 
                 if hasattr(packet.msg, "pdata") :
-                    _LOGGER.debug("cmd id %u content \"%s\" - pdata:\"%s\"", packet.msg.cmd_id, str(packet), str(packet.msg.pdata.hex()))
+                    _LOGGER.debug("cmd id \"%u\" fct id \"%u\" content \"%s\" - pdata:\"%s\"", packet.msg.cmd_id, packet.msg.cmd_func, str(packet), str(packet.msg.pdata.hex()))
                 else :
-                    _LOGGER.debug("cmd id %u content \"%s\"", packet.msg.cmd_id, str(packet))
+                    _LOGGER.debug("cmd id \"%u\" fct id \"%u\" content \"%s\"", packet.msg.cmd_id, str(packet))
 
-                if packet.msg.cmd_id != 21 and packet.msg.cmd_id != 22 and packet.msg.cmd_id != 50:
+                if packet.msg.cmd_id < 0: #packet.msg.cmd_id != 21 and packet.msg.cmd_id != 22 and packet.msg.cmd_id != 50:
                     _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
 
                 else:
                     _LOGGER.info("new payload \"%s\"",str(packet.msg.pdata.hex()))
                     # paquet HeaderStream
                     if packet.msg.cmd_id > 0:
-                        content = stream_ac2.HeaderStream()
-                        content.ParseFromString(packet.msg.pdata)
-
-                        _LOGGER.debug("(HeaderStream) initial cmd id %u msg \"%s\"", packet.msg.cmd_id, str(content))
-
-                        for descriptor in content.DESCRIPTOR.fields:
-                            if not content.HasField(descriptor.name):
-                                continue
-
-                            raw["params"][descriptor.name] = getattr(content, descriptor.name)
+                        self._parsedata(packet, stream_ac2.HeaderStream(), raw)
 
                     # paquet Champ_cmd21
                     if packet.msg.cmd_id > 0:
-                        content = stream_ac2.Champ_cmd21()
-                        content.ParseFromString(packet.msg.pdata)
-
-                        _LOGGER.debug("(Champ_cmd21) initial cmd id %u msg \"%s\"", packet.msg.cmd_id, str(content))
-
-                        for descriptor in content.DESCRIPTOR.fields:
-                            if not content.HasField(descriptor.name):
-                                continue
-
-                            raw["params"][descriptor.name] = getattr(content, descriptor.name)
+                        self._parsedata(packet, stream_ac2.Champ_cmd21(), raw)
 
                     # paquet Champ_cmd21_3
                     if packet.msg.cmd_id > 0:
-                        content = stream_ac2.Champ_cmd21_3()
-                        content.ParseFromString(packet.msg.pdata)
-
-                        _LOGGER.debug("(Champ_cmd21_3) initial cmd id %u msg \"%s\"", packet.msg.cmd_id, str(content))
-
-                        for descriptor in content.DESCRIPTOR.fields:
-                            if not content.HasField(descriptor.name):
-                                continue
-
-                            raw["params"][descriptor.name] = getattr(content, descriptor.name)
+                        self._parsedata(packet, stream_ac2.Champ_cmd21_3(), raw)
 
                     # paquet Champ_cmd50
                     if packet.msg.cmd_id > 0:
-                        content = stream_ac2.Champ_cmd50()
-                        content.ParseFromString(packet.msg.pdata)
-
-                        _LOGGER.debug("(Champ_cmd50) initial cmd id %u msg \"%s\"", packet.msg.cmd_id, str(content))
-
-                        for descriptor in content.DESCRIPTOR.fields:
-                            if not content.HasField(descriptor.name):
-                                continue
-
-                            raw["params"][descriptor.name] = getattr(content, descriptor.name)
+                        self._parsedata(packet, stream_ac2.Champ_cmd50(), raw)
 
                     # paquet Champ_cmd50_3
                     if packet.msg.cmd_id > 0:
-                        content = stream_ac2.Champ_cmd50_3()
-                        content.ParseFromString(packet.msg.pdata)
-
-                        _LOGGER.debug("(Champ_cmd50_3) initial cmd id %u msg \"%s\"", packet.msg.cmd_id, str(content))
-
-                        for descriptor in content.DESCRIPTOR.fields:
-                            if not content.HasField(descriptor.name):
-                                continue
-
-                            raw["params"][descriptor.name] = getattr(content, descriptor.name)
-
+                        self._parsedata(packet, stream_ac2.Champ_cmd50_3(), raw)
 
                     _LOGGER.info("Found %u fields", len(raw["params"]))
 
@@ -373,3 +327,21 @@ class StreamAC(BaseDevice):
             _LOGGER.info(raw_data.hex())
 
         return raw
+
+    def _parsedata(self, packet, content, raw) :
+        try:
+            if hasattr(packet.msg, "pdata") and len(packet.msg.pdata) > 0 :
+                content.ParseFromString(packet.msg.pdata)
+
+                if len(str(content)) > 0:
+                    _LOGGER.debug("initial cmd id \"%u\" fct id \"%u\" msg \"%s\"", packet.msg.cmd_id, packet.msg.cmd_func, str(content))
+
+                for descriptor in content.DESCRIPTOR.fields:
+                    if not content.HasField(descriptor.name):
+                        continue
+
+                    raw["params"][descriptor.name] = getattr(content, descriptor.name)
+
+        except Exception as error:
+            _LOGGER.warning(error)
+            _LOGGER.warning("Erreur parsing pour le flux : %s",str(packet.msg.pdata.hex()))
