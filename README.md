@@ -20,6 +20,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
 
 ## Current state
+### Devices available with private_api
 <details><summary> DELTA_2 <i>(sensors: 45, switches: 8, sliders: 6, selects: 5)</i> </summary>
 <p>
 
@@ -1115,6 +1116,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
+### Devices available with public_api
 <details><summary> DELTA Pro (API) <i>(sensors: 71, switches: 6, sliders: 6, selects: 4)</i> </summary>
 <p>
 
@@ -2081,6 +2083,7 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 *Selects*
 
 </p></details>
+
 
 ## How to
 - [Add/update device](docs/integration.md)
