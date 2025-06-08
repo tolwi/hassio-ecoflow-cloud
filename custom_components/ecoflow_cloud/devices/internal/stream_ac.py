@@ -16,11 +16,11 @@ class StreamAC(BaseDevice):
             # "accuChgCap": 198511,
             CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False),
             # "accuChgEnergy": 3992,
-            EnergySensorEntity(client, self, "accuChgEnergy", const.ACCU_CHARGE_ENERGY),
+            EnergySensorEntity(client, self, "accuChgEnergy", const.ACCU_CHARGE_ENERGY, False),
             # "accuDsgCap": 184094,
             CumulativeCapacitySensorEntity(client, self, "accuDsgCap", const.ACCU_DISCHARGE_CAP, False),
             # "accuDsgEnergy": 3646,
-            EnergySensorEntity(client, self, "accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY),
+            EnergySensorEntity(client, self, "accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY, False),
             # "actSoc": 46.0,
             # "amp": 44671,
             # "backupReverseSoc": 5,
@@ -76,7 +76,7 @@ class StreamAC(BaseDevice):
             # "curSensorTemp": [],
             # "cycleSoh": 100.0,
             # "cycles": 1,
-            CyclesSensorEntity(client, self, "cycles", const.CYCLES),
+            CyclesSensorEntity(client, self, "cycles", const.CYCLES,False),
             # "designCap": 100000,
             CapacitySensorEntity(client, self, "designCap", const.STREAM_DESIGN_CAPACITY,False),
             # "devCtrlStatus": 1,
@@ -92,7 +92,7 @@ class StreamAC(BaseDevice):
             # "energyStrategyOperateMode.operateSelfPoweredOpen": true,
             # "energyStrategyOperateMode.operateTouModeOpen": false,
             # "f32ShowSoc": 46.317574,
-            LevelSensorEntity(client, self, "f32ShowSoc", const.STREAM_POWER_BATTERY_SOC),
+            LevelSensorEntity(client, self, "f32ShowSoc", const.STREAM_POWER_BATTERY_SOC,False),
             # "feedGridMode": 2,
             # "feedGridModePowLimit": 800,
             # "feedGridModePowMax": 800,
@@ -111,7 +111,7 @@ class StreamAC(BaseDevice):
             # "heatfilmTemp": [],
             # "hwVer": "V0.0.0",
             # "inputWatts": 900,
-            InWattsSensorEntity(client, self, "inputWatts", const.STREAM_IN_POWER),
+            InWattsSensorEntity(client, self, "inputWatts", const.STREAM_IN_POWER, False),
             # "invNtcTemp3": 49,
             # "maxBpInput": 1050,
             # "maxBpOutput": 1200,
@@ -142,7 +142,7 @@ class StreamAC(BaseDevice):
             # "num": 0,
             # "openBmsFlag": 1,
             # "outputWatts": 0,
-            OutWattsSensorEntity(client, self, "outputWatts", const.STREAM_OUT_POWER),
+            OutWattsSensorEntity(client, self, "outputWatts", const.STREAM_OUT_POWER, False),
             # "packSn": "BKxxxxx",
             # "plugInInfoPv2Amp": 0.0,
             # "plugInInfoPv2Flag": false,
@@ -196,24 +196,24 @@ class StreamAC(BaseDevice):
             # "remainCap": 46317,
             CapacitySensorEntity(client, self, "remainCap", const.STREAM_REMAIN_CAPACITY,False),
             # "remainTime": 88,
-            RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME),
+            RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME, False),
             # "runtimePropertyFullUploadPeriod": 120000,
             # "runtimePropertyIncrementalUploadPeriod": 2000,
             # "seriesConnectDeviceId": 1,
             # "seriesConnectDeviceStatus": "MASTER",
             # "soc": 46,
-            LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY)
+            LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY, False)
             .attr("designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             # "socketMeasurePower": 0.0,
             # "soh": 100,
-            LevelSensorEntity(client, self, "soh", const.SOH),
+            LevelSensorEntity(client, self, "soh", const.SOH, False),
             # "stormPatternEnable": false,
             # "stormPatternEndTime": 0,
             # "stormPatternOpenFlag": false,
             # "sysGridConnectionPower": -2020.0437,
-            WattsSensorEntity(client, self, "sysGridConnectionPower", const.STREAM_POWER_AC_SYS),
+            WattsSensorEntity(client, self, "sysGridConnectionPower", const.STREAM_POWER_AC_SYS, False),
             # "sysLoaderVer": 4294967295,
             # "sysState": 3,
             # "sysVer": 33620026,
@@ -222,7 +222,7 @@ class StreamAC(BaseDevice):
             # "tagChgAmp": 50000,
             # "targetSoc": 46.314102,
             # "temp": 35,
-            TempSensorEntity(client, self, "temp", const.BATTERY_TEMP)
+            TempSensorEntity(client, self, "temp", const.BATTERY_TEMP, False)
             .attr("minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
             .attr("maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             # "v1p0.bmsModel": 1,
@@ -334,7 +334,7 @@ class StreamAC(BaseDevice):
                 content.ParseFromString(packet.msg.pdata)
 
                 if len(str(content)) > 0:
-                    _LOGGER.debug("initial cmd id \"%u\" fct id \"%u\" msg \"%s\"", packet.msg.cmd_id, packet.msg.cmd_func, str(content))
+                    _LOGGER.debug("initial cmd id \"%u\" fct id \"%u\" msg \n\"%s\"", packet.msg.cmd_id, packet.msg.cmd_func, str(content))
 
                 for descriptor in content.DESCRIPTOR.fields:
                     if not content.HasField(descriptor.name):

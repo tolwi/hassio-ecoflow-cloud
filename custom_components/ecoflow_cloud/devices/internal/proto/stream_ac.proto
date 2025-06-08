@@ -148,7 +148,7 @@ syntax = "proto3";
         optional uint32 Champ_cmd21_3_field282 = 282;
         optional uint32 Champ_cmd21_3_field460 = 460;
         optional float powGetSysGrid = 515; // power grid
-        optional float Champ_cmd21_3_field516 = 516;
+        optional float powGetSysLoad = 516;
         optional float powGetPvSum = 517; // pv sum
         optional float powGetBpCms = 518;
         optional float Champ_cmd21_3_field602 = 602;
@@ -157,6 +157,7 @@ syntax = "proto3";
         optional float sysGridConnectionPower = 992;
         optional float powGetSysLoadFromBp = 1003;
         optional float powGetSysLoadFromGrid = 1004;
+        optional float powGetSchuko1 = 1210;
 
     }
 
