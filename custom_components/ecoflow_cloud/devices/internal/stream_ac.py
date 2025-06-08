@@ -269,6 +269,9 @@ class StreamAC(BaseDevice):
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return []
 
+    def _prepare_data_get_topic(self, raw_data) -> dict[str, any]:
+        return super()._prepare_data(raw_data)
+
     def _prepare_data(self, raw_data) -> dict[str, any]:
         raw = {"params": {}}
         from .proto import ecopacket_pb2 as ecopacket, stream_ac_pb2 as stream_ac, stream_ac_pb2 as stream_ac2
@@ -323,11 +326,8 @@ class StreamAC(BaseDevice):
                 payload = payload[:packet_length]
 
         except Exception as error:
-            _LOGGER.warning(error)
-            _LOGGER.debug("raw_data : \"%s\"",str(raw_data))
-            _LOGGER.debug("raw_data.hex() : \"%s\"",str(raw_data.hex()))
-            raw = super()._prepare_data(raw_data)
-            _LOGGER.info("Found %u fields", len(raw["params"]))
+            _LOGGER.error(error)
+            _LOGGER.debug("raw_data : \"%s\"  raw_data.hex() : \"%s\"",str(raw_data),str(raw_data.hex()))
         return raw
 
     def _parsedata(self, packet, content, raw) :

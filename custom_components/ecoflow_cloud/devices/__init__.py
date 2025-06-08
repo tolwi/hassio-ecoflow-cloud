@@ -132,23 +132,38 @@ class BaseDevice(ABC):
 
     def update_data(self, raw_data, data_type: str) -> bool:
         if data_type == self.device_info.data_topic:
-            raw = self._prepare_data(raw_data)
+            raw = self._prepare_data_data_topic(raw_data)
             self.data.update_data(raw)
         elif data_type == self.device_info.set_topic:
-            raw = self._prepare_data(raw_data)
+            raw = self._prepare_data_set_topic(raw_data)
             self.data.add_set_message(raw)
         elif data_type == self.device_info.set_reply_topic:
-            raw = self._prepare_data(raw_data)
+            raw = self._prepare_data_set_reply_topic(raw_data)
             self.data.add_set_reply_message(raw)
         elif data_type == self.device_info.get_topic:
-            raw = self._prepare_data(raw_data)
+            raw = self._prepare_data_get_topic(raw_data)
             self.data.add_get_message(raw)
         elif data_type == self.device_info.get_reply_topic:
-            raw = self._prepare_data(raw_data)
+            raw = self._prepare_data_get_reply_topic(raw_data)
             self.data.add_get_reply_message(raw)
         else:
             return False
         return True
+
+    def _prepare_data_data_topic(self, raw_data) -> dict[str, any]:
+        return self._prepare_data(raw_data)
+
+    def _prepare_data_set_topic(self, raw_data) -> dict[str, any]:
+        return self._prepare_data(raw_data)
+
+    def _prepare_data_set_reply_topic(self, raw_data) -> dict[str, any]:
+        return self._prepare_data(raw_data)
+
+    def _prepare_data_get_topic(self, raw_data) -> dict[str, any]:
+        return self._prepare_data(raw_data)
+
+    def _prepare_data_get_reply_topic(self, raw_data) -> dict[str, any]:
+        return self._prepare_data(raw_data)
 
     def _prepare_data(self, raw_data) -> dict[str, any]:
         try:
