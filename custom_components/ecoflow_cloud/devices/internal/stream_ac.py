@@ -323,9 +323,11 @@ class StreamAC(BaseDevice):
                 payload = payload[:packet_length]
 
         except Exception as error:
-            _LOGGER.error(error)
-            _LOGGER.info(raw_data.hex())
-
+            _LOGGER.warning(error)
+            _LOGGER.debug("raw_data : \"%s\"",str(raw_data))
+            _LOGGER.debug("raw_data.hex() : \"%s\"",str(raw_data.hex()))
+            raw = super()._prepare_data(raw_data)
+            _LOGGER.info("Found %u fields", len(raw["params"]))
         return raw
 
     def _parsedata(self, packet, content, raw) :
