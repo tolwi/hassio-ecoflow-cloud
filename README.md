@@ -1016,23 +1016,23 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 *Sensors*
 - Cumulative Capacity Charge (mAh)  _(disabled)_
-- Cumulative Energy Charge (Wh)
+- Cumulative Energy Charge (Wh)  _(disabled)_
 - Cumulative Capacity Discharge (mAh)  _(disabled)_
-- Cumulative Energy Discharge (Wh)
+- Cumulative Energy Discharge (Wh)  _(disabled)_
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
-- Cycles
+- Cycles  _(disabled)_
 - Design Capacity  _(disabled)_
-- Power Battery SOC
+- Power Battery SOC  _(disabled)_
 - Full Capacity  _(disabled)_
 - Power AC
 - Power Volts  _(disabled)_
-- In Power
+- In Power  _(disabled)_
 - Max Cell Temperature  _(disabled)_
 - Max Cell Volts  _(disabled)_
 - Min Cell Temperature  _(disabled)_
 - Min Cell Volts  _(disabled)_
-- Out Power
+- Out Power  _(disabled)_
 - Power Battery
 - Power PV 1  _(auto)_
 - Power PV 2  _(auto)_
@@ -1048,11 +1048,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Power Sys Load From PV
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
-- Remaining Time
-- Power Battery
-- State of Health
-- Power AC SYS
-- Battery Temperature
+- Remaining Time  _(disabled)_
+- Power Battery  _(disabled)_
+- State of Health  _(disabled)_
+- Power AC SYS  _(disabled)_
+- Battery Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
 
 *Switches*
@@ -1068,23 +1068,23 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 *Sensors*
 - Cumulative Capacity Charge (mAh)  _(disabled)_
-- Cumulative Energy Charge (Wh)
+- Cumulative Energy Charge (Wh)  _(disabled)_
 - Cumulative Capacity Discharge (mAh)  _(disabled)_
-- Cumulative Energy Discharge (Wh)
+- Cumulative Energy Discharge (Wh)  _(disabled)_
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
-- Cycles
+- Cycles  _(disabled)_
 - Design Capacity  _(disabled)_
-- Power Battery SOC
+- Power Battery SOC  _(disabled)_
 - Full Capacity  _(disabled)_
 - Power AC
 - Power Volts  _(disabled)_
-- In Power
+- In Power  _(disabled)_
 - Max Cell Temperature  _(disabled)_
 - Max Cell Volts  _(disabled)_
 - Min Cell Temperature  _(disabled)_
 - Min Cell Volts  _(disabled)_
-- Out Power
+- Out Power  _(disabled)_
 - Power Battery
 - Power PV 1  _(auto)_
 - Power PV 2  _(auto)_
@@ -1100,11 +1100,11 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 - Power Sys Load From PV
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
-- Remaining Time
-- Power Battery
-- State of Health
-- Power AC SYS
-- Battery Temperature
+- Remaining Time  _(disabled)_
+- Power Battery  _(disabled)_
+- State of Health  _(disabled)_
+- Power AC SYS  _(disabled)_
+- Battery Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
 
 *Switches*
