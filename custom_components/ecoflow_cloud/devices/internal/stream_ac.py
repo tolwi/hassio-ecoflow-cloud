@@ -289,7 +289,7 @@ class StreamAC(BaseDevice):
                     _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
 
                 else:
-                    _LOGGER.info("new payload \"%s\"",str(packet.msg.pdata.hex()))
+                    _LOGGER.debug("new payload \"%s\"",str(packet.msg.pdata.hex()))
                     # paquet HeaderStream
                     if packet.msg.cmd_id > 0:
                         self._parsedata(packet, stream_ac2.HeaderStream(), raw)
@@ -343,5 +343,5 @@ class StreamAC(BaseDevice):
                     raw["params"][descriptor.name] = getattr(content, descriptor.name)
 
         except Exception as error:
-            _LOGGER.warning(error)
-            _LOGGER.warning("Erreur parsing pour le flux : %s",str(packet.msg.pdata.hex()))
+            _LOGGER.debug(error)
+            _LOGGER.debug("Erreur parsing pour le flux : %s",str(packet.msg.pdata.hex()))

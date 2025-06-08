@@ -165,6 +165,7 @@ class BaseDevice(ABC):
             _LOGGER.error(
                 f"constant: {error1}. Ignoring message and waiting for the next one."
             )
+            return {}
 
 
 class DiagnosticDevice(BaseDevice):
