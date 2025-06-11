@@ -1,10 +1,19 @@
+# artifacts
 __pycache__
+
+# environment
 venv
 .idea
 .DS_Store
 .vscode/settings.json
-.coverage
 requirements.test.txt
 requirements.txt
+
+# misc
+.coverage
 setup.cfg
 tests
+
+# Home Assistant configuration
+config/*
+!config/configuration.yaml

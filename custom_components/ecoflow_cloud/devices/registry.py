@@ -31,6 +31,7 @@ from .public import (
     powerkit as public_powerkit,
     smart_meter as public_smart_meter,
     stream_ac as public_stream_ac,
+    powerocean as public_powerocean,
 )
 from ..devices import BaseDevice, DiagnosticDevice
 
@@ -74,6 +75,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
         "Smart Meter": public_smart_meter.SmartMeter,
         "Stream AC": public_stream_ac.StreamAC,
         "Stream Ultra": public_stream_ac.StreamAC,
+        "PowerOcean": public_powerocean.PowerOcean,  # key is not verified
         "Diagnostic": DiagnosticDevice,
     }
 )

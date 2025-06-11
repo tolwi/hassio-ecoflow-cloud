@@ -23,7 +23,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt
 
@@ -259,9 +259,11 @@ class EnergySensorEntity(BaseSensorEntity):
         else:
             return False
 
+
 class CapacitySensorEntity(BaseSensorEntity):
     _attr_native_unit_of_measurement = "mAh"
     _attr_state_class = SensorStateClass.MEASUREMENT
+
 
 class CumulativeCapacitySensorEntity(CapacitySensorEntity):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -272,6 +274,7 @@ class CumulativeCapacitySensorEntity(CapacitySensorEntity):
             return super()._update_value(ival)
         else:
             return False
+
 
 class DeciwattsSensorEntity(WattsSensorEntity):
     def _update_value(self, val: Any) -> bool:
@@ -379,7 +382,13 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     offline_barrier_sec: int = 120  # 2 minutes
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str = "Status", key: str = "status"):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        title: str = "Status",
+        key: str = "status",
+    ):
         super().__init__(client, device, title, key)
         self._attr_force_update = False
 
@@ -444,7 +453,13 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 class QuotaStatusSensorEntity(StatusSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str = "Status", key: str = "status"):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        title: str = "Status",
+        key: str = "status",
+    ):
         super().__init__(client, device, title, key)
         self._attrs[ATTR_QUOTA_REQUESTS] = 0
 
@@ -468,18 +483,22 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
             changed = True
         return changed
 
-class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int=3600):
+class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
+    def __init__(
+        self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int = 3600
+    ):
         super().__init__(client, device, "Status (Scheduled)", "status.scheduled")
         self.offline_barrier_sec: int = reload_delay
         self._quota_last_update = dt.utcnow()
 
     def _actualize_status(self) -> bool:
         changed = super()._actualize_status()
-        quota_diff = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._quota_last_update)
+        quota_diff = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(
+            self._quota_last_update
+        )
         # if delay passed, reload quota
-        if quota_diff > (self.offline_barrier_sec) :
+        if quota_diff > (self.offline_barrier_sec):
             self._attr_native_value = "updating"
             self._quota_last_update = dt.utcnow()
             self.hass.async_create_background_task(
@@ -516,3 +535,19 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
             return True
         else:
             return super()._actualize_status()
+
+
+class SolarPowerSensorEntity(WattsSensorEntity):
+    _attr_entity_category = None
+    _attr_suggested_display_precision = 1
+    _attr_icon = "mdi:solar-power"
+
+
+class SolarAmpSensorEntity(AmpSensorEntity):
+    _attr_suggested_display_precision = 1
+    _attr_icon = "mdi:current-dc"
+
+
+class SystemPowerSensorEntity(WattsSensorEntity):
+    _attr_entity_category = None
+    _attr_suggested_display_precision = 1
