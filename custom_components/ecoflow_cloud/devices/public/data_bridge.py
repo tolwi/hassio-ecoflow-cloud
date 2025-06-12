@@ -18,7 +18,7 @@ plain_to_status: dict[str, str] = {
 status_to_plain = dict((v, k) for (k, v) in plain_to_status.items())
 
 
-def to_plain(raw_data: dict[str, "Any"]) -> dict[str, "Any"]:
+def to_plain(raw_data: dict[str, Any]) -> dict[str, Any]:
     new_params = {}
     prefix = ""
     if "typeCode" in raw_data:
@@ -56,9 +56,9 @@ def to_plain(raw_data: dict[str, "Any"]) -> dict[str, "Any"]:
     return result
 
 
-def to_plain_other(raw_data: dict[str, "Any"]) -> dict[str, "Any"]:
+def to_plain_other(raw_data: dict[str, Any]) -> dict[str, Any]:
     if not {"cmdFunc", "cmdId"}.issubset(raw_data):
-        return raw_data  # Return unmodified if required keys are missing
+        return raw_data
 
     params = raw_data.get("param", {})
     new_params = {
@@ -66,19 +66,14 @@ def to_plain_other(raw_data: dict[str, "Any"]) -> dict[str, "Any"]:
     }
 
     if raw_data.get("addr") == "ems" and raw_data.get("cmdId") == 1:
-        phases = ["pcsAPhase", "pcsBPhase", "pcsCPhase"]
-        for phase in phases:
+        for phase in ["pcsAPhase", "pcsBPhase", "pcsCPhase"]:
             for k, v in params.get(phase, {}).items():
                 new_params[f"{phase}.{k}"] = v
 
-        n_strings = len(params.get("mpptHeartBeat", [{}])[0].get("mpptPv", []))
-        for i in range(1, n_strings + 1):
-            for k, v in (
-                params.get("mpptHeartBeat", [{}])[0].get(f"mpptPv{i}", {}).items()
-            ):
-                new_params[f"mpptPv{i}.{k}"] = v
+        for i, mpptpv in enumerate(
+            params.get("mpptHeartBeat", [{}])[0].get("mpptPv", [])
+        ):
+            for k, v in mpptpv.items():
+                new_params[f"mpptPv{i + 1}.{k}"] = v
 
-    result = {"params": new_params}
-    result.update({k: v for k, v in raw_data.items() if k not in ("param", "params")})
-
-    return result
+    return {**raw_data, "params": new_params}
