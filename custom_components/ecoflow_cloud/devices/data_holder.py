@@ -85,19 +85,20 @@ class EcoflowDataHolder:
         self.status_time = dt.utcnow()
 
     def update_data(self, raw: dict[str, Any]):
-        self.__add_raw_data(raw)
-        try:
-            if self.module_sn is not None:
-                if "moduleSn" not in raw:
-                    return
-                if raw["moduleSn"] != self.module_sn:
-                    return
-            if "params" in raw:
-                self.params.update(raw["params"])
-                self.params_time = dt.utcnow()
+        if raw is not None:
+            self.__add_raw_data(raw)
+            try:
+                if self.module_sn is not None:
+                    if "moduleSn" not in raw:
+                        return
+                    if raw["moduleSn"] != self.module_sn:
+                        return
+                if "params" in raw:
+                    self.params.update(raw["params"])
+                    self.params_time = dt.utcnow()
 
-        except Exception as error:
-            _LOGGER.error("Error updating data: %s", error)
+            except Exception as error:
+                _LOGGER.error("Error updating data: %s", error)
 
     def __add_raw_data(self, raw: dict[str, Any]):
         if self.__collect_raw:

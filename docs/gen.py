@@ -196,6 +196,7 @@ def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
 
 def render_brief_summary():
     content_summary = "## Current state\n"
+    content_summary+= "### Devices available with private_api\n"
     for dt, dev in devices.items():
         if not dt.upper().startswith("DIAGNOSTIC"):
             content = ""
@@ -210,6 +211,7 @@ def render_brief_summary():
             content_summary+="\n</p></details>\n"
             content_summary+= "\n"
 
+    content_summary+= "### Devices available with public_api\n"
     for dt, dev in device_by_product.items():
         if not dt.upper().startswith("DIAGNOSTIC"):
             content = ""

@@ -5,6 +5,10 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
 from custom_components.ecoflow_cloud.sensor import WattsSensorEntity,LevelSensorEntity,CapacitySensorEntity, \
     InWattsSensorEntity,OutWattsSensorEntity, RemainSensorEntity, MilliVoltSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, EnergySensorEntity, CumulativeCapacitySensorEntity
+from homeassistant.util import utcnow
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 class StreamAC(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
@@ -12,11 +16,11 @@ class StreamAC(BaseDevice):
             # "accuChgCap": 198511,
             CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False),
             # "accuChgEnergy": 3992,
-            EnergySensorEntity(client, self, "accuChgEnergy", const.ACCU_CHARGE_ENERGY),
+            EnergySensorEntity(client, self, "accuChgEnergy", const.ACCU_CHARGE_ENERGY, False),
             # "accuDsgCap": 184094,
             CumulativeCapacitySensorEntity(client, self, "accuDsgCap", const.ACCU_DISCHARGE_CAP, False),
             # "accuDsgEnergy": 3646,
-            EnergySensorEntity(client, self, "accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY),
+            EnergySensorEntity(client, self, "accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY, False),
             # "actSoc": 46.0,
             # "amp": 44671,
             # "backupReverseSoc": 5,
@@ -72,7 +76,7 @@ class StreamAC(BaseDevice):
             # "curSensorTemp": [],
             # "cycleSoh": 100.0,
             # "cycles": 1,
-            CyclesSensorEntity(client, self, "cycles", const.CYCLES),
+            CyclesSensorEntity(client, self, "cycles", const.CYCLES,False),
             # "designCap": 100000,
             CapacitySensorEntity(client, self, "designCap", const.STREAM_DESIGN_CAPACITY,False),
             # "devCtrlStatus": 1,
@@ -88,7 +92,7 @@ class StreamAC(BaseDevice):
             # "energyStrategyOperateMode.operateSelfPoweredOpen": true,
             # "energyStrategyOperateMode.operateTouModeOpen": false,
             # "f32ShowSoc": 46.317574,
-            LevelSensorEntity(client, self, "f32ShowSoc", const.STREAM_POWER_BATTERY_SOC),
+            LevelSensorEntity(client, self, "f32ShowSoc", const.STREAM_POWER_BATTERY_SOC,False),
             # "feedGridMode": 2,
             # "feedGridModePowLimit": 800,
             # "feedGridModePowMax": 800,
@@ -107,7 +111,7 @@ class StreamAC(BaseDevice):
             # "heatfilmTemp": [],
             # "hwVer": "V0.0.0",
             # "inputWatts": 900,
-            InWattsSensorEntity(client, self, "inputWatts", const.STREAM_IN_POWER),
+            InWattsSensorEntity(client, self, "inputWatts", const.STREAM_IN_POWER, False),
             # "invNtcTemp3": 49,
             # "maxBpInput": 1050,
             # "maxBpOutput": 1200,
@@ -138,7 +142,7 @@ class StreamAC(BaseDevice):
             # "num": 0,
             # "openBmsFlag": 1,
             # "outputWatts": 0,
-            OutWattsSensorEntity(client, self, "outputWatts", const.STREAM_OUT_POWER),
+            OutWattsSensorEntity(client, self, "outputWatts", const.STREAM_OUT_POWER, False),
             # "packSn": "BKxxxxx",
             # "plugInInfoPv2Amp": 0.0,
             # "plugInInfoPv2Flag": false,
@@ -192,24 +196,24 @@ class StreamAC(BaseDevice):
             # "remainCap": 46317,
             CapacitySensorEntity(client, self, "remainCap", const.STREAM_REMAIN_CAPACITY,False),
             # "remainTime": 88,
-            RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME),
+            RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME, False),
             # "runtimePropertyFullUploadPeriod": 120000,
             # "runtimePropertyIncrementalUploadPeriod": 2000,
             # "seriesConnectDeviceId": 1,
             # "seriesConnectDeviceStatus": "MASTER",
             # "soc": 46,
-            LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY)
+            LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY, False)
             .attr("designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             # "socketMeasurePower": 0.0,
             # "soh": 100,
-            LevelSensorEntity(client, self, "soh", const.SOH),
+            LevelSensorEntity(client, self, "soh", const.SOH, False),
             # "stormPatternEnable": false,
             # "stormPatternEndTime": 0,
             # "stormPatternOpenFlag": false,
             # "sysGridConnectionPower": -2020.0437,
-            WattsSensorEntity(client, self, "sysGridConnectionPower", const.STREAM_POWER_AC_SYS),
+            WattsSensorEntity(client, self, "sysGridConnectionPower", const.STREAM_POWER_AC_SYS, False),
             # "sysLoaderVer": 4294967295,
             # "sysState": 3,
             # "sysVer": 33620026,
@@ -218,7 +222,7 @@ class StreamAC(BaseDevice):
             # "tagChgAmp": 50000,
             # "targetSoc": 46.314102,
             # "temp": 35,
-            TempSensorEntity(client, self, "temp", const.BATTERY_TEMP)
+            TempSensorEntity(client, self, "temp", const.BATTERY_TEMP, False)
             .attr("minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
             .attr("maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             # "v1p0.bmsModel": 1,
@@ -264,3 +268,82 @@ class StreamAC(BaseDevice):
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return []
+
+    def _prepare_data_get_topic(self, raw_data) -> dict[str, any]:
+        return super()._prepare_data(raw_data)
+
+    def _prepare_data(self, raw_data) -> dict[str, any]:
+        raw = {"params": {}}
+        from .proto import ecopacket_pb2 as ecopacket, stream_ac_pb2 as stream_ac, stream_ac_pb2 as stream_ac2
+        try:
+            payload =raw_data
+
+            while True:
+                _LOGGER.debug("payload \"%s\"", payload.hex())
+                packet = stream_ac.SendHeaderStreamMsg()
+                packet.ParseFromString(payload)
+
+                if hasattr(packet.msg, "pdata") :
+                    _LOGGER.debug("cmd id \"%u\" fct id \"%u\" content \"%s\" - pdata:\"%s\"", packet.msg.cmd_id, packet.msg.cmd_func, str(packet), str(packet.msg.pdata.hex()))
+                else :
+                    _LOGGER.debug("cmd id \"%u\" fct id \"%u\" content \"%s\"", packet.msg.cmd_id, str(packet))
+
+                if packet.msg.cmd_id < 0: #packet.msg.cmd_id != 21 and packet.msg.cmd_id != 22 and packet.msg.cmd_id != 50:
+                    _LOGGER.info("Unsupported EcoPacket cmd id %u", packet.msg.cmd_id)
+
+                else:
+                    _LOGGER.debug("new payload \"%s\"",str(packet.msg.pdata.hex()))
+                    # paquet HeaderStream
+                    if packet.msg.cmd_id > 0:
+                        self._parsedata(packet, stream_ac2.HeaderStream(), raw)
+
+                    # paquet Champ_cmd21
+                    if packet.msg.cmd_id > 0:
+                        self._parsedata(packet, stream_ac2.Champ_cmd21(), raw)
+
+                    # paquet Champ_cmd21_3
+                    if packet.msg.cmd_id > 0:
+                        self._parsedata(packet, stream_ac2.Champ_cmd21_3(), raw)
+
+                    # paquet Champ_cmd50
+                    if packet.msg.cmd_id > 0:
+                        self._parsedata(packet, stream_ac2.Champ_cmd50(), raw)
+
+                    # paquet Champ_cmd50_3
+                    if packet.msg.cmd_id > 0:
+                        self._parsedata(packet, stream_ac2.Champ_cmd50_3(), raw)
+
+                    _LOGGER.info("Found %u fields", len(raw["params"]))
+
+                    raw["timestamp"] = utcnow()
+
+                if packet.ByteSize() >= len(payload):
+                    break
+
+                _LOGGER.info("Found another frame in payload")
+
+                packet_length = len(payload) - packet.ByteSize()
+                payload = payload[:packet_length]
+
+        except Exception as error:
+            _LOGGER.error(error)
+            _LOGGER.debug("raw_data : \"%s\"  raw_data.hex() : \"%s\"",str(raw_data),str(raw_data.hex()))
+        return raw
+
+    def _parsedata(self, packet, content, raw) :
+        try:
+            if hasattr(packet.msg, "pdata") and len(packet.msg.pdata) > 0 :
+                content.ParseFromString(packet.msg.pdata)
+
+                if len(str(content)) > 0:
+                    _LOGGER.debug("initial cmd id \"%u\" fct id \"%u\" msg \n\"%s\"", packet.msg.cmd_id, packet.msg.cmd_func, str(content))
+
+                for descriptor in content.DESCRIPTOR.fields:
+                    if not content.HasField(descriptor.name):
+                        continue
+
+                    raw["params"][descriptor.name] = getattr(content, descriptor.name)
+
+        except Exception as error:
+            _LOGGER.debug(error)
+            _LOGGER.debug("Erreur parsing pour le flux : %s",str(packet.msg.pdata.hex()))
