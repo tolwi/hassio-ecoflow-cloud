@@ -25,7 +25,7 @@ from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
     CapacitySensorEntity,
     CyclesSensorEntity,
-    InAmpSolarSensorEntity,
+    InMilliampSolarSensorEntity,
     InEnergySensorEntity,
     InMilliVoltSensorEntity,
     InVoltSolarSensorEntity,
@@ -113,7 +113,7 @@ class DeltaPro3(BaseDevice):
             InMilliVoltSensorEntity(
                 client, self, "plug_in_info_ac_in_vol", const.AC_IN_VOLT
             ),
-            InAmpSolarSensorEntity(
+            InMilliampSolarSensorEntity(
                 client, self, "plug_in_info_ac_in_amp", "AC Input Current"
             ),
             OutWattsDcSensorEntity(client, self, "pow_get_12v", "12V DC Output Power"),
@@ -136,10 +136,10 @@ class DeltaPro3(BaseDevice):
             InVoltSolarSensorEntity(
                 client, self, "pow_get_pv_l_vol", "Solar LV Input Voltage"
             ),
-            InAmpSolarSensorEntity(
+            InMilliampSolarSensorEntity(
                 client, self, "pow_get_pv_h_amp", "Solar HV Input Current"
             ),
-            InAmpSolarSensorEntity(
+            InMilliampSolarSensorEntity(
                 client, self, "pow_get_pv_l_amp", "Solar LV Input Current"
             ),
             OutWattsSensorEntity(
