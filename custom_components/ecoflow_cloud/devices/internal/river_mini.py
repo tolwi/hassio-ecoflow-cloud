@@ -4,7 +4,7 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, \
-    AmpSensorEntity, InMilliVoltSensorEntity, \
+    MilliampSensorEntity, InMilliVoltSensorEntity, \
     BeMilliVoltSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
@@ -22,7 +22,7 @@ class RiverMini(BaseDevice):
             BeMilliVoltSensorEntity(client, self, "inv.invOutVol", const.AC_OUT_VOLT),
 
             InMilliVoltSensorEntity(client, self, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
-            AmpSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
+            MilliampSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
 
             TempSensorEntity(client, self, "inv.inTemp", const.INV_IN_TEMP),
             TempSensorEntity(client, self, "inv.outTemp", const.INV_OUT_TEMP),

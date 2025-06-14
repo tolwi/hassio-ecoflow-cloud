@@ -95,7 +95,7 @@ class EcoflowMQTTClient:
         try:
             for sn, device in self.__devices.items():
                 if device.update_data(message.payload, message.topic):
-                    _LOGGER.debug(f"Message for {sn} and Topic {message.topic}")
+                    _LOGGER.debug(f"Message for {sn} and Topic {message.topic} : {message.payload}")
         except UnicodeDecodeError as error:
             _LOGGER.error(
                 f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one."

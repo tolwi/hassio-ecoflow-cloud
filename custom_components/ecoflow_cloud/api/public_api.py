@@ -43,8 +43,15 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         response = await self.call_api("/device/list")
         result = list()
         for device in response["data"]:
+            _LOGGER.debug(str(device))
             sn = device["sn"]
             product_name = device.get("productName", "undefined")
+            if product_name == "undefined" :
+                from ..devices.registry import device_by_product
+                device_list = list(device_by_product.keys())
+                for devicetype in device_list:
+                    if "deviceName" in device and device["deviceName"].lower().startswith(devicetype.lower()):
+                        product_name = devicetype
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
             result.append(
@@ -94,13 +101,18 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             target_devices = [device_sn]
 
         for sn in target_devices:
-            raw = await self.call_api(
-                "/device/quota/all", {"sn": self.devices[sn].device_info.sn}
-            )
-            if "data" in raw:
-                self.devices[sn].data.update_data({"params": raw["data"]})
+            try:
+                raw = await self.call_api("/device/quota/all", {"sn": sn})
+                if "data" in raw:
+                    self.devices[sn].data.update_data({"params": raw["data"]})
+            except Exception as exception:
+                _LOGGER.error(exception, exc_info=True)
+                _LOGGER.error("Erreur recuperation %s", sn)
+
 
     async def call_api(self, endpoint: str, params: dict[str, str] = None) -> dict:
+        self.nonce = str(random.randint(10000, 1000000))
+        self.timestamp = str(int(time.time() * 1000))
         async with aiohttp.ClientSession() as session:
             params_str = ""
             if params is not None:
@@ -115,11 +127,14 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 "sign": sign,
             }
 
+            _LOGGER.debug(f"Request: %s %s.", str(endpoint), str(params_str))
             resp = await session.get(
                 f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}",
                 headers=headers,
             )
-            return await self._get_json_response(resp)
+            json_resp = await self._get_json_response(resp)
+            _LOGGER.debug(f"Request: %s %s. Response : %s", str(endpoint), str(params_str), str(json_resp))
+            return json_resp
 
     def __create_device_info(
         self, device_sn: str, device_name: str, device_type: str, status: int = -1

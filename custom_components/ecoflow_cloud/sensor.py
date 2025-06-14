@@ -215,6 +215,14 @@ class CentivoltSensorEntity(DecivoltSensorEntity):
 class AmpSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.CURRENT
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_value = 0
+
+
+class MilliampSensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.CURRENT
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfElectricCurrent.MILLIAMPERE
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
@@ -251,11 +259,19 @@ class EnergySensorEntity(BaseSensorEntity):
         else:
             return False
 
-
 class CapacitySensorEntity(BaseSensorEntity):
     _attr_native_unit_of_measurement = "mAh"
     _attr_state_class = SensorStateClass.MEASUREMENT
 
+class CumulativeCapacitySensorEntity(CapacitySensorEntity):
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def _update_value(self, val: Any) -> bool:
+        ival = int(val)
+        if ival > 0:
+            return super()._update_value(ival)
+        else:
+            return False
 
 class DeciwattsSensorEntity(WattsSensorEntity):
     def _update_value(self, val: Any) -> bool:
@@ -323,7 +339,15 @@ class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
 
 
-class InAmpSolarSensorEntity(AmpSensorEntity):
+class OutMilliampSensorEntity(MilliampSensorEntity):
+    _attr_icon = "mdi:transmission-tower-export"
+
+
+class InMilliampSensorEntity(MilliampSensorEntity):
+    _attr_icon = "mdi:transmission-tower-import"
+
+
+class InMilliampSolarSensorEntity(MilliampSensorEntity):
     _attr_icon = "mdi:solar-power"
 
     def _update_value(self, val: Any) -> bool:
@@ -355,8 +379,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     offline_barrier_sec: int = 120  # 2 minutes
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice):
-        super().__init__(client, device, "Status", "status")
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str = "Status", key: str = "status"):
+        super().__init__(client, device, title, key)
         self._attr_force_update = False
 
         self._online = -1
@@ -420,8 +444,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 class QuotaStatusSensorEntity(StatusSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice):
-        super().__init__(client, device)
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str = "Status", key: str = "status"):
+        super().__init__(client, device, title, key)
         self._attrs[ATTR_QUOTA_REQUESTS] = 0
 
     def _actualize_status(self) -> bool:
@@ -442,6 +466,32 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
             self._attr_native_value = "online"
             self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
             changed = True
+        return changed
+
+class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
+
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int=3600):
+        super().__init__(client, device, "Status (Scheduled)", "status.scheduled")
+        self.offline_barrier_sec: int = reload_delay
+        self._quota_last_update = dt.utcnow()
+
+    def _actualize_status(self) -> bool:
+        changed = super()._actualize_status()
+        quota_diff = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._quota_last_update)
+        # if delay passed, reload quota
+        if quota_diff > (self.offline_barrier_sec) :
+            self._attr_native_value = "updating"
+            self._quota_last_update = dt.utcnow()
+            self.hass.async_create_background_task(
+                self._client.quota_all(self._device.device_info.sn), "get quota"
+            )
+            self._attrs[ATTR_QUOTA_REQUESTS] = self._attrs[ATTR_QUOTA_REQUESTS] + 1
+            _LOGGER.debug(f"Reload quota for device %s", self._device.device_info.sn)
+            changed = True
+        else:
+            if self._attr_native_value == "updating":
+                changed = True
+            self._attr_native_value = "online"
         return changed
 
 

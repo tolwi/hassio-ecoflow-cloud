@@ -10,7 +10,7 @@ from ...entities import (
 )
 from ...number import AcChargingPowerInAmpereEntity
 from ...sensor import (
-    AmpSensorEntity,
+    MilliampSensorEntity,
     CapacitySensorEntity,
     ChargingStateSensorEntity,
     CyclesSensorEntity,
@@ -23,7 +23,7 @@ from ...sensor import (
     LevelSensorEntity,
     MilliVoltSensorEntity,
     MiscSensorEntity,
-    OutAmpSensorEntity,
+    OutMilliampSensorEntity,
     OutMilliVoltSensorEntity,
     OutWattsSensorEntity,
     RemainSensorEntity,
@@ -112,7 +112,7 @@ class PowerKit(BaseDevice):
     ) -> list[BaseSensorEntity]:
         entityKey = mainKey + "."
         return [
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client,
                 self,
                 "amp",
@@ -202,7 +202,7 @@ class PowerKit(BaseDevice):
                 client, self, "chgInType", "BMS Charge In Type", False
             ),  # 1
             MiscSensorEntity(client, self, "chrgFlag", "BMS Charge Flag", False),  # 1
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client,
                 self,
                 "maxChgCurr",
@@ -216,13 +216,13 @@ class PowerKit(BaseDevice):
                 "BMS External Kit Type",
                 False,
             ),  # 0
-            AmpSensorEntity(client, self, "bmsChgCurr", "BMS Bus Current", False),
+            MilliampSensorEntity(client, self, "bmsChgCurr", "BMS Bus Current", False),
             DeciMilliVoltSensorEntity(
                 client, self, "busVol", "BMS Bus Voltage", True
             ),  # 454198
             MiscSensorEntity(client, self, "lsplFlag", "BMS LSPL Flag", False),  # 0
             MiscSensorEntity(client, self, "protectState", "BMS Protect State"),  # 0
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "batCurr", "BMS Battery Current", False
             ),  # 386
             FanSensorEntity(client, self, "fanLevel", "Fan Level", False),  # 2
@@ -241,7 +241,7 @@ class PowerKit(BaseDevice):
                 const.SOLAR_AND_ALT_IN_POWER,
                 True,
             ),
-            AmpSensorEntity(client, self, "batCurr", "Solar Battery Current", True),
+            MilliampSensorEntity(client, self, "batCurr", "Solar Battery Current", True),
             MilliVoltSensorEntity(
                 client, self, "batVol", "Solar Battery Voltage", True
             ),
@@ -251,7 +251,7 @@ class PowerKit(BaseDevice):
             MilliVoltSensorEntity(
                 client, self, "pv1InVol", "Solar (2) In Voltage", True
             ),
-            AmpSensorEntity(client, self, "pv1InCurr", "Solar (2) In Current", True),
+            MilliampSensorEntity(client, self, "pv1InCurr", "Solar (2) In Current", True),
             MiscSensorEntity(client, self, "pv1ErrCode", "Solar (2) Error Code", True),
             MiscSensorEntity(client, self, "pv1_hot_out", "Solar (2) Hot Out", False),
             MiscSensorEntity(
@@ -284,7 +284,7 @@ class PowerKit(BaseDevice):
             MilliVoltSensorEntity(
                 client, self, "pv2InVol", "Solar (3) In Voltage", True
             ),
-            AmpSensorEntity(client, self, "pv2InCurr", "Solar (3) In Current", True),
+            MilliampSensorEntity(client, self, "pv2InCurr", "Solar (3) In Current", True),
             MiscSensorEntity(client, self, "pv2ErrCode", "Solar (3) Error Code", True),
             MiscSensorEntity(client, self, "pv2_hot_out", "Solar (3) Hot Out", False),
             MiscSensorEntity(
@@ -311,14 +311,14 @@ class PowerKit(BaseDevice):
             ),
             MiscSensorEntity(client, self, "warnCode2", "Solar (3) Warn Code", True),
             TempSensorEntity(client, self, "hs2Temp", "Solar (3) Temperature", True),
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client,
                 self,
                 "chgEnergy",
                 "Solar Total Charge Current",
                 False,
             ),  # Not in use
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "dayEnergy", "Solar Energy for Day", False
             ),  # Not in use
         ]
@@ -329,7 +329,7 @@ class PowerKit(BaseDevice):
         entityKey = mainKey + "."
         return [
             # Power Hub DC Out
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "ldOutCurr", "DC Out Current", True
             ),  # 14999 DC output to distributer
             OutWattsSensorEntity(
@@ -338,14 +338,14 @@ class PowerKit(BaseDevice):
             OutWattsSensorEntity(
                 client, self, "batWatts", "DC Out Battery Power", True
             ),  # 425 DC output from battery including BMS and Distributer power
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client,
                 self,
                 "l1Curr",
                 "DC 1 Out Battery Current",
                 False,
             ),  # 6990 DC output from battery including BMS and Distributer power
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client,
                 self,
                 "l2Curr",
@@ -400,7 +400,7 @@ class PowerKit(BaseDevice):
             OutWattsSensorEntity(
                 client, self, "batWatts", "DC In Battery Power", True
             ),  # 4 DC input
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "batCurr", "DC In Battery Current", True
             ),  # 78 DC input
             MilliVoltSensorEntity(
@@ -409,7 +409,7 @@ class PowerKit(BaseDevice):
             MiscSensorEntity(
                 client, self, "allowDsgOn", "DC Allow Discharge", True
             ),  # 1 DC input
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "dsgEnergy", "DC Discharge Energy", False
             ),  # 789 Unsure what this one is. Could be some kind of total
             MiscSensorEntity(
@@ -418,7 +418,7 @@ class PowerKit(BaseDevice):
             OutWattsSensorEntity(
                 client, self, "dcInWatts", "DC In Power", True
             ),  # 0 DC input
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "dcInCurr", "DC In Current", True
             ),  # 0 DC input
             MilliVoltSensorEntity(
@@ -430,7 +430,7 @@ class PowerKit(BaseDevice):
             MiscSensorEntity(
                 client, self, "chgType", "DC Charge Type", True
             ),  # 0 DC input
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client,
                 self,
                 "chgMaxCurr",
@@ -440,10 +440,10 @@ class PowerKit(BaseDevice):
             MiscSensorEntity(
                 client, self, "chargeMode", "DC Charge Mode", True
             ),  # 0 DC input
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "l1Curr", "DC In L1 Current", False
             ),  # -5 DC input
-            AmpSensorEntity(
+            MilliampSensorEntity(
                 client, self, "l2Curr", "DC In L2 Current", False
             ),  # -45 DC input
             TempSensorEntity(
@@ -487,11 +487,11 @@ class PowerKit(BaseDevice):
                 client, self, "outVol", "AC Out Voltage", True
             ),  # 240070
             # MiscSensorEntity(client, "outVa", 'AC Out VA', True), # 361
-            AmpSensorEntity(client, self, "outCurr", "AC Out Current", True),  # 2432
+            MilliampSensorEntity(client, self, "outCurr", "AC Out Current", True),  # 2432
             MiscSensorEntity(client, self, "invType", "AC Inverter Type", False),  # 0
             FrequencySensorEntity(client, self, "inFreq", "AC In Frequency", True),  # 0
             OutWattsSensorEntity(client, self, "inWatts", "AC In Power", True),  # 0
-            AmpSensorEntity(client, self, "inCurr", "AC In Current", True),  # 0
+            MilliampSensorEntity(client, self, "inCurr", "AC In Current", True),  # 0
             OutMilliVoltSensorEntity(client, self, "inVol", "AC In Voltage", True),  # 0
             MiscSensorEntity(client, self, "invSwSta", "AC Out Enabled", True),  # 1
             TempSensorEntity(
@@ -501,7 +501,7 @@ class PowerKit(BaseDevice):
             OutWattsSensorEntity(
                 client, self, "ch2Watt", "AC Outlet Power", True
             ),  # 165
-            AmpSensorEntity(client, self, "outAmp2", "AC Outlet Current", True),  # 0
+            MilliampSensorEntity(client, self, "outAmp2", "AC Outlet Current", True),  # 0
             FrequencySensorEntity(
                 client,
                 self,
@@ -580,40 +580,40 @@ class PowerKit(BaseDevice):
             OutWattsSensorEntity(
                 client, self, "dcChWatt[11]", "DC Out 12", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[0]", "DC Ampere Out 1", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[1]", "DC Ampere Out 2", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[2]", "DC Ampere Out 3", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[3]", "DC Ampere Out 4", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[4]", "DC Ampere Out 5", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[5]", "DC Ampere Out 6", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[6]", "DC Ampere Out 7", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[7]", "DC Ampere Out 8", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[8]", "DC Ampere Out 9", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[9]", "DC Ampere Out 10", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[10]", "DC Ampere Out 11", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "dcChCur[11]", "DC Ampere Out 12", True
             ),  # [140, 0, 0, 0, 0, 25]
             TempSensorEntity(
@@ -672,22 +672,22 @@ class PowerKit(BaseDevice):
             OutWattsSensorEntity(
                 client, self, "acChWatt[5]", "AC Out 6", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "acChCur[0]", "AC Ampere Out 1", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "acChCur[1]", "AC Ampere Out 2", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "acChCur[2]", "AC Ampere Out 3", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "acChCur[3]", "AC Ampere Out 4", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "acChCur[4]", "AC Ampere Out 5", True
             ),  # [140, 0, 0, 0, 0, 25]
-            OutAmpSensorEntity(
+            OutMilliampSensorEntity(
                 client, self, "acChCur[5]", "AC Ampere Out 6", True
             ),  # [140, 0, 0, 0, 0, 25]
             OutWattsSensorEntity(

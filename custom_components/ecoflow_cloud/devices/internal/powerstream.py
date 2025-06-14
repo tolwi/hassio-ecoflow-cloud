@@ -7,7 +7,7 @@ from custom_components.ecoflow_cloud.entities import (
     BaseSensorEntity, BaseNumberEntity, BaseSelectEntity, BaseSwitchEntity
 )
 from custom_components.ecoflow_cloud.sensor import (
-    AmpSensorEntity, CentivoltSensorEntity, DeciampSensorEntity,
+    MilliampSensorEntity, CentivoltSensorEntity, DeciampSensorEntity,
     DecicelsiusSensorEntity, DecihertzSensorEntity, DeciwattsSensorEntity,
     DecivoltSensorEntity, InWattsSolarSensorEntity, LevelSensorEntity,
     MiscSensorEntity, RemainSensorEntity, StatusSensorEntity, ReconnectStatusSensorEntity,
@@ -46,7 +46,7 @@ class PowerStream(BaseDevice):
             DeciwattsSensorEntity(client, self,  "bat_input_watts", "Battery Input Watts"),
             DecivoltSensorEntity(client, self,  "bat_input_volt", "Battery Input Potential"),
             DecivoltSensorEntity(client, self,  "bat_op_volt", "Battery Op Potential"),
-            AmpSensorEntity(client, self,  "bat_input_cur", "Battery Input Current"),
+            MilliampSensorEntity(client, self,  "bat_input_cur", "Battery Input Current"),
             DecicelsiusSensorEntity(client, self,  "bat_temp", "Battery Temperature"),
             RemainSensorEntity(client, self,  "battery_charge_remain", "Charge Time"),
             RemainSensorEntity(client, self,  "battery_discharge_remain", "Discharge Time"),
@@ -64,8 +64,8 @@ class PowerStream(BaseDevice):
             DeciwattsSensorEntity(client, self,  "inv_output_watts", "Inverter Output Watts"),
             DecivoltSensorEntity(client, self,  "inv_input_volt", "Inverter Output Potential", False),
             DecivoltSensorEntity(client, self,  "inv_op_volt", "Inverter Op Potential"),
-            AmpSensorEntity(client, self,  "inv_output_cur", "Inverter Output Current"),
-            AmpSensorEntity(client, self,  "inv_dc_cur", "Inverter DC Current"),
+            MilliampSensorEntity(client, self,  "inv_output_cur", "Inverter Output Current"),
+            MilliampSensorEntity(client, self,  "inv_dc_cur", "Inverter DC Current"),
             DecihertzSensorEntity(client, self,  "inv_freq", "Inverter Frequency"),
             DecicelsiusSensorEntity(client, self,  "inv_temp", "Inverter Temperature"),
             MiscSensorEntity(client, self,  "inv_relay_status", "Inverter Relay Status"),

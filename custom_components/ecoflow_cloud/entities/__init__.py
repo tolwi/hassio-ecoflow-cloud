@@ -44,6 +44,7 @@ class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
             manufacturer="EcoFlow",
             name=name,
             model=self._device.device_data.device_type,
+            serial_number=self._device.device_data.sn,
         )
 
     def _type_prefix(self):
@@ -167,6 +168,7 @@ class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
                 return self._command(value)
             elif p_count == 2:
                 return self._command(value, self._device.data.params)
+            return None
         else:
             return None
 

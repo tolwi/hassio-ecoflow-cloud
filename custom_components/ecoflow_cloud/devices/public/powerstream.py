@@ -13,7 +13,7 @@ from ...number import (
 )
 from ...select import PowerDictSelectEntity
 from ...sensor import (
-    AmpSensorEntity,
+    MilliampSensorEntity,
     CelsiusSensorEntity,
     CentivoltSensorEntity,
     DeciampSensorEntity,
@@ -62,7 +62,7 @@ class PowerStream(BaseDevice):
             DeciwattsSensorEntity(client, self, "20_1.batInputWatts", "Battery Input Watts"),
             DecivoltSensorEntity(client, self, "20_1.batInputVolt", "Battery Input Potential"),
             DecivoltSensorEntity(client, self, "20_1.batOpVolt", "Battery Op Potential"),
-            AmpSensorEntity(client, self, "20_1.batInputCur", "Battery Input Current"),
+            MilliampSensorEntity(client, self, "20_1.batInputCur", "Battery Input Current"),
             DecicelsiusSensorEntity(client, self, "20_1.batTemp", "Battery Temperature"),
             RemainSensorEntity(client, self, "20_1.chgRemainTime", "Charge Time"),
             RemainSensorEntity(client, self, "20_1.dsgRemainTime", "Discharge Time"),
@@ -81,8 +81,8 @@ class PowerStream(BaseDevice):
             DeciwattsSensorEntity(client, self, "20_1.invOutputWatts", "Inverter Output Watts"),
             DecivoltSensorEntity(client, self, "20_1.invInputVolt", "Inverter Output Potential", False),
             DecivoltSensorEntity(client, self, "20_1.invOpVolt", "Inverter Op Potential"),
-            AmpSensorEntity(client, self, "20_1.invOutputCur", "Inverter Output Current"),
-            #  AmpSensorEntity(client, self, "inv_dc_cur", "Inverter DC Current"),
+            MilliampSensorEntity(client, self, "20_1.invOutputCur", "Inverter Output Current"),
+            #  MilliampSensorEntity(client, self, "inv_dc_cur", "Inverter DC Current"),
             DecihertzSensorEntity(client, self, "20_1.invFreq", "Inverter Frequency"),
             DecicelsiusSensorEntity(client, self, "20_1.invTemp", "Inverter Temperature"),
             MiscSensorEntity(client, self, "20_1.invRelayStatus", "Inverter Relay Status"),

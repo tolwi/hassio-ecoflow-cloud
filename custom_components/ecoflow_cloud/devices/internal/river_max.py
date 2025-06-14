@@ -6,7 +6,7 @@ from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, \
     TempSensorEntity, \
     CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, \
-    InAmpSensorEntity, AmpSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
+    InMilliampSensorEntity, MilliampSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity, BeeperEntity, FanModeEntity
 
@@ -26,7 +26,7 @@ class RiverMax(BaseDevice):
             WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
             WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
-            InAmpSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
+            InMilliampSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
             InMilliVoltSensorEntity(client, self, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
 
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
@@ -54,7 +54,7 @@ class RiverMax(BaseDevice):
             TempSensorEntity(client, self, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, self, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
 
-            AmpSensorEntity(client, self, "bmsMaster.amp", const.BATTERY_AMP, False),
+            MilliampSensorEntity(client, self, "bmsMaster.amp", const.BATTERY_AMP, False),
             MilliVoltSensorEntity(client, self, "bmsMaster.vol", const.BATTERY_VOLT, False)
                 .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
                 .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
@@ -86,7 +86,7 @@ class RiverMax(BaseDevice):
             TempSensorEntity(client, self, "bmsSlave1.minCellTemp", const.SLAVE_MIN_CELL_TEMP, False),
             TempSensorEntity(client, self, "bmsSlave1.maxCellTemp", const.SLAVE_MAX_CELL_TEMP, False),
 
-            AmpSensorEntity(client, self, "bmsSlave1.amp", const.SLAVE_BATTERY_AMP, False),
+            MilliampSensorEntity(client, self, "bmsSlave1.amp", const.SLAVE_BATTERY_AMP, False),
             MilliVoltSensorEntity(client, self, "bmsSlave1.vol", const.SLAVE_BATTERY_VOLT, False)
                 .attr("bmsSlave1.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
                 .attr("bmsSlave1.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),

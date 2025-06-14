@@ -146,17 +146,18 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             identifiers = {(ECOFLOW_DOMAIN, f"{sn}")}
 
         device = device_reg.async_get_device(identifiers=identifiers)
-        # _LOGGER.info(f".. getting device by %s: %s", str(identifiers), str(device))
+        _LOGGER.debug(f".. getting device by %s: %s", str(identifiers), str(device))
 
         # Remove all entities for this device
-        ent_reg: EntityRegistry = er.async_get(self.hass)
-        entities = er.async_entries_for_device(ent_reg, device.id)
+        if getattr(device, "id", None) is not None :
+            ent_reg: EntityRegistry = er.async_get(self.hass)
+            entities = er.async_entries_for_device(ent_reg, device.id)
 
-        for entity in entities:
-            ent_reg.async_remove(entity.entity_id)
+            for entity in entities:
+                ent_reg.async_remove(entity.entity_id)
 
-        # Remove the device from the device registry
-        device_reg.async_remove_device(device.id)
+            # Remove the device from the device registry
+            device_reg.async_remove_device(device.id)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         if self.config_entry:  # reconfigure flow
@@ -386,7 +387,8 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
                 ),
             )
         target_device = self.local_devices[user_input[CONF_SELECT_DEVICE_KEY]]
-        self.new_data[CONF_DEVICE_LIST].pop(target_device.sn)
+        if target_device.sn in self.new_data[CONF_DEVICE_LIST]:
+            self.new_data[CONF_DEVICE_LIST].pop(target_device.sn)
 
         self.remove_device(target_device.sn)
         return await self.update_or_create()

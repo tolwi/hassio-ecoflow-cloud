@@ -37,5 +37,6 @@ After you finished your main work we recommend to run the task `Generate Docs`:
 1. Press `STRG` + `SHIFT` + `P`
 1. Select `Tasks: Run Task`
 1. Select `Generate Docs`
+1. Replace the paragraph `Current state` in `README.md` with `summary.md` content
 
 This will update the device documentation.

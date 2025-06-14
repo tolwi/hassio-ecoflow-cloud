@@ -6,7 +6,7 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, BatteryBackupLevel
 from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InAmpSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InMilliampSensorEntity, \
     InVoltSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, ChargingStateSensorEntity, CapacitySensorEntity, StatusSensorEntity, \
     QuotaStatusSensorEntity
@@ -38,7 +38,7 @@ class River2(BaseDevice):
             InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
-            InAmpSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
+            InMilliampSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
             InVoltSensorEntity(client, self, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
 
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
