@@ -49,7 +49,7 @@ def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
             for k2, v2 in v.items():
                 new_params2[f"{k}.{k2}"] = v2
 
-    result = {"params": new_params2}
+    result = {"params": new_params2, "raw_data": raw_data}
     _LOGGER.debug(str(result))
 
     return result

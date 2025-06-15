@@ -302,11 +302,16 @@ SMART_METER_RECORD_ACTIVE_TODAY_L3 = "L3 Lifetime net usage"
 # Stream AC
 STREAM_POWER_AC = "Power AC" # <0 import from home to battery / >0 export from battery to home
 STREAM_POWER_VOL = "Power Volts" # <0 import from home to battery / >0 export from battery to home
+STREAM_POWER_AMP = "Power In Amps"
 STREAM_POWER_AC_SYS = "Power AC SYS" # <0 import from home to battery / >0 export from battery to home
 STREAM_POWER_PV_1 = "Power PV 1"
 STREAM_POWER_PV_2 = "Power PV 2"
 STREAM_POWER_PV_3 = "Power PV 3"
 STREAM_POWER_PV_4 = "Power PV 4"
+STREAM_IN_AMPS_PV_1 = "Power PV1 In Amps"
+STREAM_IN_AMPS_PV_2 = "Power PV2 In Amps"
+STREAM_IN_VOL_PV_1 = "Power PV1 Volts"
+STREAM_IN_VOL_PV_2 = "Power PV2 Volts"
 STREAM_POWER_PV_SUM = "Power PV Sum"
 STREAM_GET_SYS_LOAD = "Power Sys Load" # powGetSysLoad
 STREAM_GET_SYS_LOAD_FROM_BP = "Power Sys Load From Battery" # powGetSysLoadFromBp
