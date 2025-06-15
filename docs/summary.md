@@ -2061,4 +2061,27 @@
 
 </p></details>
 
+<details><summary> Stream Microinverter (API) <i>(sensors: 10, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Power AC
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power Volts  _(disabled)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power In Amps  _(disabled)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Status
+
+*Switches*
+
+*Sliders (numbers)*
+
+*Selects*
+
+</p></details>
+
 
