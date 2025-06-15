@@ -461,7 +461,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         self.new_options[CONF_DEVICE_LIST][sn] = {
             OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
             OPTS_POWER_STEP: device.default_charging_power_step(),
-            OPTS_DIAGNOSTIC_MODE: False,
+            OPTS_DIAGNOSTIC_MODE: ("Diagnostic".lower() == user_input[CONF_DEVICE_TYPE].lower()),
         }
 
         return await self.update_or_create()
