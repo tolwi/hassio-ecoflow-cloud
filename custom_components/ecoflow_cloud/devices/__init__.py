@@ -167,20 +167,47 @@ class BaseDevice(ABC):
 
     def _prepare_data(self, raw_data) -> dict[str, any]:
         try:
+            # Check if data is binary protobuf data (contains non-printable characters)
+            if isinstance(raw_data, bytes):
+                # Try to detect if this is binary protobuf data
+                if self._is_binary_data(raw_data):
+                    _LOGGER.warning("Received binary protobuf data but device doesn't override _prepare_data(). "
+                                  "This device may need protobuf support. Skipping message.")
+                    return {}
+                
+            # Try UTF-8 decoding for JSON data
             try:
-                payload = raw_data.decode("utf-8", errors="ignore")
+                if isinstance(raw_data, bytes):
+                    payload = raw_data.decode("utf-8")
+                else:
+                    payload = raw_data
                 return json.loads(payload)
             except UnicodeDecodeError as error:
-                _LOGGER.warning(f"UnicodeDecodeError: {error}. Trying to load json.")
-                return json.loads(raw_data)
-            except Exception as error:
-                _LOGGER.warning(f"Exception: {error}. Trying to load json.")
-                return json.loads(raw_data)
+                _LOGGER.warning(f"UnicodeDecodeError: {error}. Data may be binary protobuf format.")
+                return {}
+            except json.JSONDecodeError as error:
+                _LOGGER.warning(f"JSON decode error: {error}. Invalid JSON format.")
+                return {}
         except Exception as error1:
             _LOGGER.error(
-                f"constant: {error1}. Ignoring message and waiting for the next one."
+                f"Data processing error: {error1}. Ignoring message and waiting for the next one."
             )
             return {}
+
+    def _is_binary_data(self, data: bytes) -> bool:
+        """Check if data contains binary protobuf indicators."""
+        if len(data) < 4:
+            return False
+        
+        # Check for common protobuf binary patterns
+        # Protobuf messages often start with field tags (low values)
+        first_bytes = data[:4]
+        
+        # Check for high concentration of non-printable characters
+        non_printable_count = sum(1 for byte in first_bytes if byte < 32 or byte > 126)
+        
+        # If more than half the first bytes are non-printable, likely binary
+        return non_printable_count >= 2
 
 
 class DiagnosticDevice(BaseDevice):
