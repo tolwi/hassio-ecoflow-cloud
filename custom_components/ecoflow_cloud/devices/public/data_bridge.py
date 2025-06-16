@@ -19,61 +19,46 @@ status_to_plain = dict((v, k) for (k, v) in plain_to_status.items())
 
 
 def to_plain(raw_data: dict[str, Any]) -> dict[str, Any]:
-    new_params = {}
     prefix = ""
+
     if "typeCode" in raw_data:
-        prefix1 = status_to_plain.get(
-            raw_data["typeCode"], "unknown_" + raw_data["typeCode"]
+        prefix = status_to_plain.get(
+            raw_data["typeCode"], f"unknown_{raw_data['typeCode']}"
         )
-        prefix += f"{prefix1}."
     elif "cmdFunc" in raw_data and "cmdId" in raw_data:
-        prefix += f"{raw_data['cmdFunc']}_{raw_data['cmdId']}."
-    else:
-        prefix += ""
+        prefix = f"{raw_data['cmdFunc']}_{raw_data['cmdId']}"
 
-    if "param" in raw_data:
-        for k, v in raw_data["param"].items():
-            new_params[f"{prefix}{k}"] = v
+    flat_params = {}
 
-    if "params" in raw_data:
-        for k, v in raw_data["params"].items():
-            new_params[f"{prefix}{k}"] = v
+    for section in ("param", "params"):
+        if section in raw_data:
+            section_data = flatten_any(raw_data[section])
+            for k, v in section_data.items():
+                full_key = f"{prefix}.{k}" if prefix else k
+                flat_params[full_key] = v
 
     for k, v in raw_data.items():
-        if k != "param" and k != "params":
-            new_params[f"{prefix}{k}"] = v
+        if k not in ("param", "params"):
+            section_data = flatten_any(v, k)
+            for sk, sv in section_data.items():
+                full_key = f"{prefix}.{sk}" if prefix else sk
+                flat_params[full_key] = sv
 
-    new_params2 = {}
-    for k, v in new_params.items():
-        new_params2[k] = v
-        if isinstance(v, dict):
-            for k2, v2 in v.items():
-                new_params2[f"{k}.{k2}"] = v2
-
-    result = {"params": new_params2}
-    _LOGGER.debug(str(result))
-
+    result = {"params": flat_params}
+    _LOGGER.debug(result)
     return result
 
 
-def to_plain_other(raw_data: dict[str, Any]) -> dict[str, Any]:
-    if not {"cmdFunc", "cmdId"}.issubset(raw_data):
-        return raw_data
-
-    params = raw_data.get("param", {})
-    new_params = {
-        k: v for d in [params, raw_data.get("params", {})] for k, v in d.items()
-    }
-
-    if raw_data.get("addr") == "ems" and raw_data.get("cmdId") == 1:
-        for phase in ["pcsAPhase", "pcsBPhase", "pcsCPhase"]:
-            for k, v in params.get(phase, {}).items():
-                new_params[f"{phase}.{k}"] = v
-
-        for i, mpptpv in enumerate(
-            params.get("mpptHeartBeat", [{}])[0].get("mpptPv", [])
-        ):
-            for k, v in mpptpv.items():
-                new_params[f"mpptPv{i + 1}.{k}"] = v
-
-    return {**raw_data, "params": new_params}
+def flatten_any(data, parent_key="", sep="."):
+    items = {}
+    if isinstance(data, dict):
+        for k, v in data.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            items.update(flatten_any(v, new_key, sep=sep))
+    elif isinstance(data, list):
+        for i, v in enumerate(data):
+            new_key = f"{parent_key}[{i}]"
+            items.update(flatten_any(v, new_key, sep=sep))
+    else:
+        items[parent_key] = data
+    return items
