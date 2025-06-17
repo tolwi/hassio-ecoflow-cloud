@@ -1,0 +1,1214 @@
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+
+DESCRIPTOR: _descriptor.FileDescriptor
+
+class TIME_TASK_MODE(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    TIME_TASK_MODE_RESV: _ClassVar[TIME_TASK_MODE]
+    TIME_TASK_MODE_PER_WEEK: _ClassVar[TIME_TASK_MODE]
+    TIME_TASK_MODE_ONCE: _ClassVar[TIME_TASK_MODE]
+
+class TIME_TASK_TYPE(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    TIME_TASK_TYPE_AC_CHG: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_AC_DSG: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_AC2_DSG: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_DC_CHG: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_DC2_CHG: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_DC_DSG: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_OIL_ON: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_OIL_OFF: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_USB_CHG: _ClassVar[TIME_TASK_TYPE]
+    TIME_TASK_TYPE_USB_DSG: _ClassVar[TIME_TASK_TYPE]
+
+class TIME_TASK_DETAIL_TYPE(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    TIME_TASK_DETAIL_IDLE: _ClassVar[TIME_TASK_DETAIL_TYPE]
+    TIME_TASK_DETAIL_POW: _ClassVar[TIME_TASK_DETAIL_TYPE]
+    TIME_TASK_DETAIL_TEMP: _ClassVar[TIME_TASK_DETAIL_TYPE]
+    TIME_TASK_DETAIL_LEVEL: _ClassVar[TIME_TASK_DETAIL_TYPE]
+TIME_TASK_MODE_RESV: TIME_TASK_MODE
+TIME_TASK_MODE_PER_WEEK: TIME_TASK_MODE
+TIME_TASK_MODE_ONCE: TIME_TASK_MODE
+TIME_TASK_TYPE_AC_CHG: TIME_TASK_TYPE
+TIME_TASK_TYPE_AC_DSG: TIME_TASK_TYPE
+TIME_TASK_TYPE_AC2_DSG: TIME_TASK_TYPE
+TIME_TASK_TYPE_DC_CHG: TIME_TASK_TYPE
+TIME_TASK_TYPE_DC2_CHG: TIME_TASK_TYPE
+TIME_TASK_TYPE_DC_DSG: TIME_TASK_TYPE
+TIME_TASK_TYPE_OIL_ON: TIME_TASK_TYPE
+TIME_TASK_TYPE_OIL_OFF: TIME_TASK_TYPE
+TIME_TASK_TYPE_USB_CHG: TIME_TASK_TYPE
+TIME_TASK_TYPE_USB_DSG: TIME_TASK_TYPE
+TIME_TASK_DETAIL_IDLE: TIME_TASK_DETAIL_TYPE
+TIME_TASK_DETAIL_POW: TIME_TASK_DETAIL_TYPE
+TIME_TASK_DETAIL_TEMP: TIME_TASK_DETAIL_TYPE
+TIME_TASK_DETAIL_LEVEL: TIME_TASK_DETAIL_TYPE
+
+class RuntimePropertyUpload(_message.Message):
+    __slots__ = ("ac_phase_type", "pcs_work_mode", "temp_pcs_dc", "temp_pcs_ac", "temp_pv_h", "temp_pv_l", "plug_in_info_pv_h_vol", "plug_in_info_pv_l_vol", "plug_in_info_ac_out_type", "plug_in_info_ac_out_freq", "plug_in_info_5p8_freq", "plug_in_info_ac_in_vol", "plug_in_info_24v_vol", "plug_in_info_24v_amp", "plug_in_info_l1_vol", "plug_in_info_4p8_1_vol", "plug_in_info_4p8_2_vol", "plug_in_info_bms_vol", "pd_mppt_comm_err", "pd_llc_comm_err", "pd_bms_comm_err", "pd_iot_comm_err", "pd_firm_ver", "iot_firm_ver", "mppt_firm_ver", "llc_firm_ver", "plug_in_info_l1_amp", "plug_in_info_l2_vol", "plug_in_info_l2_amp", "plug_in_info_acp_l1_vol", "plug_in_info_acp_l1l2_vol", "mppt_monitor_flag", "plug_in_info_pv_h_amp", "plug_in_info_pv_l_amp", "plug_in_info_ac_in_amp", "llc_inv_firm_ver", "plug_in_info_4p8_1_amp", "plug_in_info_4p8_2_amp", "bms_firm_ver", "bms_batt_vol", "bms_batt_amp", "bms_bal_state", "bms_full_cap", "bms_remain_cap", "bms_alm_state", "bms_pro_state", "bms_flt_state", "bms_err_code", "bms_min_cell_vol", "bms_max_cell_vol", "cms_batt_vol", "cms_batt_amp", "cms_chg_req_vol", "cms_chg_req_amp", "bms_overload_icon", "bms_warn_icon", "bms_high_temp_icon", "bms_low_temp_icon", "bms_limit_icon", "bms_alm_state_2", "bms_pro_state_2", "display_property_full_upload_period", "display_property_incremental_upload_period", "runtime_property_full_upload_period", "runtime_property_incremental_upload_period", "mppt_recv_cms_chg_req_vol", "mppt_recv_cms_chg_req_amp", "pv_vin_ref", "pv2_vin_ref", "pv2_bus_vol", "mppt_bat_vol", "mppt_bat_amp", "pv_pause_cnt", "pv2_pause_cnt", "mppt_fanspeed", "ads_ntc_temp", "mppt_hardware_ver", "inv_monitor_flag", "inv_main_fsmstate", "l1_main_fsmstate", "l2_main_fsmstate", "plug_in_info_pfc_out_vol", "pow_get_l1", "pow_get_l2", "inv_bus_vol", "inv_ntc_temp2", "inv_ntc_temp3", "llc_monitor_flag", "llc_ntc_temp", "llc_fsmstate", "pd_to_inv_dsg_mode", "dcdc_chg_req_cur", "llc_recv_cms_chg_req_vol", "inv_to_llc_ac_pow_lim", "plug_in_info_12v_vol", "plug_in_info_12v_amp", "llc_bat_vol", "llc_bat_cur", "llc_bus_vol", "pd_skt_ocp1", "pd_skt_ocp2", "pd_skt_ocp3", "pd_skt_ocp4", "pd_skt_ocp5")
+    AC_PHASE_TYPE_FIELD_NUMBER: _ClassVar[int]
+    PCS_WORK_MODE_FIELD_NUMBER: _ClassVar[int]
+    TEMP_PCS_DC_FIELD_NUMBER: _ClassVar[int]
+    TEMP_PCS_AC_FIELD_NUMBER: _ClassVar[int]
+    TEMP_PV_H_FIELD_NUMBER: _ClassVar[int]
+    TEMP_PV_L_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_H_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_L_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_OUT_TYPE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_OUT_FREQ_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_FREQ_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_IN_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_24V_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_24V_AMP_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_L1_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_BMS_VOL_FIELD_NUMBER: _ClassVar[int]
+    PD_MPPT_COMM_ERR_FIELD_NUMBER: _ClassVar[int]
+    PD_LLC_COMM_ERR_FIELD_NUMBER: _ClassVar[int]
+    PD_BMS_COMM_ERR_FIELD_NUMBER: _ClassVar[int]
+    PD_IOT_COMM_ERR_FIELD_NUMBER: _ClassVar[int]
+    PD_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    IOT_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    MPPT_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    LLC_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_L1_AMP_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_L2_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_L2_AMP_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_ACP_L1_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_ACP_L1L2_VOL_FIELD_NUMBER: _ClassVar[int]
+    MPPT_MONITOR_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_H_AMP_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_L_AMP_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_IN_AMP_FIELD_NUMBER: _ClassVar[int]
+    LLC_INV_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_AMP_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_AMP_FIELD_NUMBER: _ClassVar[int]
+    BMS_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_VOL_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_AMP_FIELD_NUMBER: _ClassVar[int]
+    BMS_BAL_STATE_FIELD_NUMBER: _ClassVar[int]
+    BMS_FULL_CAP_FIELD_NUMBER: _ClassVar[int]
+    BMS_REMAIN_CAP_FIELD_NUMBER: _ClassVar[int]
+    BMS_ALM_STATE_FIELD_NUMBER: _ClassVar[int]
+    BMS_PRO_STATE_FIELD_NUMBER: _ClassVar[int]
+    BMS_FLT_STATE_FIELD_NUMBER: _ClassVar[int]
+    BMS_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    BMS_MIN_CELL_VOL_FIELD_NUMBER: _ClassVar[int]
+    BMS_MAX_CELL_VOL_FIELD_NUMBER: _ClassVar[int]
+    CMS_BATT_VOL_FIELD_NUMBER: _ClassVar[int]
+    CMS_BATT_AMP_FIELD_NUMBER: _ClassVar[int]
+    CMS_CHG_REQ_VOL_FIELD_NUMBER: _ClassVar[int]
+    CMS_CHG_REQ_AMP_FIELD_NUMBER: _ClassVar[int]
+    BMS_OVERLOAD_ICON_FIELD_NUMBER: _ClassVar[int]
+    BMS_WARN_ICON_FIELD_NUMBER: _ClassVar[int]
+    BMS_HIGH_TEMP_ICON_FIELD_NUMBER: _ClassVar[int]
+    BMS_LOW_TEMP_ICON_FIELD_NUMBER: _ClassVar[int]
+    BMS_LIMIT_ICON_FIELD_NUMBER: _ClassVar[int]
+    BMS_ALM_STATE_2_FIELD_NUMBER: _ClassVar[int]
+    BMS_PRO_STATE_2_FIELD_NUMBER: _ClassVar[int]
+    DISPLAY_PROPERTY_FULL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
+    DISPLAY_PROPERTY_INCREMENTAL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
+    RUNTIME_PROPERTY_FULL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
+    RUNTIME_PROPERTY_INCREMENTAL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
+    MPPT_RECV_CMS_CHG_REQ_VOL_FIELD_NUMBER: _ClassVar[int]
+    MPPT_RECV_CMS_CHG_REQ_AMP_FIELD_NUMBER: _ClassVar[int]
+    PV_VIN_REF_FIELD_NUMBER: _ClassVar[int]
+    PV2_VIN_REF_FIELD_NUMBER: _ClassVar[int]
+    PV2_BUS_VOL_FIELD_NUMBER: _ClassVar[int]
+    MPPT_BAT_VOL_FIELD_NUMBER: _ClassVar[int]
+    MPPT_BAT_AMP_FIELD_NUMBER: _ClassVar[int]
+    PV_PAUSE_CNT_FIELD_NUMBER: _ClassVar[int]
+    PV2_PAUSE_CNT_FIELD_NUMBER: _ClassVar[int]
+    MPPT_FANSPEED_FIELD_NUMBER: _ClassVar[int]
+    ADS_NTC_TEMP_FIELD_NUMBER: _ClassVar[int]
+    MPPT_HARDWARE_VER_FIELD_NUMBER: _ClassVar[int]
+    INV_MONITOR_FLAG_FIELD_NUMBER: _ClassVar[int]
+    INV_MAIN_FSMSTATE_FIELD_NUMBER: _ClassVar[int]
+    L1_MAIN_FSMSTATE_FIELD_NUMBER: _ClassVar[int]
+    L2_MAIN_FSMSTATE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PFC_OUT_VOL_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_L1_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_L2_FIELD_NUMBER: _ClassVar[int]
+    INV_BUS_VOL_FIELD_NUMBER: _ClassVar[int]
+    INV_NTC_TEMP2_FIELD_NUMBER: _ClassVar[int]
+    INV_NTC_TEMP3_FIELD_NUMBER: _ClassVar[int]
+    LLC_MONITOR_FLAG_FIELD_NUMBER: _ClassVar[int]
+    LLC_NTC_TEMP_FIELD_NUMBER: _ClassVar[int]
+    LLC_FSMSTATE_FIELD_NUMBER: _ClassVar[int]
+    PD_TO_INV_DSG_MODE_FIELD_NUMBER: _ClassVar[int]
+    DCDC_CHG_REQ_CUR_FIELD_NUMBER: _ClassVar[int]
+    LLC_RECV_CMS_CHG_REQ_VOL_FIELD_NUMBER: _ClassVar[int]
+    INV_TO_LLC_AC_POW_LIM_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_12V_VOL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_12V_AMP_FIELD_NUMBER: _ClassVar[int]
+    LLC_BAT_VOL_FIELD_NUMBER: _ClassVar[int]
+    LLC_BAT_CUR_FIELD_NUMBER: _ClassVar[int]
+    LLC_BUS_VOL_FIELD_NUMBER: _ClassVar[int]
+    PD_SKT_OCP1_FIELD_NUMBER: _ClassVar[int]
+    PD_SKT_OCP2_FIELD_NUMBER: _ClassVar[int]
+    PD_SKT_OCP3_FIELD_NUMBER: _ClassVar[int]
+    PD_SKT_OCP4_FIELD_NUMBER: _ClassVar[int]
+    PD_SKT_OCP5_FIELD_NUMBER: _ClassVar[int]
+    ac_phase_type: int
+    pcs_work_mode: int
+    temp_pcs_dc: float
+    temp_pcs_ac: float
+    temp_pv_h: float
+    temp_pv_l: float
+    plug_in_info_pv_h_vol: float
+    plug_in_info_pv_l_vol: float
+    plug_in_info_ac_out_type: int
+    plug_in_info_ac_out_freq: int
+    plug_in_info_5p8_freq: int
+    plug_in_info_ac_in_vol: float
+    plug_in_info_24v_vol: float
+    plug_in_info_24v_amp: float
+    plug_in_info_l1_vol: float
+    plug_in_info_4p8_1_vol: float
+    plug_in_info_4p8_2_vol: float
+    plug_in_info_bms_vol: float
+    pd_mppt_comm_err: int
+    pd_llc_comm_err: int
+    pd_bms_comm_err: int
+    pd_iot_comm_err: int
+    pd_firm_ver: int
+    iot_firm_ver: int
+    mppt_firm_ver: int
+    llc_firm_ver: int
+    plug_in_info_l1_amp: float
+    plug_in_info_l2_vol: float
+    plug_in_info_l2_amp: float
+    plug_in_info_acp_l1_vol: float
+    plug_in_info_acp_l1l2_vol: float
+    mppt_monitor_flag: int
+    plug_in_info_pv_h_amp: float
+    plug_in_info_pv_l_amp: float
+    plug_in_info_ac_in_amp: float
+    llc_inv_firm_ver: int
+    plug_in_info_4p8_1_amp: float
+    plug_in_info_4p8_2_amp: float
+    bms_firm_ver: int
+    bms_batt_vol: float
+    bms_batt_amp: float
+    bms_bal_state: int
+    bms_full_cap: int
+    bms_remain_cap: int
+    bms_alm_state: int
+    bms_pro_state: int
+    bms_flt_state: int
+    bms_err_code: int
+    bms_min_cell_vol: int
+    bms_max_cell_vol: int
+    cms_batt_vol: float
+    cms_batt_amp: float
+    cms_chg_req_vol: float
+    cms_chg_req_amp: float
+    bms_overload_icon: int
+    bms_warn_icon: int
+    bms_high_temp_icon: int
+    bms_low_temp_icon: int
+    bms_limit_icon: int
+    bms_alm_state_2: int
+    bms_pro_state_2: int
+    display_property_full_upload_period: int
+    display_property_incremental_upload_period: int
+    runtime_property_full_upload_period: int
+    runtime_property_incremental_upload_period: int
+    mppt_recv_cms_chg_req_vol: float
+    mppt_recv_cms_chg_req_amp: float
+    pv_vin_ref: float
+    pv2_vin_ref: float
+    pv2_bus_vol: float
+    mppt_bat_vol: float
+    mppt_bat_amp: float
+    pv_pause_cnt: int
+    pv2_pause_cnt: int
+    mppt_fanspeed: int
+    ads_ntc_temp: int
+    mppt_hardware_ver: int
+    inv_monitor_flag: int
+    inv_main_fsmstate: int
+    l1_main_fsmstate: int
+    l2_main_fsmstate: int
+    plug_in_info_pfc_out_vol: float
+    pow_get_l1: float
+    pow_get_l2: float
+    inv_bus_vol: float
+    inv_ntc_temp2: int
+    inv_ntc_temp3: int
+    llc_monitor_flag: int
+    llc_ntc_temp: int
+    llc_fsmstate: int
+    pd_to_inv_dsg_mode: int
+    dcdc_chg_req_cur: float
+    llc_recv_cms_chg_req_vol: float
+    inv_to_llc_ac_pow_lim: float
+    plug_in_info_12v_vol: float
+    plug_in_info_12v_amp: float
+    llc_bat_vol: float
+    llc_bat_cur: float
+    llc_bus_vol: float
+    pd_skt_ocp1: float
+    pd_skt_ocp2: float
+    pd_skt_ocp3: float
+    pd_skt_ocp4: float
+    pd_skt_ocp5: float
+    def __init__(self, ac_phase_type: _Optional[int] = ..., pcs_work_mode: _Optional[int] = ..., temp_pcs_dc: _Optional[float] = ..., temp_pcs_ac: _Optional[float] = ..., temp_pv_h: _Optional[float] = ..., temp_pv_l: _Optional[float] = ..., plug_in_info_pv_h_vol: _Optional[float] = ..., plug_in_info_pv_l_vol: _Optional[float] = ..., plug_in_info_ac_out_type: _Optional[int] = ..., plug_in_info_ac_out_freq: _Optional[int] = ..., plug_in_info_5p8_freq: _Optional[int] = ..., plug_in_info_ac_in_vol: _Optional[float] = ..., plug_in_info_24v_vol: _Optional[float] = ..., plug_in_info_24v_amp: _Optional[float] = ..., plug_in_info_l1_vol: _Optional[float] = ..., plug_in_info_4p8_1_vol: _Optional[float] = ..., plug_in_info_4p8_2_vol: _Optional[float] = ..., plug_in_info_bms_vol: _Optional[float] = ..., pd_mppt_comm_err: _Optional[int] = ..., pd_llc_comm_err: _Optional[int] = ..., pd_bms_comm_err: _Optional[int] = ..., pd_iot_comm_err: _Optional[int] = ..., pd_firm_ver: _Optional[int] = ..., iot_firm_ver: _Optional[int] = ..., mppt_firm_ver: _Optional[int] = ..., llc_firm_ver: _Optional[int] = ..., plug_in_info_l1_amp: _Optional[float] = ..., plug_in_info_l2_vol: _Optional[float] = ..., plug_in_info_l2_amp: _Optional[float] = ..., plug_in_info_acp_l1_vol: _Optional[float] = ..., plug_in_info_acp_l1l2_vol: _Optional[float] = ..., mppt_monitor_flag: _Optional[int] = ..., plug_in_info_pv_h_amp: _Optional[float] = ..., plug_in_info_pv_l_amp: _Optional[float] = ..., plug_in_info_ac_in_amp: _Optional[float] = ..., llc_inv_firm_ver: _Optional[int] = ..., plug_in_info_4p8_1_amp: _Optional[float] = ..., plug_in_info_4p8_2_amp: _Optional[float] = ..., bms_firm_ver: _Optional[int] = ..., bms_batt_vol: _Optional[float] = ..., bms_batt_amp: _Optional[float] = ..., bms_bal_state: _Optional[int] = ..., bms_full_cap: _Optional[int] = ..., bms_remain_cap: _Optional[int] = ..., bms_alm_state: _Optional[int] = ..., bms_pro_state: _Optional[int] = ..., bms_flt_state: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., bms_min_cell_vol: _Optional[int] = ..., bms_max_cell_vol: _Optional[int] = ..., cms_batt_vol: _Optional[float] = ..., cms_batt_amp: _Optional[float] = ..., cms_chg_req_vol: _Optional[float] = ..., cms_chg_req_amp: _Optional[float] = ..., bms_overload_icon: _Optional[int] = ..., bms_warn_icon: _Optional[int] = ..., bms_high_temp_icon: _Optional[int] = ..., bms_low_temp_icon: _Optional[int] = ..., bms_limit_icon: _Optional[int] = ..., bms_alm_state_2: _Optional[int] = ..., bms_pro_state_2: _Optional[int] = ..., display_property_full_upload_period: _Optional[int] = ..., display_property_incremental_upload_period: _Optional[int] = ..., runtime_property_full_upload_period: _Optional[int] = ..., runtime_property_incremental_upload_period: _Optional[int] = ..., mppt_recv_cms_chg_req_vol: _Optional[float] = ..., mppt_recv_cms_chg_req_amp: _Optional[float] = ..., pv_vin_ref: _Optional[float] = ..., pv2_vin_ref: _Optional[float] = ..., pv2_bus_vol: _Optional[float] = ..., mppt_bat_vol: _Optional[float] = ..., mppt_bat_amp: _Optional[float] = ..., pv_pause_cnt: _Optional[int] = ..., pv2_pause_cnt: _Optional[int] = ..., mppt_fanspeed: _Optional[int] = ..., ads_ntc_temp: _Optional[int] = ..., mppt_hardware_ver: _Optional[int] = ..., inv_monitor_flag: _Optional[int] = ..., inv_main_fsmstate: _Optional[int] = ..., l1_main_fsmstate: _Optional[int] = ..., l2_main_fsmstate: _Optional[int] = ..., plug_in_info_pfc_out_vol: _Optional[float] = ..., pow_get_l1: _Optional[float] = ..., pow_get_l2: _Optional[float] = ..., inv_bus_vol: _Optional[float] = ..., inv_ntc_temp2: _Optional[int] = ..., inv_ntc_temp3: _Optional[int] = ..., llc_monitor_flag: _Optional[int] = ..., llc_ntc_temp: _Optional[int] = ..., llc_fsmstate: _Optional[int] = ..., pd_to_inv_dsg_mode: _Optional[int] = ..., dcdc_chg_req_cur: _Optional[float] = ..., llc_recv_cms_chg_req_vol: _Optional[float] = ..., inv_to_llc_ac_pow_lim: _Optional[float] = ..., plug_in_info_12v_vol: _Optional[float] = ..., plug_in_info_12v_amp: _Optional[float] = ..., llc_bat_vol: _Optional[float] = ..., llc_bat_cur: _Optional[float] = ..., llc_bus_vol: _Optional[float] = ..., pd_skt_ocp1: _Optional[float] = ..., pd_skt_ocp2: _Optional[float] = ..., pd_skt_ocp3: _Optional[float] = ..., pd_skt_ocp4: _Optional[float] = ..., pd_skt_ocp5: _Optional[float] = ...) -> None: ...
+
+class cmdFunc50_cmdId30_Report(_message.Message):
+    __slots__ = ("unknown1", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9", "unknown10", "unknown11", "remainCap12", "unknown13", "unknown14", "unknown15", "maxCellVol16", "minCellVol17", "maxCellTemp18", "minCellTemp19", "maxMosTemp20", "minMosTemp21", "unknown22", "unknown23", "unknown24", "unknown25", "unknown26", "unknown27", "unknown28", "unknown29", "unknown30", "unknown31", "unknown32", "cellVol33", "unknown34", "cellTemp35", "version36", "bmsHeartVer37", "ecloudOcv38", "deveiceSn39", "unknown40", "unknown41", "unknown42", "unknown43", "unknown44", "unknown45", "unknown46", "unknown47", "unknown48", "unknown49", "unknown50", "unknown51", "unknown52", "unknown53", "soh54", "unknown55", "mosTemp56", "unknown57", "unknown58", "unknown61", "unknown62", "unknown63", "unknown64", "unknown67", "unknown68", "unknown69", "error70", "unknown71", "batVolt72", "unknown73", "unknown74", "unknown75", "unknown76", "unknown77", "unknown78", "unknown79", "unknown80", "packSn81", "unknown82")
+    UNKNOWN1_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN2_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN3_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN4_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN5_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN6_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN7_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN8_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN9_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN10_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN11_FIELD_NUMBER: _ClassVar[int]
+    REMAINCAP12_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN13_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN14_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN15_FIELD_NUMBER: _ClassVar[int]
+    MAXCELLVOL16_FIELD_NUMBER: _ClassVar[int]
+    MINCELLVOL17_FIELD_NUMBER: _ClassVar[int]
+    MAXCELLTEMP18_FIELD_NUMBER: _ClassVar[int]
+    MINCELLTEMP19_FIELD_NUMBER: _ClassVar[int]
+    MAXMOSTEMP20_FIELD_NUMBER: _ClassVar[int]
+    MINMOSTEMP21_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN22_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN23_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN24_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN25_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN26_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN27_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN28_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN29_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN30_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN31_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN32_FIELD_NUMBER: _ClassVar[int]
+    CELLVOL33_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN34_FIELD_NUMBER: _ClassVar[int]
+    CELLTEMP35_FIELD_NUMBER: _ClassVar[int]
+    VERSION36_FIELD_NUMBER: _ClassVar[int]
+    BMSHEARTVER37_FIELD_NUMBER: _ClassVar[int]
+    ECLOUDOCV38_FIELD_NUMBER: _ClassVar[int]
+    DEVEICESN39_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN40_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN41_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN42_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN43_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN44_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN45_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN46_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN47_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN48_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN49_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN50_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN51_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN52_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN53_FIELD_NUMBER: _ClassVar[int]
+    SOH54_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN55_FIELD_NUMBER: _ClassVar[int]
+    MOSTEMP56_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN57_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN58_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN61_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN62_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN63_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN64_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN67_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN68_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN69_FIELD_NUMBER: _ClassVar[int]
+    ERROR70_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN71_FIELD_NUMBER: _ClassVar[int]
+    BATVOLT72_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN73_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN74_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN75_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN76_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN77_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN78_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN79_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN80_FIELD_NUMBER: _ClassVar[int]
+    PACKSN81_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN82_FIELD_NUMBER: _ClassVar[int]
+    unknown1: int
+    unknown2: int
+    unknown3: int
+    unknown4: int
+    unknown5: int
+    unknown6: int
+    unknown7: int
+    unknown8: int
+    unknown9: int
+    unknown10: int
+    unknown11: int
+    remainCap12: int
+    unknown13: int
+    unknown14: int
+    unknown15: int
+    maxCellVol16: int
+    minCellVol17: int
+    maxCellTemp18: int
+    minCellTemp19: int
+    maxMosTemp20: int
+    minMosTemp21: int
+    unknown22: int
+    unknown23: int
+    unknown24: int
+    unknown25: float
+    unknown26: int
+    unknown27: int
+    unknown28: int
+    unknown29: int
+    unknown30: int
+    unknown31: int
+    unknown32: int
+    cellVol33: _containers.RepeatedScalarFieldContainer[int]
+    unknown34: int
+    cellTemp35: _containers.RepeatedScalarFieldContainer[int]
+    version36: str
+    bmsHeartVer37: int
+    ecloudOcv38: int
+    deveiceSn39: str
+    unknown40: int
+    unknown41: int
+    unknown42: float
+    unknown43: float
+    unknown44: float
+    unknown45: int
+    unknown46: int
+    unknown47: int
+    unknown48: int
+    unknown49: int
+    unknown50: int
+    unknown51: int
+    unknown52: float
+    unknown53: float
+    soh54: float
+    unknown55: int
+    mosTemp56: _containers.RepeatedScalarFieldContainer[int]
+    unknown57: int
+    unknown58: _containers.RepeatedScalarFieldContainer[int]
+    unknown61: int
+    unknown62: _containers.RepeatedScalarFieldContainer[int]
+    unknown63: int
+    unknown64: int
+    unknown67: int
+    unknown68: int
+    unknown69: int
+    error70: _containers.RepeatedScalarFieldContainer[int]
+    unknown71: int
+    batVolt72: _containers.RepeatedScalarFieldContainer[int]
+    unknown73: int
+    unknown74: int
+    unknown75: int
+    unknown76: int
+    unknown77: int
+    unknown78: int
+    unknown79: int
+    unknown80: int
+    packSn81: str
+    unknown82: int
+    def __init__(self, unknown1: _Optional[int] = ..., unknown2: _Optional[int] = ..., unknown3: _Optional[int] = ..., unknown4: _Optional[int] = ..., unknown5: _Optional[int] = ..., unknown6: _Optional[int] = ..., unknown7: _Optional[int] = ..., unknown8: _Optional[int] = ..., unknown9: _Optional[int] = ..., unknown10: _Optional[int] = ..., unknown11: _Optional[int] = ..., remainCap12: _Optional[int] = ..., unknown13: _Optional[int] = ..., unknown14: _Optional[int] = ..., unknown15: _Optional[int] = ..., maxCellVol16: _Optional[int] = ..., minCellVol17: _Optional[int] = ..., maxCellTemp18: _Optional[int] = ..., minCellTemp19: _Optional[int] = ..., maxMosTemp20: _Optional[int] = ..., minMosTemp21: _Optional[int] = ..., unknown22: _Optional[int] = ..., unknown23: _Optional[int] = ..., unknown24: _Optional[int] = ..., unknown25: _Optional[float] = ..., unknown26: _Optional[int] = ..., unknown27: _Optional[int] = ..., unknown28: _Optional[int] = ..., unknown29: _Optional[int] = ..., unknown30: _Optional[int] = ..., unknown31: _Optional[int] = ..., unknown32: _Optional[int] = ..., cellVol33: _Optional[_Iterable[int]] = ..., unknown34: _Optional[int] = ..., cellTemp35: _Optional[_Iterable[int]] = ..., version36: _Optional[str] = ..., bmsHeartVer37: _Optional[int] = ..., ecloudOcv38: _Optional[int] = ..., deveiceSn39: _Optional[str] = ..., unknown40: _Optional[int] = ..., unknown41: _Optional[int] = ..., unknown42: _Optional[float] = ..., unknown43: _Optional[float] = ..., unknown44: _Optional[float] = ..., unknown45: _Optional[int] = ..., unknown46: _Optional[int] = ..., unknown47: _Optional[int] = ..., unknown48: _Optional[int] = ..., unknown49: _Optional[int] = ..., unknown50: _Optional[int] = ..., unknown51: _Optional[int] = ..., unknown52: _Optional[float] = ..., unknown53: _Optional[float] = ..., soh54: _Optional[float] = ..., unknown55: _Optional[int] = ..., mosTemp56: _Optional[_Iterable[int]] = ..., unknown57: _Optional[int] = ..., unknown58: _Optional[_Iterable[int]] = ..., unknown61: _Optional[int] = ..., unknown62: _Optional[_Iterable[int]] = ..., unknown63: _Optional[int] = ..., unknown64: _Optional[int] = ..., unknown67: _Optional[int] = ..., unknown68: _Optional[int] = ..., unknown69: _Optional[int] = ..., error70: _Optional[_Iterable[int]] = ..., unknown71: _Optional[int] = ..., batVolt72: _Optional[_Iterable[int]] = ..., unknown73: _Optional[int] = ..., unknown74: _Optional[int] = ..., unknown75: _Optional[int] = ..., unknown76: _Optional[int] = ..., unknown77: _Optional[int] = ..., unknown78: _Optional[int] = ..., unknown79: _Optional[int] = ..., unknown80: _Optional[int] = ..., packSn81: _Optional[str] = ..., unknown82: _Optional[int] = ...) -> None: ...
+
+class TimeTaskParamDetail(_message.Message):
+    __slots__ = ("type", "val")
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    type: TIME_TASK_DETAIL_TYPE
+    val: float
+    def __init__(self, type: _Optional[_Union[TIME_TASK_DETAIL_TYPE, str]] = ..., val: _Optional[float] = ...) -> None: ...
+
+class TimeTaskItemV2(_message.Message):
+    __slots__ = ("task_index", "is_cfg", "is_enable", "conflict_flag", "time_mode", "time_param", "time_table", "task_type", "task_param", "task_param_detail")
+    TASK_INDEX_FIELD_NUMBER: _ClassVar[int]
+    IS_CFG_FIELD_NUMBER: _ClassVar[int]
+    IS_ENABLE_FIELD_NUMBER: _ClassVar[int]
+    CONFLICT_FLAG_FIELD_NUMBER: _ClassVar[int]
+    TIME_MODE_FIELD_NUMBER: _ClassVar[int]
+    TIME_PARAM_FIELD_NUMBER: _ClassVar[int]
+    TIME_TABLE_FIELD_NUMBER: _ClassVar[int]
+    TASK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    TASK_PARAM_FIELD_NUMBER: _ClassVar[int]
+    TASK_PARAM_DETAIL_FIELD_NUMBER: _ClassVar[int]
+    task_index: int
+    is_cfg: bool
+    is_enable: bool
+    conflict_flag: int
+    time_mode: TIME_TASK_MODE
+    time_param: int
+    time_table: int
+    task_type: TIME_TASK_TYPE
+    task_param: int
+    task_param_detail: _containers.RepeatedCompositeFieldContainer[TimeTaskParamDetail]
+    def __init__(self, task_index: _Optional[int] = ..., is_cfg: bool = ..., is_enable: bool = ..., conflict_flag: _Optional[int] = ..., time_mode: _Optional[_Union[TIME_TASK_MODE, str]] = ..., time_param: _Optional[int] = ..., time_table: _Optional[int] = ..., task_type: _Optional[_Union[TIME_TASK_TYPE, str]] = ..., task_param: _Optional[int] = ..., task_param_detail: _Optional[_Iterable[_Union[TimeTaskParamDetail, _Mapping]]] = ...) -> None: ...
+
+class DisplayPropertyUpload(_message.Message):
+    __slots__ = ("errcode", "pow_in_sum_w", "pow_out_sum_w", "lcd_light", "energy_backup_state", "energy_backup_en", "energy_backup_start_soc", "pow_get_qcusb1", "pow_get_qcusb2", "pow_get_typec1", "pow_get_typec2", "flow_info_qcusb1", "flow_info_qcusb2", "flow_info_typec1", "flow_info_typec2", "dev_standby_time", "screen_off_time", "ac_standby_time", "dc_standby_time", "ac_always_on_mini_soc", "xboost_en", "pcs_fan_level", "flow_info_pv_h", "flow_info_pv_l", "flow_info_12v", "flow_info_24v", "pow_get_pv_h", "pow_get_pv_l", "pow_get_12v", "pow_get_24v", "plug_in_info_pv_h_flag", "plug_in_info_pv_h_type", "plug_in_info_pv_l_flag", "plug_in_info_pv_l_type", "flow_info_ac2dc", "flow_info_dc2ac", "flow_info_ac_in", "flow_info_ac_hv_out", "flow_info_ac_lv_out", "flow_info_5p8_in", "flow_info_5p8_out", "pow_get_llc", "pow_get_ac", "pow_get_ac_in", "pow_get_ac_hv_out", "pow_get_ac_lv_out", "pow_get_ac_lv_tt30_out", "pow_get_5p8", "plug_in_info_ac_in_flag", "plug_in_info_ac_in_feq", "plug_in_info_5p8_flag", "plug_in_info_5p8_type", "plug_in_info_5p8_detail", "current_time_task_v2_item", "utc_timezone", "utc_timezone_id", "utc_set_mode", "bms_err_code", "output_power_off_memory", "flow_info_bms_dsg", "flow_info_bms_chg", "flow_info_4p8_1_in", "flow_info_4p8_1_out", "flow_info_4p8_2_in", "flow_info_4p8_2_out", "pow_get_bms", "pow_get_4p8_1", "pow_get_4p8_2", "plug_in_info_4p8_1_in_flag", "plug_in_info_4p8_1_type", "plug_in_info_4p8_1_detail", "plug_in_info_4p8_2_in_flag", "plug_in_info_4p8_2_type", "plug_in_info_4p8_2_detail", "plug_in_info_pv_l_charger_flag", "plug_in_info_pv_h_charger_flag", "plug_in_info_pv_l_dc_amp_max", "plug_in_info_pv_h_dc_amp_max", "fast_charge_switch", "plug_in_info_4p8_1_dsg_chg_type", "plug_in_info_4p8_1_resv", "plug_in_info_4p8_1_sn", "plug_in_info_4p8_1_firm_ver", "plug_in_info_4p8_2_dsg_chg_type", "plug_in_info_4p8_2_resv", "plug_in_info_4p8_2_sn", "plug_in_info_4p8_2_firm_ver", "plug_in_info_5p8_dsg_chg", "plug_in_info_5p8_resv", "plug_in_info_5p8_sn", "plug_in_info_5p8_firm_ver", "en_beep", "llc_GFCI_flag", "plug_in_info_ac_charger_flag", "plug_in_info_5p8_charger_flag", "plug_in_info_5p8_run_state", "plug_in_info_4p8_1_charger_flag", "plug_in_info_4p8_1_run_state", "plug_in_info_4p8_2_charger_flag", "plug_in_info_4p8_2_run_state", "plug_in_info_ac_in_chg_pow_max", "plug_in_info_5p8_chg_pow_max", "ac_out_freq", "dev_sleep_state", "pd_err_code", "llc_err_code", "mppt_err_code", "plug_in_info_5p8_err_code", "plug_in_info_4p8_1_err_code", "plug_in_info_4p8_2_err_code", "pcs_fan_err_flag", "llc_hv_lv_flag", "llc_inv_err_code", "plug_in_info_pv_h_chg_vol_max", "plug_in_info_pv_l_chg_vol_max", "plug_in_info_pv_l_chg_amp_max", "plug_in_info_pv_h_chg_amp_max", "plug_in_info_5p8_dsg_pow_max", "plug_in_info_ac_out_dsg_pow_max", "bms_batt_soc", "bms_batt_soh", "bms_design_cap", "bms_dsg_rem_time", "bms_chg_rem_time", "bms_min_cell_temp", "bms_max_cell_temp", "bms_min_mos_temp", "bms_max_mos_temp", "cms_batt_soc", "cms_batt_soh", "cms_dsg_rem_time", "cms_chg_rem_time", "cms_max_chg_soc", "cms_min_dsg_soc", "cms_oil_on_soc", "cms_oil_off_soc", "cms_oil_self_start", "cms_bms_run_state", "bms_chg_dsg_state", "cms_chg_dsg_state", "ac_hv_always_on", "ac_lv_always_on", "time_task_conflict_flag", "time_task_change_cnt", "ble_standby_time", "generator_pv_hybrid_mode_open", "generator_pv_hybrid_mode_soc_max", "generator_care_mode_open", "generator_care_mode_start_time", "ac_energy_saving_open", "multi_bp_chg_dsg_mode", "plug_in_info_5p8_chg_hal_pow_max", "plug_in_info_ac_in_chg_hal_pow_max")
+    ERRCODE_FIELD_NUMBER: _ClassVar[int]
+    POW_IN_SUM_W_FIELD_NUMBER: _ClassVar[int]
+    POW_OUT_SUM_W_FIELD_NUMBER: _ClassVar[int]
+    LCD_LIGHT_FIELD_NUMBER: _ClassVar[int]
+    ENERGY_BACKUP_STATE_FIELD_NUMBER: _ClassVar[int]
+    ENERGY_BACKUP_EN_FIELD_NUMBER: _ClassVar[int]
+    ENERGY_BACKUP_START_SOC_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_QCUSB1_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_QCUSB2_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_TYPEC1_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_TYPEC2_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_QCUSB1_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_QCUSB2_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_TYPEC1_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_TYPEC2_FIELD_NUMBER: _ClassVar[int]
+    DEV_STANDBY_TIME_FIELD_NUMBER: _ClassVar[int]
+    SCREEN_OFF_TIME_FIELD_NUMBER: _ClassVar[int]
+    AC_STANDBY_TIME_FIELD_NUMBER: _ClassVar[int]
+    DC_STANDBY_TIME_FIELD_NUMBER: _ClassVar[int]
+    AC_ALWAYS_ON_MINI_SOC_FIELD_NUMBER: _ClassVar[int]
+    XBOOST_EN_FIELD_NUMBER: _ClassVar[int]
+    PCS_FAN_LEVEL_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_PV_H_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_PV_L_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_12V_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_24V_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_PV_H_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_PV_L_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_12V_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_24V_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_H_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_H_TYPE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_L_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_L_TYPE_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_AC2DC_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_DC2AC_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_AC_IN_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_AC_HV_OUT_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_AC_LV_OUT_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_5P8_IN_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_5P8_OUT_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_LLC_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_AC_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_AC_IN_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_AC_HV_OUT_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_AC_LV_OUT_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_AC_LV_TT30_OUT_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_5P8_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_IN_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_IN_FEQ_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_TYPE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_DETAIL_FIELD_NUMBER: _ClassVar[int]
+    CURRENT_TIME_TASK_V2_ITEM_FIELD_NUMBER: _ClassVar[int]
+    UTC_TIMEZONE_FIELD_NUMBER: _ClassVar[int]
+    UTC_TIMEZONE_ID_FIELD_NUMBER: _ClassVar[int]
+    UTC_SET_MODE_FIELD_NUMBER: _ClassVar[int]
+    BMS_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    OUTPUT_POWER_OFF_MEMORY_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_BMS_DSG_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_BMS_CHG_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_4P8_1_IN_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_4P8_1_OUT_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_4P8_2_IN_FIELD_NUMBER: _ClassVar[int]
+    FLOW_INFO_4P8_2_OUT_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_BMS_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_4P8_1_FIELD_NUMBER: _ClassVar[int]
+    POW_GET_4P8_2_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_IN_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_TYPE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_DETAIL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_IN_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_TYPE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_DETAIL_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_L_CHARGER_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_H_CHARGER_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_L_DC_AMP_MAX_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_H_DC_AMP_MAX_FIELD_NUMBER: _ClassVar[int]
+    FAST_CHARGE_SWITCH_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_DSG_CHG_TYPE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_RESV_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_SN_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_DSG_CHG_TYPE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_RESV_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_SN_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_DSG_CHG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_RESV_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_SN_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    EN_BEEP_FIELD_NUMBER: _ClassVar[int]
+    LLC_GFCI_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_CHARGER_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_CHARGER_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_RUN_STATE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_CHARGER_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_RUN_STATE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_CHARGER_FLAG_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_RUN_STATE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_IN_CHG_POW_MAX_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_CHG_POW_MAX_FIELD_NUMBER: _ClassVar[int]
+    AC_OUT_FREQ_FIELD_NUMBER: _ClassVar[int]
+    DEV_SLEEP_STATE_FIELD_NUMBER: _ClassVar[int]
+    PD_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    LLC_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    MPPT_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_1_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_4P8_2_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    PCS_FAN_ERR_FLAG_FIELD_NUMBER: _ClassVar[int]
+    LLC_HV_LV_FLAG_FIELD_NUMBER: _ClassVar[int]
+    LLC_INV_ERR_CODE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_H_CHG_VOL_MAX_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_L_CHG_VOL_MAX_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_L_CHG_AMP_MAX_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_PV_H_CHG_AMP_MAX_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_DSG_POW_MAX_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_OUT_DSG_POW_MAX_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_SOC_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_SOH_FIELD_NUMBER: _ClassVar[int]
+    BMS_DESIGN_CAP_FIELD_NUMBER: _ClassVar[int]
+    BMS_DSG_REM_TIME_FIELD_NUMBER: _ClassVar[int]
+    BMS_CHG_REM_TIME_FIELD_NUMBER: _ClassVar[int]
+    BMS_MIN_CELL_TEMP_FIELD_NUMBER: _ClassVar[int]
+    BMS_MAX_CELL_TEMP_FIELD_NUMBER: _ClassVar[int]
+    BMS_MIN_MOS_TEMP_FIELD_NUMBER: _ClassVar[int]
+    BMS_MAX_MOS_TEMP_FIELD_NUMBER: _ClassVar[int]
+    CMS_BATT_SOC_FIELD_NUMBER: _ClassVar[int]
+    CMS_BATT_SOH_FIELD_NUMBER: _ClassVar[int]
+    CMS_DSG_REM_TIME_FIELD_NUMBER: _ClassVar[int]
+    CMS_CHG_REM_TIME_FIELD_NUMBER: _ClassVar[int]
+    CMS_MAX_CHG_SOC_FIELD_NUMBER: _ClassVar[int]
+    CMS_MIN_DSG_SOC_FIELD_NUMBER: _ClassVar[int]
+    CMS_OIL_ON_SOC_FIELD_NUMBER: _ClassVar[int]
+    CMS_OIL_OFF_SOC_FIELD_NUMBER: _ClassVar[int]
+    CMS_OIL_SELF_START_FIELD_NUMBER: _ClassVar[int]
+    CMS_BMS_RUN_STATE_FIELD_NUMBER: _ClassVar[int]
+    BMS_CHG_DSG_STATE_FIELD_NUMBER: _ClassVar[int]
+    CMS_CHG_DSG_STATE_FIELD_NUMBER: _ClassVar[int]
+    AC_HV_ALWAYS_ON_FIELD_NUMBER: _ClassVar[int]
+    AC_LV_ALWAYS_ON_FIELD_NUMBER: _ClassVar[int]
+    TIME_TASK_CONFLICT_FLAG_FIELD_NUMBER: _ClassVar[int]
+    TIME_TASK_CHANGE_CNT_FIELD_NUMBER: _ClassVar[int]
+    BLE_STANDBY_TIME_FIELD_NUMBER: _ClassVar[int]
+    GENERATOR_PV_HYBRID_MODE_OPEN_FIELD_NUMBER: _ClassVar[int]
+    GENERATOR_PV_HYBRID_MODE_SOC_MAX_FIELD_NUMBER: _ClassVar[int]
+    GENERATOR_CARE_MODE_OPEN_FIELD_NUMBER: _ClassVar[int]
+    GENERATOR_CARE_MODE_START_TIME_FIELD_NUMBER: _ClassVar[int]
+    AC_ENERGY_SAVING_OPEN_FIELD_NUMBER: _ClassVar[int]
+    MULTI_BP_CHG_DSG_MODE_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_5P8_CHG_HAL_POW_MAX_FIELD_NUMBER: _ClassVar[int]
+    PLUG_IN_INFO_AC_IN_CHG_HAL_POW_MAX_FIELD_NUMBER: _ClassVar[int]
+    errcode: int
+    pow_in_sum_w: float
+    pow_out_sum_w: float
+    lcd_light: int
+    energy_backup_state: int
+    energy_backup_en: int
+    energy_backup_start_soc: int
+    pow_get_qcusb1: float
+    pow_get_qcusb2: float
+    pow_get_typec1: float
+    pow_get_typec2: float
+    flow_info_qcusb1: int
+    flow_info_qcusb2: int
+    flow_info_typec1: int
+    flow_info_typec2: int
+    dev_standby_time: int
+    screen_off_time: int
+    ac_standby_time: int
+    dc_standby_time: int
+    ac_always_on_mini_soc: int
+    xboost_en: int
+    pcs_fan_level: int
+    flow_info_pv_h: int
+    flow_info_pv_l: int
+    flow_info_12v: int
+    flow_info_24v: int
+    pow_get_pv_h: float
+    pow_get_pv_l: float
+    pow_get_12v: float
+    pow_get_24v: float
+    plug_in_info_pv_h_flag: int
+    plug_in_info_pv_h_type: int
+    plug_in_info_pv_l_flag: int
+    plug_in_info_pv_l_type: int
+    flow_info_ac2dc: int
+    flow_info_dc2ac: int
+    flow_info_ac_in: int
+    flow_info_ac_hv_out: int
+    flow_info_ac_lv_out: int
+    flow_info_5p8_in: int
+    flow_info_5p8_out: int
+    pow_get_llc: float
+    pow_get_ac: float
+    pow_get_ac_in: float
+    pow_get_ac_hv_out: float
+    pow_get_ac_lv_out: float
+    pow_get_ac_lv_tt30_out: float
+    pow_get_5p8: float
+    plug_in_info_ac_in_flag: int
+    plug_in_info_ac_in_feq: int
+    plug_in_info_5p8_flag: int
+    plug_in_info_5p8_type: int
+    plug_in_info_5p8_detail: int
+    current_time_task_v2_item: TimeTaskItemV2
+    utc_timezone: int
+    utc_timezone_id: str
+    utc_set_mode: int
+    bms_err_code: int
+    output_power_off_memory: int
+    flow_info_bms_dsg: int
+    flow_info_bms_chg: int
+    flow_info_4p8_1_in: int
+    flow_info_4p8_1_out: int
+    flow_info_4p8_2_in: int
+    flow_info_4p8_2_out: int
+    pow_get_bms: float
+    pow_get_4p8_1: float
+    pow_get_4p8_2: float
+    plug_in_info_4p8_1_in_flag: int
+    plug_in_info_4p8_1_type: int
+    plug_in_info_4p8_1_detail: int
+    plug_in_info_4p8_2_in_flag: int
+    plug_in_info_4p8_2_type: int
+    plug_in_info_4p8_2_detail: int
+    plug_in_info_pv_l_charger_flag: int
+    plug_in_info_pv_h_charger_flag: int
+    plug_in_info_pv_l_dc_amp_max: int
+    plug_in_info_pv_h_dc_amp_max: int
+    fast_charge_switch: int
+    plug_in_info_4p8_1_dsg_chg_type: int
+    plug_in_info_4p8_1_resv: ResvInfo
+    plug_in_info_4p8_1_sn: str
+    plug_in_info_4p8_1_firm_ver: int
+    plug_in_info_4p8_2_dsg_chg_type: int
+    plug_in_info_4p8_2_resv: ResvInfo
+    plug_in_info_4p8_2_sn: str
+    plug_in_info_4p8_2_firm_ver: int
+    plug_in_info_5p8_dsg_chg: int
+    plug_in_info_5p8_resv: ResvInfo
+    plug_in_info_5p8_sn: str
+    plug_in_info_5p8_firm_ver: int
+    en_beep: int
+    llc_GFCI_flag: int
+    plug_in_info_ac_charger_flag: int
+    plug_in_info_5p8_charger_flag: int
+    plug_in_info_5p8_run_state: int
+    plug_in_info_4p8_1_charger_flag: int
+    plug_in_info_4p8_1_run_state: int
+    plug_in_info_4p8_2_charger_flag: int
+    plug_in_info_4p8_2_run_state: int
+    plug_in_info_ac_in_chg_pow_max: int
+    plug_in_info_5p8_chg_pow_max: int
+    ac_out_freq: int
+    dev_sleep_state: int
+    pd_err_code: int
+    llc_err_code: int
+    mppt_err_code: int
+    plug_in_info_5p8_err_code: int
+    plug_in_info_4p8_1_err_code: int
+    plug_in_info_4p8_2_err_code: int
+    pcs_fan_err_flag: int
+    llc_hv_lv_flag: int
+    llc_inv_err_code: int
+    plug_in_info_pv_h_chg_vol_max: int
+    plug_in_info_pv_l_chg_vol_max: int
+    plug_in_info_pv_l_chg_amp_max: int
+    plug_in_info_pv_h_chg_amp_max: int
+    plug_in_info_5p8_dsg_pow_max: int
+    plug_in_info_ac_out_dsg_pow_max: int
+    bms_batt_soc: float
+    bms_batt_soh: float
+    bms_design_cap: int
+    bms_dsg_rem_time: int
+    bms_chg_rem_time: int
+    bms_min_cell_temp: int
+    bms_max_cell_temp: int
+    bms_min_mos_temp: int
+    bms_max_mos_temp: int
+    cms_batt_soc: float
+    cms_batt_soh: float
+    cms_dsg_rem_time: int
+    cms_chg_rem_time: int
+    cms_max_chg_soc: int
+    cms_min_dsg_soc: int
+    cms_oil_on_soc: int
+    cms_oil_off_soc: int
+    cms_oil_self_start: int
+    cms_bms_run_state: int
+    bms_chg_dsg_state: int
+    cms_chg_dsg_state: int
+    ac_hv_always_on: int
+    ac_lv_always_on: int
+    time_task_conflict_flag: int
+    time_task_change_cnt: int
+    ble_standby_time: int
+    generator_pv_hybrid_mode_open: int
+    generator_pv_hybrid_mode_soc_max: int
+    generator_care_mode_open: int
+    generator_care_mode_start_time: int
+    ac_energy_saving_open: int
+    multi_bp_chg_dsg_mode: int
+    plug_in_info_5p8_chg_hal_pow_max: int
+    plug_in_info_ac_in_chg_hal_pow_max: int
+    def __init__(self, errcode: _Optional[int] = ..., pow_in_sum_w: _Optional[float] = ..., pow_out_sum_w: _Optional[float] = ..., lcd_light: _Optional[int] = ..., energy_backup_state: _Optional[int] = ..., energy_backup_en: _Optional[int] = ..., energy_backup_start_soc: _Optional[int] = ..., pow_get_qcusb1: _Optional[float] = ..., pow_get_qcusb2: _Optional[float] = ..., pow_get_typec1: _Optional[float] = ..., pow_get_typec2: _Optional[float] = ..., flow_info_qcusb1: _Optional[int] = ..., flow_info_qcusb2: _Optional[int] = ..., flow_info_typec1: _Optional[int] = ..., flow_info_typec2: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., ac_standby_time: _Optional[int] = ..., dc_standby_time: _Optional[int] = ..., ac_always_on_mini_soc: _Optional[int] = ..., xboost_en: _Optional[int] = ..., pcs_fan_level: _Optional[int] = ..., flow_info_pv_h: _Optional[int] = ..., flow_info_pv_l: _Optional[int] = ..., flow_info_12v: _Optional[int] = ..., flow_info_24v: _Optional[int] = ..., pow_get_pv_h: _Optional[float] = ..., pow_get_pv_l: _Optional[float] = ..., pow_get_12v: _Optional[float] = ..., pow_get_24v: _Optional[float] = ..., plug_in_info_pv_h_flag: _Optional[int] = ..., plug_in_info_pv_h_type: _Optional[int] = ..., plug_in_info_pv_l_flag: _Optional[int] = ..., plug_in_info_pv_l_type: _Optional[int] = ..., flow_info_ac2dc: _Optional[int] = ..., flow_info_dc2ac: _Optional[int] = ..., flow_info_ac_in: _Optional[int] = ..., flow_info_ac_hv_out: _Optional[int] = ..., flow_info_ac_lv_out: _Optional[int] = ..., flow_info_5p8_in: _Optional[int] = ..., flow_info_5p8_out: _Optional[int] = ..., pow_get_llc: _Optional[float] = ..., pow_get_ac: _Optional[float] = ..., pow_get_ac_in: _Optional[float] = ..., pow_get_ac_hv_out: _Optional[float] = ..., pow_get_ac_lv_out: _Optional[float] = ..., pow_get_ac_lv_tt30_out: _Optional[float] = ..., pow_get_5p8: _Optional[float] = ..., plug_in_info_ac_in_flag: _Optional[int] = ..., plug_in_info_ac_in_feq: _Optional[int] = ..., plug_in_info_5p8_flag: _Optional[int] = ..., plug_in_info_5p8_type: _Optional[int] = ..., plug_in_info_5p8_detail: _Optional[int] = ..., current_time_task_v2_item: _Optional[_Union[TimeTaskItemV2, _Mapping]] = ..., utc_timezone: _Optional[int] = ..., utc_timezone_id: _Optional[str] = ..., utc_set_mode: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., output_power_off_memory: _Optional[int] = ..., flow_info_bms_dsg: _Optional[int] = ..., flow_info_bms_chg: _Optional[int] = ..., flow_info_4p8_1_in: _Optional[int] = ..., flow_info_4p8_1_out: _Optional[int] = ..., flow_info_4p8_2_in: _Optional[int] = ..., flow_info_4p8_2_out: _Optional[int] = ..., pow_get_bms: _Optional[float] = ..., pow_get_4p8_1: _Optional[float] = ..., pow_get_4p8_2: _Optional[float] = ..., plug_in_info_4p8_1_in_flag: _Optional[int] = ..., plug_in_info_4p8_1_type: _Optional[int] = ..., plug_in_info_4p8_1_detail: _Optional[int] = ..., plug_in_info_4p8_2_in_flag: _Optional[int] = ..., plug_in_info_4p8_2_type: _Optional[int] = ..., plug_in_info_4p8_2_detail: _Optional[int] = ..., plug_in_info_pv_l_charger_flag: _Optional[int] = ..., plug_in_info_pv_h_charger_flag: _Optional[int] = ..., plug_in_info_pv_l_dc_amp_max: _Optional[int] = ..., plug_in_info_pv_h_dc_amp_max: _Optional[int] = ..., fast_charge_switch: _Optional[int] = ..., plug_in_info_4p8_1_dsg_chg_type: _Optional[int] = ..., plug_in_info_4p8_1_resv: _Optional[_Union[ResvInfo, _Mapping]] = ..., plug_in_info_4p8_1_sn: _Optional[str] = ..., plug_in_info_4p8_1_firm_ver: _Optional[int] = ..., plug_in_info_4p8_2_dsg_chg_type: _Optional[int] = ..., plug_in_info_4p8_2_resv: _Optional[_Union[ResvInfo, _Mapping]] = ..., plug_in_info_4p8_2_sn: _Optional[str] = ..., plug_in_info_4p8_2_firm_ver: _Optional[int] = ..., plug_in_info_5p8_dsg_chg: _Optional[int] = ..., plug_in_info_5p8_resv: _Optional[_Union[ResvInfo, _Mapping]] = ..., plug_in_info_5p8_sn: _Optional[str] = ..., plug_in_info_5p8_firm_ver: _Optional[int] = ..., en_beep: _Optional[int] = ..., llc_GFCI_flag: _Optional[int] = ..., plug_in_info_ac_charger_flag: _Optional[int] = ..., plug_in_info_5p8_charger_flag: _Optional[int] = ..., plug_in_info_5p8_run_state: _Optional[int] = ..., plug_in_info_4p8_1_charger_flag: _Optional[int] = ..., plug_in_info_4p8_1_run_state: _Optional[int] = ..., plug_in_info_4p8_2_charger_flag: _Optional[int] = ..., plug_in_info_4p8_2_run_state: _Optional[int] = ..., plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., plug_in_info_5p8_chg_pow_max: _Optional[int] = ..., ac_out_freq: _Optional[int] = ..., dev_sleep_state: _Optional[int] = ..., pd_err_code: _Optional[int] = ..., llc_err_code: _Optional[int] = ..., mppt_err_code: _Optional[int] = ..., plug_in_info_5p8_err_code: _Optional[int] = ..., plug_in_info_4p8_1_err_code: _Optional[int] = ..., plug_in_info_4p8_2_err_code: _Optional[int] = ..., pcs_fan_err_flag: _Optional[int] = ..., llc_hv_lv_flag: _Optional[int] = ..., llc_inv_err_code: _Optional[int] = ..., plug_in_info_pv_h_chg_vol_max: _Optional[int] = ..., plug_in_info_pv_l_chg_vol_max: _Optional[int] = ..., plug_in_info_pv_l_chg_amp_max: _Optional[int] = ..., plug_in_info_pv_h_chg_amp_max: _Optional[int] = ..., plug_in_info_5p8_dsg_pow_max: _Optional[int] = ..., plug_in_info_ac_out_dsg_pow_max: _Optional[int] = ..., bms_batt_soc: _Optional[float] = ..., bms_batt_soh: _Optional[float] = ..., bms_design_cap: _Optional[int] = ..., bms_dsg_rem_time: _Optional[int] = ..., bms_chg_rem_time: _Optional[int] = ..., bms_min_cell_temp: _Optional[int] = ..., bms_max_cell_temp: _Optional[int] = ..., bms_min_mos_temp: _Optional[int] = ..., bms_max_mos_temp: _Optional[int] = ..., cms_batt_soc: _Optional[float] = ..., cms_batt_soh: _Optional[float] = ..., cms_dsg_rem_time: _Optional[int] = ..., cms_chg_rem_time: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cms_oil_on_soc: _Optional[int] = ..., cms_oil_off_soc: _Optional[int] = ..., cms_oil_self_start: _Optional[int] = ..., cms_bms_run_state: _Optional[int] = ..., bms_chg_dsg_state: _Optional[int] = ..., cms_chg_dsg_state: _Optional[int] = ..., ac_hv_always_on: _Optional[int] = ..., ac_lv_always_on: _Optional[int] = ..., time_task_conflict_flag: _Optional[int] = ..., time_task_change_cnt: _Optional[int] = ..., ble_standby_time: _Optional[int] = ..., generator_pv_hybrid_mode_open: _Optional[int] = ..., generator_pv_hybrid_mode_soc_max: _Optional[int] = ..., generator_care_mode_open: _Optional[int] = ..., generator_care_mode_start_time: _Optional[int] = ..., ac_energy_saving_open: _Optional[int] = ..., multi_bp_chg_dsg_mode: _Optional[int] = ..., plug_in_info_5p8_chg_hal_pow_max: _Optional[int] = ..., plug_in_info_ac_in_chg_hal_pow_max: _Optional[int] = ...) -> None: ...
+
+class ResvInfo(_message.Message):
+    __slots__ = ("resv_info",)
+    RESV_INFO_FIELD_NUMBER: _ClassVar[int]
+    resv_info: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, resv_info: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class struct32_2_1(_message.Message):
+    __slots__ = ("unknown1", "unknown2", "unknown3", "volt4", "unknown5", "unknown6", "maxChargeSoc7", "unknown8", "unknown9", "unknown10", "unknown11", "unknown12", "unknown13", "unknown14", "soc15", "bmsIsConnt16", "unknown17", "unknown18", "unknown19", "unknown20", "unknown21", "unknown22", "unknown23")
+    UNKNOWN1_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN2_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN3_FIELD_NUMBER: _ClassVar[int]
+    VOLT4_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN5_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN6_FIELD_NUMBER: _ClassVar[int]
+    MAXCHARGESOC7_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN8_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN9_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN10_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN11_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN12_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN13_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN14_FIELD_NUMBER: _ClassVar[int]
+    SOC15_FIELD_NUMBER: _ClassVar[int]
+    BMSISCONNT16_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN17_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN18_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN19_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN20_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN21_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN22_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN23_FIELD_NUMBER: _ClassVar[int]
+    unknown1: int
+    unknown2: int
+    unknown3: int
+    volt4: int
+    unknown5: int
+    unknown6: int
+    maxChargeSoc7: int
+    unknown8: int
+    unknown9: int
+    unknown10: int
+    unknown11: int
+    unknown12: int
+    unknown13: int
+    unknown14: int
+    soc15: float
+    bmsIsConnt16: _containers.RepeatedScalarFieldContainer[int]
+    unknown17: int
+    unknown18: int
+    unknown19: int
+    unknown20: int
+    unknown21: int
+    unknown22: int
+    unknown23: int
+    def __init__(self, unknown1: _Optional[int] = ..., unknown2: _Optional[int] = ..., unknown3: _Optional[int] = ..., volt4: _Optional[int] = ..., unknown5: _Optional[int] = ..., unknown6: _Optional[int] = ..., maxChargeSoc7: _Optional[int] = ..., unknown8: _Optional[int] = ..., unknown9: _Optional[int] = ..., unknown10: _Optional[int] = ..., unknown11: _Optional[int] = ..., unknown12: _Optional[int] = ..., unknown13: _Optional[int] = ..., unknown14: _Optional[int] = ..., soc15: _Optional[float] = ..., bmsIsConnt16: _Optional[_Iterable[int]] = ..., unknown17: _Optional[int] = ..., unknown18: _Optional[int] = ..., unknown19: _Optional[int] = ..., unknown20: _Optional[int] = ..., unknown21: _Optional[int] = ..., unknown22: _Optional[int] = ..., unknown23: _Optional[int] = ...) -> None: ...
+
+class struct32_2_2(_message.Message):
+    __slots__ = ("unknown1", "unknown2", "unknown3", "unknown4", "unknown5")
+    UNKNOWN1_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN2_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN3_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN4_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN5_FIELD_NUMBER: _ClassVar[int]
+    unknown1: int
+    unknown2: int
+    unknown3: int
+    unknown4: int
+    unknown5: int
+    def __init__(self, unknown1: _Optional[int] = ..., unknown2: _Optional[int] = ..., unknown3: _Optional[int] = ..., unknown4: _Optional[int] = ..., unknown5: _Optional[int] = ...) -> None: ...
+
+class cmdFunc32_cmdId2_Report(_message.Message):
+    __slots__ = ("msg32_2_1", "msg32_2_2")
+    MSG32_2_1_FIELD_NUMBER: _ClassVar[int]
+    MSG32_2_2_FIELD_NUMBER: _ClassVar[int]
+    msg32_2_1: struct32_2_1
+    msg32_2_2: struct32_2_2
+    def __init__(self, msg32_2_1: _Optional[_Union[struct32_2_1, _Mapping]] = ..., msg32_2_2: _Optional[_Union[struct32_2_2, _Mapping]] = ...) -> None: ...
+
+class cmdFunc254_cmdId23_Report(_message.Message):
+    __slots__ = ("timestamp1", "unknown2", "unknown5")
+    TIMESTAMP1_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN2_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN5_FIELD_NUMBER: _ClassVar[int]
+    timestamp1: int
+    unknown2: float
+    unknown5: int
+    def __init__(self, timestamp1: _Optional[int] = ..., unknown2: _Optional[float] = ..., unknown5: _Optional[int] = ...) -> None: ...
+
+class set_dp3(_message.Message):
+    __slots__ = ("cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
+    CFGPOWEROFF_FIELD_NUMBER: _ClassVar[int]
+    ENBEEP_FIELD_NUMBER: _ClassVar[int]
+    ACSTANDBYTIME_FIELD_NUMBER: _ClassVar[int]
+    DCSTANDBYTIME_FIELD_NUMBER: _ClassVar[int]
+    SCREENOFFTIME_FIELD_NUMBER: _ClassVar[int]
+    DEVSTANDBYTIME_FIELD_NUMBER: _ClassVar[int]
+    LCDLIGHT_FIELD_NUMBER: _ClassVar[int]
+    CFGHVACOUTOPEN_FIELD_NUMBER: _ClassVar[int]
+    CFGLVACOUTOPEN_FIELD_NUMBER: _ClassVar[int]
+    CFGDC12VOUTOPEN_FIELD_NUMBER: _ClassVar[int]
+    XBOOSTEN_FIELD_NUMBER: _ClassVar[int]
+    CMSMAXCHGSOC_FIELD_NUMBER: _ClassVar[int]
+    CMSMINDSGSOC_FIELD_NUMBER: _ClassVar[int]
+    PLUGININFOPVLDCAMPMAX_FIELD_NUMBER: _ClassVar[int]
+    PLUGININFOPVHDCAMPMAX_FIELD_NUMBER: _ClassVar[int]
+    PLUGININFOACINCHGPOWMAX_FIELD_NUMBER: _ClassVar[int]
+    PLUGININFO_5P8CHGPOWMAX_FIELD_NUMBER: _ClassVar[int]
+    CMSOILSELFSTART_FIELD_NUMBER: _ClassVar[int]
+    CMSOILONSOC_FIELD_NUMBER: _ClassVar[int]
+    CMSOILOFFSOC_FIELD_NUMBER: _ClassVar[int]
+    LLC_GFCIFLAG_FIELD_NUMBER: _ClassVar[int]
+    ACENERGYSAVINGOPEN_FIELD_NUMBER: _ClassVar[int]
+    MULTIBPCHGDSGMODE_FIELD_NUMBER: _ClassVar[int]
+    LOWDISCHARGELIMITCMD_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN167_FIELD_NUMBER: _ClassVar[int]
+    cfgPowerOff: int
+    enBeep: int
+    acStandbyTime: int
+    dcStandbyTime: int
+    screenOffTime: int
+    devStandbyTime: int
+    lcdLight: int
+    cfgHvAcOutOpen: int
+    cfgLvAcOutOpen: int
+    cfgDc12vOutOpen: int
+    xboostEn: int
+    cmsMaxChgSoc: int
+    cmsMinDsgSoc: int
+    plugInInfoPvLDcAmpMax: int
+    plugInInfoPvHDcAmpMax: int
+    plugInInfoAcInChgPowMax: int
+    plugInInfo_5p8ChgPowMax: int
+    cmsOilSelfStart: int
+    cmsOilOnSoc: int
+    cmsOilOffSoc: int
+    llc_GFCIFlag: int
+    acEnergySavingOpen: int
+    multiBpChgDsgMode: int
+    lowDischargeLimitCmd: int
+    unknown167: int
+    def __init__(self, cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
+
+class setReply_dp3(_message.Message):
+    __slots__ = ("actionId", "configOk", "cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
+    ACTIONID_FIELD_NUMBER: _ClassVar[int]
+    CONFIGOK_FIELD_NUMBER: _ClassVar[int]
+    CFGPOWEROFF_FIELD_NUMBER: _ClassVar[int]
+    ENBEEP_FIELD_NUMBER: _ClassVar[int]
+    ACSTANDBYTIME_FIELD_NUMBER: _ClassVar[int]
+    DCSTANDBYTIME_FIELD_NUMBER: _ClassVar[int]
+    SCREENOFFTIME_FIELD_NUMBER: _ClassVar[int]
+    DEVSTANDBYTIME_FIELD_NUMBER: _ClassVar[int]
+    LCDLIGHT_FIELD_NUMBER: _ClassVar[int]
+    CFGHVACOUTOPEN_FIELD_NUMBER: _ClassVar[int]
+    CFGLVACOUTOPEN_FIELD_NUMBER: _ClassVar[int]
+    CFGDC12VOUTOPEN_FIELD_NUMBER: _ClassVar[int]
+    XBOOSTEN_FIELD_NUMBER: _ClassVar[int]
+    CMSMAXCHGSOC_FIELD_NUMBER: _ClassVar[int]
+    CMSMINDSGSOC_FIELD_NUMBER: _ClassVar[int]
+    PLUGININFOPVLDCAMPMAX_FIELD_NUMBER: _ClassVar[int]
+    PLUGININFOPVHDCAMPMAX_FIELD_NUMBER: _ClassVar[int]
+    PLUGININFOACINCHGPOWMAX_FIELD_NUMBER: _ClassVar[int]
+    PLUGININFO_5P8CHGPOWMAX_FIELD_NUMBER: _ClassVar[int]
+    CMSOILSELFSTART_FIELD_NUMBER: _ClassVar[int]
+    CMSOILONSOC_FIELD_NUMBER: _ClassVar[int]
+    CMSOILOFFSOC_FIELD_NUMBER: _ClassVar[int]
+    LLC_GFCIFLAG_FIELD_NUMBER: _ClassVar[int]
+    ACENERGYSAVINGOPEN_FIELD_NUMBER: _ClassVar[int]
+    MULTIBPCHGDSGMODE_FIELD_NUMBER: _ClassVar[int]
+    LOWDISCHARGELIMITCMD_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN167_FIELD_NUMBER: _ClassVar[int]
+    actionId: int
+    configOk: bool
+    cfgPowerOff: int
+    enBeep: int
+    acStandbyTime: int
+    dcStandbyTime: int
+    screenOffTime: int
+    devStandbyTime: int
+    lcdLight: int
+    cfgHvAcOutOpen: int
+    cfgLvAcOutOpen: int
+    cfgDc12vOutOpen: int
+    xboostEn: int
+    cmsMaxChgSoc: int
+    cmsMinDsgSoc: int
+    plugInInfoPvLDcAmpMax: int
+    plugInInfoPvHDcAmpMax: int
+    plugInInfoAcInChgPowMax: int
+    plugInInfo_5p8ChgPowMax: int
+    cmsOilSelfStart: int
+    cmsOilOnSoc: int
+    cmsOilOffSoc: int
+    llc_GFCIFlag: int
+    acEnergySavingOpen: int
+    multiBpChgDsgMode: int
+    lowDischargeLimitCmd: int
+    unknown167: int
+    def __init__(self, actionId: _Optional[int] = ..., configOk: bool = ..., cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
+
+class setValue(_message.Message):
+    __slots__ = ("value", "value2")
+    VALUE_FIELD_NUMBER: _ClassVar[int]
+    VALUE2_FIELD_NUMBER: _ClassVar[int]
+    value: int
+    value2: int
+    def __init__(self, value: _Optional[int] = ..., value2: _Optional[int] = ...) -> None: ...
+
+class setMessage(_message.Message):
+    __slots__ = ("header",)
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    header: setHeader
+    def __init__(self, header: _Optional[_Union[setHeader, _Mapping]] = ...) -> None: ...
+
+class setHeader(_message.Message):
+    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
+    PDATA_FIELD_NUMBER: _ClassVar[int]
+    SRC_FIELD_NUMBER: _ClassVar[int]
+    DEST_FIELD_NUMBER: _ClassVar[int]
+    D_SRC_FIELD_NUMBER: _ClassVar[int]
+    D_DEST_FIELD_NUMBER: _ClassVar[int]
+    ENC_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CHECK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CMD_FUNC_FIELD_NUMBER: _ClassVar[int]
+    CMD_ID_FIELD_NUMBER: _ClassVar[int]
+    DATA_LEN_FIELD_NUMBER: _ClassVar[int]
+    NEED_ACK_FIELD_NUMBER: _ClassVar[int]
+    IS_ACK_FIELD_NUMBER: _ClassVar[int]
+    SEQ_FIELD_NUMBER: _ClassVar[int]
+    PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
+    VERSION_FIELD_NUMBER: _ClassVar[int]
+    PAYLOAD_VER_FIELD_NUMBER: _ClassVar[int]
+    TIME_SNAP_FIELD_NUMBER: _ClassVar[int]
+    IS_RW_CMD_FIELD_NUMBER: _ClassVar[int]
+    IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
+    ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    FROM_FIELD_NUMBER: _ClassVar[int]
+    MODULE_SN_FIELD_NUMBER: _ClassVar[int]
+    DEVICE_SN_FIELD_NUMBER: _ClassVar[int]
+    pdata: setValue
+    src: int
+    dest: int
+    d_src: int
+    d_dest: int
+    enc_type: int
+    check_type: int
+    cmd_func: int
+    cmd_id: int
+    data_len: int
+    need_ack: int
+    is_ack: int
+    seq: int
+    product_id: int
+    version: int
+    payload_ver: int
+    time_snap: int
+    is_rw_cmd: int
+    is_queue: int
+    ack_type: int
+    code: str
+    module_sn: str
+    device_sn: str
+    def __init__(self, pdata: _Optional[_Union[setValue, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+
+class Header(_message.Message):
+    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
+    PDATA_FIELD_NUMBER: _ClassVar[int]
+    SRC_FIELD_NUMBER: _ClassVar[int]
+    DEST_FIELD_NUMBER: _ClassVar[int]
+    D_SRC_FIELD_NUMBER: _ClassVar[int]
+    D_DEST_FIELD_NUMBER: _ClassVar[int]
+    ENC_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CHECK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CMD_FUNC_FIELD_NUMBER: _ClassVar[int]
+    CMD_ID_FIELD_NUMBER: _ClassVar[int]
+    DATA_LEN_FIELD_NUMBER: _ClassVar[int]
+    NEED_ACK_FIELD_NUMBER: _ClassVar[int]
+    IS_ACK_FIELD_NUMBER: _ClassVar[int]
+    SEQ_FIELD_NUMBER: _ClassVar[int]
+    PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
+    VERSION_FIELD_NUMBER: _ClassVar[int]
+    PAYLOAD_VER_FIELD_NUMBER: _ClassVar[int]
+    TIME_SNAP_FIELD_NUMBER: _ClassVar[int]
+    IS_RW_CMD_FIELD_NUMBER: _ClassVar[int]
+    IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
+    ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    FROM_FIELD_NUMBER: _ClassVar[int]
+    MODULE_SN_FIELD_NUMBER: _ClassVar[int]
+    DEVICE_SN_FIELD_NUMBER: _ClassVar[int]
+    pdata: bytes
+    src: int
+    dest: int
+    d_src: int
+    d_dest: int
+    enc_type: int
+    check_type: int
+    cmd_func: int
+    cmd_id: int
+    data_len: int
+    need_ack: int
+    is_ack: int
+    seq: int
+    product_id: int
+    version: int
+    payload_ver: int
+    time_snap: int
+    is_rw_cmd: int
+    is_queue: int
+    ack_type: int
+    code: str
+    module_sn: str
+    device_sn: str
+    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+
+class HeaderMessage(_message.Message):
+    __slots__ = ("header",)
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    header: _containers.RepeatedCompositeFieldContainer[Header]
+    def __init__(self, header: _Optional[_Iterable[_Union[Header, _Mapping]]] = ...) -> None: ...
+
+class EventRecordItem(_message.Message):
+    __slots__ = ("timestamp", "sys_ms", "event_no", "event_detail")
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    SYS_MS_FIELD_NUMBER: _ClassVar[int]
+    EVENT_NO_FIELD_NUMBER: _ClassVar[int]
+    EVENT_DETAIL_FIELD_NUMBER: _ClassVar[int]
+    timestamp: int
+    sys_ms: int
+    event_no: int
+    event_detail: _containers.RepeatedScalarFieldContainer[float]
+    def __init__(self, timestamp: _Optional[int] = ..., sys_ms: _Optional[int] = ..., event_no: _Optional[int] = ..., event_detail: _Optional[_Iterable[float]] = ...) -> None: ...
+
+class EventRecordReport(_message.Message):
+    __slots__ = ("event_ver", "event_seq", "event_item")
+    EVENT_VER_FIELD_NUMBER: _ClassVar[int]
+    EVENT_SEQ_FIELD_NUMBER: _ClassVar[int]
+    EVENT_ITEM_FIELD_NUMBER: _ClassVar[int]
+    event_ver: int
+    event_seq: int
+    event_item: _containers.RepeatedCompositeFieldContainer[EventRecordItem]
+    def __init__(self, event_ver: _Optional[int] = ..., event_seq: _Optional[int] = ..., event_item: _Optional[_Iterable[_Union[EventRecordItem, _Mapping]]] = ...) -> None: ...
+
+class EventInfoReportAck(_message.Message):
+    __slots__ = ("result", "event_seq", "event_item_num")
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    EVENT_SEQ_FIELD_NUMBER: _ClassVar[int]
+    EVENT_ITEM_NUM_FIELD_NUMBER: _ClassVar[int]
+    result: int
+    event_seq: int
+    event_item_num: int
+    def __init__(self, result: _Optional[int] = ..., event_seq: _Optional[int] = ..., event_item_num: _Optional[int] = ...) -> None: ...
+
+class ProductNameSet(_message.Message):
+    __slots__ = ("name",)
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    def __init__(self, name: _Optional[str] = ...) -> None: ...
+
+class ProductNameSetAck(_message.Message):
+    __slots__ = ("result",)
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    result: int
+    def __init__(self, result: _Optional[int] = ...) -> None: ...
+
+class ProductNameGet(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class ProductNameGetAck(_message.Message):
+    __slots__ = ("name",)
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    def __init__(self, name: _Optional[str] = ...) -> None: ...
+
+class RTCTimeGet(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class RTCTimeGetAck(_message.Message):
+    __slots__ = ("timestamp", "timezone")
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    TIMEZONE_FIELD_NUMBER: _ClassVar[int]
+    timestamp: int
+    timezone: int
+    def __init__(self, timestamp: _Optional[int] = ..., timezone: _Optional[int] = ...) -> None: ...
+
+class RTCTimeSet(_message.Message):
+    __slots__ = ("timestamp", "timezone")
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    TIMEZONE_FIELD_NUMBER: _ClassVar[int]
+    timestamp: int
+    timezone: int
+    def __init__(self, timestamp: _Optional[int] = ..., timezone: _Optional[int] = ...) -> None: ...
+
+class RTCTimeSetAck(_message.Message):
+    __slots__ = ("result",)
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    result: int
+    def __init__(self, result: _Optional[int] = ...) -> None: ...
+
+class Send_Header_Msg(_message.Message):
+    __slots__ = ("msg",)
+    MSG_FIELD_NUMBER: _ClassVar[int]
+    msg: Header
+    def __init__(self, msg: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
+
+class SendMsgHart(_message.Message):
+    __slots__ = ("link_id", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "ack_type", "seq", "time_snap", "is_rw_cmd", "is_queue", "product_id", "version")
+    LINK_ID_FIELD_NUMBER: _ClassVar[int]
+    SRC_FIELD_NUMBER: _ClassVar[int]
+    DEST_FIELD_NUMBER: _ClassVar[int]
+    D_SRC_FIELD_NUMBER: _ClassVar[int]
+    D_DEST_FIELD_NUMBER: _ClassVar[int]
+    ENC_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CHECK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CMD_FUNC_FIELD_NUMBER: _ClassVar[int]
+    CMD_ID_FIELD_NUMBER: _ClassVar[int]
+    DATA_LEN_FIELD_NUMBER: _ClassVar[int]
+    NEED_ACK_FIELD_NUMBER: _ClassVar[int]
+    IS_ACK_FIELD_NUMBER: _ClassVar[int]
+    ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    SEQ_FIELD_NUMBER: _ClassVar[int]
+    TIME_SNAP_FIELD_NUMBER: _ClassVar[int]
+    IS_RW_CMD_FIELD_NUMBER: _ClassVar[int]
+    IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
+    PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
+    VERSION_FIELD_NUMBER: _ClassVar[int]
+    link_id: int
+    src: int
+    dest: int
+    d_src: int
+    d_dest: int
+    enc_type: int
+    check_type: int
+    cmd_func: int
+    cmd_id: int
+    data_len: int
+    need_ack: int
+    is_ack: int
+    ack_type: int
+    seq: int
+    time_snap: int
+    is_rw_cmd: int
+    is_queue: int
+    product_id: int
+    version: int
+    def __init__(self, link_id: _Optional[int] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., ack_type: _Optional[int] = ..., seq: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ...) -> None: ...
