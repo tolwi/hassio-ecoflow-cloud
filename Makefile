@@ -22,7 +22,9 @@ help:
 # Setup & Environment
 reset:
 	@echo "Updating Home Assistant core to latest..."
-	cd core && git pull origin dev
+	if [ ! -d core ]; then \
+		git clone https://github.com/home-assistant/core.git; \
+	fi
 	@echo "Resetting Home Assistant configuration..."
 	rm -Rf ./core/config/
 	mkdir ./core/config/

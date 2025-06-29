@@ -362,7 +362,7 @@ class DeltaPro3(BaseDevice):
                 lambda value: {
                     "moduleType": 0,
                     "operateType": "TCP",
-                    "params": {"acStandbyTime": value, "id": 153},
+                    "params": {"acStandbyTime": value, "id": 10},
                 },
             ),
             # DC Standby Timeout
@@ -388,7 +388,7 @@ class DeltaPro3(BaseDevice):
                 lambda value: {
                     "moduleType": 0,
                     "operateType": "TCP",
-                    "params": {"plugInInfoAcOutType": int(value), "id": 153},
+                    "params": {"plugInInfoAcOutType": int(value), "id": 59},
                 },
             ),
         ]
