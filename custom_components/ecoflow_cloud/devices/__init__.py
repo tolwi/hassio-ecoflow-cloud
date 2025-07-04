@@ -146,6 +146,9 @@ class BaseDevice(ABC):
         elif data_type == self.device_info.get_reply_topic:
             raw = self._prepare_data_get_reply_topic(raw_data)
             self.data.add_get_reply_message(raw)
+        elif data_type == self.device_info.status_topic:
+            raw = self._prepare_data_status_topic(raw_data)
+            self.data.update_status(raw)
         else:
             return False
         return True
@@ -163,6 +166,9 @@ class BaseDevice(ABC):
         return self._prepare_data(raw_data)
 
     def _prepare_data_get_reply_topic(self, raw_data) -> dict[str, any]:
+        return self._prepare_data(raw_data)
+
+    def _prepare_data_status_topic(self, raw_data) -> dict[str, any]:
         return self._prepare_data(raw_data)
 
     def _prepare_data(self, raw_data) -> dict[str, any]:
