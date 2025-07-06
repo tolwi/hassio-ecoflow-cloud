@@ -53,6 +53,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "WAVE_2": internal_wave2.Wave2,
         "SMART_METER": internal_smart_meter.SmartMeter,
         "STREAM_AC": internal_stream_ac.StreamAC,
+        "STREAM_PRO": internal_stream_ac.StreamAC,
         "STREAM_ULTRA": internal_stream_ac.StreamAC,
         "DIAGNOSTIC": DiagnosticDevice,
     }
@@ -74,6 +75,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
         "Power Kits": public_powerkit.PowerKit,
         "Smart Meter": public_smart_meter.SmartMeter,
         "Stream AC": public_stream_ac.StreamAC,
+        "Stream PRO": public_stream_ac.StreamAC,
         "Stream Ultra": public_stream_ac.StreamAC,
         "Stream Microinverter" : public_stream_microinverter.StreamMicroinveter,
         "Diagnostic": DiagnosticDevice,
