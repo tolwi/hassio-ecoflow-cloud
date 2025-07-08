@@ -1,5 +1,5 @@
 import logging
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from typing import Any
 from aiohttp import ClientResponse
@@ -11,8 +11,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EcoflowException(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
+    pass
 
 
 @dataclass
@@ -24,7 +23,7 @@ class EcoflowMqttInfo:
     client_id: str | None = None
 
 
-class EcoflowApiClient:
+class EcoflowApiClient(ABC):
     def __init__(self):
         self.mqtt_info: EcoflowMqttInfo
         self.devices: dict[str, Any] = {}
@@ -92,4 +91,5 @@ class EcoflowApiClient:
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
 
     def stop(self):
+        assert self.mqtt_client is not None
         self.mqtt_client.stop()
