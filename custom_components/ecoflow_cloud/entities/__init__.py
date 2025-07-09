@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import inspect
 from typing import Any, Callable, OrderedDict, Mapping
 
@@ -12,46 +11,68 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import EntityCategory, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.ecoflow_cloud import ECOFLOW_DOMAIN
-from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceUpdateCoordinator
+from .. import ECOFLOW_DOMAIN
+from ..api import EcoflowApiClient
+from ..devices import (
+    BaseDevice,
+    EcoflowDeviceUpdateCoordinator,
+)
 
 
 class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
     _attr_has_entity_name = True
     _attr_should_poll = False
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str, key: str):
+    def __init__(
+        self, client: EcoflowApiClient, device: BaseDevice, title: str, key: str
+    ):
         super().__init__(device.coordinator)
         self._client: EcoflowApiClient = client
         self._device: BaseDevice = device
         self._attr_name = title
-        self._attr_unique_id = self.__gen_unique_id(self._device.device_info.sn, key)
+        self._attr_unique_id = self._gen_unique_id(self._device.device_data.sn, key)
 
     @property
     def device_info(self) -> DeviceInfo | None:
+        name = self._device.device_data.name
+        if self._device.device_data.display_name:
+            name = self._device.device_data.display_name
         return DeviceInfo(
-            identifiers={(ECOFLOW_DOMAIN, f"{self._type_prefix()}{self._device.device_info.sn}")},
+            identifiers={
+                (ECOFLOW_DOMAIN, f"{self._type_prefix()}{self._device.device_data.sn}")
+            },
             manufacturer="EcoFlow",
-            name=self._device.device_info.name,
-            model=self._device.device_info.device_type,
+            name=name,
+            model=self._device.device_data.device_type,
+            serial_number=self._device.device_data.sn,
         )
 
     def _type_prefix(self):
         return "api-" if self._device.device_info.public_api else ""
 
-    def __gen_unique_id(self, sn: str, key: str):
-        return ('ecoflow-' + self._type_prefix() + sn + '-' + key.replace('.', '-')
-                .replace('_', '-')
-                .replace('[', '-')
-                .replace(']', '-')
-                )
+    def _gen_unique_id(self, sn: str, key: str):
+        return (
+            "ecoflow-"
+            + self._type_prefix()
+            + sn
+            + "-"
+            + key.replace(".", "-")
+            .replace("_", "-")
+            .replace("[", "-")
+            .replace("]", "-")
+        )
 
 
 class EcoFlowDictEntity(EcoFlowAbstractEntity):
-
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, enabled: bool = True,
-                 auto_enable: bool = False):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        mqtt_key: str,
+        title: str,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ):
         super().__init__(client, device, title, mqtt_key)
 
         self.__mqtt_key = mqtt_key
@@ -61,7 +82,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self._auto_enable = auto_enable
         self._attr_entity_registry_enabled_default = enabled
         self._attr_entity_registry_visible_default = enabled
-        self._attr_available  = enabled
+        self._attr_available = enabled
         self.__attributes_mapping: dict[str, str] = {}
         self.__attrs = OrderedDict[str, Any]()
 
@@ -125,9 +146,18 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
 
 class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str,
-                 command: Callable[[Any], dict[str, Any]] | Callable[[Any, dict[str, Any]], dict[str, Any]] | None,
-                 enabled: bool = True, auto_enable: bool = False):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        mqtt_key: str,
+        title: str,
+        command: Callable[[Any], dict[str, Any]]
+        | Callable[[Any, dict[str, Any]], dict[str, Any]]
+        | None,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ):
         super().__init__(client, device, mqtt_key, title, enabled, auto_enable)
         self._command = command
 
@@ -138,20 +168,33 @@ class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
                 return self._command(value)
             elif p_count == 2:
                 return self._command(value, self._device.data.params)
+            return None
         else:
             return None
 
     def send_set_message(self, target_value: Any, command: dict):
-        self._client.mqtt_client.send_set_message(self._device.device_info.sn, {self._mqtt_key_adopted: target_value}, command)
+        self._client.mqtt_client.send_set_message(
+            self._device.device_info.sn, {self._mqtt_key_adopted: target_value}, command
+        )
 
 
 class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
     _attr_entity_category = EntityCategory.CONFIG
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, min_value: int, max_value: int,
-                 command: Callable[[int], dict[str, Any]] | Callable[[int, dict[str, Any]], dict[str, Any]] | None,
-                 enabled: bool = True,
-                 auto_enable: bool = False):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        mqtt_key: str,
+        title: str,
+        min_value: int,
+        max_value: int,
+        command: Callable[[int], dict[str, Any]]
+        | Callable[[int, dict[str, Any]], dict[str, Any]]
+        | None,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ):
         super().__init__(client, device, mqtt_key, title, command, enabled, auto_enable)
         self._attr_native_max_value = max_value
         self._attr_native_min_value = min_value
@@ -165,7 +208,6 @@ class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
 
 
 class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):
-
     def _update_value(self, val: Any) -> bool:
         if self._attr_native_value != val:
             self._attr_native_value = val

@@ -121,8 +121,10 @@ BATTERY_CHARGING_STATE = "Battery Charging State"
 
 ATTR_DESIGN_CAPACITY = "Design Capacity (mAh)"
 ATTR_FULL_CAPACITY = "Full Capacity (mAh)"
+SOLAR_AND_ALT_IN_POWER = "Total In Power"
 ATTR_REMAIN_CAPACITY = "Remain Capacity (mAh)"
 MAIN_DESIGN_CAPACITY = "Main Design Capacity"
+ALT_1_IN_POWER = "Alt (1) In Power"
 MAIN_FULL_CAPACITY = "Main Full Capacity"
 MAIN_REMAIN_CAPACITY = "Main Remain Capacity"
 SLAVE_DESIGN_CAPACITY = "Slave Design Capacity"
@@ -145,6 +147,7 @@ SOLAR_1_IN_AMPS = "Solar (1) In Amps"
 SOLAR_2_IN_AMPS = "Solar (2) In Amps"
 AC_IN_POWER = "AC In Power"
 AC_IN_VOLT = "AC In Volts"
+DC_BATTERY_POWER = "DC Battery Power"
 AC_OUT_VOLT = "AC Out Volts"
 
 TYPE_C_IN_POWER = "Type-C In Power"
@@ -180,6 +183,7 @@ DISCHARGE_REMAINING_TIME = "Discharge Remaining Time"
 
 CYCLES = "Cycles"
 SOH = "State of Health"
+REAL_SOH = "Real State of Health"
 
 SLAVE_BATTERY_LEVEL = "Slave Battery Level"
 SLAVE_N_BATTERY_LEVEL = "Slave %i Battery Level"
@@ -272,3 +276,71 @@ FAN_MODE = "Wind speed"
 MAIN_MODE = "Main mode"
 REMOTE_MODE = "Remote startup/shutdown"
 POWER_SUB_MODE = "Sub-mode"
+
+# Smart Meter
+SMART_METER_POWER_GLOBAL = "Power Grid Global"
+SMART_METER_POWER_L1 = "Power Grid L1"
+SMART_METER_POWER_L2 = "Power Grid L2"
+SMART_METER_POWER_L3 = "Power Grid L3"
+SMART_METER_IN_AMPS_L1 = "Power Grid (L1) In Amps"
+SMART_METER_IN_AMPS_L2 = "Power Grid (L2) In Amps"
+SMART_METER_IN_AMPS_L3 = "Power Grid (L3) In Amps"
+SMART_METER_VOLT_L1 = "Power Grid (L1) Volts"
+SMART_METER_VOLT_L2 = "Power Grid (L2) Volts"
+SMART_METER_VOLT_L3 = "Power Grid (L3) Volts"
+SMART_METER_FLAG_L1 = "Flag L1"
+SMART_METER_FLAG_L2 = "Flag L2"
+SMART_METER_FLAG_L3 = "Flag L3"
+SMART_METER_RECORD_ACTIVE_TODAY = "Lifetime consumption"
+SMART_METER_RECORD_ACTIVE_TOTAL = "Lifetime net usage"
+SMART_METER_RECORD_REACTIVE_TODAY = "Lifetime injection (2)"
+SMART_METER_RECORD_REACTIVE_TOTAL = "Lifetime injection"
+SMART_METER_RECORD_ACTIVE_TODAY_L1 = "L1 Lifetime net usage"
+SMART_METER_RECORD_ACTIVE_TODAY_L2 = "L2 Lifetime net usage"
+SMART_METER_RECORD_ACTIVE_TODAY_L3 = "L3 Lifetime net usage"
+
+# Stream AC
+STREAM_POWER_AC = "Power AC" # <0 import from home to battery / >0 export from battery to home
+STREAM_POWER_VOL = "Power Volts" # <0 import from home to battery / >0 export from battery to home
+STREAM_POWER_AMP = "Power In Amps"
+STREAM_POWER_AC_SYS = "Power AC SYS" # <0 import from home to battery / >0 export from battery to home
+STREAM_POWER_PV_1 = "Power PV 1"
+STREAM_POWER_PV_2 = "Power PV 2"
+STREAM_POWER_PV_3 = "Power PV 3"
+STREAM_POWER_PV_4 = "Power PV 4"
+STREAM_IN_AMPS_PV_1 = "Power PV1 In Amps"
+STREAM_IN_AMPS_PV_2 = "Power PV2 In Amps"
+STREAM_IN_VOL_PV_1 = "Power PV1 Volts"
+STREAM_IN_VOL_PV_2 = "Power PV2 Volts"
+STREAM_POWER_PV_SUM = "Power PV Sum"
+STREAM_GET_SYS_LOAD = "Power Sys Load" # powGetSysLoad
+STREAM_GET_SYS_LOAD_FROM_BP = "Power Sys Load From Battery" # powGetSysLoadFromBp
+STREAM_GET_SYS_LOAD_FROM_GRID = "Power Sys Load From Grid" # powGetSysLoadFromGrid
+STREAM_GET_SYS_LOAD_FROM_PV = "Power Sys Load From PV" # powGetSysLoadFromPv
+STREAM_GET_SCHUKO1 = "Power SCHUKO1" # powGetSchuko1
+STREAM_GET_SCHUKO2 = "Power SCHUKO2" # powGetSchuko2
+STREAM_POWER_GRID = "Power Grid" # power from smart meter or shelly
+STREAM_POWER_BATTERY = "Power Battery" # <0 discharge battery / >0 charge batterie
+STREAM_POWER_BATTERY_SOC = "Power Battery SOC" # <0 discharge battery / >0 charge batterie
+STREAM_BATTERY_LEVEL = "Battery Level"
+STREAM_DESIGN_CAPACITY = "Design Capacity"
+STREAM_FULL_CAPACITY = "Full Capacity"
+STREAM_REMAIN_CAPACITY = "Remain Capacity"
+STREAM_STR_BATTERY_LEVEL = "Battery Level %s "
+STREAM_STR_DESIGN_CAPACITY = "Design Capacity %s "
+STREAM_STR_FULL_CAPACITY = "Full Capacity %s "
+STREAM_STR_REMAIN_CAPACITY = "Remain Capacity %s "
+STREAM_IN_POWER = "In Power"
+STREAM_STR_IN_POWER = "In Power %s"
+STREAM_OUT_POWER = "Out Power"
+STREAM_STR_OUT_POWER = "Out Power %s"
+
+ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
+ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
+ACCU_DISCHARGE_CAP = "Cumulative Capacity Discharge (mAh)"
+ACCU_DISCHARGE_ENERGY = "Cumulative Energy Discharge (Wh)"
+
+SLAVE_N_ACCU_CHARGE_CAP = "Slave %i Cumulative Capacity Charge (mAh)"
+SLAVE_N_ACCU_CHARGE_ENERGY = "Slave %i Cumulative Energy Charge (Wh)"
+SLAVE_N_ACCU_DISCHARGE_CAP = "Slave %i Cumulative Capacity Discharge (mAh)"
+SLAVE_N_ACCU_DISCHARGE_ENERGY = "Slave %i Cumulative Energy Discharge (Wh)"

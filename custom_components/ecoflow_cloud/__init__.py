@@ -1,19 +1,16 @@
-import logging
+from __future__ import annotations  # for DeviceData.parent: DeviceData
 import dataclasses
+import logging
 from typing import Final
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-from .api import EcoflowApiClient
-from .api.private_api import EcoflowPrivateApiClient
-from .api.public_api import EcoflowPublicApiClient
-
 _LOGGER = logging.getLogger(__name__)
 
 ECOFLOW_DOMAIN = "ecoflow_cloud"
-CONFIG_VERSION = 6
+CONFIG_VERSION = 9
 
 _PLATFORMS = {
     Platform.NUMBER,
@@ -21,7 +18,6 @@ _PLATFORMS = {
     Platform.SENSOR,
     Platform.SWITCH,
     Platform.BUTTON,
-
 }
 
 ATTR_STATUS_SN = "SN"
@@ -37,9 +33,10 @@ CONF_AUTH_TYPE: Final = "auth_type"
 
 CONF_USERNAME: Final = "username"
 CONF_PASSWORD: Final = "password"
+
+CONF_API_HOST: Final = "api_host"
 CONF_ACCESS_KEY: Final = "access_key"
 CONF_SECRET_KEY: Final = "secret_key"
-CONF_LOAD_ALL_DEVICES: Final = "load_all_devices"
 CONF_GROUP: Final = "group"
 CONF_DEVICE_LIST: Final = "devices_list"
 CONF_ENTRY_ID: Final = "entry_id"
@@ -49,18 +46,12 @@ CONF_SELECT_DEVICE_KEY: Final = "select_device"
 CONF_DEVICE_TYPE: Final = "device_type"
 CONF_DEVICE_NAME: Final = "device_name"
 CONF_DEVICE_ID: Final = "device_id"
+CONF_PARENT_SN: Final = "parent_sn"
 OPTS_DIAGNOSTIC_MODE: Final = "diagnostic_mode"
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 5
-
-
-@dataclasses.dataclass
-class DeviceData:
-    sn: str
-    name: str
-    device_type: str
 
 
 @dataclasses.dataclass
@@ -70,105 +61,116 @@ class DeviceOptions:
     diagnostic_mode: bool
 
 
+@dataclasses.dataclass
+class DeviceData:
+    sn: str
+    name: str
+    device_type: str
+    options: DeviceOptions
+    display_name: str | None
+    parent: DeviceData | None
+
+
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
-    """Migrate old entry."""
-    if config_entry.version <= 2:
-        from .devices.registry import devices as device_registry
-        device = device_registry[config_entry.data[CONF_DEVICE_TYPE]]
+    updated: bool = False
+    if config_entry.version in (5, 6):
+        new_data = dict(config_entry.data)
+        new_options = dict(config_entry.options)
+        new_devices = dict[str, DeviceData]()
+        for sn, device_info in config_entry.data[CONF_DEVICE_LIST].items():
+            new_devices[sn] = {
+                CONF_DEVICE_NAME: device_info[CONF_DEVICE_NAME],
+                CONF_DEVICE_TYPE: device_info[CONF_DEVICE_TYPE],
+                "options": {
+                    OPTS_REFRESH_PERIOD_SEC: config_entry.options[CONF_DEVICE_LIST][sn][
+                        OPTS_REFRESH_PERIOD_SEC
+                    ],
+                    OPTS_POWER_STEP: config_entry.options[CONF_DEVICE_LIST][sn][
+                        OPTS_POWER_STEP
+                    ],
+                    OPTS_DIAGNOSTIC_MODE: config_entry.options[CONF_DEVICE_LIST][sn][
+                        OPTS_DIAGNOSTIC_MODE
+                    ],
+                },
+            }
 
-        new_data = {**config_entry.data}
-        new_options = {OPTS_POWER_STEP: device.default_charging_power_step(),
-                       OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC}
+        # remove options for the devices, because they are now part of the devices
+        new_options.pop(CONF_DEVICE_LIST)
+        # update the data with the class structured data
+        new_data[CONF_DEVICE_LIST] = new_devices
+        # update the entry in home assistant
+        updated = hass.config_entries.async_update_entry(
+            config_entry,
+            version=7,
+            data=new_data,
+            options=new_options,
+        )
+        _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
-        config_entry.version = 3
-        hass.config_entries.async_update_entry(config_entry, data=new_data, options=new_options)
-        _LOGGER.info("Migration to version %s successful", config_entry.version)
-        return True
-
-    elif config_entry.version in (3, 4):
-        is_internal = CONF_USERNAME in config_entry.data
-        current_entry_id = config_entry.entry_id
-        entries_to_merge: list[ConfigEntry] = [
-            entry for entry in hass.config_entries.async_entries(ECOFLOW_DOMAIN)
-            if (is_internal and CONF_USERNAME in entry.data) or (not is_internal and CONF_ACCESS_KEY in entry.data)
-        ]
-
-        new_data = {CONF_LOAD_ALL_DEVICES: False, CONF_DEVICE_LIST: {}}
-        new_options = {CONF_DEVICE_LIST: {}}
-        for old_entry in entries_to_merge:
-            old_data = old_entry.data
-            if CONF_DEVICE_ID in old_data:
-                sn = old_data[CONF_DEVICE_ID]
-                if old_entry.version == 3:
-                    device_info = {
-                        CONF_DEVICE_TYPE: old_data["type"],
-                        CONF_DEVICE_NAME: old_data["name"],
-                        CONF_DEVICE_ID: old_data[CONF_DEVICE_ID]
-                    }
-
-                elif old_entry.version == 4:
-                    device_info = {
-                        CONF_DEVICE_TYPE: old_data[CONF_DEVICE_TYPE],
-                        CONF_DEVICE_NAME: old_data[CONF_DEVICE_NAME],
-                        CONF_DEVICE_ID: old_data[CONF_DEVICE_ID]
-                    }
-
-                new_data[CONF_DEVICE_LIST][sn] = device_info
-                new_options[CONF_DEVICE_LIST][sn] = {
-                    OPTS_REFRESH_PERIOD_SEC: old_entry.options[OPTS_REFRESH_PERIOD_SEC],
-                    OPTS_POWER_STEP: old_entry.options[OPTS_POWER_STEP],
-                    OPTS_DIAGNOSTIC_MODE: False
-                }
-
-
-
-        if is_internal:
-            title = "Home_internal"
-            new_data[CONF_USERNAME] = config_entry.data[CONF_USERNAME]
-            new_data[CONF_PASSWORD] = config_entry.data[CONF_PASSWORD]
+    if config_entry.version == 7:
+        new_data = dict(config_entry.data)
+        is_api = CONF_ACCESS_KEY in config_entry.data
+        if is_api:
+            new_data[CONF_API_HOST] = "api-e.ecoflow.com"
         else:
-            title = "Home_api"
-            new_data[CONF_ACCESS_KEY] = config_entry.data[CONF_ACCESS_KEY]
-            new_data[CONF_SECRET_KEY] = config_entry.data[CONF_SECRET_KEY]
-            new_data[CONF_LOAD_ALL_DEVICES] = False
-        new_data[CONF_GROUP] = title
+            new_data[CONF_API_HOST] = "api.ecoflow.com"
 
-        hass.config_entries.async_update_entry(config_entry,
-                                               version=CONFIG_VERSION,
-                                               title=title,
-                                               unique_id="group-" + new_data[CONF_GROUP],
-                                               data=new_data,
-                                               options=new_options)
-        _LOGGER.info("Config entries merged into new one with version %s", CONFIG_VERSION)
+        updated = hass.config_entries.async_update_entry(
+            config_entry, version=8, data=new_data
+        )
+        _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
-        for old_entry in entries_to_merge:
-            if old_entry.entry_id != current_entry_id:
-                await hass.config_entries.async_unload(old_entry.entry_id)
-                await hass.config_entries.async_remove(old_entry.entry_id)
-                _LOGGER.info(".. removed entry %s", old_entry.entry_id)
+    if config_entry.version == 8:
+        # fix fields and revert options
+        new_data = dict(config_entry.data)
+        new_options = {CONF_DEVICE_LIST: {}}
+        new_data.pop("load_all_devices", None)
 
-        return True
+        for sn, device_info in new_data[CONF_DEVICE_LIST].items():
+            if "name" in device_info:
+                new_data[CONF_DEVICE_LIST][sn][CONF_DEVICE_NAME] = new_data[
+                    CONF_DEVICE_LIST
+                ][sn].pop("name")
+                new_data[CONF_DEVICE_LIST][sn].pop("sn", None)
 
-    return False
+            new_options[CONF_DEVICE_LIST][sn] = new_data[CONF_DEVICE_LIST][sn].pop(
+                "options"
+            )
 
+            if "refresh_period" in new_options[CONF_DEVICE_LIST][sn]:
+                new_options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC] = (
+                    new_options[CONF_DEVICE_LIST][sn].pop("refresh_period")
+                )
+
+        updated = hass.config_entries.async_update_entry(
+            config_entry, version=9, data=new_data, options=new_options
+        )
+        _LOGGER.info("Config entries updated to version %d", config_entry.version)
+
+    return updated
 
 
 def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
-    devices: dict[str, DeviceData] = {}
-    for sn, device_data in entry.data[CONF_DEVICE_LIST].items():
-        devices[sn] = DeviceData(
-            sn, device_data[CONF_DEVICE_NAME], device_data[CONF_DEVICE_TYPE]
+    result = dict[str, DeviceData]()
+    for sn, data in entry.data[CONF_DEVICE_LIST].items():
+        result[sn] = DeviceData(
+            sn,
+            data[CONF_DEVICE_NAME],
+            data[CONF_DEVICE_TYPE],
+            DeviceOptions(
+                entry.options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC],
+                entry.options[CONF_DEVICE_LIST][sn][OPTS_POWER_STEP],
+                entry.options[CONF_DEVICE_LIST][sn][OPTS_DIAGNOSTIC_MODE],
+            ),
+            None,
+            None,
         )
-    return devices
 
+    for sn, data in entry.data[CONF_DEVICE_LIST].items():
+        if CONF_PARENT_SN in data:
+            result[sn].parent = result[data[CONF_PARENT_SN]]
 
-def extract_options(entry: ConfigEntry) -> dict[str, DeviceOptions]:
-    options: dict[str, DeviceOptions] = {}
-    for sn, device_option in entry.options[CONF_DEVICE_LIST].items():
-        options[sn] = DeviceOptions(
-            device_option[OPTS_REFRESH_PERIOD_SEC], device_option[OPTS_POWER_STEP], device_option[OPTS_DIAGNOSTIC_MODE]
-        )
-    return options
+    return result
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
@@ -180,44 +182,39 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data[ECOFLOW_DOMAIN] = {}
 
     if CONF_USERNAME in entry.data and CONF_PASSWORD in entry.data:
-        api_client = EcoflowPrivateApiClient(entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD],
-                                             entry.data[CONF_GROUP])
+        from .api.private_api import EcoflowPrivateApiClient
+
+        api_client = EcoflowPrivateApiClient(
+            entry.data[CONF_API_HOST],
+            entry.data[CONF_USERNAME],
+            entry.data[CONF_PASSWORD],
+            entry.data[CONF_GROUP],
+        )
 
     elif CONF_ACCESS_KEY in entry.data and CONF_SECRET_KEY in entry.data:
-        api_client = EcoflowPublicApiClient(entry.data[CONF_ACCESS_KEY], entry.data[CONF_SECRET_KEY],
-                                            entry.data[CONF_GROUP])
+        from .api.public_api import EcoflowPublicApiClient
+
+        api_client = EcoflowPublicApiClient(
+            entry.data[CONF_API_HOST],
+            entry.data[CONF_ACCESS_KEY],
+            entry.data[CONF_SECRET_KEY],
+            entry.data[CONF_GROUP],
+        )
     else:
         return False
 
+    devices_list: dict[str, DeviceData] = extract_devices(entry)
+
     await api_client.login()
 
-    devices_list: dict[str, DeviceData] = {}
-    devices_options: dict[str, DeviceOptions] = {}
-
-    if CONF_LOAD_ALL_DEVICES not in entry.data or not entry.data[CONF_LOAD_ALL_DEVICES]:
-        devices_list.update(extract_devices(entry))
-        devices_options.update(extract_options(entry))
-    else:
-        try:
-            from .devices.registry import device_by_product
-            device_list = list(device_by_product.keys())
-            devices = await api_client.fetch_all_available_devices()
-            for device in devices:
-                if device.device_type in device_list:
-                    devices_list[device.sn] = DeviceData(device.sn, device.name, device.device_type)
-                    devices_options[device.sn] = DeviceOptions(DEFAULT_REFRESH_PERIOD_SEC, -1, False)
-        except Exception:  # pylint: disable=broad-except
-            _LOGGER.exception("Unexpected exception in fetch device action")
-
     for sn, device_data in devices_list.items():
-        device_option = devices_options[sn]
-        device = api_client.configure_device(device_data.sn, device_data.name, device_data.device_type,
-                                             device_option.power_step)
-        device.configure(hass, device_option.refresh_period, device_option.diagnostic_mode)
+        device = api_client.configure_device(device_data)
+        device.configure(hass)
 
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
+
     await api_client.quota_all(None)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
@@ -229,7 +226,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     if not await hass.config_entries.async_unload_platforms(entry, _PLATFORMS):
         return False
 
-    client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN].pop(entry.entry_id)
+    client = hass.data[ECOFLOW_DOMAIN].pop(entry.entry_id)
     client.stop()
     return True
 

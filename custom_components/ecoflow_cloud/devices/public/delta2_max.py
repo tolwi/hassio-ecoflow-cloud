@@ -1,7 +1,7 @@
-from .data_bridge import to_plain
-from ..internal.delta2_max import Delta2Max as InternalDelta2Max
 from ...api import EcoflowApiClient
 from ...sensor import StatusSensorEntity
+from ..internal.delta2_max import Delta2Max as InternalDelta2Max
+from .data_bridge import to_plain
 
 
 class Delta2Max(InternalDelta2Max):

@@ -1,0 +1,10 @@
+{
+  "image": "dcbr/hass-custom-devcontainer",
+  "postCreateCommand": "sudo -E container setup",
+  "postStartCommand": "sudo -E container launch",
+  "forwardPorts": [8123],
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,readonly"
+  ]
+//   "runArgs": ["--env-file", "${localWorkspaceFolder}/test/test.env"]
+}

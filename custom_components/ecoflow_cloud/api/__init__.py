@@ -5,6 +5,8 @@ from typing import Any
 from aiohttp import ClientResponse
 from attr import dataclass
 
+from .. import DeviceData
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -23,7 +25,6 @@ class EcoflowMqttInfo:
 
 
 class EcoflowApiClient:
-
     def __init__(self):
         self.mqtt_info: EcoflowMqttInfo
         self.devices: dict[str, Any] = {}
@@ -42,14 +43,14 @@ class EcoflowApiClient:
         pass
 
     @abstractmethod
-    def configure_device(self, device_sn: str, device_name: str, device_type: str, power_step=-1):
+    def configure_device(self, device_data: DeviceData):
         pass
 
     def add_device(self, device):
-        self.devices[device.device_info.sn] = device
+        self.devices[device.device_data.sn] = device
 
     def remove_device(self, device):
-        self.devices.pop(device.device_info.sn, None)
+        self.devices.pop(device.device_data.sn, None)
 
     def _accept_mqqt_certification(self, resp_json: dict):
         _LOGGER.info(f"Received MQTT credentials: {resp_json}")
@@ -58,7 +59,9 @@ class EcoflowApiClient:
             mqtt_port = int(resp_json["data"]["port"])
             mqtt_username = resp_json["data"]["certificateAccount"]
             mqtt_password = resp_json["data"]["certificatePassword"]
-            self.mqtt_info = EcoflowMqttInfo(mqtt_url, mqtt_port, mqtt_username, mqtt_password)
+            self.mqtt_info = EcoflowMqttInfo(
+                mqtt_url, mqtt_port, mqtt_username, mqtt_password
+            )
         except KeyError as key:
             raise EcoflowException(f"Failed to extract key {key} from {resp_json}")
 
@@ -74,7 +77,9 @@ class EcoflowApiClient:
         except KeyError as key:
             raise EcoflowException(f"Failed to extract key {key} from {resp}")
         except Exception as error:
-            raise EcoflowException(f"Failed to parse response: {resp.text} Error: {error}")
+            raise EcoflowException(
+                f"Failed to parse response: {resp.text} Error: {error}"
+            )
 
         if response_message.lower() != "success":
             raise EcoflowException(f"{response_message}")
@@ -83,6 +88,7 @@ class EcoflowApiClient:
 
     def start(self):
         from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient
+
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
 
     def stop(self):

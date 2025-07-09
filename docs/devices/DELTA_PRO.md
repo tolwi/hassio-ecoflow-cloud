@@ -11,7 +11,6 @@
 - Battery Level (Precise) (`ems.f32LcdShowSoc`)   _(disabled)_
 - Total In Power (`pd.wattsInSum`)
 - Total Out Power (`pd.wattsOutSum`)
-- Main Battery Current (`bmsMaster.amp`)
 - AC In Power (`inv.inputWatts`)
 - AC Out Power (`inv.outputWatts`)
 - AC In Volts (`inv.acInVol`)
@@ -35,6 +34,7 @@
 - Battery Temperature (`bmsMaster.temp`)
 - Min Cell Temperature (`bmsMaster.minCellTemp`)   _(disabled)_
 - Max Cell Temperature (`bmsMaster.maxCellTemp`)   _(disabled)_
+- Main Battery Current (`bmsMaster.amp`)   _(disabled)_
 - Battery Volts (`bmsMaster.vol`)   _(disabled)_
 - Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
@@ -84,7 +84,7 @@
 *Sliders (numbers)*
 - Max Charge Level (`ems.maxChargeSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 49, "maxChgSoc": "VALUE"}}` [50 - 100])
 - Min Discharge Level (`ems.minDsgSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 51, "minDsgSoc": "VALUE"}}` [0 - 30])
-- Backup Reserve Level (`pd.bpPowerSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"isConfig": 1, "bpPowerSoc": "VALUE", "minDsgSoc": 0, "maxChgSoc": 0, "id": 94}}` [5 - 100])
+- Backup Reserve Level (`pd.bppowerSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"isConfig": 1, "bpPowerSoc": "VALUE", "minDsgSoc": 0, "maxChgSoc": 0, "id": 94}}` [5 - 100])
 - Generator Auto Start Level (`ems.minOpenOilEbSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"openOilSoc": "VALUE", "id": 52}}` [0 - 30])
 - Generator Auto Stop Level (`ems.maxCloseOilEbSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"closeOilSoc": "VALUE", "id": 53}}` [50 - 100])
 - AC Charging Power (`inv.cfgSlowChgWatts` -> `{"moduleType": 0, "operateType": "TCP", "params": {"slowChgPower": "VALUE", "id": 69}}` [200 - 2900])

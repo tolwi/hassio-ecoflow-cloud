@@ -5,7 +5,6 @@ from ...sensor import StatusSensorEntity
 
 
 class River2Pro(InternalRiver2Pro):
-
     def _prepare_data(self, raw_data) -> dict[str, any]:
         res = super()._prepare_data(raw_data)
         res = to_plain(res)
