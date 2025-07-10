@@ -33,6 +33,7 @@ from .public import (
     smart_meter as public_smart_meter,
     stream_ac as public_stream_ac,
     stream_microinverter as public_stream_microinverter,
+    wave2 as public_wave2,
 )
 from ..devices import BaseDevice, DiagnosticDevice
 
@@ -73,6 +74,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
         "RIVER 2 Pro": public_river2_pro.River2Pro,
         "Smart Plug": public_smart_plug.SmartPlug,
         "PowerStream": public_powerstream.PowerStream,
+        "WAVE_2": public_wave2.Wave2,
         "Delta Pro 3": public_delta_pro_3.DeltaPro3,
         "Power Kits": public_powerkit.PowerKit,
         "Smart Meter": public_smart_meter.SmartMeter,
