@@ -277,6 +277,7 @@ MAIN_MODE = "Main mode"
 REMOTE_MODE = "Remote startup/shutdown"
 POWER_SUB_MODE = "Sub-mode"
 
+
 # Smart Meter
 SMART_METER_POWER_GLOBAL = "Power Grid Global"
 SMART_METER_POWER_L1 = "Power Grid L1"
@@ -360,4 +361,13 @@ BATTERIE_FORCE_CHARGE = "Batterie Force Charge"
 BATTERIE_FORCE_CHARGE_OPTIONS =  {
     "Off": "FORCE_CHARGE_OFF",
     "On": "FORCE_CHARGE_ON"
+}
+
+SMART_BACKUP_MODE = "Economic Mode"
+
+SMART_BACKUP_MODE_OPTIONS = {
+    "None": 0,
+    "TOU" : 1,
+    "Self-service" : 2,
+    "Timed task": 3
 }

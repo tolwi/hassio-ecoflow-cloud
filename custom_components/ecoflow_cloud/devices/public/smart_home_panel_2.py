@@ -5,6 +5,7 @@ from .. import BaseDevice, const
 from ...entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity
+from ...number import MaxBatteryLevelEntity, ChargingPowerEntity, MinBatteryLevelEntity
 
 class SmartHomePanel2(BaseDevice):
 
@@ -28,6 +29,45 @@ class SmartHomePanel2(BaseDevice):
     
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
+            MinBatteryLevelEntity(
+                client,
+                self,
+                "'backupReserveSoc'",
+                "Backup reserve level",
+                10,
+                50,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "PD303_APP_SET",
+                    "params": {"backupReserveSoc": value}
+                },
+            ),
+            ChargingPowerEntity(
+                client,
+                self,
+                "'chargeWattPower'",
+                "Charging power",
+                500,
+                7200,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "PD303_APP_SET",
+                    "params": {"chargeWattPower": value}
+                },
+            ),
+            MaxBatteryLevelEntity(
+                client,
+                self,
+                "'foceChargeHight'",
+                "Charging limit",
+                80,
+                100,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "PD303_APP_SET",
+                    "params": {"foceChargeHight": value}
+                },
+            )
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
@@ -63,7 +103,19 @@ class SmartHomePanel2(BaseDevice):
             self._selectsBatterieStatus(client, 3),
             self._selectsBatterieForceCharge(client, 1),
             self._selectsBatterieForceCharge(client, 2),
-            self._selectsBatterieForceCharge(client, 3)
+            self._selectsBatterieForceCharge(client, 3),
+            DictSelectEntity(
+                client,
+                self,
+                "'smartBackupMode'",
+                const.SMART_BACKUP_MODE,
+                const.SMART_BACKUP_MODE_OPTIONS,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "PD303_APP_SET",
+                    "params": {"smartBackupMode": value}
+                },
+            )
         ]
     
     def _selectsBatterieStatus(self, client: EcoflowApiClient, index: int) -> BaseSelectEntity:
