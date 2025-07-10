@@ -10,21 +10,20 @@ from ...number import MaxBatteryLevelEntity, ChargingPowerEntity, MinBatteryLeve
 class SmartHomePanel2(BaseDevice):
 
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
-        params = self.data.params
         return [
             InWattsSensorEntity(client, self, "'wattInfo.gridWatt'", const.AC_IN_POWER),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[0]", "Breaker 1 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[1]", "Breaker 2 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[2]", "Breaker 3 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[3]", "Breaker 4 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[4]", "Breaker 5 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[5]", "Breaker 6 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[6]", "Breaker 7 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[7]", "Breaker 8 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[8]", "Breaker 9 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[9]", "Breaker 10 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[10]", "Breaker 11 Energy"),
-            WattsSensorEntity(client, self, "'loadInfo.hall1Watt'[11]", "Breaker 12 Energy")
+            self._sensorsSwitch(client, 0),
+            self._sensorsSwitch(client, 1),
+            self._sensorsSwitch(client, 2),
+            self._sensorsSwitch(client, 3),
+            self._sensorsSwitch(client, 4),
+            self._sensorsSwitch(client, 5),
+            self._sensorsSwitch(client, 6),
+            self._sensorsSwitch(client, 7),
+            self._sensorsSwitch(client, 8),
+            self._sensorsSwitch(client, 9),
+            self._sensorsSwitch(client, 10),
+            self._sensorsSwitch(client, 11)
         ]
     
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
@@ -145,6 +144,9 @@ class SmartHomePanel2(BaseDevice):
                 "params": {f"ch{index}ForceCharge": value}
             },
         )
+
+    def _sensorsSwitch(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
+        return WattsSensorEntity(client, self, f"'loadInfo.hall1Watt'[{index}]", f"Breaker {index} Energy")
     
     def flat_json(self):
         return False
