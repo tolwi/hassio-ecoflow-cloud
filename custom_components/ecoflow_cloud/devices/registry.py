@@ -74,7 +74,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
         "RIVER 2 Pro": public_river2_pro.River2Pro,
         "Smart Plug": public_smart_plug.SmartPlug,
         "PowerStream": public_powerstream.PowerStream,
-        "WAVE_2": public_wave2.Wave2,
+        "WAVE 2": public_wave2.Wave2,
         "Delta Pro 3": public_delta_pro_3.DeltaPro3,
         "Power Kits": public_powerkit.PowerKit,
         "Smart Meter": public_smart_meter.SmartMeter,
