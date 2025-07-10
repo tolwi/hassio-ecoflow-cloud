@@ -43,11 +43,56 @@ class SmartHomePanel2(BaseDevice):
                     "params": {"epsModeInfo": value == 1}
                 },
             ),
+            EnabledEntity(
+                client,
+                self,
+                "stormIsEnable",
+                "Storm Guard",
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "PD303_APP_SET",
+                    "params": {"stormIsEnable": value == 1}
+                },
+            ),
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
+            self._selectsBatterieStatus(client, 1),
+            self._selectsBatterieStatus(client, 2),
+            self._selectsBatterieStatus(client, 3),
+            self._selectsBatterieForceCharge(client, 1),
+            self._selectsBatterieForceCharge(client, 2),
+            self._selectsBatterieForceCharge(client, 3)
         ]
+    
+    def _selectsBatterieStatus(self, client: EcoflowApiClient, index: int) -> BaseSelectEntity:
+        return DictSelectEntity(
+            client,
+            self,
+            f"'ch{index}EnableSet'",
+            f"{const.BATTERIE_STATUS} {index}",
+            const.BATTERIE_STATUS_OPTIONS,
+            lambda value: {
+                "sn": self.device_info.sn,
+                "cmdCode": "PD303_APP_SET",
+                "params": {f"ch{index}EnableSet": value}
+            },
+        )
+
+    def _selectsBatterieForceCharge(self, client: EcoflowApiClient, index: int) -> BaseSelectEntity:
+        return DictSelectEntity(
+            client,
+            self,
+            f"'ch{index}ForceCharge'",
+            f"{const.BATTERIE_FORCE_CHARGE} {index}",
+            const.BATTERIE_FORCE_CHARGE_OPTIONS,
+            lambda value: {
+                "sn": self.device_info.sn,
+                "cmdCode": "PD303_APP_SET",
+                "params": {f"ch{index}ForceCharge": value}
+            },
+        )
     
     def flat_json(self):
         return False

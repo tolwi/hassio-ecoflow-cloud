@@ -344,3 +344,20 @@ SLAVE_N_ACCU_CHARGE_CAP = "Slave %i Cumulative Capacity Charge (mAh)"
 SLAVE_N_ACCU_CHARGE_ENERGY = "Slave %i Cumulative Energy Charge (Wh)"
 SLAVE_N_ACCU_DISCHARGE_CAP = "Slave %i Cumulative Capacity Discharge (mAh)"
 SLAVE_N_ACCU_DISCHARGE_ENERGY = "Slave %i Cumulative Energy Discharge (Wh)"
+
+#Smart Home Pannel 2
+
+BATTERIE_STATUS = "Batterie Status"
+
+BATTERIE_STATUS_OPTIONS = {
+    "No operation": 0,
+    "Enabled": 1,
+    "Disabled": 2
+}
+
+BATTERIE_FORCE_CHARGE = "Batterie Force Charge"
+
+BATTERIE_FORCE_CHARGE_OPTIONS =  {
+    "Off": "FORCE_CHARGE_OFF",
+    "On": "FORCE_CHARGE_ON"
+}
