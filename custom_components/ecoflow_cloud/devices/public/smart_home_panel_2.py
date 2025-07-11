@@ -152,7 +152,7 @@ class SmartHomePanel2(BaseDevice):
         return WattsSensorEntity(client, self, f"'loadInfo.hall1Watt'[{index}]", f"Breaker {index} Energy")
     
     def _sensorsBatterie(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
-        return LevelSensorEntity(client, self, f"backupIncreInfo.Energy{index}Info.batteryPercentage", f"Battery Level {index}")
+        return LevelSensorEntity(client, self, f"'MbackupIncreInfo.Energy{index}Info.batteryPercentage'", f"Battery Level {index}")
 
     def flat_json(self):
         return False
