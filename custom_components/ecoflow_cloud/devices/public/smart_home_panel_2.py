@@ -1,6 +1,6 @@
 from .data_bridge import to_plain
 from ...api import EcoflowApiClient
-from ...sensor import StatusSensorEntity, WattsSensorEntity, InWattsSensorEntity
+from ...sensor import StatusSensorEntity, WattsSensorEntity, InWattsSensorEntity, LevelSensorEntity
 from .. import BaseDevice, const
 from ...entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
@@ -23,7 +23,10 @@ class SmartHomePanel2(BaseDevice):
             self._sensorsSwitch(client, 8),
             self._sensorsSwitch(client, 9),
             self._sensorsSwitch(client, 10),
-            self._sensorsSwitch(client, 11)
+            self._sensorsSwitch(client, 11),
+            self._sensorsBatterie(client, 1),
+            self._sensorsBatterie(client, 2),
+            self._sensorsBatterie(client, 3),
         ]
     
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
@@ -148,6 +151,9 @@ class SmartHomePanel2(BaseDevice):
     def _sensorsSwitch(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
         return WattsSensorEntity(client, self, f"'loadInfo.hall1Watt'[{index}]", f"Breaker {index} Energy")
     
+    def _sensorsBatterie(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
+        return LevelSensorEntity(client, self, f"backupIncreInfo.Energy{index}Info.batteryPercentage", f"Battery Level {index}")
+
     def flat_json(self):
         return False
 
