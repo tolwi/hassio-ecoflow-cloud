@@ -53,4 +53,3 @@ def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
     _LOGGER.debug(str(result))
 
     return result
-

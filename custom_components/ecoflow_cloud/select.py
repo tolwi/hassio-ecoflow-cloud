@@ -29,7 +29,7 @@ class DictSelectEntity(BaseSelectEntity):
         device: BaseDevice,
         mqtt_key: str,
         title: str,
-        options: dict[str, int],
+        options: dict[str, Any],
         command: Callable[[int], dict[str, Any]] | None,
         enabled: bool = True,
         auto_enable: bool = False,
@@ -43,8 +43,7 @@ class DictSelectEntity(BaseSelectEntity):
         return self._options_dict
 
     def _update_value(self, val: Any) -> bool:
-        ival = int(val)
-        lval = [k for k, v in self._options_dict.items() if v == ival]
+        lval = [k for k, v in self._options_dict.items() if v == val]
         if len(lval) == 1:
             self._current_option = lval[0]
             return True
