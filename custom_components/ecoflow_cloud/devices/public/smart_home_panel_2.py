@@ -150,3 +150,24 @@ class SmartHomePanel2(BaseDevice):
     
     def flat_json(self):
         return False
+
+    def _prepare_data(self, raw_data) -> dict[str, any]:
+        res = super()._prepare_data(raw_data)
+        new_params = {}
+
+        if "param" in res:
+            for k, v in res["param"].items():
+                new_params[f"{k}"] = v
+
+        for k, v in res.items():
+            if k != "param" and k != "params":
+                new_params[f"{k}"] = v
+
+        new_params2 = {}
+        for k, v in new_params.items():
+            new_params2[k] = v
+            if isinstance(v, dict):
+                for k2, v2 in v.items():
+                    new_params2[f"{k}.{k2}"] = v2
+
+        return {"params": new_params2, "raw_data": res}
