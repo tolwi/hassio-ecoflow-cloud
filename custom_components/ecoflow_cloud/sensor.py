@@ -1,7 +1,7 @@
 import enum
 import logging
 import struct
-from typing import Any, Mapping, OrderedDict
+from typing import Any, Mapping, OrderedDict, override
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -260,9 +260,11 @@ class EnergySensorEntity(BaseSensorEntity):
         else:
             return False
 
+
 class CapacitySensorEntity(BaseSensorEntity):
     _attr_native_unit_of_measurement = "mAh"
     _attr_state_class = SensorStateClass.MEASUREMENT
+
 
 class CumulativeCapacitySensorEntity(CapacitySensorEntity):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -273,6 +275,7 @@ class CumulativeCapacitySensorEntity(CapacitySensorEntity):
             return super()._update_value(ival)
         else:
             return False
+
 
 class DeciwattsSensorEntity(WattsSensorEntity):
     def _update_value(self, val: Any) -> bool:
@@ -363,6 +366,29 @@ class OutEnergySensorEntity(EnergySensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
 
 
+class InEnergySolarSensorEntity(InEnergySensorEntity):
+    _attr_icon = "mdi:solar-power"
+
+
+class _ResettingMixin(EnergySensorEntity):
+    @override
+    def _update_value(self, val: Any) -> bool:
+        # Skip the "if val == 0: False" logic
+        return super(EnergySensorEntity, self)._update_value(val)
+
+
+class ResettingInEnergySensorEntity(_ResettingMixin, InEnergySensorEntity):
+    pass
+
+
+class ResettingInEnergySolarSensorEntity(_ResettingMixin, InEnergySolarSensorEntity):
+    pass
+
+
+class ResettingOutEnergySensorEntity(_ResettingMixin, OutEnergySensorEntity):
+    pass
+
+
 class FrequencySensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.FREQUENCY
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -387,7 +413,13 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     offline_barrier_sec: int = 120  # 2 minutes
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str = "Status", key: str = "status"):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        title: str = "Status",
+        key: str = "status",
+    ):
         super().__init__(client, device, title, key)
         self._attr_force_update = False
 
@@ -434,7 +466,10 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
                 self._attr_native_value = "online"
                 self._actualize_attributes()
                 changed = True
-        elif self._online not in {_OnlineStatus.OFFLINE, _OnlineStatus.ASSUME_OFFLINE} and self._skip_count >= self._offline_skip_count:
+        elif (
+            self._online not in {_OnlineStatus.OFFLINE, _OnlineStatus.ASSUME_OFFLINE}
+            and self._skip_count >= self._offline_skip_count
+        ):
             self._online = _OnlineStatus.ASSUME_OFFLINE
             self._attr_native_value = "assume_offline"
             self._actualize_attributes()
@@ -459,18 +494,30 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 class QuotaStatusSensorEntity(StatusSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str = "Status", key: str = "status"):
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        title: str = "Status",
+        key: str = "status",
+    ):
         super().__init__(client, device, title, key)
         self._attrs[ATTR_QUOTA_REQUESTS] = 0
 
     def _actualize_status(self) -> bool:
         changed = False
-        if self._online != _OnlineStatus.ASSUME_OFFLINE and self._skip_count >= self._offline_skip_count * 2:
+        if (
+            self._online != _OnlineStatus.ASSUME_OFFLINE
+            and self._skip_count >= self._offline_skip_count * 2
+        ):
             self._online = _OnlineStatus.ASSUME_OFFLINE
             self._attr_native_value = "assume_offline"
             self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
             changed = True
-        elif self._online != _OnlineStatus.ASSUME_OFFLINE and self._skip_count >= self._offline_skip_count:
+        elif (
+            self._online != _OnlineStatus.ASSUME_OFFLINE
+            and self._skip_count >= self._offline_skip_count
+        ):
             self.hass.async_create_background_task(
                 self._client.quota_all(self._device.device_info.sn), "get quota"
             )
@@ -483,18 +530,22 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
             changed = True
         return changed
 
-class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int=3600):
+class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
+    def __init__(
+        self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int = 3600
+    ):
         super().__init__(client, device, "Status (Scheduled)", "status.scheduled")
         self.offline_barrier_sec: int = reload_delay
         self._quota_last_update = dt.utcnow()
 
     def _actualize_status(self) -> bool:
         changed = super()._actualize_status()
-        quota_diff = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._quota_last_update)
+        quota_diff = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(
+            self._quota_last_update
+        )
         # if delay passed, reload quota
-        if quota_diff > (self.offline_barrier_sec) :
+        if quota_diff > (self.offline_barrier_sec):
             self._attr_native_value = "updating"
             self._quota_last_update = dt.utcnow()
             self.hass.async_create_background_task(

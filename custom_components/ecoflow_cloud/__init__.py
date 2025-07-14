@@ -1,4 +1,5 @@
 from __future__ import annotations  # for DeviceData.parent: DeviceData
+
 import dataclasses
 import logging
 from typing import Final
@@ -6,6 +7,8 @@ from typing import Final
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+
+# from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 import inspect
-from typing import Any, Callable, OrderedDict, Mapping
+from typing import Any, Callable, Mapping, OrderedDict, cast
 
 import jsonpath_ng.ext as jp
 from homeassistant.components.button import ButtonEntity
@@ -12,7 +13,7 @@ from homeassistant.helpers.entity import EntityCategory, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .. import ECOFLOW_DOMAIN
-from ..api import EcoflowApiClient
+from ..api import EcoflowApiClient, Message
 from ..devices import (
     BaseDevice,
     EcoflowDeviceUpdateCoordinator,
@@ -145,15 +146,15 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         return False
 
 
-class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
+class EcoFlowBaseCommandEntity[_CommandArg](EcoFlowDictEntity):
     def __init__(
         self,
         client: EcoflowApiClient,
         device: BaseDevice,
         mqtt_key: str,
         title: str,
-        command: Callable[[Any], dict[str, Any]]
-        | Callable[[Any, dict[str, Any]], dict[str, Any]]
+        command: Callable[[_CommandArg], dict[str, Any] | Message]
+        | Callable[[_CommandArg, dict[str, Any]], dict[str, Any] | Message]
         | None,
         enabled: bool = True,
         auto_enable: bool = False,
@@ -161,24 +162,31 @@ class EcoFlowBaseCommandEntity(EcoFlowDictEntity):
         super().__init__(client, device, mqtt_key, title, enabled, auto_enable)
         self._command = command
 
-    def command_dict(self, value: Any) -> dict[str, Any] | None:
+    def command_dict(self, value: _CommandArg) -> dict[str, Any] | Message | None:
         if self._command:
             p_count = len(inspect.signature(self._command).parameters)
             if p_count == 1:
-                return self._command(value)
+                command = cast(
+                    Callable[[_CommandArg], dict[str, Any] | Message], self._command
+                )
+                return command(value)
             elif p_count == 2:
-                return self._command(value, self._device.data.params)
+                command = cast(
+                    Callable[[_CommandArg, dict[str, Any]], dict[str, Any] | Message],
+                    self._command,
+                )
+                return command(value, self._device.data.params)
             return None
         else:
             return None
 
-    def send_set_message(self, target_value: Any, command: dict):
-        self._client.mqtt_client.send_set_message(
+    def send_set_message(self, target_value: Any, command: dict | Message):
+        self._client.send_set_message(
             self._device.device_info.sn, {self._mqtt_key_adopted: target_value}, command
         )
 
 
-class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
+class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity[int]):
     _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
@@ -189,8 +197,8 @@ class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity):
         title: str,
         min_value: int,
         max_value: int,
-        command: Callable[[int], dict[str, Any]]
-        | Callable[[int, dict[str, Any]], dict[str, Any]]
+        command: Callable[[int], dict[str, Any] | Message]
+        | Callable[[int, dict[str, Any]], dict[str, Any] | Message]
         | None,
         enabled: bool = True,
         auto_enable: bool = False,
@@ -216,13 +224,19 @@ class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):
             return False
 
 
-class BaseSwitchEntity(SwitchEntity, EcoFlowBaseCommandEntity):
+class BaseSwitchEntity[_CommandArg](
+    SwitchEntity, EcoFlowBaseCommandEntity[_CommandArg]
+):
     pass
 
 
-class BaseSelectEntity(SelectEntity, EcoFlowBaseCommandEntity):
+class BaseSelectEntity[_CommandArg](
+    SelectEntity, EcoFlowBaseCommandEntity[_CommandArg]
+):
     pass
 
 
-class BaseButtonEntity(ButtonEntity, EcoFlowBaseCommandEntity):
+class BaseButtonEntity[_CommandArg](
+    ButtonEntity, EcoFlowBaseCommandEntity[_CommandArg]
+):
     pass

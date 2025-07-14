@@ -1,12 +1,11 @@
-import json
 import logging
-import random
 import ssl
 import time
 from _socket import SocketType
 from typing import Any
 
 from homeassistant.core import callback
+from paho.mqtt.client import MQTTMessage, PayloadType
 
 from ..devices import BaseDevice
 from . import EcoflowMqttInfo
@@ -91,30 +90,17 @@ class EcoflowMQTTClient:
             time.sleep(5)
 
     @callback
-    def _on_message(self, client, userdata, message):
+    def _on_message(self, client, userdata, message: MQTTMessage):
         try:
             for sn, device in self.__devices.items():
                 if device.update_data(message.payload, message.topic):
-                    _LOGGER.debug(f"Message for {sn} and Topic {message.topic} : {message.payload}")
+                    _LOGGER.debug(
+                        f"Message for {sn} and Topic {message.topic} : {message.payload}"
+                    )
         except UnicodeDecodeError as error:
             _LOGGER.error(
                 f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one."
             )
-
-    def send_get_message(self, device_sn: str, command: dict):
-        payload = self.__prepare_payload(command)
-        self.__send(
-            self.__devices[device_sn].device_info.get_topic, json.dumps(payload)
-        )
-
-    def send_set_message(
-        self, device_sn: str, mqtt_state: dict[str, Any], command: dict
-    ):
-        self.__devices[device_sn].data.update_to_target_state(mqtt_state)
-        payload = self.__prepare_payload(command)
-        self.__send(
-            self.__devices[device_sn].device_info.set_topic, json.dumps(payload)
-        )
 
     def stop(self):
         self.__client.unsubscribe(self.__target_topics())
@@ -128,24 +114,12 @@ class EcoflowMQTTClient:
             f"MQTT {action}: {mqtt_client.error_string(rc)} ({self.__mqtt_info.client_id}) - {userdata}"
         )
 
-    message_id = 999900000 + random.randint(10000, 99999)
-
-    def __prepare_payload(self, command: dict):
-        self.message_id += 1
-        payload = {
-            "from": "HomeAssistant",
-            "id": f"{self.message_id}",
-            "version": "1.0",
-        }
-        payload.update(command)
-        return payload
-
-    def __send(self, topic: str, message: str):
+    def publish(self, topic: str, message: PayloadType) -> None:
         try:
             info = self.__client.publish(topic, message, 1)
             _LOGGER.debug(
                 "Sending "
-                + message
+                + str(message)
                 + " :"
                 + str(info)
                 + "("
@@ -153,9 +127,13 @@ class EcoflowMQTTClient:
                 + ")"
             )
         except RuntimeError as error:
-            _LOGGER.error(error, "Error on topic " + topic + " and message " + message)
+            _LOGGER.error(
+                error, "Error on topic " + topic + " and message " + str(message)
+            )
         except Exception as error:
-            _LOGGER.debug(error, "Error on topic " + topic + " and message " + message)
+            _LOGGER.debug(
+                error, "Error on topic " + topic + " and message " + str(message)
+            )
 
     def __target_topics(self) -> list[str]:
         topics = []

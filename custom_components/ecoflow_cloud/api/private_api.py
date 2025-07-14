@@ -2,15 +2,23 @@ import base64
 import hashlib
 import logging
 from time import time
+from typing import Any, Protocol, runtime_checkable
 
 import aiohttp
 from homeassistant.util import uuid
+from paho.mqtt.client import PayloadType
 
-from . import EcoflowException, EcoflowApiClient
 from .. import DeviceData
-from ..devices import EcoflowDeviceInfo, DiagnosticDevice
+from ..devices import DiagnosticDevice, EcoflowDeviceInfo
+from . import EcoflowApiClient, EcoflowException, Message
 
 _LOGGER = logging.getLogger(__name__)
+
+
+@runtime_checkable
+class PrivateAPIMessageProtocol(Protocol):
+    def private_api_to_mqtt_payload(self) -> PayloadType:
+        raise NotImplementedError()
 
 
 class EcoflowPrivateApiClient(EcoflowApiClient):
@@ -86,20 +94,12 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
     async def quota_all(self, device_sn: str | None):
         if not device_sn:
-            target_devices = self.devices.keys()
+            target_devices = self.devices.items()
         else:
-            target_devices = [device_sn]
+            target_devices = [(device_sn, self.devices[device_sn])]
 
-        for sn in target_devices:
-            self.mqtt_client.send_get_message(
-                sn,
-                {
-                    "version": "1.1",
-                    "moduleType": 0,
-                    "operateType": "latestQuotas",
-                    "params": {},
-                },
-            )
+        for sn, device in target_devices:
+            self.send_get_message(sn, device.private_api_get_quota())
 
     def configure_device(self, device_data: DeviceData):
         if device_data.parent is not None:
@@ -164,3 +164,24 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             )
             _LOGGER.info(f"Request: {endpoint} {req_params}: got {resp}")
             return await self._get_json_response(resp)
+
+    def send_get_message(self, device_sn: str, command: dict | Message):
+        if isinstance(command, PrivateAPIMessageProtocol):
+            self.mqtt_client.publish(
+                self.devices[device_sn].device_info.get_topic,
+                command.private_api_to_mqtt_payload(),
+            )
+        else:
+            super().send_get_message(device_sn, command)
+
+    def send_set_message(
+        self, device_sn: str, mqtt_state: dict[str, Any], command: dict | Message
+    ):
+        if isinstance(command, PrivateAPIMessageProtocol):
+            self.devices[device_sn].data.update_to_target_state(mqtt_state)
+            self.mqtt_client.publish(
+                self.devices[device_sn].device_info.set_topic,
+                command.private_api_to_mqtt_payload(),
+            )
+        else:
+            super().send_set_message(device_sn, mqtt_state, command)
