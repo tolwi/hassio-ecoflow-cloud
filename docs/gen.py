@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 import json
 from unittest.mock import Mock
 
@@ -102,8 +102,8 @@ def command_ro(e: EcoFlowBaseCommandEntity) -> str:
         return ""
 
 
-def prepare_options(options: dict[str, int]) -> str:
-    return ", ".join(["%s (%d)" % (k, v) for k, v in options.items()])
+def prepare_options(options: dict[str, Any]) -> str:
+    return ", ".join(["%s (%s)" % (k, v) for k, v in options.items()])
 
 
 def prepare_command(e: EcoFlowBaseCommandEntity) -> str | None:
