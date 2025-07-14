@@ -10,7 +10,8 @@ from custom_components.ecoflow_cloud.devices.internal.proto.support import (
     to_lower_camel_case,
 )
 
-from ...api import EcoflowApiClient, JSONDict
+from ...api import EcoflowApiClient
+from ...api.message import JSONDict
 from ...sensor import (
     QuotaStatusSensorEntity,
     ResettingInEnergySensorEntity,

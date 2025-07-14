@@ -5,7 +5,7 @@ from typing import override
 from google.protobuf.message import Message as ProtoMessageRaw
 from paho.mqtt.client import PayloadType
 
-from .....api import JSONMessage, JSONType, Message
+from .....api.message import JSONMessage, JSONType, Message
 from .....api.private_api import PrivateAPIMessageProtocol
 from .const import AddressId, Command, DirectionId, get_expected_payload_type
 

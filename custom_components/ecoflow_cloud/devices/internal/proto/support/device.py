@@ -2,7 +2,7 @@ from typing import Any, cast
 
 from homeassistant.util import dt
 
-from .....api import JSONDict, JSONMessage, Message
+from .....api.message import JSONDict, JSONMessage, Message
 from .const import AddressId, Command
 from .message import ProtoMessage
 

@@ -1,14 +1,12 @@
-import json
 import logging
-import random
 from abc import ABC, abstractmethod
-from typing import Any, override
+from typing import Any
 
 from aiohttp import ClientResponse
 from attr import dataclass
-from paho.mqtt.client import PayloadType
 
-from .. import DeviceData
+from ..device_data import DeviceData
+from .message import JSONMessage, Message
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,40 +22,6 @@ class EcoflowMqttInfo:
     username: str
     password: str
     client_id: str | None = None
-
-
-class Message(ABC):
-    @abstractmethod
-    def to_mqtt_payload(self) -> PayloadType:
-        raise NotImplementedError()
-
-
-JSONType = None | bool | int | float | str | list["JSONType"] | dict[str, "JSONType"]
-JSONDict = dict[str, JSONType]
-
-
-class JSONMessage(Message):
-    def __init__(self, data: JSONDict) -> None:
-        super().__init__()
-        self.data = data
-
-    @staticmethod
-    def gen_seq() -> int:
-        return 999900000 + random.randint(10000, 99999)
-
-    @staticmethod
-    def prepare_payload(command: JSONDict) -> JSONDict:
-        payload: JSONDict = {
-            "from": "HomeAssistant",
-            "id": str(JSONMessage.gen_seq()),
-            "version": "1.0",
-        }
-        payload.update(command)
-        return payload
-
-    @override
-    def to_mqtt_payload(self) -> PayloadType:
-        return json.dumps(JSONMessage.prepare_payload(self.data))
 
 
 class EcoflowApiClient(ABC):

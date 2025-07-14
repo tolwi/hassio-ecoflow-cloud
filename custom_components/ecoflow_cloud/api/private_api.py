@@ -8,9 +8,10 @@ import aiohttp
 from homeassistant.util import uuid
 from paho.mqtt.client import PayloadType
 
-from .. import DeviceData
+from ..device_data import DeviceData
 from ..devices import DiagnosticDevice, EcoflowDeviceInfo
-from . import EcoflowApiClient, EcoflowException, Message
+from . import EcoflowApiClient, EcoflowException
+from .message import Message
 
 _LOGGER = logging.getLogger(__name__)
 

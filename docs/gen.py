@@ -2,7 +2,7 @@ from typing import Any, List
 import json
 from unittest.mock import Mock
 
-from custom_components.ecoflow_cloud import DeviceData, DeviceOptions
+from custom_components.ecoflow_cloud.device_data import DeviceData, DeviceOptions
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo
 from custom_components.ecoflow_cloud.devices.registry import (
     devices,
