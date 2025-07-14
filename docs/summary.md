@@ -1796,6 +1796,51 @@
 
 </p></details>
 
+<details><summary> WAVE 2 (API) <i>(sensors: 27, switches: 0, sliders: 1, selects: 4)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Remain Capacity  _(disabled)_
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Charge Remaining Time
+- Discharge Remaining Time
+- Condensation temperature  _(disabled)_
+- Return air temperature in condensation zone  _(disabled)_
+- Air outlet temperature  _(disabled)_
+- Evaporation temperature  _(disabled)_
+- Exhaust temperature  _(disabled)_
+- Evaporation zone return air temperature  _(disabled)_
+- Air outlet temperature  _(disabled)_
+- Ambient temperature  _(disabled)_
+- PV input power
+- Battery output power
+- PV charging power
+- AC input power
+- Power supply power
+- System power
+- Battery power
+- Motor operating power
+- Battery output power
+- AC input power
+- PV input power
+- Status
+
+*Switches*
+
+*Sliders (numbers)*
+- Set Temperature 
+
+*Selects*
+- Wind speed 
+- Main mode 
+- Remote startup/shutdown 
+- Sub-mode 
+
+</p></details>
+
 <details><summary> Delta Pro 3 (API) <i>(sensors: 6, switches: 0, sliders: 1, selects: 0)</i> </summary>
 <p>
 
