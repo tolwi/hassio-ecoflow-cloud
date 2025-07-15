@@ -30,7 +30,7 @@ message Header
 
 message SendHeaderMsg
 {
-    optional Header msg = 1;
+    repeated Header msg = 1;
 }
 
 message SendMsgHart

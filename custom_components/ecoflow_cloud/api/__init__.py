@@ -1,18 +1,18 @@
 import logging
-from abc import abstractmethod
-
+from abc import ABC, abstractmethod
 from typing import Any
+
 from aiohttp import ClientResponse
 from attr import dataclass
 
-from .. import DeviceData
+from ..device_data import DeviceData
+from .message import JSONMessage, Message
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class EcoflowException(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
+    pass
 
 
 @dataclass
@@ -24,7 +24,7 @@ class EcoflowMqttInfo:
     client_id: str | None = None
 
 
-class EcoflowApiClient:
+class EcoflowApiClient(ABC):
     def __init__(self):
         self.mqtt_info: EcoflowMqttInfo
         self.devices: dict[str, Any] = {}
@@ -86,10 +86,30 @@ class EcoflowApiClient:
 
         return json_resp
 
+    def send_get_message(self, device_sn: str, command: dict | Message):
+        if isinstance(command, dict):
+            command = JSONMessage(command)
+
+        self.mqtt_client.publish(
+            self.devices[device_sn].device_info.get_topic, command.to_mqtt_payload()
+        )
+
+    def send_set_message(
+        self, device_sn: str, mqtt_state: dict[str, Any], command: dict | Message
+    ):
+        if isinstance(command, dict):
+            command = JSONMessage(command)
+
+        self.devices[device_sn].data.update_to_target_state(mqtt_state)
+        self.mqtt_client.publish(
+            self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload()
+        )
+
     def start(self):
         from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient
 
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
 
     def stop(self):
+        assert self.mqtt_client is not None
         self.mqtt_client.stop()

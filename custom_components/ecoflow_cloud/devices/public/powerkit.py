@@ -1,7 +1,7 @@
 from typing import Any, Callable
 
-from ... import DeviceData
 from ...api import EcoflowApiClient
+from ...device_data import DeviceData
 from ...entities import (
     BaseNumberEntity,
     BaseSelectEntity,
