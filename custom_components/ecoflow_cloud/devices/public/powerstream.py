@@ -1,12 +1,11 @@
 import logging
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, override
 
-from google.protobuf.message import Message as ProtoMessageRaw
-from homeassistant.components.number import NumberEntity
-from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
 
 from ...api import EcoflowApiClient
 from ...number import (
@@ -32,23 +31,9 @@ from ...sensor import (
     StatusSensorEntity,
 )
 from .. import BaseDevice, const
-from ..internal.proto import AddressId, Command, ProtoMessage
-from ..internal.proto import powerstream_pb2 as powerstream
 from .data_bridge import to_plain
 
 _LOGGER = logging.getLogger(__name__)
-
-
-def build_command(
-    device_sn: str, command: Command, payload: ProtoMessageRaw
-) -> ProtoMessage:
-    return ProtoMessage(
-        device_sn=device_sn,
-        command=command,
-        payload=payload,
-        src=AddressId.APP,
-        dest=AddressId.MQTT,
-    )
 
 
 class PowerStream(BaseDevice):
@@ -202,11 +187,13 @@ class PowerStream(BaseDevice):
                 "Min Discharge Level",
                 0,
                 30,
-                lambda value: build_command(
-                    device_sn=self.device_info.sn,
-                    command=Command.WN511_SET_BAT_LOWER_PACK,
-                    payload=powerstream.BatLowerPack(lower_limit=value),
-                ),
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "WN511_SET_BAT_LOWER_PACK",
+                    "params": {
+                        "lowerLimit": value,
+                    },
+                },
             ),
             MaxBatteryLevelEntity(
                 client,
@@ -215,11 +202,13 @@ class PowerStream(BaseDevice):
                 "Max Charge Level",
                 70,
                 100,
-                lambda value: build_command(
-                    device_sn=self.device_info.sn,
-                    command=Command.WN511_SET_BAT_UPPER_PACK,
-                    payload=powerstream.BatUpperPack(upper_limit=value),
-                ),
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "WN511_SET_BAT_UPPER_PACK",
+                    "params": {
+                        "upperLimit": value,
+                    },
+                },
             ),
             BrightnessLevelEntity(
                 client,
@@ -228,11 +217,13 @@ class PowerStream(BaseDevice):
                 const.BRIGHTNESS,
                 0,
                 1023,
-                lambda value: build_command(
-                    device_sn=self.device_info.sn,
-                    command=Command.WN511_SET_BRIGHTNESS_PACK,
-                    payload=powerstream.BrightnessPack(brightness=value),
-                ),
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "WN511_SET_BRIGHTNESS_PACK",
+                    "params": {
+                        "brightness": value,
+                    },
+                },
             ),
             DeciChargingPowerEntity(
                 client,
@@ -240,18 +231,22 @@ class PowerStream(BaseDevice):
                 "20_1.permanentWatts",
                 "Custom load power settings",
                 0,
-                800,
-                lambda value: build_command(
-                    device_sn=self.device_info.sn,
-                    command=Command.WN511_SET_PERMANENT_WATTS_PACK,
-                    payload=powerstream.PermanentWattsPack(permanent_watts=value),
-                ),
+                600,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "WN511_SET_PERMANENT_WATTS_PACK",
+                    "params": {
+                        "permanentWatts": value,
+                    },
+                },
             ),
         ]
 
+    @override
     def switches(self, client: EcoflowApiClient) -> Sequence[SwitchEntity]:
         return []
-
+    
+    @override
     def selects(self, client: EcoflowApiClient) -> Sequence[SelectEntity]:
         return [
             PowerDictSelectEntity(
@@ -260,14 +255,17 @@ class PowerStream(BaseDevice):
                 "20_1.supplyPriority",
                 "Power supply mode",
                 const.POWER_SUPPLY_PRIORITY_OPTIONS,
-                lambda value: build_command(
-                    device_sn=self.device_info.sn,
-                    command=Command.WN511_SET_SUPPLY_PRIORITY_PACK,
-                    payload=powerstream.SupplyPriorityPack(supply_priority=value),
-                ),
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "WN511_SET_SUPPLY_PRIORITY_PACK",
+                    "params": {
+                        "supplyPriority": value,
+                    },
+                },
             ),
         ]
 
+    @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         res = super()._prepare_data(raw_data)
         res = to_plain(res)

@@ -146,7 +146,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             identifiers = {(ECOFLOW_DOMAIN, f"{sn}")}
 
         device = device_reg.async_get_device(identifiers=identifiers)
-        _LOGGER.debug(f".. getting device by %s: %s", str(identifiers), str(device))
+        _LOGGER.debug(".. getting device by %s: %s", str(identifiers), str(device))
 
         # Remove all entities for this device
         if getattr(device, "id", None) is not None :

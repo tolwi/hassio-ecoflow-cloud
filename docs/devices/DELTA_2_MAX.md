@@ -89,7 +89,7 @@
 - AC Enabled (`inv.cfgAcEnabled` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "SN", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)
 - X-Boost Enabled (`inv.cfgAcXboost` -> `{"moduleType": 3, "operateType": "acOutCfg", "moduleSn": "SN", "params": {"xboost": "VALUE"}}`)
 - DC (12V) Enabled (`pd.carState` -> `{"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": "VALUE"}}`)
-- Backup Reserve Enabled (`pd.watchIsConfig` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"bpPowerSoc": -3333300, "minChgSoc": 0, "isConfig": "VALUE", "minDsgSoc": 0}}`)
+- Backup Reserve Enabled (`pd.watchIsConfig` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"bpPowerSoc": 333300, "minChgSoc": 0, "isConfig": "VALUE", "minDsgSoc": 0}}`)
 
 *Sliders (numbers)*
 - Max Charge Level (`bms_emsStatus.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "moduleSn": "SN", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])
