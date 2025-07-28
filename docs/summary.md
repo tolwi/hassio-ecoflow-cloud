@@ -195,7 +195,7 @@
 
 </p></details>
 
-<details><summary> RIVER_2_PRO <i>(sensors: 30, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_PRO <i>(sensors: 30, switches: 4, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -231,15 +231,16 @@
 - Status
 
 *Switches*
-- AC Enabled 
-- X-Boost Enabled 
-- DC (12V) Enabled 
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
+- Backup Reserve Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- AC Charging Power 
-
+- Max Charge Level
+- Min Discharge Level
+- AC Charging Power
+- Backup Reserve Level
 *Selects*
 - DC (12V) Charge Current 
 - DC Mode 
@@ -1655,7 +1656,7 @@
 
 </p></details>
 
-<details><summary> RIVER 2 Pro (API) <i>(sensors: 30, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER 2 Pro (API) <i>(sensors: 30, switches: 4, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -1694,11 +1695,13 @@
 - AC Enabled 
 - X-Boost Enabled 
 - DC (12V) Enabled 
+- Backup Reserve Enabled
 
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
 - AC Charging Power 
+- Backup Reserve Level
 
 *Selects*
 - DC (12V) Charge Current 
