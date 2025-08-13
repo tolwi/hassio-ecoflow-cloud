@@ -2,6 +2,7 @@
 
 *Sensors*
 - AC In Power (`'wattInfo.gridWatt'`)
+- AC Out Power (`'wattInfo.allHallWatt'`)
 - Breaker 0 Energy (`'loadInfo.hall1Watt'[0]`)
 - Breaker 1 Energy (`'loadInfo.hall1Watt'[1]`)
 - Breaker 2 Energy (`'loadInfo.hall1Watt'[2]`)
@@ -14,9 +15,14 @@
 - Breaker 9 Energy (`'loadInfo.hall1Watt'[9]`)
 - Breaker 10 Energy (`'loadInfo.hall1Watt'[10]`)
 - Breaker 11 Energy (`'loadInfo.hall1Watt'[11]`)
+- Battery Level (`'backupIncreInfo.backupBatPer'`)
 - Battery Level 1 (`'backupIncreInfo.Energy1Info.batteryPercentage'`)
 - Battery Level 2 (`'backupIncreInfo.Energy2Info.batteryPercentage'`)
 - Battery Level 3 (`'backupIncreInfo.Energy3Info.batteryPercentage'`)
+- Battery Power 1 (`'wattInfo.chWatt'[0]'`)
+- Battery Power 2 (`'wattInfo.chWatt'[1]'`)
+- Battery Power 3 (`'wattInfo.chWatt'[2]'`)
+- Discharge Remaining Time (`'backupInfo.backupDischargeTime'`)
 
 *Switches*
 - EPS Mode (`epsModeInfo` -> `{"sn": "SN", "cmdCode": "PD303_APP_SET", "params": {"epsModeInfo": false}}`)

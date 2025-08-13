@@ -1,6 +1,6 @@
 from .data_bridge import to_plain
 from ...api import EcoflowApiClient
-from ...sensor import StatusSensorEntity, WattsSensorEntity, InWattsSensorEntity, LevelSensorEntity
+from ...sensor import StatusSensorEntity, WattsSensorEntity, InWattsSensorEntity, LevelSensorEntity, OutWattsSensorEntity, RemainSensorEntity
 from .. import BaseDevice, const
 from ...entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
@@ -12,6 +12,9 @@ class SmartHomePanel2(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             InWattsSensorEntity(client, self, "'wattInfo.gridWatt'", const.AC_IN_POWER),
+            OutWattsSensorEntity(client, self, "'wattInfo.allHallWatt'", const.AC_OUT_POWER),
+            LevelSensorEntity(client, self, "'backupIncreInfo.backupBatPer'", const.COMBINED_BATTERY_LEVEL),
+            RemainSensorEntity(client, self, "'backupInfo.backupDischargeTime'", const.DISCHARGE_REMAINING_TIME),
             self._sensorsSwitch(client, 0),
             self._sensorsSwitch(client, 1),
             self._sensorsSwitch(client, 2),
@@ -27,6 +30,9 @@ class SmartHomePanel2(BaseDevice):
             self._sensorsBatterie(client, 1),
             self._sensorsBatterie(client, 2),
             self._sensorsBatterie(client, 3),
+            self._sensorsBatteriePower(client, 0),
+            self._sensorsBatteriePower(client, 1),
+            self._sensorsBatteriePower(client, 2),
         ]
     
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
@@ -153,6 +159,9 @@ class SmartHomePanel2(BaseDevice):
     
     def _sensorsBatterie(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
         return LevelSensorEntity(client, self, f"'backupIncreInfo.Energy{index}Info.batteryPercentage'", f"Battery Level {index}")
+
+    def _sensorsBatteriePower(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
+        return WattsSensorEntity(client, self, f"'wattInfo.chWatt'[{index}]", f"Battery Power {index + 1}")
 
     def flat_json(self):
         return False
