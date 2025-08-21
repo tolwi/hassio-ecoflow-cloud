@@ -10,6 +10,7 @@ from homeassistant.util import dt
 
 from custom_components.ecoflow_cloud.devices import const
 from custom_components.ecoflow_cloud.select import PowerDictSelectEntity
+from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity, MinBatteryLevelEntity
 
 from ...devices import BaseDevice
 from ...devices.internal.proto.support import (
@@ -277,7 +278,34 @@ class PowerStream(PrivateAPIProtoDeviceMixin, BaseDevice):
 
     @override
     def numbers(self, client: EcoflowApiClient) -> Sequence[NumberEntity]:
-        return []
+        return [
+            MaxBatteryLevelEntity(
+                client,
+                self,
+                "20_1.upperLimit",
+                const.MAX_CHARGE_LEVEL,
+                50,
+                100,
+                lambda value: build_command(
+                    device_sn=self.device_info.sn,
+                    command=Command.WN511_SET_BAT_UPPER_PACK,
+                    payload=powerstream.BatUpperPack(upper_limit=value),
+                ), 
+            ),
+            MinBatteryLevelEntity(
+                client,
+                self,
+                "20_1.lowerLimit",
+                const.MIN_DISCHARGE_LEVEL,
+                0,
+                30,
+                lambda value: build_command(
+                    device_sn=self.device_info.sn,
+                    command=Command.WN511_SET_BAT_LOWER_PACK,
+                    payload=powerstream.BatLowerPack(lower_limit=value),
+                ),
+            ),
+        ]
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
