@@ -10,6 +10,8 @@ from ...sensor import (
     InAmpSensorEntity,
     WattsSensorEntity,
     VoltSensorEntity,
+    CelsiusSensorEntity,
+    FrequencySensorEntity,
 )
 from .. import BaseDevice, const
 from .data_bridge import to_plain
@@ -31,6 +33,8 @@ class StreamMicroinveter(BaseDevice):
             InAmpSensorEntity(client, self, "plugInInfoPvAmp", const.STREAM_IN_AMPS_PV_1, False, True),
             InAmpSensorEntity(client, self, "plugInInfoPv2Amp", const.STREAM_IN_AMPS_PV_2, False, True),
 
+            CelsiusSensorEntity(client, self, "invNtcTemp3", "Inverter NTC Temperature"),
+            FrequencySensorEntity(client, self, "gridConnectionFreq", "Grid Frequency"),
             StatusSensorEntity(client, self)
         ]
 

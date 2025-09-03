@@ -1,16 +1,17 @@
 import logging
-from typing import Any, Callable, get_type_hints
+from typing import Any, Callable
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
 from custom_components.ecoflow_cloud.devices import (
     BaseDevice,
 )
 
 from . import ECOFLOW_DOMAIN
-from .api import EcoflowApiClient
+from .api import EcoflowApiClient, Message
 from .entities import BaseSwitchEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,14 +25,16 @@ async def async_setup_entry(
         async_add_entities(device.switches(client))
 
 
-class EnabledEntity(BaseSwitchEntity):
+class EnabledEntity(BaseSwitchEntity[int]):
     def __init__(
         self,
         client: EcoflowApiClient,
         device: BaseDevice,
         mqtt_key: str,
         title: str,
-        command: Callable[[int, dict[str, Any] | None], dict[str, Any]] | None,
+        command: Callable[[int], dict[str, Any] | Message]
+        | Callable[[int, dict[str, Any]], dict[str, Any] | Message]
+        | None,
         enabled: bool = True,
         auto_enable: bool = False,
         enableValue: Any = None,
@@ -88,9 +91,7 @@ class BitMaskEnableEntity(EnabledEntity):
         device: BaseDevice,
         switchKey: str,
         title: str,
-        command: Callable[[str, int, dict[str, Any] | None], dict[str, Any]]
-        | Callable[[int, dict[str, Any] | None], dict[str, Any]]
-        | None,
+        command: Callable[[str, int], dict[str, Any] | Message],
         enabled: bool = True,
         auto_enable: bool = False,
     ):
@@ -150,7 +151,7 @@ class BitMaskEnableEntity(EnabledEntity):
             self.send_set_message(0, self.command_dict((self.switchNumber - 1)))
 
 
-class DisabledEntity(BaseSwitchEntity):
+class DisabledEntity(BaseSwitchEntity[int]):
     def _update_value(self, val: Any) -> bool:
         _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
         self._attr_is_on = not bool(val)
@@ -165,7 +166,7 @@ class DisabledEntity(BaseSwitchEntity):
             self.send_set_message(1, self.command_dict(1))
 
 
-class FanModeEntity(BaseSwitchEntity):  # for River Max
+class FanModeEntity(BaseSwitchEntity[int]):  # for River Max
     def _update_value(self, val: Any) -> bool:
         _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
         self._attr_is_on = val == 1

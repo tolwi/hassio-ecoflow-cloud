@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Gen docs",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "gen.py",
+      "python": "${workspaceFolder}/venv/bin/python",
+      "cwd": "${workspaceFolder}/docs",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    }
+  ]
+}

@@ -79,7 +79,7 @@
 - AC Enabled (`inv.cfgAcEnabled` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 66, "enabled": "VALUE"}}`)
 - X-Boost Enabled (`inv.cfgAcXboost` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 66, "xboost": "VALUE"}}`)
 - AC Always On (`pd.acautooutConfig` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 95, "acautooutConfig": "VALUE"}}`)
-- Backup Reserve Enabled (`pd.watthisconfig` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 94, "isConfig": "VALUE", "bpPowerSoc": -3333300, "minDsgSoc": 0, "maxChgSoc": 0}}`)
+- Backup Reserve Enabled (`pd.watthisconfig` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 94, "isConfig": "VALUE", "bpPowerSoc": 333300, "minDsgSoc": 0, "maxChgSoc": 0}}`)
 
 *Sliders (numbers)*
 - Max Charge Level (`ems.maxChargeSoc` -> `{"operateType": "TCP", "params": {"cmdSet": 32, "id": 49, "maxChgSoc": "VALUE"}}` [50 - 100])

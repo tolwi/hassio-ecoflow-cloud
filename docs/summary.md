@@ -195,7 +195,7 @@
 
 </p></details>
 
-<details><summary> RIVER_2_PRO <i>(sensors: 30, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER_2_PRO <i>(sensors: 30, switches: 4, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -231,15 +231,16 @@
 - Status
 
 *Switches*
-- AC Enabled 
-- X-Boost Enabled 
-- DC (12V) Enabled 
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
+- Backup Reserve Enabled
 
 *Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- AC Charging Power 
-
+- Max Charge Level
+- Min Discharge Level
+- AC Charging Power
+- Backup Reserve Level
 *Selects*
 - DC (12V) Charge Current 
 - DC Mode 
@@ -791,14 +792,15 @@
 
 </p></details>
 
-<details><summary> POWERSTREAM <i>(sensors: 57, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 0, selects: 1)</i> </summary>
 <p>
 
 *Sensors*
+- ESP Temperature
 - Solar 1 Watts
 - Solar 1 Input Potential
 - Solar 1 Op Potential
-- Solar 1 Currrent
+- Solar 1 Current
 - Solar 1 Temperature
 - Solar 1 Relay Status
 - Solar 1 Error Code  _(disabled)_
@@ -827,6 +829,7 @@
 - Battery Status  _(disabled)_
 - LLC Input Potential  _(disabled)_
 - LLC Op Potential  _(disabled)_
+- LLC Temperature
 - LLC Error Code  _(disabled)_
 - LLC Warning Code  _(disabled)_
 - LLC Status  _(disabled)_
@@ -835,7 +838,6 @@
 - Inverter Output Potential  _(disabled)_
 - Inverter Op Potential
 - Inverter Output Current
-- Inverter DC Current
 - Inverter Frequency
 - Inverter Temperature
 - Inverter Relay Status
@@ -851,13 +853,20 @@
 - Wireless Warning Code  _(disabled)_
 - LED Brightness  _(disabled)_
 - Heartbeat Frequency  _(disabled)_
+- PV1 Today Energy Total
+- PV2 Today Energy Total
+- From Battery Today Energy Total
+- To Battery Today Energy Total
+- To Smart Plugs Today Energy Total
 - Status
 
 *Switches*
+- Feed-in Control 
 
 *Sliders (numbers)*
 
 *Selects*
+- Power supply mode 
 
 </p></details>
 
@@ -1043,6 +1052,58 @@
 
 </p></details>
 
+<details><summary> STREAM_PRO <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)  _(disabled)_
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)  _(disabled)_
+- Charge Remaining Time  _(disabled)_
+- Discharge Remaining Time  _(disabled)_
+- Cycles  _(disabled)_
+- Design Capacity  _(disabled)_
+- Power Battery SOC  _(disabled)_
+- Full Capacity  _(disabled)_
+- Power AC
+- Power Volts  _(disabled)_
+- In Power  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Out Power  _(disabled)_
+- Power Battery
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV Sum
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
+- Power Grid
+- Power Sys Load
+- Power Sys Load From Battery
+- Power Sys Load From Grid
+- Power Sys Load From PV
+- Real State of Health  _(disabled)_
+- Remain Capacity  _(disabled)_
+- Remaining Time  _(disabled)_
+- Power Battery  _(disabled)_
+- State of Health  _(disabled)_
+- Power AC SYS  _(disabled)_
+- Battery Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+
+*Switches*
+
+*Sliders (numbers)*
+
+*Selects*
+
+</p></details>
+
 <details><summary> STREAM_ULTRA <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
@@ -1096,6 +1157,101 @@
 </p></details>
 
 ### Devices available with public_api
+<details><summary> DELTA Max (API) <i>(sensors: 70, switches: 7, sliders: 5, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Battery Level (Precise)  _(disabled)_
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Level (Precise)  _(disabled)_
+- Total In Power
+- Total Out Power
+- Main Battery Current
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- Solar In Power
+- Solar In Voltage
+- Solar In Current
+- DC Out Power
+- DC Out Voltage
+- Type-C (1) Out Power
+- Type-C (2) Out Power
+- USB (1) Out Power
+- USB (2) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Solar In Energy
+- Battery Charge Energy from AC
+- Battery Charge Energy from DC
+- Battery Discharge Energy to AC
+- Battery Discharge Energy to DC
+- Slave 1 Battery Level  _(auto)_
+- Slave 1 Battery Level (Precise)  _(disabled)_
+- Slave 1 Design Capacity  _(disabled)_
+- Slave 1 Full Capacity  _(disabled)_
+- Slave 1 Remain Capacity  _(disabled)_
+- Slave 1 State of Health
+- Slave 1 Battery Temperature  _(auto)_
+- Slave 1 In Power  _(auto)_
+- Slave 1 Out Power  _(auto)_
+- Slave 2 Battery Level  _(auto)_
+- Slave 2 Battery Level (Precise)  _(disabled)_
+- Slave 2 Design Capacity  _(disabled)_
+- Slave 2 Full Capacity  _(disabled)_
+- Slave 2 Remain Capacity  _(disabled)_
+- Slave 2 State of Health
+- Slave 1 Battery Volts  _(disabled)_
+- Slave 1 Min Cell Volts  _(disabled)_
+- Slave 1 Max Cell Volts  _(disabled)_
+- Slave 1 Battery Current  _(disabled)_
+- Slave 2 Battery Volts  _(disabled)_
+- Slave 2 Min Cell Volts  _(disabled)_
+- Slave 2 Max Cell Volts  _(disabled)_
+- Slave 2 Battery Current  _(disabled)_
+- Slave 2 Battery Temperature  _(auto)_
+- Slave 2 In Power  _(auto)_
+- Slave 2 Out Power  _(auto)_
+- Slave 1 Cycles  _(disabled)_
+- Slave 2 Cycles  _(disabled)_
+- Status
+
+*Switches*
+- Beeper 
+- USB Enabled 
+- AC Always On 
+- Prio Solar Charging 
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- Generator Auto Start Level 
+- Generator Auto Stop Level 
+- AC Charging Power 
+
+*Selects*
+
+</p></details>
+
 <details><summary> DELTA Pro (API) <i>(sensors: 71, switches: 6, sliders: 6, selects: 4)</i> </summary>
 <p>
 
@@ -1500,7 +1656,7 @@
 
 </p></details>
 
-<details><summary> RIVER 2 Pro (API) <i>(sensors: 30, switches: 3, sliders: 3, selects: 5)</i> </summary>
+<details><summary> RIVER 2 Pro (API) <i>(sensors: 30, switches: 4, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -1539,11 +1695,13 @@
 - AC Enabled 
 - X-Boost Enabled 
 - DC (12V) Enabled 
+- Backup Reserve Enabled
 
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
 - AC Charging Power 
+- Backup Reserve Level
 
 *Selects*
 - DC (12V) Charge Current 
@@ -1646,6 +1804,51 @@
 
 *Selects*
 - Power supply mode 
+
+</p></details>
+
+<details><summary> WAVE 2 (API) <i>(sensors: 27, switches: 0, sliders: 1, selects: 4)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Remain Capacity  _(disabled)_
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Charge Remaining Time
+- Discharge Remaining Time
+- Condensation temperature  _(disabled)_
+- Return air temperature in condensation zone  _(disabled)_
+- Air outlet temperature  _(disabled)_
+- Evaporation temperature  _(disabled)_
+- Exhaust temperature  _(disabled)_
+- Evaporation zone return air temperature  _(disabled)_
+- Air outlet temperature  _(disabled)_
+- Ambient temperature  _(disabled)_
+- PV input power
+- Battery output power
+- PV charging power
+- AC input power
+- Power supply power
+- System power
+- Battery power
+- Motor operating power
+- Battery output power
+- AC input power
+- PV input power
+- Status
+
+*Switches*
+
+*Sliders (numbers)*
+- Set Temperature 
+
+*Selects*
+- Wind speed 
+- Main mode 
+- Remote startup/shutdown 
+- Sub-mode 
 
 </p></details>
 
@@ -2011,6 +2214,58 @@
 
 </p></details>
 
+<details><summary> Stream PRO (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
+- Charge Remaining Time  _(disabled)_
+- Discharge Remaining Time  _(disabled)_
+- Cycles
+- Design Capacity  _(disabled)_
+- Power Battery SOC
+- Full Capacity  _(disabled)_
+- Power AC
+- Power Volts  _(disabled)_
+- In Power
+- Max Cell Temperature  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Out Power
+- Power Battery
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV Sum
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
+- Power Grid
+- Power Sys Load
+- Power Sys Load From Battery
+- Power Sys Load From Grid
+- Power Sys Load From PV
+- Real State of Health  _(disabled)_
+- Remain Capacity  _(disabled)_
+- Remaining Time
+- Power Battery
+- State of Health
+- Power AC SYS
+- Battery Temperature
+- Battery Volts  _(disabled)_
+
+*Switches*
+
+*Sliders (numbers)*
+
+*Selects*
+
+</p></details>
+
 <details><summary> Stream Ultra (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
@@ -2083,6 +2338,47 @@
 *Sliders (numbers)*
 
 *Selects*
+
+</p></details>
+
+<details><summary> Smart Home Panel 2 (API) <i>(sensors: 16, switches: 2, sliders: 3, selects: 7)</i> </summary>
+<p>
+
+*Sensors*
+- AC In Power
+- Breaker 0 Energy
+- Breaker 1 Energy
+- Breaker 2 Energy
+- Breaker 3 Energy
+- Breaker 4 Energy
+- Breaker 5 Energy
+- Breaker 6 Energy
+- Breaker 7 Energy
+- Breaker 8 Energy
+- Breaker 9 Energy
+- Breaker 10 Energy
+- Breaker 11 Energy
+- Battery Level 1
+- Battery Level 2
+- Battery Level 3
+
+*Switches*
+- EPS Mode 
+- Storm Guard 
+
+*Sliders (numbers)*
+- Backup reserve level 
+- Charging power 
+- Charging limit 
+
+*Selects*
+- Batterie Status 1 
+- Batterie Status 2 
+- Batterie Status 3 
+- Batterie Force Charge 1 
+- Batterie Force Charge 2 
+- Batterie Force Charge 3 
+- Economic Mode 
 
 </p></details>
 

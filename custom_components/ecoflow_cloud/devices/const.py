@@ -277,6 +277,7 @@ MAIN_MODE = "Main mode"
 REMOTE_MODE = "Remote startup/shutdown"
 POWER_SUB_MODE = "Sub-mode"
 
+
 # Smart Meter
 SMART_METER_POWER_GLOBAL = "Power Grid Global"
 SMART_METER_POWER_L1 = "Power Grid L1"
@@ -344,3 +345,29 @@ SLAVE_N_ACCU_CHARGE_CAP = "Slave %i Cumulative Capacity Charge (mAh)"
 SLAVE_N_ACCU_CHARGE_ENERGY = "Slave %i Cumulative Energy Charge (Wh)"
 SLAVE_N_ACCU_DISCHARGE_CAP = "Slave %i Cumulative Capacity Discharge (mAh)"
 SLAVE_N_ACCU_DISCHARGE_ENERGY = "Slave %i Cumulative Energy Discharge (Wh)"
+
+#Smart Home Pannel 2
+
+BATTERIE_STATUS = "Batterie Status"
+
+BATTERIE_STATUS_OPTIONS = {
+    "No operation": 0,
+    "Enabled": 1,
+    "Disabled": 2
+}
+
+BATTERIE_FORCE_CHARGE = "Batterie Force Charge"
+
+BATTERIE_FORCE_CHARGE_OPTIONS =  {
+    "Off": "FORCE_CHARGE_OFF",
+    "On": "FORCE_CHARGE_ON"
+}
+
+SMART_BACKUP_MODE = "Economic Mode"
+
+SMART_BACKUP_MODE_OPTIONS = {
+    "None": 0,
+    "TOU" : 1,
+    "Self-service" : 2,
+    "Timed task": 3
+}

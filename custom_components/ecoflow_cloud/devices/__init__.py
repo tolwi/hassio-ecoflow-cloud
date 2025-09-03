@@ -3,6 +3,8 @@ import datetime
 import json
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
+from typing import Any, cast
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
@@ -13,9 +15,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 
-from .data_holder import EcoflowDataHolder
 from ..api import EcoflowApiClient
-from .. import DeviceData
+from ..api.message import JSONDict, JSONMessage, Message
+from ..device_data import DeviceData
+from .data_holder import EcoflowDataHolder
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -54,6 +57,10 @@ class EcoflowBroadcastDataHolder:
     changed: bool
 
 
+class NoQuotaMessageError(Exception):
+    pass
+
+
 class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataHolder]):
     def __init__(self, hass, holder: EcoflowDataHolder, refresh_period: int) -> None:
         """Initialize the coordinator."""
@@ -88,11 +95,15 @@ class BaseDevice(ABC):
     def configure(self, hass: HomeAssistant):
         if self.device_data.parent is not None:
             self.data = EcoflowDataHolder(
-                self.device_data.sn, self.device_data.options.diagnostic_mode
+                self.private_api_extract_quota_message,
+                self.device_data.sn,
+                self.device_data.options.diagnostic_mode,
             )
         else:
             self.data = EcoflowDataHolder(
-                None, self.device_data.options.diagnostic_mode
+                self.private_api_extract_quota_message,
+                None,
+                self.device_data.options.diagnostic_mode,
             )
         self.coordinator = EcoflowDeviceUpdateCoordinator(
             hass, self.data, self.device_data.options.refresh_period
@@ -111,26 +122,46 @@ class BaseDevice(ABC):
     def flat_json(self) -> bool:
         return True
 
+    def private_api_extract_quota_message(self, message: JSONDict) -> dict[str, Any]:
+        if "operateType" in message and message["operateType"] == "latestQuotas":
+            message_data = message["data"]
+            assert isinstance(message_data, dict)
+
+            online = int(cast(bool | int | str, message_data["online"]))
+            if online == 1:
+                return {"params": message_data["quotaMap"], "time": dt.utcnow()}
+        raise ValueError("not a quota message")
+
+    def private_api_get_quota(self) -> Message:
+        return JSONMessage(
+            {
+                "version": "1.1",
+                "moduleType": 0,
+                "operateType": "latestQuotas",
+                "params": {},
+            }
+        )
+
     @abstractmethod
-    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> Sequence[SensorEntity]:
         pass
 
     @abstractmethod
-    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> Sequence[NumberEntity]:
         pass
 
     @abstractmethod
-    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> Sequence[SwitchEntity]:
         pass
 
     @abstractmethod
-    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> Sequence[SelectEntity]:
         pass
 
-    def buttons(self, client: EcoflowApiClient) -> list[ButtonEntity]:
+    def buttons(self, client: EcoflowApiClient) -> Sequence[ButtonEntity]:
         return []
 
-    def update_data(self, raw_data, data_type: str) -> bool:
+    def update_data(self, raw_data: bytes, data_type: str) -> bool:
         if data_type == self.device_info.data_topic:
             raw = self._prepare_data_data_topic(raw_data)
             self.data.update_data(raw)
@@ -146,26 +177,32 @@ class BaseDevice(ABC):
         elif data_type == self.device_info.get_reply_topic:
             raw = self._prepare_data_get_reply_topic(raw_data)
             self.data.add_get_reply_message(raw)
+        elif data_type == self.device_info.status_topic:
+            raw = self._prepare_data_status_topic(raw_data)
+            self.data.update_status(raw)
         else:
             return False
         return True
 
-    def _prepare_data_data_topic(self, raw_data) -> dict[str, any]:
+    def _prepare_data_data_topic(self, raw_data: bytes) -> dict[str, Any]:
         return self._prepare_data(raw_data)
 
-    def _prepare_data_set_topic(self, raw_data) -> dict[str, any]:
+    def _prepare_data_set_topic(self, raw_data: bytes) -> dict[str, Any]:
         return self._prepare_data(raw_data)
 
-    def _prepare_data_set_reply_topic(self, raw_data) -> dict[str, any]:
+    def _prepare_data_set_reply_topic(self, raw_data: bytes) -> dict[str, Any]:
         return self._prepare_data(raw_data)
 
-    def _prepare_data_get_topic(self, raw_data) -> dict[str, any]:
+    def _prepare_data_get_topic(self, raw_data: bytes) -> dict[str, Any]:
         return self._prepare_data(raw_data)
 
-    def _prepare_data_get_reply_topic(self, raw_data) -> dict[str, any]:
+    def _prepare_data_get_reply_topic(self, raw_data: bytes) -> dict[str, Any]:
         return self._prepare_data(raw_data)
 
-    def _prepare_data(self, raw_data) -> dict[str, any]:
+    def _prepare_data_status_topic(self, raw_data: bytes) -> dict[str, Any]:
+        return self._prepare_data(raw_data)
+
+    def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         try:
             try:
                 payload = raw_data.decode("utf-8", errors="ignore")
@@ -184,17 +221,17 @@ class BaseDevice(ABC):
 
 
 class DiagnosticDevice(BaseDevice):
-    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> Sequence[SensorEntity]:
         return []
 
-    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> Sequence[NumberEntity]:
         return []
 
-    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> Sequence[SwitchEntity]:
         return []
 
-    def buttons(self, client: EcoflowApiClient) -> list[ButtonEntity]:
+    def buttons(self, client: EcoflowApiClient) -> Sequence[ButtonEntity]:
         return []
 
-    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> Sequence[SelectEntity]:
         return []

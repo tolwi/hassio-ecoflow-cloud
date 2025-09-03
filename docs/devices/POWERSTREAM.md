@@ -1,68 +1,76 @@
 ## POWERSTREAM
 
 *Sensors*
-- Solar 1 Watts (`pv1_input_watts`)
-- Solar 1 Input Potential (`pv1_input_volt`)
-- Solar 1 Op Potential (`pv1_op_volt`)
-- Solar 1 Currrent (`pv1_input_cur`)
-- Solar 1 Temperature (`pv1_temp`)
-- Solar 1 Relay Status (`pv1_relay_status`)
-- Solar 1 Error Code (`pv1_error_code`)   _(disabled)_
-- Solar 1 Warning Code (`pv1_warning_code`)   _(disabled)_
-- Solar 1 Status (`pv1_status`)   _(disabled)_
-- Solar 2 Watts (`pv2_input_watts`)
-- Solar 2 Input Potential (`pv2_input_volt`)
-- Solar 2 Op Potential (`pv2_op_volt`)
-- Solar 2 Current (`pv2_input_cur`)
-- Solar 2 Temperature (`pv2_temp`)
-- Solar 2 Relay Status (`pv2_relay_status`)
-- Solar 2 Error Code (`pv2_error_code`)   _(disabled)_
-- Solar 2 Warning Code (`pv2_warning_code`)   _(disabled)_
-- Solar 2 Status (`pv2_status`)   _(disabled)_
-- Battery Type (`bp_type`)   _(disabled)_
-- Battery Charge (`bat_soc`)
-- Battery Input Watts (`bat_input_watts`)
-- Battery Input Potential (`bat_input_volt`)
-- Battery Op Potential (`bat_op_volt`)
-- Battery Input Current (`bat_input_cur`)
-- Battery Temperature (`bat_temp`)
-- Charge Time (`battery_charge_remain`)
-- Discharge Time (`battery_discharge_remain`)
-- Battery Error Code (`bat_error_code`)   _(disabled)_
-- Battery Warning Code (`bat_warning_code`)   _(disabled)_
-- Battery Status (`bat_status`)   _(disabled)_
-- LLC Input Potential (`llc_input_volt`)   _(disabled)_
-- LLC Op Potential (`llc_op_volt`)   _(disabled)_
-- LLC Error Code (`llc_error_code`)   _(disabled)_
-- LLC Warning Code (`llc_warning_code`)   _(disabled)_
-- LLC Status (`llc_status`)   _(disabled)_
-- Inverter On/Off Status (`inv_on_off`)
-- Inverter Output Watts (`inv_output_watts`)
-- Inverter Output Potential (`inv_input_volt`)   _(disabled)_
-- Inverter Op Potential (`inv_op_volt`)
-- Inverter Output Current (`inv_output_cur`)
-- Inverter DC Current (`inv_dc_cur`)
-- Inverter Frequency (`inv_freq`)
-- Inverter Temperature (`inv_temp`)
-- Inverter Relay Status (`inv_relay_status`)
-- Inverter Error Code (`inv_error_code`)   _(disabled)_
-- Inverter Warning Code (`inv_warning_code`)   _(disabled)_
-- Inverter Status (`inv_status`)   _(disabled)_
-- Other Loads (`permanent_watts`)
-- Smart Plug Loads (`dynamic_watts`)
-- Rated Power (`rated_power`)
-- Lower Battery Limit (`lower_limit`)   _(disabled)_
-- Upper Battery Limit (`upper_limit`)   _(disabled)_
-- Wireless Error Code (`wireless_error_code`)   _(disabled)_
-- Wireless Warning Code (`wireless_warning_code`)   _(disabled)_
-- LED Brightness (`inv_brightness`)   _(disabled)_
-- Heartbeat Frequency (`heartbeat_frequency`)   _(disabled)_
+- ESP Temperature (`20_1.espTempsensor`)
+- Solar 1 Watts (`20_1.pv1InputWatts`)
+- Solar 1 Input Potential (`20_1.pv1InputVolt`)
+- Solar 1 Op Potential (`20_1.pv1OpVolt`)
+- Solar 1 Current (`20_1.pv1InputCur`)
+- Solar 1 Temperature (`20_1.pv1Temp`)
+- Solar 1 Relay Status (`20_1.pv1RelayStatus`)
+- Solar 1 Error Code (`20_1.pv1ErrCode`)   _(disabled)_
+- Solar 1 Warning Code (`20_1.pv1WarnCode`)   _(disabled)_
+- Solar 1 Status (`20_1.pv1Statue`)   _(disabled)_
+- Solar 2 Watts (`20_1.pv2InputWatts`)
+- Solar 2 Input Potential (`20_1.pv2InputVolt`)
+- Solar 2 Op Potential (`20_1.pv2OpVolt`)
+- Solar 2 Current (`20_1.pv2InputCur`)
+- Solar 2 Temperature (`20_1.pv2Temp`)
+- Solar 2 Relay Status (`20_1.pv2RelayStatus`)
+- Solar 2 Error Code (`20_1.pv2ErrCode`)   _(disabled)_
+- Solar 2 Warning Code (`20_1.pv2WarningCode`)   _(disabled)_
+- Solar 2 Status (`20_1.pv2Statue`)   _(disabled)_
+- Battery Type (`20_1.bpType`)   _(disabled)_
+- Battery Charge (`20_1.batSoc`)
+- Battery Input Watts (`20_1.batInputWatts`)
+- Battery Input Potential (`20_1.batInputVolt`)
+- Battery Op Potential (`20_1.batOpVolt`)
+- Battery Input Current (`20_1.batInputCur`)
+- Battery Temperature (`20_1.batTemp`)
+- Charge Time (`20_1.chgRemainTime`)
+- Discharge Time (`20_1.dsgRemainTime`)
+- Battery Error Code (`20_1.batErrCode`)   _(disabled)_
+- Battery Warning Code (`20_1.batWarningCode`)   _(disabled)_
+- Battery Status (`20_1.batStatue`)   _(disabled)_
+- LLC Input Potential (`20_1.llcInputVolt`)   _(disabled)_
+- LLC Op Potential (`20_1.llcOpVolt`)   _(disabled)_
+- LLC Temperature (`20_1.llcTemp`)
+- LLC Error Code (`20_1.llcErrCode`)   _(disabled)_
+- LLC Warning Code (`20_1.llcWarningCode`)   _(disabled)_
+- LLC Status (`20_1.llcStatue`)   _(disabled)_
+- Inverter On/Off Status (`20_1.invOnOff`)
+- Inverter Output Watts (`20_1.invOutputWatts`)
+- Inverter Output Potential (`20_1.invInputVolt`)   _(disabled)_
+- Inverter Op Potential (`20_1.invOpVolt`)
+- Inverter Output Current (`20_1.invOutputCur`)
+- Inverter Frequency (`20_1.invFreq`)
+- Inverter Temperature (`20_1.invTemp`)
+- Inverter Relay Status (`20_1.invRelayStatus`)
+- Inverter Error Code (`20_1.invErrCode`)   _(disabled)_
+- Inverter Warning Code (`20_1.invWarnCode`)   _(disabled)_
+- Inverter Status (`20_1.invStatue`)   _(disabled)_
+- Other Loads (`20_1.permanentWatts`)
+- Smart Plug Loads (`20_1.dynamicWatts`)
+- Rated Power (`20_1.ratedPower`)
+- Lower Battery Limit (`20_1.lowerLimit`)   _(disabled)_
+- Upper Battery Limit (`20_1.upperLimit`)   _(disabled)_
+- Wireless Error Code (`20_1.wirelessErrCode`)   _(disabled)_
+- Wireless Warning Code (`20_1.wirelessWarnCode`)   _(disabled)_
+- LED Brightness (`20_1.invBrightness`)   _(disabled)_
+- Heartbeat Frequency (`20_1.heartbeatFrequency`)   _(disabled)_
+- PV1 Today Energy Total (`254_32.watthPv1`)
+- PV2 Today Energy Total (`254_32.watthPv2`)
+- From Battery Today Energy Total (`254_32.watthFromBattery`)
+- To Battery Today Energy Total (`254_32.watthToBattery`)
+- To Smart Plugs Today Energy Total (`254_32.watthToSmartPlugs`)
 - Status
 
 *Switches*
+- Feed-in Control (`20_1.feedProtect` -> `{"from": "HomeAssistant", "id": "999978134", "version": "1.0", "sn": "SN", "cmdCode": "PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT", "params": {"value": "VALUE"}}`)
 
 *Sliders (numbers)*
 
 *Selects*
+- Power supply mode (`20_1.supplyPriority` -> `{"from": "HomeAssistant", "id": "999965037", "version": "1.0", "sn": "SN", "cmdCode": "WN511_SET_SUPPLY_PRIORITY_PACK", "params": {"supplyPriority": "VALUE"}}` [Prioritize power supply (0), Prioritize power storage (1)])
 
 

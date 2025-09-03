@@ -6,9 +6,9 @@ import time
 
 import aiohttp
 
-from . import EcoflowApiClient
-from .. import DeviceData
+from ..device_data import DeviceData
 from ..devices import DiagnosticDevice, EcoflowDeviceInfo
+from . import EcoflowApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,11 +46,14 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             _LOGGER.debug(str(device))
             sn = device["sn"]
             product_name = device.get("productName", "undefined")
-            if product_name == "undefined" :
+            if product_name == "undefined":
                 from ..devices.registry import device_by_product
+
                 device_list = list(device_by_product.keys())
                 for devicetype in device_list:
-                    if "deviceName" in device and device["deviceName"].lower().startswith(devicetype.lower()):
+                    if "deviceName" in device and device[
+                        "deviceName"
+                    ].lower().startswith(devicetype.lower()):
                         product_name = devicetype
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
@@ -109,7 +112,6 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Erreur recuperation %s", sn)
 
-
     async def call_api(self, endpoint: str, params: dict[str, str] = None) -> dict:
         self.nonce = str(random.randint(10000, 1000000))
         self.timestamp = str(int(time.time() * 1000))
@@ -133,7 +135,12 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 headers=headers,
             )
             json_resp = await self._get_json_response(resp)
-            _LOGGER.debug(f"Request: %s %s. Response : %s", str(endpoint), str(params_str), str(json_resp))
+            _LOGGER.debug(
+                f"Request: %s %s. Response : %s",
+                str(endpoint),
+                str(params_str),
+                str(json_resp),
+            )
             return json_resp
 
     def __create_device_info(

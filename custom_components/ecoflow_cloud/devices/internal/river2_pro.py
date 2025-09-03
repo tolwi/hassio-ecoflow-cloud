@@ -1,7 +1,7 @@
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
+from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, BatteryBackupLevel
 from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, MilliVoltSensorEntity, \
@@ -86,6 +86,14 @@ class River2Pro(BaseDevice):
             ChargingPowerEntity(client, self, "mppt.cfgChgWatts", const.AC_CHARGING_POWER, 100, 950,
                                 lambda value: {"moduleType": 5, "operateType": "acChgCfg",
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}}),
+
+            BatteryBackupLevel(client, self, "pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
+                               "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc",
+                               lambda value: {"moduleType": 1, "operateType": "watthConfig",
+                                              "params": {"isConfig": 1,
+                                                         "bpPowerSoc": int(value),
+                                                         "minDsgSoc": 0,
+                                                         "minChgSoc": 0}}),
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
@@ -101,7 +109,14 @@ class River2Pro(BaseDevice):
                                                     "xboost": value}}),
 
             EnabledEntity(client, self, "pd.carState", const.DC_ENABLED,
-                          lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}})
+                          lambda value: {"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": value}}),
+
+            EnabledEntity(client, self, "pd.watchIsConfig", const.BP_ENABLED,
+                          lambda value, params: {"moduleType": 1, "operateType": "watthConfig",
+                                                 "params": {"isConfig": value,
+                                                            "bpPowerSoc": value * 50,
+                                                            "minDsgSoc": 0,
+                                                            "minChgSoc": 0}})
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:

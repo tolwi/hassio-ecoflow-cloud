@@ -1,11 +1,12 @@
-from __future__ import annotations  # for DeviceData.parent: DeviceData
-import dataclasses
 import logging
 from typing import Final
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+
+from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
+from .device_data import DeviceData, DeviceOptions
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,23 +53,6 @@ OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 5
-
-
-@dataclasses.dataclass
-class DeviceOptions:
-    refresh_period: int
-    power_step: int
-    diagnostic_mode: bool
-
-
-@dataclasses.dataclass
-class DeviceData:
-    sn: str
-    name: str
-    device_type: str
-    options: DeviceOptions
-    display_name: str | None
-    parent: DeviceData | None
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):

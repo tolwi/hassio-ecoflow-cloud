@@ -1,9 +1,10 @@
-from typing import List
+from typing import Any, List
 import json
 from unittest.mock import Mock
 
-from custom_components.ecoflow_cloud import DeviceData, DeviceOptions
+from custom_components.ecoflow_cloud.device_data import DeviceData, DeviceOptions
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo
+from custom_components.ecoflow_cloud.devices.internal.proto.support.message import ProtoMessage
 from custom_components.ecoflow_cloud.devices.registry import (
     devices,
     device_by_product,
@@ -18,7 +19,7 @@ from custom_components.ecoflow_cloud.entities import (
     EcoFlowDictEntity,
 )
 
-MARKER_VALUE = -66666
+MARKER_VALUE = 6666
 
 multi_device_config = {
     "Power Kits": [
@@ -102,18 +103,29 @@ def command_ro(e: EcoFlowBaseCommandEntity) -> str:
         return ""
 
 
-def prepare_options(options: dict[str, int]) -> str:
-    return ", ".join(["%s (%d)" % (k, v) for k, v in options.items()])
+def prepare_options(options: dict[str, Any]) -> str:
+    return ", ".join(["%s (%s)" % (k, v) for k, v in options.items()])
 
 
 def prepare_command(e: EcoFlowBaseCommandEntity) -> str | None:
     command_dict = e.command_dict(MARKER_VALUE)
-    if command_dict is not None:
-        for k, v in command_dict["params"].items():
-            if v == MARKER_VALUE:
-                command_dict["params"][k] = "VALUE"
+    if command_dict is not None:       
+        if isinstance(command_dict, dict):
+            json_dict = command_dict
+        elif isinstance(command_dict, ProtoMessage):
+            json_dict = command_dict.to_json_message()
+        else:
+            raise TypeError(
+                "Unsupported command_dict type: %s" % type(command_dict).__name__
+            )
 
-        return json.dumps(command_dict)
+        # Check if params exist and update marker values
+        if "params" in json_dict:
+            for k, v in json_dict["params"].items():
+                if v == MARKER_VALUE:
+                    json_dict["params"][k] = "VALUE"
+
+        return json.dumps(json_dict)
     else:
         return "_ command not available _"
 
@@ -196,7 +208,7 @@ def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
 
 def render_brief_summary():
     content_summary = "## Current state\n"
-    content_summary+= "### Devices available with private_api\n"
+    content_summary += "### Devices available with private_api\n"
     for dt, dev in devices.items():
         if not dt.upper().startswith("DIAGNOSTIC"):
             content = ""
@@ -205,13 +217,16 @@ def render_brief_summary():
                 if len(real_devices) > 1:
                     content = content + f"\n### {device.device_data.device_type}\n"
                 content = content + render_device_summary(device, True)
-            content_summary+="<details><summary> %s <i>(%s)</i> </summary>" % (dt, device_summary(real_devices))
-            content_summary+="\n<p>\n"
-            content_summary+=content
-            content_summary+="\n</p></details>\n"
-            content_summary+= "\n"
+            content_summary += "<details><summary> %s <i>(%s)</i> </summary>" % (
+                dt,
+                device_summary(real_devices),
+            )
+            content_summary += "\n<p>\n"
+            content_summary += content
+            content_summary += "\n</p></details>\n"
+            content_summary += "\n"
 
-    content_summary+= "### Devices available with public_api\n"
+    content_summary += "### Devices available with public_api\n"
     for dt, dev in device_by_product.items():
         if not dt.upper().startswith("DIAGNOSTIC"):
             content = ""
@@ -220,14 +235,17 @@ def render_brief_summary():
                 if len(real_devices) > 1:
                     content = content + f"\n### {device.device_data.device_type}\n"
                 content = content + render_device_summary(device, True)
-            content_summary+="<details><summary> %s (API) <i>(%s)</i> </summary>" % (dt, device_summary(real_devices))
+            content_summary += "<details><summary> %s (API) <i>(%s)</i> </summary>" % (
+                dt,
+                device_summary(real_devices),
+            )
 
-            content_summary+="\n<p>\n"
-            content_summary +=content
-            content_summary+="\n</p></details>\n"
-            content_summary+="\n"
+            content_summary += "\n<p>\n"
+            content_summary += content
+            content_summary += "\n</p></details>\n"
+            content_summary += "\n"
     print(content_summary)
-    with open("summary.md" , "w+") as f_summary:
+    with open("summary.md", "w+") as f_summary:
         f_summary.write(content_summary)
         f_summary.write("\n")
 
