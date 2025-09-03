@@ -1,0 +1,637 @@
+syntax = "proto3";
+
+message RuntimePropertyUpload {
+	optional uint32 ac_phase_type = 21;
+	optional uint32 pcs_work_mode = 24;
+	optional float temp_pcs_dc = 26;
+	optional float temp_pcs_ac = 27;
+	optional float temp_pv_h = 28;
+	optional float temp_pv_l = 29;
+	optional float plug_in_info_pv_h_vol = 41;
+	optional float plug_in_info_pv_l_vol = 44;
+	optional uint32 plug_in_info_ac_out_type = 59;
+	optional uint32 plug_in_info_ac_out_freq = 60;
+	optional uint32 plug_in_info_5p8_freq = 66;
+	optional float plug_in_info_ac_in_vol = 68;
+	optional float plug_in_info_24v_vol = 149;
+	optional float plug_in_info_24v_amp = 150;
+	optional float plug_in_info_l1_vol = 151;
+	optional float plug_in_info_4p8_1_vol = 167;
+	optional float plug_in_info_4p8_2_vol = 168;
+	optional float plug_in_info_bms_vol = 169;
+	optional uint32 pd_mppt_comm_err = 172; //bool
+	optional uint32 pd_llc_comm_err = 173; //bool
+	optional uint32 pd_bms_comm_err = 174; //bool
+	optional uint32 pd_iot_comm_err = 175; //bool
+	optional uint32 pd_firm_ver = 176;
+	optional uint32 iot_firm_ver = 177;
+	optional uint32 mppt_firm_ver = 178;
+	optional uint32 llc_firm_ver = 179;
+	optional float plug_in_info_l1_amp = 196;
+	optional float plug_in_info_l2_vol = 197;
+	optional float plug_in_info_l2_amp = 198;
+	optional float plug_in_info_acp_l1_vol = 199;
+	optional float plug_in_info_acp_l1l2_vol = 201;
+	optional uint32 mppt_monitor_flag = 220;
+	optional float plug_in_info_pv_h_amp = 221;
+	optional float plug_in_info_pv_l_amp = 222;
+	optional float plug_in_info_ac_in_amp = 223;
+	optional uint32 llc_inv_firm_ver = 231;
+	optional float plug_in_info_4p8_1_amp = 239;
+	optional float plug_in_info_4p8_2_amp = 240;
+	optional uint32 bms_firm_ver = 241;
+	optional float bms_batt_vol = 244;
+	optional float bms_batt_amp = 245;
+	optional uint32 bms_bal_state = 246;
+	optional uint32 bms_full_cap = 247;
+	optional uint32 bms_remain_cap = 249;
+	optional uint32 bms_alm_state = 250;
+	optional uint32 bms_pro_state = 251;
+	optional uint32 bms_flt_state = 252;
+	optional uint32 bms_err_code = 253;
+	optional uint32 bms_min_cell_vol = 256;
+	optional uint32 bms_max_cell_vol = 257;
+	optional float cms_batt_vol = 264;
+	optional float cms_batt_amp = 265;
+	optional float cms_chg_req_vol = 266;
+	optional float cms_chg_req_amp = 267;
+	optional uint32 bms_overload_icon = 276;
+	optional uint32 bms_warn_icon = 277;
+	optional uint32 bms_high_temp_icon = 278;
+	optional uint32 bms_low_temp_icon = 279;
+	optional uint32 bms_limit_icon = 280;
+	optional uint32 bms_alm_state_2 = 291;
+	optional uint32 bms_pro_state_2 = 292;
+	optional int32 display_property_full_upload_period = 293;
+	optional int32 display_property_incremental_upload_period = 294;
+	optional int32 runtime_property_full_upload_period = 295;
+	optional int32 runtime_property_incremental_upload_period = 296;
+	optional float mppt_recv_cms_chg_req_vol = 318;
+	optional float mppt_recv_cms_chg_req_amp = 337;
+	optional float pv_vin_ref = 338;
+	optional float pv2_vin_ref = 339;
+	optional float pv2_bus_vol = 340;
+	optional float mppt_bat_vol = 341;
+	optional float mppt_bat_amp = 342;
+	optional uint32 pv_pause_cnt = 343;
+	optional uint32 pv2_pause_cnt = 344;
+	optional uint32 mppt_fanspeed = 345;
+	optional int32 ads_ntc_temp = 346;
+	optional uint32 mppt_hardware_ver = 347;
+	optional uint32 inv_monitor_flag = 348;
+	optional uint32 inv_main_fsmstate = 349;
+	optional uint32 l1_main_fsmstate = 350;
+	optional uint32 l2_main_fsmstate = 351;
+	optional float plug_in_info_pfc_out_vol = 352;
+	optional float pow_get_l1 = 353;
+	optional float pow_get_l2 = 354;
+	optional float inv_bus_vol = 369;
+	optional int32 inv_ntc_temp2 = 370;
+	optional int32 inv_ntc_temp3 = 371;
+	optional uint32 llc_monitor_flag = 372;
+	optional int32 llc_ntc_temp = 373;
+	optional uint32 llc_fsmstate = 374;
+	optional uint32 pd_to_inv_dsg_mode = 375;
+	optional float dcdc_chg_req_cur = 376;
+	optional float llc_recv_cms_chg_req_vol = 377;
+	optional float inv_to_llc_ac_pow_lim = 378;
+	optional float plug_in_info_12v_vol = 382;
+	optional float plug_in_info_12v_amp = 383;
+	optional float llc_bat_vol = 384;
+	optional float llc_bat_cur = 385;
+	optional float llc_bus_vol = 386;
+	optional float pd_skt_ocp1 = 387;
+	optional float pd_skt_ocp2 = 388;
+	optional float pd_skt_ocp3 = 389;
+	optional float pd_skt_ocp4 = 390;
+	optional float pd_skt_ocp5 = 391;
+}
+
+message cmdFunc50_cmdId30_Report {
+    optional sint32 bms_flt_state = 1; // BMS fault state (0: OK)
+    optional sint32 bms_pro_state = 2; // BMS protection state (0: OK)
+    optional sint32 bms_alm_state = 3; // BMS alarm state (0: OK)
+    optional sint32 bms_bal_state = 4; // BMS balance state (0: OK)
+    optional uint64 unknown5 = 5; // BMS related ID or counter?
+    optional sint32 unknown6 = 6;
+    optional sint32 bms_batt_vol = 7; // mV, Main battery voltage (e.g., 51510 for 51.510V)
+    optional sint32 bms_batt_amp = 8; // mA, Main battery current (e.g., -8938 for -8.938A, discharging)
+    optional sint32 bms_max_cell_temp_dup = 9; // °C, Main battery max cell temperature (duplicate of maxCellTemp18)
+    optional sint32 unknown10 = 10;
+    optional uint32 bms_design_cap_mah_dup = 11; // mAh, Battery design capacity (duplicate of unknown24)
+    optional uint32 bms_remain_cap_mah = 12; // mAh, Battery remaining capacity
+    optional uint32 bms_full_cap_mah = 13; // mAh, Battery full charge capacity
+    optional sint32 unknown14 = 14;
+    optional uint32 bms_batt_soh_percent_int = 15; // %, Main battery SOH (integer representation, compare with soh54 float)
+    optional uint32 max_cell_vol_mv = 16; // mV, Max cell voltage (e.g., 3232 for 3.232V)
+    optional uint32 min_cell_vol_mv = 17; // mV, Min cell voltage (e.g., 3205 for 3.205V)
+    optional sint32 max_cell_temp_c = 18; // °C, Main battery max cell temperature
+    optional sint32 min_cell_temp_c = 19; // °C, Main battery min cell temperature
+    optional sint32 max_mos_temp_c = 20; // °C, BMS MOS max temperature
+    optional sint32 min_mos_temp_c = 21; // °C, BMS MOS min temperature
+    optional sint32 unknown22 = 22;
+    optional sint32 unknown23 = 23;
+    optional uint32 bms_design_cap_mah = 24; // mAh, Battery design capacity
+    optional float bms_batt_soc_percent_float1 = 25; // %, Main battery SOC (float, similar to unknown42, unknown44)
+    optional sint32 unknown26 = 26;
+    optional uint32 bms_chg_rem_time_min = 27; // min, Main battery remaining charging time
+    optional uint32 bms_dsg_rem_time_min = 28; // min, Main battery remaining discharging time
+    optional sint32 unknown29 = 29;
+    optional sint32 unknown30 = 30;
+    optional sint32 max_mos_temp_c_dup = 31; // °C, BMS MOS max temperature (duplicate of maxMosTemp20)
+    optional sint32 cell_vol_array_size = 32; // Number of elements in cellVol33 array (usually 16)
+    repeated uint32  cell_vol_mv = 33; // mV, Array of individual cell voltages (16 cells)
+    optional sint32 cell_temp_array_size = 34; // Number of elements in cellTemp35 array (usually 8)
+    repeated sint32 cell_temp_c = 35; // °C, Array of individual cell temperatures (8 sensors)
+    optional string bms_firm_ver = 36; // BMS firmware version
+    optional uint32 bms_heart_ver = 37; // BMS heartbeat version?
+    optional uint32 ecloud_ocv = 38; // OCV (Open Circuit Voltage) related? 65535 might be invalid.
+    optional string bms_sn = 39; // BMS Serial Number?
+    optional sint32 unknown40 = 40;
+    optional sint32 unknown41 = 41;
+    optional float bms_batt_soc_percent_float2 = 42; // %, Main battery SOC (float, similar to unknown25, unknown44)
+    optional float unknown43 = 43;
+    optional float bms_batt_soc_percent_float3 = 44; // %, Main battery SOC (float, similar to unknown25, unknown42)
+    optional sint32 unknown45 = 45; // -1 might indicate invalid or not set
+    optional sint32 unknown46 = 46;
+    optional sint32 bms_chg_dsg_state = 47; // Main battery charging/discharging state (0: idle, 1: discharging, 2: charging)
+    optional sint32 unknown48 = 48;
+    optional sint32 unknown49 = 49;
+    optional uint64 unknown50 = 50;
+    optional uint64 unknown51 = 51;
+    optional float unknown52 = 52; // SOH related value?
+    optional float unknown53 = 53;
+    optional float bms_batt_soh_percent_float = 54; // %, Battery SOH (float, likely more accurate than unknown15)
+    optional sint32 unknown55 = 55;
+    repeated sint32 mos_temp_c = 56; // °C, MOS temperatures (3 sensors)
+    optional sint32 unknown57 = 57;
+    repeated sint32 unknown58 = 58;
+    optional sint32 unknown61 = 61;
+    repeated sint32 unknown62 = 62;
+    optional sint32 unknown63 = 63;
+    optional sint32 unknown64 = 64;
+    optional sint32 unknown67 = 67;
+    optional sint32 unknown68 = 68;
+    optional sint32 unknown69 = 69;
+    repeated uint32 bms_err_code_flags = 70; // BMS error code array (16 elements), each element might be a flag (0: no error)
+    optional sint32 unknown71 = 71;
+    repeated sint32 bat_volt_mv_array = 72; // mV, Battery voltage (array, usually 1 element)
+    optional uint32 unknown73 = 73;
+    optional sint32 unknown74 = 74;
+    optional sint32 unknown75 = 75;
+    optional sint32 unknown76 = 76;
+    optional sint32 unknown77 = 77;
+    optional sint32 unknown78 = 78;
+    optional uint64 unknown79 = 79;
+    optional uint64 unknown80 = 80;
+    optional string pack_sn = 81; // Battery pack serial number?
+    optional sint32 unknown82 = 82;
+}
+
+enum TIME_TASK_MODE {
+	TIME_TASK_MODE_RESV = 0;
+	TIME_TASK_MODE_PER_WEEK = 1;
+	TIME_TASK_MODE_ONCE = 2;
+  }
+
+  enum TIME_TASK_TYPE {
+	TIME_TASK_TYPE_AC_CHG = 0;
+	TIME_TASK_TYPE_AC_DSG = 1;
+	TIME_TASK_TYPE_AC2_DSG = 2;
+	TIME_TASK_TYPE_DC_CHG = 3;
+	TIME_TASK_TYPE_DC2_CHG = 4;
+	TIME_TASK_TYPE_DC_DSG = 5;
+	TIME_TASK_TYPE_OIL_ON = 6;
+	TIME_TASK_TYPE_OIL_OFF = 7;
+	TIME_TASK_TYPE_USB_CHG = 8;
+	TIME_TASK_TYPE_USB_DSG = 9;
+  }
+  enum TIME_TASK_DETAIL_TYPE {
+	TIME_TASK_DETAIL_IDLE = 0;
+	TIME_TASK_DETAIL_POW = 1;
+	TIME_TASK_DETAIL_TEMP = 2;
+	TIME_TASK_DETAIL_LEVEL = 3;
+  }
+
+  message TimeTaskParamDetail {
+	optional TIME_TASK_DETAIL_TYPE type = 1;
+	optional float val = 2;
+  }
+message TimeTaskItemV2 {
+	optional uint32 task_index = 1;
+	optional bool is_cfg = 2;
+	optional bool is_enable = 3;
+	optional uint32 conflict_flag = 4;
+	optional TIME_TASK_MODE time_mode = 5;
+	optional uint32 time_param = 6;
+	optional uint32 time_table = 7;
+	optional TIME_TASK_TYPE task_type = 8;
+	optional uint32 task_param = 9;
+	repeated TimeTaskParamDetail task_param_detail = 10;
+}
+
+
+message DisplayPropertyUpload {
+	optional uint32 errcode = 1;
+	optional float pow_in_sum_w = 3;
+	optional float pow_out_sum_w = 4;
+	optional uint32 lcd_light = 5;
+	optional uint32 energy_backup_state = 6;
+	optional uint32 energy_backup_en = 7; //bool
+	optional uint32 energy_backup_start_soc = 8;
+	optional float pow_get_qcusb1 = 9;
+	optional float pow_get_qcusb2 = 10;
+	optional float pow_get_typec1 = 11;
+	optional float pow_get_typec2 = 12;
+	optional uint32 flow_info_qcusb1 = 13;
+	optional uint32 flow_info_qcusb2 = 14;
+	optional uint32 flow_info_typec1 = 15;
+	optional uint32 flow_info_typec2 = 16;
+	optional uint32 dev_standby_time = 17;
+	optional uint32 screen_off_time = 18;
+	optional uint32 ac_standby_time = 19;
+	optional uint32 dc_standby_time = 20;
+	optional uint32 ac_always_on_mini_soc = 23;
+	optional uint32 xboost_en = 25; //bool
+	optional uint32 pcs_fan_level = 30;
+	optional uint32 flow_info_pv_h = 31;
+	optional uint32 flow_info_pv_l = 32;
+	optional uint32 flow_info_12v = 33;
+	optional uint32 flow_info_24v = 34;
+	optional float pow_get_pv_h = 35;
+	optional float pow_get_pv_l = 36;
+	optional float pow_get_12v = 37;
+	optional float pow_get_24v = 38;
+	optional uint32 plug_in_info_pv_h_flag = 39;
+	optional uint32 plug_in_info_pv_h_type = 40;
+	optional uint32 plug_in_info_pv_l_flag = 42;
+	optional uint32 plug_in_info_pv_l_type = 43;
+	optional uint32 flow_info_ac2dc = 45;
+	optional uint32 flow_info_dc2ac = 46;
+	optional uint32 flow_info_ac_in = 47;
+	optional uint32 flow_info_ac_hv_out = 48;
+	optional uint32 flow_info_ac_lv_out = 49;
+	optional uint32 flow_info_5p8_in = 50;
+	optional uint32 flow_info_5p8_out = 51;
+	optional float pow_get_llc = 52;
+	optional float pow_get_ac = 53;
+	optional float pow_get_ac_in = 54;
+	optional float pow_get_ac_hv_out = 55;
+	optional float pow_get_ac_lv_out = 56;
+	optional float pow_get_ac_lv_tt30_out = 57;
+	optional float pow_get_5p8 = 58;
+	optional uint32 plug_in_info_ac_in_flag = 61;
+  	optional uint32 plug_in_info_ac_in_feq = 62;
+  	optional uint32 plug_in_info_5p8_flag = 63;
+   	optional uint32 plug_in_info_5p8_type = 64;
+   	optional uint32 plug_in_info_5p8_detail = 65;
+	optional TimeTaskItemV2 current_time_task_v2_item = 126;
+	optional int32 utc_timezone = 133;
+	optional string utc_timezone_id = 134;
+	optional uint32 utc_set_mode = 135; //bool
+	optional uint32 bms_err_code = 140;
+	optional uint32 output_power_off_memory = 147; //bool
+	optional uint32 flow_info_bms_dsg = 152;
+	optional uint32 flow_info_bms_chg = 153;
+	optional uint32 flow_info_4p8_1_in = 154;
+	optional uint32 flow_info_4p8_1_out = 155;
+	optional uint32 flow_info_4p8_2_in = 156;
+	optional uint32 flow_info_4p8_2_out = 157;
+	optional float pow_get_bms = 158;
+	optional float pow_get_4p8_1 = 159;
+	optional float pow_get_4p8_2 = 160;
+	optional uint32 plug_in_info_4p8_1_in_flag = 161;
+    optional uint32 plug_in_info_4p8_1_type = 162;
+    optional uint32 plug_in_info_4p8_1_detail = 163;
+    optional uint32 plug_in_info_4p8_2_in_flag = 164;
+    optional uint32 plug_in_info_4p8_2_type = 165;
+    optional uint32 plug_in_info_4p8_2_detail = 166;
+	optional uint32 plug_in_info_pv_l_charger_flag = 170; //bool
+	optional uint32 plug_in_info_pv_h_charger_flag = 171; //bool
+	optional uint32 plug_in_info_pv_l_dc_amp_max = 180;
+	optional uint32 plug_in_info_pv_h_dc_amp_max = 181;
+	optional uint32 fast_charge_switch = 182;
+	optional uint32 plug_in_info_4p8_1_dsg_chg_type = 183;
+    optional ResvInfo plug_in_info_4p8_1_resv = 184;
+    optional string plug_in_info_4p8_1_sn = 185;
+    optional uint32 plug_in_info_4p8_1_firm_ver = 186;
+    optional uint32 plug_in_info_4p8_2_dsg_chg_type = 187;
+    optional ResvInfo plug_in_info_4p8_2_resv = 188;
+    optional string plug_in_info_4p8_2_sn = 189;
+    optional uint32 plug_in_info_4p8_2_firm_ver = 190;
+    optional uint32 plug_in_info_5p8_dsg_chg = 191;
+    optional ResvInfo plug_in_info_5p8_resv = 192;
+    optional string plug_in_info_5p8_sn = 193;
+    optional uint32 plug_in_info_5p8_firm_ver = 194;
+	optional uint32 en_beep = 195; //bool
+	optional uint32 llc_GFCI_flag = 200; //bool
+	optional uint32 plug_in_info_ac_charger_flag = 202; //bool
+    optional uint32 plug_in_info_5p8_charger_flag = 203; //bool
+    optional uint32 plug_in_info_5p8_run_state = 204;
+    optional uint32 plug_in_info_4p8_1_charger_flag = 205; //bool
+    optional uint32 plug_in_info_4p8_1_run_state = 206;
+    optional uint32 plug_in_info_4p8_2_charger_flag = 207; //bool
+    optional uint32 plug_in_info_4p8_2_run_state = 208;
+    optional uint32 plug_in_info_ac_in_chg_pow_max = 209;
+    optional uint32 plug_in_info_5p8_chg_pow_max = 210;
+	optional uint32 ac_out_freq = 211;
+	optional uint32 dev_sleep_state = 212;
+	optional uint32 pd_err_code = 213;
+    optional uint32 llc_err_code = 214;
+    optional uint32 mppt_err_code = 215;
+    optional uint32 plug_in_info_5p8_err_code = 216;
+    optional uint32 plug_in_info_4p8_1_err_code = 217;
+    optional uint32 plug_in_info_4p8_2_err_code = 218;
+    optional uint32 pcs_fan_err_flag = 226;
+	optional uint32 llc_hv_lv_flag = 227;
+	optional uint32 llc_inv_err_code = 232;
+	optional uint32 plug_in_info_pv_h_chg_vol_max = 233;
+	optional uint32 plug_in_info_pv_l_chg_vol_max = 234;
+	optional uint32 plug_in_info_pv_l_chg_amp_max = 235;
+	optional uint32 plug_in_info_pv_h_chg_amp_max = 236;
+	optional uint32 plug_in_info_5p8_dsg_pow_max = 237;
+   	optional uint32 plug_in_info_ac_out_dsg_pow_max = 238;
+	optional float bms_batt_soc = 242;
+	optional float bms_batt_soh = 243;
+	optional uint32 bms_design_cap = 248;
+	optional uint32 bms_dsg_rem_time = 254;
+	optional uint32 bms_chg_rem_time = 255;
+	optional int32 bms_min_cell_temp = 258;
+	optional int32 bms_max_cell_temp = 259;
+	optional int32 bms_min_mos_temp = 260;
+	optional int32 bms_max_mos_temp = 261;
+	optional float cms_batt_soc = 262;
+	optional float cms_batt_soh = 263;
+	optional uint32 cms_dsg_rem_time = 268;
+	optional uint32 cms_chg_rem_time = 269;
+	optional uint32 cms_max_chg_soc = 270;
+	optional uint32 cms_min_dsg_soc = 271;
+	optional uint32 cms_oil_on_soc = 272;
+	optional uint32 cms_oil_off_soc = 273;
+	optional uint32 cms_oil_self_start = 274; //bool
+	optional uint32 cms_bms_run_state = 275;
+	optional uint32 bms_chg_dsg_state = 281;
+	optional uint32 cms_chg_dsg_state = 282;
+	optional uint32 ac_hv_always_on = 283; //bool
+	optional uint32 ac_lv_always_on = 284; //bool
+	optional uint32 time_task_conflict_flag = 285;
+	optional uint32 time_task_change_cnt = 286;
+	optional uint32 ble_standby_time = 290;
+	optional uint32 generator_pv_hybrid_mode_open = 451; //bool
+	optional uint32 generator_pv_hybrid_mode_soc_max = 452;
+	optional uint32 generator_care_mode_open = 453; //bool
+	optional uint32 generator_care_mode_start_time = 454;
+	optional uint32 ac_energy_saving_open = 455; //bool
+	optional uint32 multi_bp_chg_dsg_mode = 456;
+	optional uint32 plug_in_info_5p8_chg_hal_pow_max = 457;
+   	optional uint32 plug_in_info_ac_in_chg_hal_pow_max = 458;
+}
+
+message ResvInfo {
+  repeated uint32 resv_info = 1;
+}
+
+//ems
+message struct32_2_1 {
+    optional sint32 cms_status_misc1 = 1; // Misc status, meaning TBD
+    optional sint32 cms_status_misc2 = 2; // Misc status, meaning TBD
+    optional sint32 cms_status_misc3 = 3; // Misc status, meaning TBD
+    optional sint32 cms_batt_vol_mv = 4; // mV, CMS battery voltage (e.g., 53350 for 53.350V)
+    optional uint32 cms_chg_req_amp = 5; // mA?, CMS charge request current (130000 might be 130.000A or another param)
+    optional sint32 cms_status_misc4 = 6; // Misc status, meaning TBD
+    optional uint32 cms_max_chg_soc = 7; // %, Charge limit SOC
+    optional uint32 cms_min_dsg_soc = 8; // %, Discharge limit SOC
+    optional uint32 ac_out_freq = 9; // Hz, AC output frequency (may correspond to cfgAcOutFreq or acOutFreq)
+    optional sint32 cms_status_misc5 = 10; // Misc status, meaning TBD
+    optional sint32 cms_status_misc6 = 11; // Misc status, meaning TBD
+    optional uint32 cms_chg_rem_time = 12; // min, CMS remaining charging time
+    optional uint32 cms_dsg_rem_time = 13; // min, CMS remaining discharging time
+    optional sint32 cms_chg_dsg_state = 14; // CMS charging/discharging state (0: idle, 1: discharging, 2: charging)
+    optional float cms_batt_soc = 15; // %, Overall SOC
+    repeated sint32 bms_is_conn_state = 16; // BMS connection state (for multiple packs? e.g., [3,0,3])
+    optional sint32 cms_status_misc7 = 17; // Misc status, meaning TBD
+    optional sint32 cms_status_misc8 = 18; // Misc status, meaning TBD
+    optional sint32 cms_status_misc9 = 19; // Misc status, meaning TBD
+    optional sint32 cms_status_misc10 = 20; // Misc status, meaning TBD
+    optional sint32 cms_status_misc11 = 21; // Misc status, meaning TBD
+    optional sint32 cms_status_misc12 = 22; // Misc status, meaning TBD
+    optional uint32 cms_oil_off_soc = 23; // %, SOC for automatically stopping Smart Generator (or cmsOilOnSoc)
+}
+
+message struct32_2_2 {
+    optional sint32 cms_status_misc13 = 1; // Misc status, meaning TBD
+    optional sint32 cms_status_misc14 = 2; // Misc status, meaning TBD
+    optional sint32 cms_status_misc15 = 3; // Misc status, meaning TBD
+    optional sint32 cms_status_misc16 = 4; // Misc status, meaning TBD
+    optional sint32 cms_status_misc17 = 5; // Misc status, meaning TBD
+}
+
+message cmdFunc32_cmdId2_Report {
+    optional struct32_2_1 msg32_2_1 = 1;
+    optional struct32_2_2 msg32_2_2 = 2;
+}
+
+message cmdFunc254_cmdId23_Report {
+    optional int32 report_timestamp = 1; // Timestamp of the report
+    optional float unknown2_f23 = 2; // Changed from unknown2 to avoid conflict
+    optional int32 unknown5_f23 = 5; // Changed from unknown5 to avoid conflict
+}
+
+message set_dp3 {
+    optional int32 cfgPowerOff = 3;
+	optional int32 enBeep = 9;
+    optional int32 acStandbyTime = 10;
+    optional int32 dcStandbyTime = 11;
+    optional int32 screenOffTime = 12;
+	optional int32 devStandbyTime = 13;
+    optional int32 lcdLight = 14;
+    optional int32 cfgHvAcOutOpen = 15;
+    optional int32 cfgLvAcOutOpen = 16;
+    optional int32 cfgDc12vOutOpen = 18;
+    optional int32 xboostEn = 25;
+    optional int32 cmsMaxChgSoc = 33;
+    optional int32 cmsMinDsgSoc = 34;
+    optional int32 plugInInfoPvLDcAmpMax = 52;
+    optional int32 plugInInfoPvHDcAmpMax = 53;
+    optional int32 plugInInfoAcInChgPowMax= 54;
+    optional int32 plugInInfo_5p8ChgPowMax = 56;
+    optional int32 cmsOilSelfStart = 58;
+    optional int32 cmsOilOnSoc = 59;
+	optional int32 cmsOilOffSoc = 60;
+    optional int32 llc_GFCIFlag = 61;
+    optional int32 acEnergySavingOpen = 99;
+    optional int32 multiBpChgDsgMode = 100;
+	optional int32 lowDischargeLimitCmd = 102; //not EF-API
+	optional int32 unknown167 = 167;
+	// bleStandbyTime //Bluetooth timeout.
+	// fastChargeSwitch
+}
+
+message setReply_dp3 {
+    optional int32 actionId = 1;
+    optional bool configOk = 2; //bool
+	optional int32 cfgPowerOff = 3;
+	optional int32 enBeep = 9;
+    optional int32 acStandbyTime = 10;
+    optional int32 dcStandbyTime = 11;
+    optional int32 screenOffTime = 12;
+	optional int32 devStandbyTime = 13;
+    optional int32 lcdLight = 14;
+    optional int32 cfgHvAcOutOpen = 15;
+    optional int32 cfgLvAcOutOpen = 16;
+    optional int32 cfgDc12vOutOpen = 18;
+    optional int32 xboostEn = 25;
+    optional int32 cmsMaxChgSoc = 33;
+    optional int32 cmsMinDsgSoc = 34;
+    optional int32 plugInInfoPvLDcAmpMax = 52;
+    optional int32 plugInInfoPvHDcAmpMax = 53;
+    optional int32 plugInInfoAcInChgPowMax= 54;
+    optional int32 plugInInfo_5p8ChgPowMax = 56;
+    optional int32 cmsOilSelfStart = 58;
+    optional int32 cmsOilOnSoc = 59;
+	optional int32 cmsOilOffSoc = 60;
+    optional int32 llc_GFCIFlag = 61;
+    optional int32 acEnergySavingOpen = 99;
+    optional int32 multiBpChgDsgMode = 100;
+	optional int32 lowDischargeLimitCmd = 102; //not EF-API
+	optional int32 unknown167 = 167;
+	// bleStandbyTime //Bluetooth timeout.
+	// fastChargeSwitch
+}
+
+message setValue {
+  optional int32 value = 1;
+  optional int32 value2 = 2;
+}
+
+
+message setMessage {
+    setHeader header = 1;
+}
+message setHeader {
+    setValue pdata = 1;
+    int32 src = 2;
+    int32 dest = 3;
+    int32 d_src = 4;
+    int32 d_dest = 5;
+    int32 enc_type = 6;
+    int32 check_type = 7;
+    int32 cmd_func = 8;
+    int32 cmd_id = 9;
+    int32 data_len = 10;
+    int32 need_ack = 11;
+    int32 is_ack = 12;
+    int32 seq = 14;
+    int32 product_id = 15;
+    int32 version = 16;
+    int32 payload_ver = 17;
+    int32 time_snap = 18;
+    int32 is_rw_cmd = 19;
+    int32 is_queue = 20;
+    int32 ack_type = 21;
+    string code = 22;
+    string from = 23;
+    string module_sn = 24;
+    string device_sn = 25;
+}
+
+message Header
+{
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src= 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+    optional int32 time_snap = 18;
+    optional int32 is_rw_cmd = 19;
+    optional int32 is_queue = 20;
+    optional int32 ack_type= 21;
+    optional string code = 22;
+    optional string from = 23;
+    optional string module_sn = 24;
+    optional string device_sn = 25;
+}
+
+message HeaderMessage {
+	repeated Header header = 1;
+}
+
+message EventRecordItem {
+	optional uint32 timestamp = 1;
+	optional uint32 sys_ms = 2;
+	optional uint32 event_no = 3;
+	repeated float event_detail = 4;
+  }
+  message EventRecordReport {
+	optional uint32 event_ver = 1;
+	optional uint32 event_seq = 2;
+	repeated EventRecordItem event_item = 3;
+  }
+  message EventInfoReportAck {
+	optional uint32 result = 1;
+	optional uint32 event_seq = 2;
+	optional uint32 event_item_num = 3;
+  }
+  message ProductNameSet {
+	optional string name = 1;
+  }
+  message ProductNameSetAck {
+	optional uint32 result = 1;
+  }
+  message ProductNameGet {}
+  message ProductNameGetAck {
+	optional string name = 3;
+  }
+  message RTCTimeGet {}
+
+  message RTCTimeGetAck {
+	optional uint32 timestamp = 1;
+	optional int32 timezone = 2;
+  }
+  message RTCTimeSet {
+	optional uint32 timestamp = 1;
+	optional int32 timezone = 2;
+  }
+  message RTCTimeSetAck {
+	optional uint32 result = 1;
+  }
+
+
+message Send_Header_Msg
+{
+    optional Header msg = 1;
+}
+
+message SendMsgHart
+{
+    optional int32 link_id = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src = 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 ack_type = 13;
+    optional int32 seq = 14;
+    optional int32 time_snap = 15;
+    optional int32 is_rw_cmd = 16;
+    optional int32 is_queue = 17;
+    optional int32 product_id = 18;
+    optional int32 version = 19;
+}
