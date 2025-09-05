@@ -3,9 +3,7 @@ from typing import Any, override
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
-from custom_components.ecoflow_cloud.devices.internal.proto import (
-    ef_dp3_iobroker_pb2 as pb2,
-)
+# Protocol Buffers modules are imported lazily in _prepare_data method
 from custom_components.ecoflow_cloud.entities import (
     BaseNumberEntity,
     BaseSelectEntity,
@@ -397,6 +395,13 @@ class DeltaPro3(BaseDevice):
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         """Delta Pro 3専用のデータ準備メソッド.
         Protobufバイナリデータをデコードして辞書形式に変換し、全フィールドをflat化してparamsに100%格納する."""
+        # Lazy import of Protocol Buffers modules to avoid blocking calls
+        try:
+            from .proto import ef_dp3_iobroker_pb2 as pb2
+        except ImportError as e:
+            _LOGGER.error(f"Failed to import ef_dp3_iobroker_pb2: {e}")
+            return {}
+        
         try:
             _LOGGER.debug(f"Processing {len(raw_data)} bytes of raw data")
 
