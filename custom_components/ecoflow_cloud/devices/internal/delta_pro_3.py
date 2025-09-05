@@ -551,6 +551,28 @@ class DeltaPro3(BaseDevice):
                 msg.ParseFromString(pdata)
                 return self._protobuf_to_dict(msg)
 
+            elif cmd_func == 254 and cmd_id == 22:
+                # cmdFunc254_cmdId22_Report
+                try:
+                    msg = pb2.cmdFunc254_cmdId22_Report()
+                    msg.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg)
+                except AttributeError:
+                    # cmdFunc254_cmdId22_Report class not found, use generic handling
+                    _LOGGER.warning("cmdFunc254_cmdId22_Report class not found, using generic handling")
+                    return {"cmdFunc": cmd_func, "cmdId": cmd_id, "raw_data_length": len(pdata)}
+
+            elif cmd_func == 254 and cmd_id == 23:
+                # cmdFunc254_cmdId23_Report
+                try:
+                    msg = pb2.cmdFunc254_cmdId23_Report()
+                    msg.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg)
+                except AttributeError:
+                    # cmdFunc254_cmdId23_Report class not found, use generic handling
+                    _LOGGER.warning("cmdFunc254_cmdId23_Report class not found, using generic handling")
+                    return {"cmdFunc": cmd_func, "cmdId": cmd_id, "raw_data_length": len(pdata)}
+
             else:
                 _LOGGER.warning(
                     f"Unknown message type: cmdFunc={cmd_func}, cmdId={cmd_id}"
