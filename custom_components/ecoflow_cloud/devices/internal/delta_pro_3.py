@@ -450,8 +450,18 @@ class DeltaPro3(BaseDevice):
                 _LOGGER.debug("Data is not Base64 encoded, using as-is")
 
             # HeaderMessageとしてデコードを試行
-            header_msg = pb2.HeaderMessage()
-            header_msg.ParseFromString(raw_data)
+            try:
+                from .proto import ef_dp3_iobroker_pb2 as pb2
+                header_msg = pb2.HeaderMessage()
+                header_msg.ParseFromString(raw_data)
+            except AttributeError as e:
+                _LOGGER.error(f"HeaderMessage class not found in pb2 module: {e}")
+                _LOGGER.debug(f"Available classes in pb2: {[attr for attr in dir(pb2) if not attr.startswith('_')]}")
+                return None
+            except Exception as e:
+                _LOGGER.error(f"Failed to parse HeaderMessage: {e}")
+                _LOGGER.debug(f"Raw data length: {len(raw_data)}, first 20 bytes: {raw_data[:20].hex()}")
+                return None
 
             if not header_msg.header:
                 _LOGGER.debug("No headers found in HeaderMessage")
@@ -532,6 +542,9 @@ class DeltaPro3(BaseDevice):
 
         try:
             _LOGGER.debug(f"Decoding message: cmdFunc={cmd_func}, cmdId={cmd_id}")
+            
+            # Import pb2 module
+            from .proto import ef_dp3_iobroker_pb2 as pb2
 
             if cmd_func == 254 and cmd_id == 21:
                 # DisplayPropertyUpload
