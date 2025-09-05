@@ -577,7 +577,20 @@ class DeltaPro3(BaseDevice):
                     return self._protobuf_to_dict(msg)
                 except AttributeError:
                     # cmdFunc254_cmdId22_Report class not found, use generic handling
-                    _LOGGER.warning("cmdFunc254_cmdId22_Report class not found, using generic handling")
+                    _LOGGER.debug("cmdFunc254_cmdId22_Report class not found, using generic handling")
+                    # Try to parse as raw data and extract basic information
+                    try:
+                        # Basic timestamp extraction (assuming first 4 bytes are timestamp)
+                        if len(pdata) >= 4:
+                            timestamp = int.from_bytes(pdata[:4], byteorder='little', signed=True)
+                            return {
+                                "cmdFunc": cmd_func, 
+                                "cmdId": cmd_id, 
+                                "report_timestamp": timestamp,
+                                "raw_data_length": len(pdata)
+                            }
+                    except Exception:
+                        pass
                     return {"cmdFunc": cmd_func, "cmdId": cmd_id, "raw_data_length": len(pdata)}
 
             elif cmd_func == 254 and cmd_id == 23:
@@ -588,7 +601,20 @@ class DeltaPro3(BaseDevice):
                     return self._protobuf_to_dict(msg)
                 except AttributeError:
                     # cmdFunc254_cmdId23_Report class not found, use generic handling
-                    _LOGGER.warning("cmdFunc254_cmdId23_Report class not found, using generic handling")
+                    _LOGGER.debug("cmdFunc254_cmdId23_Report class not found, using generic handling")
+                    # Try to parse as raw data and extract basic information
+                    try:
+                        # Basic timestamp extraction (assuming first 4 bytes are timestamp)
+                        if len(pdata) >= 4:
+                            timestamp = int.from_bytes(pdata[:4], byteorder='little', signed=True)
+                            return {
+                                "cmdFunc": cmd_func, 
+                                "cmdId": cmd_id, 
+                                "report_timestamp": timestamp,
+                                "raw_data_length": len(pdata)
+                            }
+                    except Exception:
+                        pass
                     return {"cmdFunc": cmd_func, "cmdId": cmd_id, "raw_data_length": len(pdata)}
 
             else:
