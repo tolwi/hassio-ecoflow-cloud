@@ -570,14 +570,14 @@ class DeltaPro3(BaseDevice):
                 return self._protobuf_to_dict(msg)
 
             elif cmd_func == 254 and cmd_id == 22:
-                # cmdFunc254_cmdId22_Report
+                # RuntimePropertyUpload - ランタイムプロパティ（頻繁更新データ）
                 try:
-                    msg = pb2.cmdFunc254_cmdId22_Report()
+                    msg = pb2.RuntimePropertyUpload()
                     msg.ParseFromString(pdata)
                     return self._protobuf_to_dict(msg)
                 except AttributeError:
-                    # cmdFunc254_cmdId22_Report class not found, use generic handling
-                    _LOGGER.debug("cmdFunc254_cmdId22_Report class not found, using generic handling")
+                    # RuntimePropertyUpload class not found, use generic handling
+                    _LOGGER.debug("RuntimePropertyUpload class not found, using generic handling")
                     # Try to parse as raw data and extract basic information
                     try:
                         # Basic timestamp extraction (assuming first 4 bytes are timestamp)
@@ -594,7 +594,7 @@ class DeltaPro3(BaseDevice):
                     return {"cmdFunc": cmd_func, "cmdId": cmd_id, "raw_data_length": len(pdata)}
 
             elif cmd_func == 254 and cmd_id == 23:
-                # cmdFunc254_cmdId23_Report
+                # cmdFunc254_cmdId23_Report - タイムスタンプ付きレポート
                 try:
                     msg = pb2.cmdFunc254_cmdId23_Report()
                     msg.ParseFromString(pdata)
