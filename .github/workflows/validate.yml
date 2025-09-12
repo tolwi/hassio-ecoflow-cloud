@@ -1,20 +1,18 @@
-name: Validate with hassfest and HACS
+name: HACS validation
 
 on:
   push:
   pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
-  validate:
+  validate-hacs:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v2"
-
-      - name: Hassfest validation
-        uses: "home-assistant/actions/hassfest@master"
-
-#      - name: HACS Action
-#        if: "github.ref == 'main' || github.base_ref == 'main'"
-#        uses: "hacs/action@main"
-#        with:
-#          category: "integration"
+      - uses: "actions/checkout@v3"
+      - name: HACS validation
+        uses: "hacs/action@main"
+        with:
+          category: "integration"
