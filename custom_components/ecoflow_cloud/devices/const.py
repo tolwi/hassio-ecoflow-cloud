@@ -348,26 +348,26 @@ SLAVE_N_ACCU_DISCHARGE_ENERGY = "Slave %i Cumulative Energy Discharge (Wh)"
 
 #Smart Home Pannel 2
 
-BATTERIE_STATUS = "Batterie Status"
+BATTERY_STATUS = "Battery Status"
 
-BATTERIE_STATUS_OPTIONS = {
+BATTERY_STATUS_OPTIONS = {
     "No operation": 0,
     "Enabled": 1,
     "Disabled": 2
 }
 
-BATTERIE_FORCE_CHARGE = "Batterie Force Charge"
+BATTERY_FORCE_CHARGE = "Battery Force Charge"
 
-BATTERIE_FORCE_CHARGE_OPTIONS =  {
+BATTERY_FORCE_CHARGE_OPTIONS =  {
     "Off": "FORCE_CHARGE_OFF",
     "On": "FORCE_CHARGE_ON"
 }
 
-SMART_BACKUP_MODE = "Economic Mode"
+SMART_BACKUP_MODE = "Operating Mode"
 
 SMART_BACKUP_MODE_OPTIONS = {
     "None": 0,
     "TOU" : 1,
-    "Self-service" : 2,
-    "Timed task": 3
+    "Self-powered" : 2,
+    "Scheduled tasks": 3
 }
