@@ -40,7 +40,7 @@ from . import (
     ECOFLOW_DOMAIN,
 )
 from .api import EcoflowApiClient
-from .devices import BaseDevice
+from .devices import BaseDevice, const
 from .entities import (
     BaseSensorEntity,
     EcoFlowAbstractEntity,
@@ -610,7 +610,7 @@ class IntegralEnergySensor():
         self._integration = IntegralEnergySensorEntity(
             hass,
             integration_method="left",
-            name=f"{self._base._device.device_info.name} {self._base._attr_name.replace(' Power', ' Energy')}",
+            name=f"{self._base._device.device_info.name} {self._base._attr_name.replace(f" {const.POWER}", f" {const.ENERGY}")}",
             round_digits=4,
             source_entity=self._base.entity_id,        
             unique_id=f"{self._base._attr_unique_id}_energy",

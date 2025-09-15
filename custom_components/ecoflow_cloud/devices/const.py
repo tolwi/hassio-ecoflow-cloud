@@ -232,6 +232,7 @@ GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
 
 POWER = "Power"
+ENERGY = "Energy"
 CURRENT = "Current"
 MAX_CURRENT = "Max Current"
 MODE_ON = "On"
@@ -377,6 +378,9 @@ AC_IN_CURRENT = "AC In Current"
  
 #Smart Home Panel 2
 
+EPS_MODE = "EPS Mode"
+STORM_GUARD = "Storm Guard"
+
 BREAKER_N_POWER = "Breaker %i Power"                                              
 BREAKER_N_CURRENT = "Breaker %i Current"                                          
 
@@ -388,7 +392,9 @@ BATTERY_STATUS_OPTIONS = {
     "Disabled": 2
 }
 
-BATTERY_FORCE_CHARGE = "Battery Force Charge"
+BATTERY_N_POWER = "Battery %i Power"
+BATTERY_N_LEVEL = "Battery %i Level"
+BATTERY_N_FORCE_CHARGE = "Battery %i Force Charge"
 
 BATTERY_FORCE_CHARGE_OPTIONS =  {
     "Off": "FORCE_CHARGE_OFF",

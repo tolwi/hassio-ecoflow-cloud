@@ -41,7 +41,7 @@ class SmartHomePanel2(BaseDevice):
                 client,
                 self,
                 "'backupReserveSoc'",
-                "Backup reserve level",
+                const.BACKUP_RESERVE_LEVEL,
                 10,
                 50,
                 lambda value: {
@@ -54,7 +54,7 @@ class SmartHomePanel2(BaseDevice):
                 client,
                 self,
                 "'chargeWattPower'",
-                "Charging power",
+                const.AC_CHARGING_POWER,
                 500,
                 7200,
                 lambda value: {
@@ -67,7 +67,7 @@ class SmartHomePanel2(BaseDevice):
                 client,
                 self,
                 "'foceChargeHight'",
-                "Charging limit",
+                const.MAX_CHARGE_LEVEL,
                 80,
                 100,
                 lambda value: {
@@ -145,7 +145,7 @@ class SmartHomePanel2(BaseDevice):
             client,
             self,
             f"'ch{index}ForceCharge'",
-            f"{const.BATTERY_FORCE_CHARGE} {index}",
+            const.BATTERY_N_FORCE_CHARGE % index,
             const.BATTERY_FORCE_CHARGE_OPTIONS,
             lambda value: {
                 "sn": self.device_info.sn,
@@ -155,13 +155,13 @@ class SmartHomePanel2(BaseDevice):
         )
 
     def _sensorsSwitch(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
-        return IntegralEnergySensor(OutWattsSensorEntity(client, self, f"'loadInfo.hall1Watt'[{index}]", f"Breaker {index + 1} Power"))
+        return IntegralEnergySensor(OutWattsSensorEntity(client, self, f"'loadInfo.hall1Watt'[{index}]", const.BREAKER_N_POWER % (index + 1)))
 
     def _sensorsBattery(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
-        return LevelSensorEntity(client, self, f"'backupIncreInfo.Energy{index}Info.batteryPercentage'", f"Battery {index} Level")
+        return LevelSensorEntity(client, self, f"'backupIncreInfo.Energy{index}Info.batteryPercentage'", const.BATTERY_N_LEVEL % index)
 
     def _sensorsBatteryPower(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
-        return WattsSensorEntity(client, self, f"'wattInfo.chWatt'[{index}]", f"Battery {index + 1} Power")
+        return WattsSensorEntity(client, self, f"'wattInfo.chWatt'[{index}]", const.BATTERY_N_POWER % (index + 1))
 
     def flat_json(self):
         return False
