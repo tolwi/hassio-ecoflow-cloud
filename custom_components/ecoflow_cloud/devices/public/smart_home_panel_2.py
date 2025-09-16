@@ -1,18 +1,29 @@
-from .data_bridge import to_plain
-from ...api import EcoflowApiClient
-from ...sensor import StatusSensorEntity, WattsSensorEntity, InWattsSensorEntity, LevelSensorEntity, OutWattsSensorEntity, RemainSensorEntity, IntegralEnergySensor
-from .. import BaseDevice, const
-from ...entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from custom_components.ecoflow_cloud.switch import EnabledEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity
-from ...number import MaxBatteryLevelEntity, ChargingPowerEntity, MinBatteryLevelEntity
+from custom_components.ecoflow_cloud.switch import EnabledEntity
+
+from ...api import EcoflowApiClient
+from ...entities import (
+    BaseNumberEntity,
+    BaseSelectEntity,
+    BaseSensorEntity,
+    BaseSwitchEntity,
+)
+from ...number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
+from ...sensor import (
+    InWattsSensorEntity,
+    LevelSensorEntity,
+    OutWattsSensorEntity,
+    RemainSensorEntity,
+    WattsSensorEntity,
+)
+from .. import BaseDevice, const
 
 class SmartHomePanel2(BaseDevice):
 
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
-            IntegralEnergySensor(InWattsSensorEntity(client, self, "'wattInfo.gridWatt'", const.AC_IN_POWER)),
-            IntegralEnergySensor(OutWattsSensorEntity(client, self, "'wattInfo.allHallWatt'", const.AC_OUT_POWER)),
+            InWattsSensorEntity(client, self, "'wattInfo.gridWatt'", const.AC_IN_POWER).with_energy(),
+            OutWattsSensorEntity(client, self, "'wattInfo.allHallWatt'", const.AC_OUT_POWER).with_energy(),
             LevelSensorEntity(client, self, "'backupIncreInfo.backupBatPer'", const.COMBINED_BATTERY_LEVEL),
             RemainSensorEntity(client, self, "'backupInfo.backupDischargeTime'", const.DISCHARGE_REMAINING_TIME),
             self._sensorsSwitch(client, 0),
@@ -155,7 +166,7 @@ class SmartHomePanel2(BaseDevice):
         )
 
     def _sensorsSwitch(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
-        return IntegralEnergySensor(OutWattsSensorEntity(client, self, f"'loadInfo.hall1Watt'[{index}]", const.BREAKER_N_POWER % (index + 1)))
+        return OutWattsSensorEntity(client, self, f"'loadInfo.hall1Watt'[{index}]", const.BREAKER_N_POWER % (index + 1)).with_energy()
 
     def _sensorsBattery(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
         return LevelSensorEntity(client, self, f"'backupIncreInfo.Energy{index}Info.batteryPercentage'", const.BATTERY_N_LEVEL % index)

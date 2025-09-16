@@ -1,15 +1,29 @@
-import logging
-_LOGGER = logging.getLogger(__name__)
+# import logging
+# _LOGGER = logging.getLogger(__name__)
 
-
-from .data_bridge import to_plain
 from ...api import EcoflowApiClient
-from ...sensor import InWattsSensorEntity, OutWattsSensorEntity, RemainSensorEntity, QuotaStatusSensorEntity, LevelSensorEntity, MiscSensorEntity, VoltSensorEntity, AmpSensorEntity, FrequencySensorEntity, IntegralEnergySensor
+from ...devices.public import data_bridge
+from ...entities import (
+    BaseNumberEntity,
+    BaseSelectEntity,
+    BaseSensorEntity,
+    BaseSwitchEntity,
+)
+from ...number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
+from ...sensor import (
+    AmpSensorEntity,
+    FrequencySensorEntity,
+    InWattsSensorEntity,
+    LevelSensorEntity,
+    MiscSensorEntity,
+    OutWattsSensorEntity,
+    QuotaStatusSensorEntity,
+    RemainSensorEntity,
+    VoltSensorEntity,
+)
+from ...switch import EnabledEntity
 from .. import BaseDevice, const
-from ...number import MinBatteryLevelEntity, MaxBatteryLevelEntity, ChargingPowerEntity
-from ...entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
-from custom_components.ecoflow_cloud.switch import EnabledEntity
-from custom_components.ecoflow_cloud.select import DictSelectEntity
+
 
 class DeltaProUltra(BaseDevice):
 
@@ -30,13 +44,17 @@ class DeltaProUltra(BaseDevice):
 
             MiscSensorEntity(client, self, "hs_yj751_pd_appshow_addr.sysErrCode", const.ERROR_CODE),
 
-            IntegralEnergySensor(InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.wattsInSum", const.TOTAL_IN_POWER)),
-            IntegralEnergySensor(OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.wattsOutSum", const.TOTAL_OUT_POWER)),
+            InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.wattsInSum", const.TOTAL_IN_POWER)
+                    .with_energy(),
+            OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.wattsOutSum", const.TOTAL_OUT_POWER)
+                    .with_energy(),
 
-            IntegralEnergySensor(InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inAc5p8Pwr", const.PIO_PORT_IN_POWER)),
+            InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inAc5p8Pwr", const.PIO_PORT_IN_POWER)
+                    .with_energy(),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.inAc5p8Amp", const.PIO_PORT_IN_CURRENT, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.inAc5p8Vol", const.PIO_PORT_IN_VOLTAGE, False),
-            IntegralEnergySensor(OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAc5p8Pwr", const.PIO_PORT_OUT_POWER)),
+            OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAc5p8Pwr", const.PIO_PORT_OUT_POWER)
+                    .with_energy(),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAc5p8Amp", const.PIO_PORT_OUT_CURRENT, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAc5p8Vol", const.PIO_PORT_OUT_VOLTAGE, False),
             MiscSensorEntity(client, self, "hs_yj751_pd_appshow_addr.access5p8InType", const.PIO_PORT_INPUT_TYPE),
@@ -50,10 +68,12 @@ class DeltaProUltra(BaseDevice):
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outTypec1Pwr", const.TYPEC_1_OUT_POWER),
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outTypec2Pwr", const.TYPEC_2_OUT_POWER),
 
-            IntegralEnergySensor(InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inHvMpptPwr", const.SOLAR_1_IN_POWER)),
+            InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inHvMpptPwr", const.SOLAR_1_IN_POWER)
+                    .with_energy(),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.inHvMpptAmp", const.SOLAR_1_IN_AMPS, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.inHvMpptVol", const.SOLAR_1_IN_VOLTS, False),
-            IntegralEnergySensor(InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inLvMpptPwr", const.SOLAR_2_IN_POWER)),
+            InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inLvMpptPwr", const.SOLAR_2_IN_POWER)
+                    .with_energy(),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.inLvMpptAmp", const.SOLAR_2_IN_AMPS, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.inLvMpptVol", const.SOLAR_2_IN_VOLTS, False),
 
@@ -149,7 +169,7 @@ class DeltaProUltra(BaseDevice):
 
     def to_plain_nested_addr_prefix(self, raw_data: dict[str, any]) -> dict[str, any]:
         if "typeCode" in raw_data:
-            prefix = status_to_plain.get(raw_data["typeCode"], "unknown_"+raw_data["typeCode"])
+            prefix = data_bridge.status_to_plain.get(raw_data["typeCode"], "unknown_"+raw_data["typeCode"])
         elif "addr" in raw_data:
             prefix = raw_data['addr']
         elif "cmdFunc" in raw_data and "cmdId" in raw_data:
