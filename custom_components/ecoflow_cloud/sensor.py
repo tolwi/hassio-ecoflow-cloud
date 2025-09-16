@@ -1,6 +1,7 @@
 import enum
 import logging
 import struct
+from datetime import timedelta
 from typing import Any, Mapping, OrderedDict, override
 
 from homeassistant.components.binary_sensor import (
@@ -12,6 +13,7 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
+from homeassistant.components.integration.sensor import IntegrationSensor
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
@@ -38,7 +40,7 @@ from . import (
     ECOFLOW_DOMAIN,
 )
 from .api import EcoflowApiClient
-from .devices import BaseDevice
+from .devices import BaseDevice, const
 from .entities import (
     BaseSensorEntity,
     EcoFlowAbstractEntity,
@@ -53,7 +55,13 @@ async def async_setup_entry(
 ):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
     for sn, device in client.devices.items():
-        async_add_entities(device.sensors(client))
+        sensors = device.sensors(client)
+        # Add regular sensors first so the entity_id values are established
+        async_add_entities(map(lambda s: s.baseSensor if isinstance(s, IntegralEnergySensor) else s, sensors))
+
+        # Add IntegralEnergySensors now that the entity_id values are set up
+        integralSensors = filter(lambda s: isinstance(s, IntegralEnergySensor), sensors)
+        async_add_entities(map(lambda s: s.createIntegrationSensor(hass), integralSensors))
 
 
 class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
@@ -583,3 +591,38 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
             return True
         else:
             return super()._actualize_status()
+
+
+class IntegralEnergySensor():
+    _base = None
+    _integration = None                                             
+
+    def __init__(self, base:WattsSensorEntity):
+        self._base = base           
+                   
+    @property
+    def baseSensor(self):
+        return self._base                         
+                                                     
+    def createIntegrationSensor(self, hass):
+        if self._integration != None:                            
+            return self._integration
+        self._integration = IntegralEnergySensorEntity(
+            hass,
+            integration_method="left",
+            name=f"{self._base._device.device_info.name} {self._base._attr_name.replace(f" {const.POWER}", f" {const.ENERGY}")}",
+            round_digits=4,
+            source_entity=self._base.entity_id,        
+            unique_id=f"{self._base._attr_unique_id}_energy",
+            unit_prefix="k",
+            unit_time="h",
+            max_sub_interval=timedelta(seconds=60),
+        )                                   
+        self._integration._attr_state_class = SensorStateClass.TOTAL_INCREASING
+        return self._integration
+
+class IntegralEnergySensorEntity(IntegrationSensor):
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_entity_registry_visible_default = False
