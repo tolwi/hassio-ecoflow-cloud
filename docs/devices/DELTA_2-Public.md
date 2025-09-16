@@ -7,8 +7,8 @@
 - Main Remain Capacity (`bms_bmsStatus.remainCap`)   _(disabled)_
 - State of Health (`bms_bmsStatus.soh`)
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
-- Total In Power (`pd.wattsInSum`)
-- Total Out Power (`pd.wattsOutSum`)
+- Total In Power (`pd.wattsInSum`) (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (`pd.wattsOutSum`) (energy:  _[Device Name]_ Total Out  Energy)
 - AC In Power (`inv.inputWatts`)
 - AC Out Power (`inv.outputWatts`)
 - AC In Volts (`inv.acInVol`)
