@@ -8,9 +8,11 @@ body:
     attributes:
       label: Feature Type
       options:
-        - New device support
         - Additional sensor/entity
         - Configuration option
+        - Localization/translation
+        - Refactor/cleanup
+        - Documentation improvement
         - Other
     validations:
       required: true
@@ -20,6 +22,8 @@ body:
     attributes:
       label: Device Model
       placeholder: "e.g., DELTA 2 Max, PowerStream"
+    validations:
+      required: true
 
   - type: textarea
     id: feature_description
