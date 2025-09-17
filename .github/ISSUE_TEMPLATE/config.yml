@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/tolwi/hassio-ecoflow-cloud/blob/main/README.md
+    about: Check the README for setup instructions and device compatibility
+  - name: 💬 Discussions
+    url: https://github.com/tolwi/hassio-ecoflow-cloud/discussions
+    about: Ask questions and discuss with the community
+  - name: 🔧 Contribution Guide
+    url: https://github.com/tolwi/hassio-ecoflow-cloud/blob/main/docs/Contribution.md
+    about: Learn how to contribute to the project

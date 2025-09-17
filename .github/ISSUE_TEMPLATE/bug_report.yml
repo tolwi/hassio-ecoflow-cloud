@@ -1,0 +1,56 @@
+name: 🐛 Bug Report
+description: Report a bug or issue
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: "Integration v1.4.0-beta2, HA 2025.9.2"
+    validations:
+      required: true
+
+  - type: input
+    id: device_model
+    attributes:
+      label: Device Model
+      placeholder: "e.g., DELTA 2 Max, PowerStream"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: integration_type
+    attributes:
+      label: Integration Type
+      options:
+        - Internal/Private API
+        - Public API
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem?
+      placeholder: Describe the issue and what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (if any)
+      placeholder: Paste relevant logs here
+      render: text
+
+  - type: checkboxes
+    id: status
+    attributes:
+      label: Device Status
+      options:
+        - label: Works in EcoFlow app
+        - label: Shows as connected in HA
+        - label: All entities show zeros/unavailable
+        - label: Was working before
