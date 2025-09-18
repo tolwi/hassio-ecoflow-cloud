@@ -106,6 +106,10 @@ class EcoflowDataHolder:
                 if "params" in raw:
                     self.params.update(raw["params"])
                     self.params_time = dt.utcnow()
+                else:
+                    #manage MQTT messages without params
+                    self.params.update(raw)
+                    self.params_time = dt.utcnow()
 
             except Exception as error:
                 _LOGGER.error("Error updating data: %s", error)
