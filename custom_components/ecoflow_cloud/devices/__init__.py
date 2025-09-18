@@ -111,8 +111,7 @@ class BaseDevice(ABC):
 
     @staticmethod
     def default_charging_power_step() -> int:
-        return 50
-        #value for Delta Pro 3 
+        return 100
 
     def charging_power_step(self) -> int:
         if self.power_step == -1:
