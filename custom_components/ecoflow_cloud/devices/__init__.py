@@ -111,7 +111,8 @@ class BaseDevice(ABC):
 
     @staticmethod
     def default_charging_power_step() -> int:
-        return 100
+        return 50
+        #value for Delta Pro 3 
 
     def charging_power_step(self) -> int:
         if self.power_step == -1:
@@ -164,7 +165,9 @@ class BaseDevice(ABC):
     def update_data(self, raw_data: bytes, data_type: str) -> bool:
         if data_type == self.device_info.data_topic:
             raw = self._prepare_data_data_topic(raw_data)
-            self.data.update_data(raw)
+            if self.data.update_data(raw):
+                self.coordinator.async_set_updated_data(self.data)
+                #dispatch update event to coordinator
         elif data_type == self.device_info.set_topic:
             raw = self._prepare_data_set_topic(raw_data)
             self.data.add_set_message(raw)
