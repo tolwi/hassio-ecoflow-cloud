@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from typing import Any, cast
 
 from homeassistant.components.button import ButtonEntity
+from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
@@ -161,6 +162,9 @@ class BaseDevice(ABC):
     def buttons(self, client: EcoflowApiClient) -> Sequence[ButtonEntity]:
         return []
 
+    def climates(self, client: EcoflowApiClient) -> Sequence[ClimateEntity]:
+        return []
+
     def update_data(self, raw_data: bytes, data_type: str) -> bool:
         if data_type == self.device_info.data_topic:
             raw = self._prepare_data_data_topic(raw_data)
@@ -234,4 +238,7 @@ class DiagnosticDevice(BaseDevice):
         return []
 
     def selects(self, client: EcoflowApiClient) -> Sequence[SelectEntity]:
+        return []
+
+    def climates(self, client: EcoflowApiClient) -> Sequence[ClimateEntity]:
         return []
