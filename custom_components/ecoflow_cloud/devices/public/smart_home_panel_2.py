@@ -185,6 +185,10 @@ class SmartHomePanel2(BaseDevice):
             for k, v in res["param"].items():
                 new_params[f"{k}"] = v
 
+        if "params" in res:
+            for k, v in res["params"].items():
+                new_params[f"{k}"] = v
+
         for k, v in res.items():
             if k != "param" and k != "params":
                 new_params[f"{k}"] = v
