@@ -2,6 +2,7 @@ import logging
 from collections.abc import Callable
 from typing import Any, TypeVar
 
+import json
 import jsonpath_ng.ext as jp
 from homeassistant.util import dt
 
@@ -91,6 +92,9 @@ class EcoflowDataHolder:
         self.params_time = dt.utcnow()
 
     def update_status(self, raw: dict[str, Any]):
+        if raw is None or "params" not in raw or "status" not in raw["params"]:
+            _LOGGER.warning("No status in raw: %s", json.dumps(raw))
+            return
         self.status.update({"status": int(raw["params"]["status"])})
         self.status_time = dt.utcnow()
 
