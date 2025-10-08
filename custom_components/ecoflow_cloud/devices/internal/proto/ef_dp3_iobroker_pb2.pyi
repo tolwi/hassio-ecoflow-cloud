@@ -1,8 +1,10 @@
+import ecopacket_pb2 as _ecopacket_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -262,63 +264,63 @@ class RuntimePropertyUpload(_message.Message):
     def __init__(self, ac_phase_type: _Optional[int] = ..., pcs_work_mode: _Optional[int] = ..., temp_pcs_dc: _Optional[float] = ..., temp_pcs_ac: _Optional[float] = ..., temp_pv_h: _Optional[float] = ..., temp_pv_l: _Optional[float] = ..., plug_in_info_pv_h_vol: _Optional[float] = ..., plug_in_info_pv_l_vol: _Optional[float] = ..., plug_in_info_ac_out_type: _Optional[int] = ..., plug_in_info_ac_out_freq: _Optional[int] = ..., plug_in_info_5p8_freq: _Optional[int] = ..., plug_in_info_ac_in_vol: _Optional[float] = ..., plug_in_info_24v_vol: _Optional[float] = ..., plug_in_info_24v_amp: _Optional[float] = ..., plug_in_info_l1_vol: _Optional[float] = ..., plug_in_info_4p8_1_vol: _Optional[float] = ..., plug_in_info_4p8_2_vol: _Optional[float] = ..., plug_in_info_bms_vol: _Optional[float] = ..., pd_mppt_comm_err: _Optional[int] = ..., pd_llc_comm_err: _Optional[int] = ..., pd_bms_comm_err: _Optional[int] = ..., pd_iot_comm_err: _Optional[int] = ..., pd_firm_ver: _Optional[int] = ..., iot_firm_ver: _Optional[int] = ..., mppt_firm_ver: _Optional[int] = ..., llc_firm_ver: _Optional[int] = ..., plug_in_info_l1_amp: _Optional[float] = ..., plug_in_info_l2_vol: _Optional[float] = ..., plug_in_info_l2_amp: _Optional[float] = ..., plug_in_info_acp_l1_vol: _Optional[float] = ..., plug_in_info_acp_l1l2_vol: _Optional[float] = ..., mppt_monitor_flag: _Optional[int] = ..., plug_in_info_pv_h_amp: _Optional[float] = ..., plug_in_info_pv_l_amp: _Optional[float] = ..., plug_in_info_ac_in_amp: _Optional[float] = ..., llc_inv_firm_ver: _Optional[int] = ..., plug_in_info_4p8_1_amp: _Optional[float] = ..., plug_in_info_4p8_2_amp: _Optional[float] = ..., bms_firm_ver: _Optional[int] = ..., bms_batt_vol: _Optional[float] = ..., bms_batt_amp: _Optional[float] = ..., bms_bal_state: _Optional[int] = ..., bms_full_cap: _Optional[int] = ..., bms_remain_cap: _Optional[int] = ..., bms_alm_state: _Optional[int] = ..., bms_pro_state: _Optional[int] = ..., bms_flt_state: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., bms_min_cell_vol: _Optional[int] = ..., bms_max_cell_vol: _Optional[int] = ..., cms_batt_vol: _Optional[float] = ..., cms_batt_amp: _Optional[float] = ..., cms_chg_req_vol: _Optional[float] = ..., cms_chg_req_amp: _Optional[float] = ..., bms_overload_icon: _Optional[int] = ..., bms_warn_icon: _Optional[int] = ..., bms_high_temp_icon: _Optional[int] = ..., bms_low_temp_icon: _Optional[int] = ..., bms_limit_icon: _Optional[int] = ..., bms_alm_state_2: _Optional[int] = ..., bms_pro_state_2: _Optional[int] = ..., display_property_full_upload_period: _Optional[int] = ..., display_property_incremental_upload_period: _Optional[int] = ..., runtime_property_full_upload_period: _Optional[int] = ..., runtime_property_incremental_upload_period: _Optional[int] = ..., mppt_recv_cms_chg_req_vol: _Optional[float] = ..., mppt_recv_cms_chg_req_amp: _Optional[float] = ..., pv_vin_ref: _Optional[float] = ..., pv2_vin_ref: _Optional[float] = ..., pv2_bus_vol: _Optional[float] = ..., mppt_bat_vol: _Optional[float] = ..., mppt_bat_amp: _Optional[float] = ..., pv_pause_cnt: _Optional[int] = ..., pv2_pause_cnt: _Optional[int] = ..., mppt_fanspeed: _Optional[int] = ..., ads_ntc_temp: _Optional[int] = ..., mppt_hardware_ver: _Optional[int] = ..., inv_monitor_flag: _Optional[int] = ..., inv_main_fsmstate: _Optional[int] = ..., l1_main_fsmstate: _Optional[int] = ..., l2_main_fsmstate: _Optional[int] = ..., plug_in_info_pfc_out_vol: _Optional[float] = ..., pow_get_l1: _Optional[float] = ..., pow_get_l2: _Optional[float] = ..., inv_bus_vol: _Optional[float] = ..., inv_ntc_temp2: _Optional[int] = ..., inv_ntc_temp3: _Optional[int] = ..., llc_monitor_flag: _Optional[int] = ..., llc_ntc_temp: _Optional[int] = ..., llc_fsmstate: _Optional[int] = ..., pd_to_inv_dsg_mode: _Optional[int] = ..., dcdc_chg_req_cur: _Optional[float] = ..., llc_recv_cms_chg_req_vol: _Optional[float] = ..., inv_to_llc_ac_pow_lim: _Optional[float] = ..., plug_in_info_12v_vol: _Optional[float] = ..., plug_in_info_12v_amp: _Optional[float] = ..., llc_bat_vol: _Optional[float] = ..., llc_bat_cur: _Optional[float] = ..., llc_bus_vol: _Optional[float] = ..., pd_skt_ocp1: _Optional[float] = ..., pd_skt_ocp2: _Optional[float] = ..., pd_skt_ocp3: _Optional[float] = ..., pd_skt_ocp4: _Optional[float] = ..., pd_skt_ocp5: _Optional[float] = ...) -> None: ...
 
 class cmdFunc50_cmdId30_Report(_message.Message):
-    __slots__ = ("unknown1", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9", "unknown10", "unknown11", "remainCap12", "unknown13", "unknown14", "unknown15", "maxCellVol16", "minCellVol17", "maxCellTemp18", "minCellTemp19", "maxMosTemp20", "minMosTemp21", "unknown22", "unknown23", "unknown24", "unknown25", "unknown26", "unknown27", "unknown28", "unknown29", "unknown30", "unknown31", "unknown32", "cellVol33", "unknown34", "cellTemp35", "version36", "bmsHeartVer37", "ecloudOcv38", "deveiceSn39", "unknown40", "unknown41", "unknown42", "unknown43", "unknown44", "unknown45", "unknown46", "unknown47", "unknown48", "unknown49", "unknown50", "unknown51", "unknown52", "unknown53", "soh54", "unknown55", "mosTemp56", "unknown57", "unknown58", "unknown61", "unknown62", "unknown63", "unknown64", "unknown67", "unknown68", "unknown69", "error70", "unknown71", "batVolt72", "unknown73", "unknown74", "unknown75", "unknown76", "unknown77", "unknown78", "unknown79", "unknown80", "packSn81", "unknown82")
-    UNKNOWN1_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN2_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN3_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN4_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("bms_flt_state", "bms_pro_state", "bms_alm_state", "bms_bal_state", "unknown5", "unknown6", "bms_batt_vol", "bms_batt_amp", "bms_max_cell_temp_dup", "unknown10", "bms_design_cap_mah_dup", "bms_remain_cap_mah", "bms_full_cap_mah", "unknown14", "bms_batt_soh_percent_int", "max_cell_vol_mv", "min_cell_vol_mv", "max_cell_temp_c", "min_cell_temp_c", "max_mos_temp_c", "min_mos_temp_c", "unknown22", "unknown23", "bms_design_cap_mah", "bms_batt_soc_percent_float1", "unknown26", "bms_chg_rem_time_min", "bms_dsg_rem_time_min", "unknown29", "unknown30", "max_mos_temp_c_dup", "cell_vol_array_size", "cell_vol_mv", "cell_temp_array_size", "cell_temp_c", "bms_firm_ver", "bms_heart_ver", "ecloud_ocv", "bms_sn", "unknown40", "unknown41", "bms_batt_soc_percent_float2", "unknown43", "bms_batt_soc_percent_float3", "unknown45", "unknown46", "bms_chg_dsg_state", "unknown48", "unknown49", "unknown50", "unknown51", "unknown52", "unknown53", "bms_batt_soh_percent_float", "unknown55", "mos_temp_c", "unknown57", "unknown58", "unknown61", "unknown62", "unknown63", "unknown64", "unknown67", "unknown68", "unknown69", "bms_err_code_flags", "unknown71", "bat_volt_mv_array", "unknown73", "unknown74", "unknown75", "unknown76", "unknown77", "unknown78", "unknown79", "unknown80", "pack_sn", "unknown82")
+    BMS_FLT_STATE_FIELD_NUMBER: _ClassVar[int]
+    BMS_PRO_STATE_FIELD_NUMBER: _ClassVar[int]
+    BMS_ALM_STATE_FIELD_NUMBER: _ClassVar[int]
+    BMS_BAL_STATE_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN5_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN6_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN7_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN8_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN9_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_VOL_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_AMP_FIELD_NUMBER: _ClassVar[int]
+    BMS_MAX_CELL_TEMP_DUP_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN10_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN11_FIELD_NUMBER: _ClassVar[int]
-    REMAINCAP12_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN13_FIELD_NUMBER: _ClassVar[int]
+    BMS_DESIGN_CAP_MAH_DUP_FIELD_NUMBER: _ClassVar[int]
+    BMS_REMAIN_CAP_MAH_FIELD_NUMBER: _ClassVar[int]
+    BMS_FULL_CAP_MAH_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN14_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN15_FIELD_NUMBER: _ClassVar[int]
-    MAXCELLVOL16_FIELD_NUMBER: _ClassVar[int]
-    MINCELLVOL17_FIELD_NUMBER: _ClassVar[int]
-    MAXCELLTEMP18_FIELD_NUMBER: _ClassVar[int]
-    MINCELLTEMP19_FIELD_NUMBER: _ClassVar[int]
-    MAXMOSTEMP20_FIELD_NUMBER: _ClassVar[int]
-    MINMOSTEMP21_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_SOH_PERCENT_INT_FIELD_NUMBER: _ClassVar[int]
+    MAX_CELL_VOL_MV_FIELD_NUMBER: _ClassVar[int]
+    MIN_CELL_VOL_MV_FIELD_NUMBER: _ClassVar[int]
+    MAX_CELL_TEMP_C_FIELD_NUMBER: _ClassVar[int]
+    MIN_CELL_TEMP_C_FIELD_NUMBER: _ClassVar[int]
+    MAX_MOS_TEMP_C_FIELD_NUMBER: _ClassVar[int]
+    MIN_MOS_TEMP_C_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN22_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN23_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN24_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN25_FIELD_NUMBER: _ClassVar[int]
+    BMS_DESIGN_CAP_MAH_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_SOC_PERCENT_FLOAT1_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN26_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN27_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN28_FIELD_NUMBER: _ClassVar[int]
+    BMS_CHG_REM_TIME_MIN_FIELD_NUMBER: _ClassVar[int]
+    BMS_DSG_REM_TIME_MIN_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN29_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN30_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN31_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN32_FIELD_NUMBER: _ClassVar[int]
-    CELLVOL33_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN34_FIELD_NUMBER: _ClassVar[int]
-    CELLTEMP35_FIELD_NUMBER: _ClassVar[int]
-    VERSION36_FIELD_NUMBER: _ClassVar[int]
-    BMSHEARTVER37_FIELD_NUMBER: _ClassVar[int]
-    ECLOUDOCV38_FIELD_NUMBER: _ClassVar[int]
-    DEVEICESN39_FIELD_NUMBER: _ClassVar[int]
+    MAX_MOS_TEMP_C_DUP_FIELD_NUMBER: _ClassVar[int]
+    CELL_VOL_ARRAY_SIZE_FIELD_NUMBER: _ClassVar[int]
+    CELL_VOL_MV_FIELD_NUMBER: _ClassVar[int]
+    CELL_TEMP_ARRAY_SIZE_FIELD_NUMBER: _ClassVar[int]
+    CELL_TEMP_C_FIELD_NUMBER: _ClassVar[int]
+    BMS_FIRM_VER_FIELD_NUMBER: _ClassVar[int]
+    BMS_HEART_VER_FIELD_NUMBER: _ClassVar[int]
+    ECLOUD_OCV_FIELD_NUMBER: _ClassVar[int]
+    BMS_SN_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN40_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN41_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN42_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_SOC_PERCENT_FLOAT2_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN43_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN44_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_SOC_PERCENT_FLOAT3_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN45_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN46_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN47_FIELD_NUMBER: _ClassVar[int]
+    BMS_CHG_DSG_STATE_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN48_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN49_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN50_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN51_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN52_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN53_FIELD_NUMBER: _ClassVar[int]
-    SOH54_FIELD_NUMBER: _ClassVar[int]
+    BMS_BATT_SOH_PERCENT_FLOAT_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN55_FIELD_NUMBER: _ClassVar[int]
-    MOSTEMP56_FIELD_NUMBER: _ClassVar[int]
+    MOS_TEMP_C_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN57_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN58_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN61_FIELD_NUMBER: _ClassVar[int]
@@ -328,9 +330,9 @@ class cmdFunc50_cmdId30_Report(_message.Message):
     UNKNOWN67_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN68_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN69_FIELD_NUMBER: _ClassVar[int]
-    ERROR70_FIELD_NUMBER: _ClassVar[int]
+    BMS_ERR_CODE_FLAGS_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN71_FIELD_NUMBER: _ClassVar[int]
-    BATVOLT72_FIELD_NUMBER: _ClassVar[int]
+    BAT_VOLT_MV_ARRAY_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN73_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN74_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN75_FIELD_NUMBER: _ClassVar[int]
@@ -339,64 +341,64 @@ class cmdFunc50_cmdId30_Report(_message.Message):
     UNKNOWN78_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN79_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN80_FIELD_NUMBER: _ClassVar[int]
-    PACKSN81_FIELD_NUMBER: _ClassVar[int]
+    PACK_SN_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN82_FIELD_NUMBER: _ClassVar[int]
-    unknown1: int
-    unknown2: int
-    unknown3: int
-    unknown4: int
+    bms_flt_state: int
+    bms_pro_state: int
+    bms_alm_state: int
+    bms_bal_state: int
     unknown5: int
     unknown6: int
-    unknown7: int
-    unknown8: int
-    unknown9: int
+    bms_batt_vol: int
+    bms_batt_amp: int
+    bms_max_cell_temp_dup: int
     unknown10: int
-    unknown11: int
-    remainCap12: int
-    unknown13: int
+    bms_design_cap_mah_dup: int
+    bms_remain_cap_mah: int
+    bms_full_cap_mah: int
     unknown14: int
-    unknown15: int
-    maxCellVol16: int
-    minCellVol17: int
-    maxCellTemp18: int
-    minCellTemp19: int
-    maxMosTemp20: int
-    minMosTemp21: int
+    bms_batt_soh_percent_int: int
+    max_cell_vol_mv: int
+    min_cell_vol_mv: int
+    max_cell_temp_c: int
+    min_cell_temp_c: int
+    max_mos_temp_c: int
+    min_mos_temp_c: int
     unknown22: int
     unknown23: int
-    unknown24: int
-    unknown25: float
+    bms_design_cap_mah: int
+    bms_batt_soc_percent_float1: float
     unknown26: int
-    unknown27: int
-    unknown28: int
+    bms_chg_rem_time_min: int
+    bms_dsg_rem_time_min: int
     unknown29: int
     unknown30: int
-    unknown31: int
-    unknown32: int
-    cellVol33: _containers.RepeatedScalarFieldContainer[int]
-    unknown34: int
-    cellTemp35: _containers.RepeatedScalarFieldContainer[int]
-    version36: str
-    bmsHeartVer37: int
-    ecloudOcv38: int
-    deveiceSn39: str
+    max_mos_temp_c_dup: int
+    cell_vol_array_size: int
+    cell_vol_mv: _containers.RepeatedScalarFieldContainer[int]
+    cell_temp_array_size: int
+    cell_temp_c: _containers.RepeatedScalarFieldContainer[int]
+    bms_firm_ver: str
+    bms_heart_ver: int
+    ecloud_ocv: int
+    bms_sn: str
     unknown40: int
     unknown41: int
-    unknown42: float
+    bms_batt_soc_percent_float2: float
     unknown43: float
-    unknown44: float
+    bms_batt_soc_percent_float3: float
     unknown45: int
     unknown46: int
-    unknown47: int
+    bms_chg_dsg_state: int
     unknown48: int
     unknown49: int
     unknown50: int
     unknown51: int
     unknown52: float
     unknown53: float
-    soh54: float
+    bms_batt_soh_percent_float: float
     unknown55: int
-    mosTemp56: _containers.RepeatedScalarFieldContainer[int]
+    mos_temp_c: _containers.RepeatedScalarFieldContainer[int]
     unknown57: int
     unknown58: _containers.RepeatedScalarFieldContainer[int]
     unknown61: int
@@ -406,9 +408,9 @@ class cmdFunc50_cmdId30_Report(_message.Message):
     unknown67: int
     unknown68: int
     unknown69: int
-    error70: _containers.RepeatedScalarFieldContainer[int]
+    bms_err_code_flags: _containers.RepeatedScalarFieldContainer[int]
     unknown71: int
-    batVolt72: _containers.RepeatedScalarFieldContainer[int]
+    bat_volt_mv_array: _containers.RepeatedScalarFieldContainer[int]
     unknown73: int
     unknown74: int
     unknown75: int
@@ -417,9 +419,9 @@ class cmdFunc50_cmdId30_Report(_message.Message):
     unknown78: int
     unknown79: int
     unknown80: int
-    packSn81: str
+    pack_sn: str
     unknown82: int
-    def __init__(self, unknown1: _Optional[int] = ..., unknown2: _Optional[int] = ..., unknown3: _Optional[int] = ..., unknown4: _Optional[int] = ..., unknown5: _Optional[int] = ..., unknown6: _Optional[int] = ..., unknown7: _Optional[int] = ..., unknown8: _Optional[int] = ..., unknown9: _Optional[int] = ..., unknown10: _Optional[int] = ..., unknown11: _Optional[int] = ..., remainCap12: _Optional[int] = ..., unknown13: _Optional[int] = ..., unknown14: _Optional[int] = ..., unknown15: _Optional[int] = ..., maxCellVol16: _Optional[int] = ..., minCellVol17: _Optional[int] = ..., maxCellTemp18: _Optional[int] = ..., minCellTemp19: _Optional[int] = ..., maxMosTemp20: _Optional[int] = ..., minMosTemp21: _Optional[int] = ..., unknown22: _Optional[int] = ..., unknown23: _Optional[int] = ..., unknown24: _Optional[int] = ..., unknown25: _Optional[float] = ..., unknown26: _Optional[int] = ..., unknown27: _Optional[int] = ..., unknown28: _Optional[int] = ..., unknown29: _Optional[int] = ..., unknown30: _Optional[int] = ..., unknown31: _Optional[int] = ..., unknown32: _Optional[int] = ..., cellVol33: _Optional[_Iterable[int]] = ..., unknown34: _Optional[int] = ..., cellTemp35: _Optional[_Iterable[int]] = ..., version36: _Optional[str] = ..., bmsHeartVer37: _Optional[int] = ..., ecloudOcv38: _Optional[int] = ..., deveiceSn39: _Optional[str] = ..., unknown40: _Optional[int] = ..., unknown41: _Optional[int] = ..., unknown42: _Optional[float] = ..., unknown43: _Optional[float] = ..., unknown44: _Optional[float] = ..., unknown45: _Optional[int] = ..., unknown46: _Optional[int] = ..., unknown47: _Optional[int] = ..., unknown48: _Optional[int] = ..., unknown49: _Optional[int] = ..., unknown50: _Optional[int] = ..., unknown51: _Optional[int] = ..., unknown52: _Optional[float] = ..., unknown53: _Optional[float] = ..., soh54: _Optional[float] = ..., unknown55: _Optional[int] = ..., mosTemp56: _Optional[_Iterable[int]] = ..., unknown57: _Optional[int] = ..., unknown58: _Optional[_Iterable[int]] = ..., unknown61: _Optional[int] = ..., unknown62: _Optional[_Iterable[int]] = ..., unknown63: _Optional[int] = ..., unknown64: _Optional[int] = ..., unknown67: _Optional[int] = ..., unknown68: _Optional[int] = ..., unknown69: _Optional[int] = ..., error70: _Optional[_Iterable[int]] = ..., unknown71: _Optional[int] = ..., batVolt72: _Optional[_Iterable[int]] = ..., unknown73: _Optional[int] = ..., unknown74: _Optional[int] = ..., unknown75: _Optional[int] = ..., unknown76: _Optional[int] = ..., unknown77: _Optional[int] = ..., unknown78: _Optional[int] = ..., unknown79: _Optional[int] = ..., unknown80: _Optional[int] = ..., packSn81: _Optional[str] = ..., unknown82: _Optional[int] = ...) -> None: ...
+    def __init__(self, bms_flt_state: _Optional[int] = ..., bms_pro_state: _Optional[int] = ..., bms_alm_state: _Optional[int] = ..., bms_bal_state: _Optional[int] = ..., unknown5: _Optional[int] = ..., unknown6: _Optional[int] = ..., bms_batt_vol: _Optional[int] = ..., bms_batt_amp: _Optional[int] = ..., bms_max_cell_temp_dup: _Optional[int] = ..., unknown10: _Optional[int] = ..., bms_design_cap_mah_dup: _Optional[int] = ..., bms_remain_cap_mah: _Optional[int] = ..., bms_full_cap_mah: _Optional[int] = ..., unknown14: _Optional[int] = ..., bms_batt_soh_percent_int: _Optional[int] = ..., max_cell_vol_mv: _Optional[int] = ..., min_cell_vol_mv: _Optional[int] = ..., max_cell_temp_c: _Optional[int] = ..., min_cell_temp_c: _Optional[int] = ..., max_mos_temp_c: _Optional[int] = ..., min_mos_temp_c: _Optional[int] = ..., unknown22: _Optional[int] = ..., unknown23: _Optional[int] = ..., bms_design_cap_mah: _Optional[int] = ..., bms_batt_soc_percent_float1: _Optional[float] = ..., unknown26: _Optional[int] = ..., bms_chg_rem_time_min: _Optional[int] = ..., bms_dsg_rem_time_min: _Optional[int] = ..., unknown29: _Optional[int] = ..., unknown30: _Optional[int] = ..., max_mos_temp_c_dup: _Optional[int] = ..., cell_vol_array_size: _Optional[int] = ..., cell_vol_mv: _Optional[_Iterable[int]] = ..., cell_temp_array_size: _Optional[int] = ..., cell_temp_c: _Optional[_Iterable[int]] = ..., bms_firm_ver: _Optional[str] = ..., bms_heart_ver: _Optional[int] = ..., ecloud_ocv: _Optional[int] = ..., bms_sn: _Optional[str] = ..., unknown40: _Optional[int] = ..., unknown41: _Optional[int] = ..., bms_batt_soc_percent_float2: _Optional[float] = ..., unknown43: _Optional[float] = ..., bms_batt_soc_percent_float3: _Optional[float] = ..., unknown45: _Optional[int] = ..., unknown46: _Optional[int] = ..., bms_chg_dsg_state: _Optional[int] = ..., unknown48: _Optional[int] = ..., unknown49: _Optional[int] = ..., unknown50: _Optional[int] = ..., unknown51: _Optional[int] = ..., unknown52: _Optional[float] = ..., unknown53: _Optional[float] = ..., bms_batt_soh_percent_float: _Optional[float] = ..., unknown55: _Optional[int] = ..., mos_temp_c: _Optional[_Iterable[int]] = ..., unknown57: _Optional[int] = ..., unknown58: _Optional[_Iterable[int]] = ..., unknown61: _Optional[int] = ..., unknown62: _Optional[_Iterable[int]] = ..., unknown63: _Optional[int] = ..., unknown64: _Optional[int] = ..., unknown67: _Optional[int] = ..., unknown68: _Optional[int] = ..., unknown69: _Optional[int] = ..., bms_err_code_flags: _Optional[_Iterable[int]] = ..., unknown71: _Optional[int] = ..., bat_volt_mv_array: _Optional[_Iterable[int]] = ..., unknown73: _Optional[int] = ..., unknown74: _Optional[int] = ..., unknown75: _Optional[int] = ..., unknown76: _Optional[int] = ..., unknown77: _Optional[int] = ..., unknown78: _Optional[int] = ..., unknown79: _Optional[int] = ..., unknown80: _Optional[int] = ..., pack_sn: _Optional[str] = ..., unknown82: _Optional[int] = ...) -> None: ...
 
 class TimeTaskParamDetail(_message.Message):
     __slots__ = ("type", "val")
@@ -770,68 +772,68 @@ class ResvInfo(_message.Message):
     def __init__(self, resv_info: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class struct32_2_1(_message.Message):
-    __slots__ = ("unknown1", "unknown2", "unknown3", "volt4", "unknown5", "unknown6", "maxChargeSoc7", "unknown8", "unknown9", "unknown10", "unknown11", "unknown12", "unknown13", "unknown14", "soc15", "bmsIsConnt16", "unknown17", "unknown18", "unknown19", "unknown20", "unknown21", "unknown22", "unknown23")
-    UNKNOWN1_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN2_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN3_FIELD_NUMBER: _ClassVar[int]
-    VOLT4_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN5_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN6_FIELD_NUMBER: _ClassVar[int]
-    MAXCHARGESOC7_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN8_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN9_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN10_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN11_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN12_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN13_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN14_FIELD_NUMBER: _ClassVar[int]
-    SOC15_FIELD_NUMBER: _ClassVar[int]
-    BMSISCONNT16_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN17_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN18_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN19_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN20_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN21_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN22_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN23_FIELD_NUMBER: _ClassVar[int]
-    unknown1: int
-    unknown2: int
-    unknown3: int
-    volt4: int
-    unknown5: int
-    unknown6: int
-    maxChargeSoc7: int
-    unknown8: int
-    unknown9: int
-    unknown10: int
-    unknown11: int
-    unknown12: int
-    unknown13: int
-    unknown14: int
-    soc15: float
-    bmsIsConnt16: _containers.RepeatedScalarFieldContainer[int]
-    unknown17: int
-    unknown18: int
-    unknown19: int
-    unknown20: int
-    unknown21: int
-    unknown22: int
-    unknown23: int
-    def __init__(self, unknown1: _Optional[int] = ..., unknown2: _Optional[int] = ..., unknown3: _Optional[int] = ..., volt4: _Optional[int] = ..., unknown5: _Optional[int] = ..., unknown6: _Optional[int] = ..., maxChargeSoc7: _Optional[int] = ..., unknown8: _Optional[int] = ..., unknown9: _Optional[int] = ..., unknown10: _Optional[int] = ..., unknown11: _Optional[int] = ..., unknown12: _Optional[int] = ..., unknown13: _Optional[int] = ..., unknown14: _Optional[int] = ..., soc15: _Optional[float] = ..., bmsIsConnt16: _Optional[_Iterable[int]] = ..., unknown17: _Optional[int] = ..., unknown18: _Optional[int] = ..., unknown19: _Optional[int] = ..., unknown20: _Optional[int] = ..., unknown21: _Optional[int] = ..., unknown22: _Optional[int] = ..., unknown23: _Optional[int] = ...) -> None: ...
+    __slots__ = ("cms_status_misc1", "cms_status_misc2", "cms_status_misc3", "cms_batt_vol_mv", "cms_chg_req_amp", "cms_status_misc4", "cms_max_chg_soc", "cms_min_dsg_soc", "ac_out_freq", "cms_status_misc5", "cms_status_misc6", "cms_chg_rem_time", "cms_dsg_rem_time", "cms_chg_dsg_state", "cms_batt_soc", "bms_is_conn_state", "cms_status_misc7", "cms_status_misc8", "cms_status_misc9", "cms_status_misc10", "cms_status_misc11", "cms_status_misc12", "cms_oil_off_soc")
+    CMS_STATUS_MISC1_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC2_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC3_FIELD_NUMBER: _ClassVar[int]
+    CMS_BATT_VOL_MV_FIELD_NUMBER: _ClassVar[int]
+    CMS_CHG_REQ_AMP_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC4_FIELD_NUMBER: _ClassVar[int]
+    CMS_MAX_CHG_SOC_FIELD_NUMBER: _ClassVar[int]
+    CMS_MIN_DSG_SOC_FIELD_NUMBER: _ClassVar[int]
+    AC_OUT_FREQ_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC5_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC6_FIELD_NUMBER: _ClassVar[int]
+    CMS_CHG_REM_TIME_FIELD_NUMBER: _ClassVar[int]
+    CMS_DSG_REM_TIME_FIELD_NUMBER: _ClassVar[int]
+    CMS_CHG_DSG_STATE_FIELD_NUMBER: _ClassVar[int]
+    CMS_BATT_SOC_FIELD_NUMBER: _ClassVar[int]
+    BMS_IS_CONN_STATE_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC7_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC8_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC9_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC10_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC11_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC12_FIELD_NUMBER: _ClassVar[int]
+    CMS_OIL_OFF_SOC_FIELD_NUMBER: _ClassVar[int]
+    cms_status_misc1: int
+    cms_status_misc2: int
+    cms_status_misc3: int
+    cms_batt_vol_mv: int
+    cms_chg_req_amp: int
+    cms_status_misc4: int
+    cms_max_chg_soc: int
+    cms_min_dsg_soc: int
+    ac_out_freq: int
+    cms_status_misc5: int
+    cms_status_misc6: int
+    cms_chg_rem_time: int
+    cms_dsg_rem_time: int
+    cms_chg_dsg_state: int
+    cms_batt_soc: float
+    bms_is_conn_state: _containers.RepeatedScalarFieldContainer[int]
+    cms_status_misc7: int
+    cms_status_misc8: int
+    cms_status_misc9: int
+    cms_status_misc10: int
+    cms_status_misc11: int
+    cms_status_misc12: int
+    cms_oil_off_soc: int
+    def __init__(self, cms_status_misc1: _Optional[int] = ..., cms_status_misc2: _Optional[int] = ..., cms_status_misc3: _Optional[int] = ..., cms_batt_vol_mv: _Optional[int] = ..., cms_chg_req_amp: _Optional[int] = ..., cms_status_misc4: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., ac_out_freq: _Optional[int] = ..., cms_status_misc5: _Optional[int] = ..., cms_status_misc6: _Optional[int] = ..., cms_chg_rem_time: _Optional[int] = ..., cms_dsg_rem_time: _Optional[int] = ..., cms_chg_dsg_state: _Optional[int] = ..., cms_batt_soc: _Optional[float] = ..., bms_is_conn_state: _Optional[_Iterable[int]] = ..., cms_status_misc7: _Optional[int] = ..., cms_status_misc8: _Optional[int] = ..., cms_status_misc9: _Optional[int] = ..., cms_status_misc10: _Optional[int] = ..., cms_status_misc11: _Optional[int] = ..., cms_status_misc12: _Optional[int] = ..., cms_oil_off_soc: _Optional[int] = ...) -> None: ...
 
 class struct32_2_2(_message.Message):
-    __slots__ = ("unknown1", "unknown2", "unknown3", "unknown4", "unknown5")
-    UNKNOWN1_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN2_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN3_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN4_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN5_FIELD_NUMBER: _ClassVar[int]
-    unknown1: int
-    unknown2: int
-    unknown3: int
-    unknown4: int
-    unknown5: int
-    def __init__(self, unknown1: _Optional[int] = ..., unknown2: _Optional[int] = ..., unknown3: _Optional[int] = ..., unknown4: _Optional[int] = ..., unknown5: _Optional[int] = ...) -> None: ...
+    __slots__ = ("cms_status_misc13", "cms_status_misc14", "cms_status_misc15", "cms_status_misc16", "cms_status_misc17")
+    CMS_STATUS_MISC13_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC14_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC15_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC16_FIELD_NUMBER: _ClassVar[int]
+    CMS_STATUS_MISC17_FIELD_NUMBER: _ClassVar[int]
+    cms_status_misc13: int
+    cms_status_misc14: int
+    cms_status_misc15: int
+    cms_status_misc16: int
+    cms_status_misc17: int
+    def __init__(self, cms_status_misc13: _Optional[int] = ..., cms_status_misc14: _Optional[int] = ..., cms_status_misc15: _Optional[int] = ..., cms_status_misc16: _Optional[int] = ..., cms_status_misc17: _Optional[int] = ...) -> None: ...
 
 class cmdFunc32_cmdId2_Report(_message.Message):
     __slots__ = ("msg32_2_1", "msg32_2_2")
@@ -841,15 +843,25 @@ class cmdFunc32_cmdId2_Report(_message.Message):
     msg32_2_2: struct32_2_2
     def __init__(self, msg32_2_1: _Optional[_Union[struct32_2_1, _Mapping]] = ..., msg32_2_2: _Optional[_Union[struct32_2_2, _Mapping]] = ...) -> None: ...
 
+class cmdFunc254_cmdId22_Report(_message.Message):
+    __slots__ = ("report_timestamp", "unknown2_f22", "unknown5_f22")
+    REPORT_TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN2_F22_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN5_F22_FIELD_NUMBER: _ClassVar[int]
+    report_timestamp: int
+    unknown2_f22: float
+    unknown5_f22: int
+    def __init__(self, report_timestamp: _Optional[int] = ..., unknown2_f22: _Optional[float] = ..., unknown5_f22: _Optional[int] = ...) -> None: ...
+
 class cmdFunc254_cmdId23_Report(_message.Message):
-    __slots__ = ("timestamp1", "unknown2", "unknown5")
-    TIMESTAMP1_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN2_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN5_FIELD_NUMBER: _ClassVar[int]
-    timestamp1: int
-    unknown2: float
-    unknown5: int
-    def __init__(self, timestamp1: _Optional[int] = ..., unknown2: _Optional[float] = ..., unknown5: _Optional[int] = ...) -> None: ...
+    __slots__ = ("report_timestamp", "unknown2_f23", "unknown5_f23")
+    REPORT_TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN2_F23_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN5_F23_FIELD_NUMBER: _ClassVar[int]
+    report_timestamp: int
+    unknown2_f23: float
+    unknown5_f23: int
+    def __init__(self, report_timestamp: _Optional[int] = ..., unknown2_f23: _Optional[float] = ..., unknown5_f23: _Optional[int] = ...) -> None: ...
 
 class set_dp3(_message.Message):
     __slots__ = ("cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
@@ -974,241 +986,17 @@ class setValue(_message.Message):
 class setMessage(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    header: setHeader
-    def __init__(self, header: _Optional[_Union[setHeader, _Mapping]] = ...) -> None: ...
-
-class setHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
-    PDATA_FIELD_NUMBER: _ClassVar[int]
-    SRC_FIELD_NUMBER: _ClassVar[int]
-    DEST_FIELD_NUMBER: _ClassVar[int]
-    D_SRC_FIELD_NUMBER: _ClassVar[int]
-    D_DEST_FIELD_NUMBER: _ClassVar[int]
-    ENC_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CHECK_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CMD_FUNC_FIELD_NUMBER: _ClassVar[int]
-    CMD_ID_FIELD_NUMBER: _ClassVar[int]
-    DATA_LEN_FIELD_NUMBER: _ClassVar[int]
-    NEED_ACK_FIELD_NUMBER: _ClassVar[int]
-    IS_ACK_FIELD_NUMBER: _ClassVar[int]
-    SEQ_FIELD_NUMBER: _ClassVar[int]
-    PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
-    VERSION_FIELD_NUMBER: _ClassVar[int]
-    PAYLOAD_VER_FIELD_NUMBER: _ClassVar[int]
-    TIME_SNAP_FIELD_NUMBER: _ClassVar[int]
-    IS_RW_CMD_FIELD_NUMBER: _ClassVar[int]
-    IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
-    ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CODE_FIELD_NUMBER: _ClassVar[int]
-    FROM_FIELD_NUMBER: _ClassVar[int]
-    MODULE_SN_FIELD_NUMBER: _ClassVar[int]
-    DEVICE_SN_FIELD_NUMBER: _ClassVar[int]
-    pdata: setValue
-    src: int
-    dest: int
-    d_src: int
-    d_dest: int
-    enc_type: int
-    check_type: int
-    cmd_func: int
-    cmd_id: int
-    data_len: int
-    need_ack: int
-    is_ack: int
-    seq: int
-    product_id: int
-    version: int
-    payload_ver: int
-    time_snap: int
-    is_rw_cmd: int
-    is_queue: int
-    ack_type: int
-    code: str
-    module_sn: str
-    device_sn: str
-    def __init__(self, pdata: _Optional[_Union[setValue, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
-
-class Header(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
-    PDATA_FIELD_NUMBER: _ClassVar[int]
-    SRC_FIELD_NUMBER: _ClassVar[int]
-    DEST_FIELD_NUMBER: _ClassVar[int]
-    D_SRC_FIELD_NUMBER: _ClassVar[int]
-    D_DEST_FIELD_NUMBER: _ClassVar[int]
-    ENC_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CHECK_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CMD_FUNC_FIELD_NUMBER: _ClassVar[int]
-    CMD_ID_FIELD_NUMBER: _ClassVar[int]
-    DATA_LEN_FIELD_NUMBER: _ClassVar[int]
-    NEED_ACK_FIELD_NUMBER: _ClassVar[int]
-    IS_ACK_FIELD_NUMBER: _ClassVar[int]
-    SEQ_FIELD_NUMBER: _ClassVar[int]
-    PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
-    VERSION_FIELD_NUMBER: _ClassVar[int]
-    PAYLOAD_VER_FIELD_NUMBER: _ClassVar[int]
-    TIME_SNAP_FIELD_NUMBER: _ClassVar[int]
-    IS_RW_CMD_FIELD_NUMBER: _ClassVar[int]
-    IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
-    ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CODE_FIELD_NUMBER: _ClassVar[int]
-    FROM_FIELD_NUMBER: _ClassVar[int]
-    MODULE_SN_FIELD_NUMBER: _ClassVar[int]
-    DEVICE_SN_FIELD_NUMBER: _ClassVar[int]
-    pdata: bytes
-    src: int
-    dest: int
-    d_src: int
-    d_dest: int
-    enc_type: int
-    check_type: int
-    cmd_func: int
-    cmd_id: int
-    data_len: int
-    need_ack: int
-    is_ack: int
-    seq: int
-    product_id: int
-    version: int
-    payload_ver: int
-    time_snap: int
-    is_rw_cmd: int
-    is_queue: int
-    ack_type: int
-    code: str
-    module_sn: str
-    device_sn: str
-    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+    header: _ecopacket_pb2.Header
+    def __init__(self, header: _Optional[_Union[_ecopacket_pb2.Header, _Mapping]] = ...) -> None: ...
 
 class HeaderMessage(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    header: _containers.RepeatedCompositeFieldContainer[Header]
-    def __init__(self, header: _Optional[_Iterable[_Union[Header, _Mapping]]] = ...) -> None: ...
-
-class EventRecordItem(_message.Message):
-    __slots__ = ("timestamp", "sys_ms", "event_no", "event_detail")
-    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    SYS_MS_FIELD_NUMBER: _ClassVar[int]
-    EVENT_NO_FIELD_NUMBER: _ClassVar[int]
-    EVENT_DETAIL_FIELD_NUMBER: _ClassVar[int]
-    timestamp: int
-    sys_ms: int
-    event_no: int
-    event_detail: _containers.RepeatedScalarFieldContainer[float]
-    def __init__(self, timestamp: _Optional[int] = ..., sys_ms: _Optional[int] = ..., event_no: _Optional[int] = ..., event_detail: _Optional[_Iterable[float]] = ...) -> None: ...
-
-class EventRecordReport(_message.Message):
-    __slots__ = ("event_ver", "event_seq", "event_item")
-    EVENT_VER_FIELD_NUMBER: _ClassVar[int]
-    EVENT_SEQ_FIELD_NUMBER: _ClassVar[int]
-    EVENT_ITEM_FIELD_NUMBER: _ClassVar[int]
-    event_ver: int
-    event_seq: int
-    event_item: _containers.RepeatedCompositeFieldContainer[EventRecordItem]
-    def __init__(self, event_ver: _Optional[int] = ..., event_seq: _Optional[int] = ..., event_item: _Optional[_Iterable[_Union[EventRecordItem, _Mapping]]] = ...) -> None: ...
-
-class EventInfoReportAck(_message.Message):
-    __slots__ = ("result", "event_seq", "event_item_num")
-    RESULT_FIELD_NUMBER: _ClassVar[int]
-    EVENT_SEQ_FIELD_NUMBER: _ClassVar[int]
-    EVENT_ITEM_NUM_FIELD_NUMBER: _ClassVar[int]
-    result: int
-    event_seq: int
-    event_item_num: int
-    def __init__(self, result: _Optional[int] = ..., event_seq: _Optional[int] = ..., event_item_num: _Optional[int] = ...) -> None: ...
-
-class ProductNameSet(_message.Message):
-    __slots__ = ("name",)
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
-
-class ProductNameSetAck(_message.Message):
-    __slots__ = ("result",)
-    RESULT_FIELD_NUMBER: _ClassVar[int]
-    result: int
-    def __init__(self, result: _Optional[int] = ...) -> None: ...
-
-class ProductNameGet(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class ProductNameGetAck(_message.Message):
-    __slots__ = ("name",)
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
-
-class RTCTimeGet(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class RTCTimeGetAck(_message.Message):
-    __slots__ = ("timestamp", "timezone")
-    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    TIMEZONE_FIELD_NUMBER: _ClassVar[int]
-    timestamp: int
-    timezone: int
-    def __init__(self, timestamp: _Optional[int] = ..., timezone: _Optional[int] = ...) -> None: ...
-
-class RTCTimeSet(_message.Message):
-    __slots__ = ("timestamp", "timezone")
-    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    TIMEZONE_FIELD_NUMBER: _ClassVar[int]
-    timestamp: int
-    timezone: int
-    def __init__(self, timestamp: _Optional[int] = ..., timezone: _Optional[int] = ...) -> None: ...
-
-class RTCTimeSetAck(_message.Message):
-    __slots__ = ("result",)
-    RESULT_FIELD_NUMBER: _ClassVar[int]
-    result: int
-    def __init__(self, result: _Optional[int] = ...) -> None: ...
+    header: _containers.RepeatedCompositeFieldContainer[_ecopacket_pb2.Header]
+    def __init__(self, header: _Optional[_Iterable[_Union[_ecopacket_pb2.Header, _Mapping]]] = ...) -> None: ...
 
 class Send_Header_Msg(_message.Message):
     __slots__ = ("msg",)
     MSG_FIELD_NUMBER: _ClassVar[int]
-    msg: Header
-    def __init__(self, msg: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
-
-class SendMsgHart(_message.Message):
-    __slots__ = ("link_id", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "ack_type", "seq", "time_snap", "is_rw_cmd", "is_queue", "product_id", "version")
-    LINK_ID_FIELD_NUMBER: _ClassVar[int]
-    SRC_FIELD_NUMBER: _ClassVar[int]
-    DEST_FIELD_NUMBER: _ClassVar[int]
-    D_SRC_FIELD_NUMBER: _ClassVar[int]
-    D_DEST_FIELD_NUMBER: _ClassVar[int]
-    ENC_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CHECK_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CMD_FUNC_FIELD_NUMBER: _ClassVar[int]
-    CMD_ID_FIELD_NUMBER: _ClassVar[int]
-    DATA_LEN_FIELD_NUMBER: _ClassVar[int]
-    NEED_ACK_FIELD_NUMBER: _ClassVar[int]
-    IS_ACK_FIELD_NUMBER: _ClassVar[int]
-    ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
-    SEQ_FIELD_NUMBER: _ClassVar[int]
-    TIME_SNAP_FIELD_NUMBER: _ClassVar[int]
-    IS_RW_CMD_FIELD_NUMBER: _ClassVar[int]
-    IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
-    PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
-    VERSION_FIELD_NUMBER: _ClassVar[int]
-    link_id: int
-    src: int
-    dest: int
-    d_src: int
-    d_dest: int
-    enc_type: int
-    check_type: int
-    cmd_func: int
-    cmd_id: int
-    data_len: int
-    need_ack: int
-    is_ack: int
-    ack_type: int
-    seq: int
-    time_snap: int
-    is_rw_cmd: int
-    is_queue: int
-    product_id: int
-    version: int
-    def __init__(self, link_id: _Optional[int] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., ack_type: _Optional[int] = ..., seq: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ...) -> None: ...
+    msg: _ecopacket_pb2.Header
+    def __init__(self, msg: _Optional[_Union[_ecopacket_pb2.Header, _Mapping]] = ...) -> None: ...
