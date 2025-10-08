@@ -8,3 +8,18 @@ requirements.test.txt
 requirements.txt
 setup.cfg
 tests
+core/
+test/test.env
+
+# Development-only files (keep only in dev branch, not in main)
+.claude/
+.cursor/
+docs_4ai/
+scripts/delta_pro3_*/
+scripts/ecoflow_mqtt_parser/
+scripts/ef_dp3_iobroker*
+.devcontainer/post-start.sh
+.vscode/tasks.json
+CLAUDE.md
+Makefile
+.python-version
