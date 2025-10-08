@@ -35,8 +35,8 @@ class River2Max(BaseDevice):
 
             ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", BATTERY_CHARGING_STATE),
 
-            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
+            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER).with_energy(),
 
             InMilliampSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
             InVoltSensorEntity(client, self, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),

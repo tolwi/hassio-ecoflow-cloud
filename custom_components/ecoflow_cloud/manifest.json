@@ -6,7 +6,8 @@
   ],
   "config_flow": true,
   "dependencies": [
-    "mqtt"
+    "mqtt",
+    "integration"
   ],
   "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
   "iot_class": "cloud_push",
@@ -16,5 +17,5 @@
     "protobuf>=4.23.0",
     "jsonpath-ng>=1.7.0"
   ],
-  "version": "1.4.0-beta1"
+  "version": "1.4.0-beta2"
 }

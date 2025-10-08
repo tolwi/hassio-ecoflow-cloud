@@ -10,6 +10,8 @@
 - Power In Amps (`gridConnectionAmp`)   _(disabled)_
 - Power PV1 In Amps (`plugInInfoPvAmp`)   _(auto)_
 - Power PV2 In Amps (`plugInInfoPv2Amp`)   _(auto)_
+- Inverter NTC Temperature (`invNtcTemp3`)
+- Grid Frequency (`gridConnectionFreq`)
 - Status
 
 *Switches*

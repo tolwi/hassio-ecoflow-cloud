@@ -1,0 +1,34 @@
+name: ✨ Feature Request
+description: Suggest a new feature
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: request_type
+    attributes:
+      label: Feature Type
+      options:
+        - Additional sensor/entity
+        - Configuration option
+        - Localization/translation
+        - Refactor/cleanup
+        - Documentation improvement
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: device_model
+    attributes:
+      label: Device Model
+      placeholder: "e.g., DELTA 2 Max, PowerStream"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: What feature do you want?
+      placeholder: Describe the feature and why it would be useful
+    validations:
+      required: true

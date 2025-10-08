@@ -22,6 +22,7 @@ from .internal import (
 )
 from .public import (
     delta_pro as public_delta_pro,
+    delta_pro_ultra as public_delta_pro_ultra,
     delta2 as public_delta2,
     delta2_max as public_delta2_max,
     delta3 as public_delta3,
@@ -73,6 +74,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
     {
         "DELTA Max": public_delta_max.DeltaMax,
         "DELTA Pro": public_delta_pro.DeltaPro,
+        "DELTA Pro Ultra": public_delta_pro_ultra.DeltaProUltra,
         "DELTA 2": public_delta2.Delta2,
         "DELTA 2 Max": public_delta2_max.Delta2Max,
         "DELTA 3": public_delta3.Delta3,

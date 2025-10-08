@@ -1,6 +1,7 @@
 import enum
 import logging
 import struct
+from datetime import timedelta
 from typing import Any, Mapping, OrderedDict, override
 
 from homeassistant.components.binary_sensor import (
@@ -12,6 +13,7 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
+from homeassistant.components.integration.sensor import IntegrationSensor
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
@@ -38,7 +40,7 @@ from . import (
     ECOFLOW_DOMAIN,
 )
 from .api import EcoflowApiClient
-from .devices import BaseDevice
+from .devices import BaseDevice, const
 from .entities import (
     BaseSensorEntity,
     EcoFlowAbstractEntity,
@@ -53,7 +55,15 @@ async def async_setup_entry(
 ):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
     for sn, device in client.devices.items():
-        async_add_entities(device.sensors(client))
+        sensors = device.sensors(client)
+        # Add regular sensors
+        async_add_entities(sensors)
+
+        # Add IntegralEnergySensors
+        integralSensors = filter(
+            lambda s: isinstance(s, WattsSensorEntity) and s.energy_enabled(), sensors
+        )
+        async_add_entities(map(lambda s: s.energy_sensor(), integralSensors))
 
 
 class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
@@ -247,6 +257,24 @@ class WattsSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
 
+    def __init__(
+        self, client, device, mqtt_key, title, enabled=True, auto_enable=False
+    ):
+        super().__init__(client, device, mqtt_key, title, enabled, auto_enable)
+        self._energy_enabled = False
+
+    def with_energy(self):
+        self._energy_enabled = True
+        return self
+
+    def energy_enabled(self):
+        return self._energy_enabled
+
+    def energy_sensor(self):
+        if not self._energy_enabled:
+            return None
+        return IntegralEnergySensorEntity(self)
+
 
 class EnergySensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.ENERGY
@@ -319,8 +347,11 @@ class OutWattsDcSensorEntity(WattsSensorEntity):
 
 class InVoltSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
+
+
 class OutVoltSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
+
 
 class InVoltSolarSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:solar-power"
@@ -553,7 +584,7 @@ class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
                 self._client.quota_all(self._device.device_info.sn), "get quota"
             )
             self._attrs[ATTR_QUOTA_REQUESTS] = self._attrs[ATTR_QUOTA_REQUESTS] + 1
-            _LOGGER.debug(f"Reload quota for device %s", self._device.device_info.sn)
+            _LOGGER.debug("Reload quota for device %s", self._device.device_info.sn)
             changed = True
         else:
             if self._attr_native_value == "updating":
@@ -583,3 +614,24 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
             return True
         else:
             return super()._actualize_status()
+
+
+class IntegralEnergySensorEntity(IntegrationSensor):
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_entity_registry_visible_default = False
+
+    def __init__(self, base: WattsSensorEntity):
+        super().__init__(
+            base.coordinator.hass,
+            integration_method="left",
+            name=f"{base._device.device_info.name} {base._attr_name.replace(f'{const.POWER}', f' {const.ENERGY}')}",
+            round_digits=4,
+            source_entity=base.entity_id,
+            unique_id=f"{base._attr_unique_id}_energy",
+            unit_prefix="k",
+            unit_time="h",
+            max_sub_interval=timedelta(seconds=60),
+        )
+        self.device_info = base.device_info

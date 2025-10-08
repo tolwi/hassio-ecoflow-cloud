@@ -1,0 +1,29 @@
+name: 📱 New Device Support
+description: Request support for a new EcoFlow device
+title: "[New Device]: "
+labels: ["new device"]
+body:
+  - type: input
+    id: device_model
+    attributes:
+      label: Device Model
+      placeholder: "e.g., DELTA 3 Plus, RIVER 3"
+    validations:
+      required: true
+
+  - type: input
+    id: public_api_reference
+    attributes:
+      label: Public API Reference Link
+      description: Link to the device documentation on https://developer-eu.ecoflow.com/us/document/
+      placeholder: "https://developer-eu.ecoflow.com/us/document/..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostic_json
+    attributes:
+      label: Diagnostic Data (Optional)
+      description: If available, paste diagnostic JSON data from HA or API responses
+      placeholder: Paste JSON data here...
+      render: json

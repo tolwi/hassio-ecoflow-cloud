@@ -110,7 +110,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                     self.devices[sn].data.update_data({"params": raw["data"]})
             except Exception as exception:
                 _LOGGER.error(exception, exc_info=True)
-                _LOGGER.error("Erreur recuperation %s", sn)
+                _LOGGER.error("Error retrieving %s", sn)
 
     async def call_api(self, endpoint: str, params: dict[str, str] = None) -> dict:
         self.nonce = str(random.randint(10000, 1000000))
@@ -129,14 +129,14 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 "sign": sign,
             }
 
-            _LOGGER.debug(f"Request: %s %s.", str(endpoint), str(params_str))
+            _LOGGER.debug("Request: %s %s.", str(endpoint), str(params_str))
             resp = await session.get(
                 f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}",
                 headers=headers,
             )
             json_resp = await self._get_json_response(resp)
             _LOGGER.debug(
-                f"Request: %s %s. Response : %s",
+                "Request: %s %s. Response : %s",
                 str(endpoint),
                 str(params_str),
                 str(json_resp),
