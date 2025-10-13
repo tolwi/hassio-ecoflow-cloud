@@ -65,7 +65,8 @@ class DeltaPro3(BaseDevice):
                 client, self, "bms_remain_cap_mah", const.MAIN_REMAIN_CAPACITY, False
             ),
             LevelSensorEntity(client, self, "bms_batt_soh", const.SOH),
-            CyclesSensorEntity(client, self, "bms_cycles", const.CYCLES),
+            # Cycles from BMSHeartBeatReport (not DisplayPropertyUpload)
+            CyclesSensorEntity(client, self, "cycles", const.CYCLES),
             MilliVoltSensorEntity(
                 client, self, "bms_batt_vol", const.BATTERY_VOLT, False
             )
@@ -168,24 +169,23 @@ class DeltaPro3(BaseDevice):
             LevelSensorEntity(
                 client, self, "cms_min_dsg_soc", "Min Discharge SOC Setting"
             ),
+            # Energy sensors from BMSHeartBeatReport
+            # Note: accu_chg_energy and accu_dsg_energy are in Wh, multiply by 0.001 for kWh display
+            # These fields do not exist in DisplayPropertyUpload - they come from BMSHeartBeatReport
             InEnergySensorEntity(
-                client, self, "pow_in_sum_energy", "Total Input Energy"
+                client, self, "accu_chg_energy", "Total Charge Energy"
             ),
             OutEnergySensorEntity(
-                client, self, "pow_out_sum_energy", "Total Output Energy"
+                client, self, "accu_dsg_energy", "Total Discharge Energy"
             ),
-            InEnergySensorEntity(
-                client, self, "ac_in_energy_total", const.CHARGE_AC_ENERGY
-            ),
-            OutEnergySensorEntity(
-                client, self, "ac_out_energy_total", const.DISCHARGE_AC_ENERGY
-            ),
-            InEnergySensorEntity(
-                client, self, "pv_in_energy_total", const.SOLAR_IN_ENERGY
-            ),
-            OutEnergySensorEntity(
-                client, self, "dc_out_energy_total", const.DISCHARGE_DC_ENERGY
-            ),
+            # Note: The following fields do not exist in any Delta Pro 3 protobuf messages:
+            # - pow_in_sum_energy (Total Input Energy)
+            # - pow_out_sum_energy (Total Output Energy)
+            # - ac_in_energy_total (AC Charge Energy)
+            # - ac_out_energy_total (AC Discharge Energy)
+            # - pv_in_energy_total (Solar In Energy)
+            # - dc_out_energy_total (DC Discharge Energy)
+            # Alternative: Use .with_energy() on power sensors for HA integration sensor
             QuotaStatusSensorEntity(client, self),
         ]
 
@@ -608,14 +608,30 @@ class DeltaPro3(BaseDevice):
                         if len(pdata) >= 4:
                             timestamp = int.from_bytes(pdata[:4], byteorder='little', signed=True)
                             return {
-                                "cmdFunc": cmd_func, 
-                                "cmdId": cmd_id, 
+                                "cmdFunc": cmd_func,
+                                "cmdId": cmd_id,
                                 "report_timestamp": timestamp,
                                 "raw_data_length": len(pdata)
                             }
                     except Exception:
                         pass
                     return {"cmdFunc": cmd_func, "cmdId": cmd_id, "raw_data_length": len(pdata)}
+
+            # BMSHeartBeatReport - Battery heartbeat with cycles and energy data
+            # Note: cmdFunc/cmdId mapping needs verification from actual MQTT logs
+            # Trying multiple potential combinations based on ioBroker implementation
+            elif (cmd_func == 3 and cmd_id in [1, 2, 30, 50]) or \
+                 (cmd_func == 254 and cmd_id in [24, 25, 26, 27, 28, 29, 30]) or \
+                 (cmd_func == 32 and cmd_id in [1, 3, 51, 52]):
+                # BMSHeartBeatReport - contains cycles, input_watts, output_watts, accu_chg_energy, accu_dsg_energy
+                try:
+                    msg = pb2.BMSHeartBeatReport()
+                    msg.ParseFromString(pdata)
+                    _LOGGER.info(f"✅ Successfully decoded BMSHeartBeatReport: cmdFunc={cmd_func}, cmdId={cmd_id}")
+                    return self._protobuf_to_dict(msg)
+                except Exception as e:
+                    _LOGGER.debug(f"Failed to decode as BMSHeartBeatReport (cmdFunc={cmd_func}, cmdId={cmd_id}): {e}")
+                    # Fall through to unknown message type
 
             else:
                 _LOGGER.warning(

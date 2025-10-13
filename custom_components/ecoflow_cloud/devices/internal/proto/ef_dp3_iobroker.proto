@@ -525,3 +525,92 @@ message Send_Header_Msg
 {
     optional Header msg = 1;
 }
+
+// BMS Heartbeat Report - Battery Management System heartbeat data
+// Contains cycles, energy accumulation, and detailed battery status
+// Source: ioBroker.ecoflow-mqtt implementation
+// Note: cmdFunc/cmdId mapping TBD - needs verification from actual MQTT logs
+message BMSHeartBeatReport {
+  optional uint32 num = 1;                      // Battery pack number (0/1/2 for main/slave1/slave2)
+  optional uint32 type = 2;                     // Battery type
+  optional uint32 cell_id = 3;                  // Cell ID
+  optional uint32 err_code = 4;                 // Error code
+  optional uint32 sys_ver = 5;                  // System version
+  optional uint32 soc = 6;                      // State of Charge (%)
+  optional uint32 vol = 7;                      // Voltage (mV)
+  optional int32 amp = 8;                       // Current (mA)
+  optional int32 temp = 9;                      // Temperature (°C)
+  optional uint32 open_bms_flag = 10;           // BMS open flag
+  optional uint32 design_cap = 11;              // Design capacity (mAh)
+  optional uint32 remain_cap = 12;              // Remaining capacity (mAh)
+  optional uint32 full_cap = 13;                // Full capacity (mAh)
+  optional uint32 cycles = 14;                  // ⭐ Cycle count - IMPORTANT for HA
+  optional uint32 soh = 15;                     // State of Health (%)
+  optional uint32 max_cell_vol = 16;            // Max cell voltage (mV)
+  optional uint32 min_cell_vol = 17;            // Min cell voltage (mV)
+  optional int32 max_cell_temp = 18;            // Max cell temperature (°C)
+  optional int32 min_cell_temp = 19;            // Min cell temperature (°C)
+  optional int32 max_mos_temp = 20;             // Max MOS temperature (°C)
+  optional int32 min_mos_temp = 21;             // Min MOS temperature (°C)
+  optional uint32 bms_fault = 22;               // BMS fault code
+  optional uint32 bq_sys_stat_reg = 23;         // BQ system status register
+  optional uint32 tag_chg_amp = 24;             // Target charge current (mA)
+  optional float f32_show_soc = 25;             // Display SOC (float %)
+  optional uint32 input_watts = 26;             // ⭐ Input power (W) - IMPORTANT for HA
+  optional uint32 output_watts = 27;            // ⭐ Output power (W) - IMPORTANT for HA
+  optional uint32 remain_time = 28;             // Remaining time (min)
+  optional uint32 mos_state = 29;               // MOS state
+  optional uint32 balance_state = 30;           // Balance state
+  optional uint32 max_vol_diff = 31;            // Max voltage difference (mV)
+  optional uint32 cell_series_num = 32;         // Number of cells in series
+  repeated uint32 cell_vol = 33;                // Individual cell voltages (mV)
+  optional uint32 cell_ntc_num = 34;            // Number of cell NTC sensors
+  repeated int32 cell_temp = 35;                // Individual cell temperatures (°C)
+  optional string hw_ver = 36;                  // Hardware version
+  optional uint32 bms_heartbeat_ver = 37;       // BMS heartbeat version
+  optional uint32 ecloud_ocv = 38;              // eCloud OCV
+  optional string bms_sn = 39;                  // BMS serial number
+  optional uint32 product_type = 40;            // Product type
+  optional uint32 product_detail = 41;          // Product detail
+  optional float act_soc = 42;                  // Actual SOC (%)
+  optional float diff_soc = 43;                 // Difference SOC (%)
+  optional float target_soc = 44;               // Target SOC (%)
+  optional uint32 sys_loader_ver = 45;          // System loader version
+  optional uint32 sys_state = 46;               // System state
+  optional uint32 chg_dsg_state = 47;           // Charge/discharge state (0:idle, 1:discharge, 2:charge)
+  optional uint32 all_err_code = 48;            // All error codes
+  optional uint32 all_bms_fault = 49;           // All BMS faults
+  optional uint32 accu_chg_cap = 50;            // Accumulated charge capacity (mAh)
+  optional uint32 accu_dsg_cap = 51;            // Accumulated discharge capacity (mAh)
+  optional float real_soh = 52;                 // Real SOH (%)
+  optional float calendar_soh = 53;             // Calendar SOH (%)
+  optional float cycle_soh = 54;                // Cycle SOH (%)
+  optional uint32 mos_ntc_num = 55;             // Number of MOS NTC sensors
+  repeated int32 mos_temp = 56;                 // MOS temperatures (°C)
+  optional uint32 env_ntc_num = 57;             // Number of environment NTC sensors
+  repeated int32 env_temp = 58;                 // Environment temperatures (°C)
+  optional uint32 heatfilm_ntc_num = 59;        // Number of heatfilm NTC sensors
+  repeated int32 heatfilm_temp = 60;            // Heatfilm temperatures (°C)
+  optional uint32 cur_sensor_ntc_num = 61;      // Number of current sensor NTC sensors
+  repeated int32 cur_sensor_temp = 62;          // Current sensor temperatures (°C)
+  optional int32 max_env_temp = 63;             // Max environment temperature (°C)
+  optional int32 min_env_temp = 64;             // Min environment temperature (°C)
+  optional int32 max_heatfilm_temp = 65;        // Max heatfilm temperature (°C)
+  optional int32 min_heatfilm_temp = 66;        // Min heatfilm temperature (°C)
+  optional int32 max_cur_sensor_temp = 67;      // Max current sensor temperature (°C)
+  optional int32 min_cur_sensor_temp = 68;      // Min current sensor temperature (°C)
+  optional uint32 balance_cmd = 69;             // Balance command
+  repeated uint32 remain_balance_time = 70;     // Remaining balance time
+  optional uint32 afe_sys_status = 71;          // AFE system status
+  optional uint32 mcu_pin_in_status = 72;       // MCU pin input status
+  optional uint32 mcu_pin_out_status = 73;      // MCU pin output status
+  optional uint32 bms_alarm_state1 = 74;        // BMS alarm state 1
+  optional uint32 bms_alarm_state2 = 75;        // BMS alarm state 2
+  optional uint32 bms_protect_state1 = 76;      // BMS protect state 1
+  optional uint32 bms_protect_state2 = 77;      // BMS protect state 2
+  optional uint32 bms_fault_state = 78;         // BMS fault state
+  optional uint32 accu_chg_energy = 79;         // ⭐ Accumulated charge energy (Wh, mult 0.001 for kWh) - IMPORTANT for HA
+  optional uint32 accu_dsg_energy = 80;         // ⭐ Accumulated discharge energy (Wh, mult 0.001 for kWh) - IMPORTANT for HA
+  optional string pack_sn = 81;                 // Battery pack serial number
+  optional uint32 water_in_flag = 82;           // Water ingress flag
+}
