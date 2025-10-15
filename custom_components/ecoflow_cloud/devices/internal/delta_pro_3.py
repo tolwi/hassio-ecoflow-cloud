@@ -395,21 +395,25 @@ class DeltaPro3(BaseDevice):
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         """Delta Pro 3専用のデータ準備メソッド.
         Protobufバイナリデータをデコードして辞書形式に変換し、全フィールドをflat化してparamsに100%格納する."""
+        _LOGGER.debug(f"[DeltaPro3] _prepare_data called with {len(raw_data)} bytes")
+
         # Lazy import of Protocol Buffers modules to avoid blocking calls
         try:
             from .proto import ef_dp3_iobroker_pb2 as pb2
         except ImportError as e:
             _LOGGER.error(f"Failed to import ef_dp3_iobroker_pb2: {e}")
-            return {}
-        
+            # Fallback to parent's JSON processing
+            _LOGGER.debug("Falling back to parent JSON processing")
+            return super()._prepare_data(raw_data)
+
         try:
             _LOGGER.debug(f"Processing {len(raw_data)} bytes of raw data")
 
             # 1. HeaderMessageのデコード
             header_info = self._decode_header_message(raw_data)
             if not header_info:
-                _LOGGER.warning("HeaderMessage decoding failed")
-                return {}
+                _LOGGER.warning("HeaderMessage decoding failed, trying JSON fallback")
+                return super()._prepare_data(raw_data)
 
             # 2. ペイロードデータの抽出
             pdata = self._extract_payload_data(header_info.get("header_obj"))
@@ -433,13 +437,20 @@ class DeltaPro3(BaseDevice):
                 _LOGGER.debug(f"flat_dict[{k!r}] = {v!r} (type: {type(v).__name__})")  # noqa: G004
 
             # Home Assistant反映用に必ず'params'キーで返す
+            _LOGGER.debug(f"[DeltaPro3] Successfully processed protobuf data, returning {len(flat_dict)} fields")
             return {  # noqa: TRY300
                 "params": flat_dict,
                 "all_fields": decoded_data,
             }
         except Exception as e:
-            _LOGGER.error(f"Data processing failed: {e}", exc_info=True)
-            return {}
+            _LOGGER.error(f"[DeltaPro3] Data processing failed: {e}", exc_info=True)
+            _LOGGER.debug("[DeltaPro3] Attempting JSON fallback after protobuf failure")
+            # Fallback to parent's JSON processing for compatibility
+            try:
+                return super()._prepare_data(raw_data)
+            except Exception as e2:
+                _LOGGER.error(f"[DeltaPro3] JSON fallback also failed: {e2}")
+                return {}
 
     def _decode_header_message(self, raw_data: bytes) -> dict[str, Any] | None:
         """HeaderMessageをデコードしてヘッダー情報を抽出."""
@@ -546,7 +557,7 @@ class DeltaPro3(BaseDevice):
         cmd_id = header_info.get("cmdId", 0)
 
         try:
-            _LOGGER.debug(f"Decoding message: cmdFunc={cmd_func}, cmdId={cmd_id}")
+            _LOGGER.debug(f"Decoding message: cmdFunc={cmd_func}, cmdId={cmd_id}, size={len(pdata)} bytes")
             
             # Import pb2 module
             from .proto import ef_dp3_iobroker_pb2 as pb2
@@ -558,14 +569,8 @@ class DeltaPro3(BaseDevice):
                 return self._protobuf_to_dict(msg)
 
             elif cmd_func == 32 and cmd_id == 2:
-                # cmdFunc32_cmdId2_Report
+                # cmdFunc32_cmdId2_Report (CMSHeartBeatReport)
                 msg = pb2.cmdFunc32_cmdId2_Report()
-                msg.ParseFromString(pdata)
-                return self._protobuf_to_dict(msg)
-
-            elif cmd_func == 32 and cmd_id == 50:
-                # RuntimePropertyUpload
-                msg = pb2.RuntimePropertyUpload()
                 msg.ParseFromString(pdata)
                 return self._protobuf_to_dict(msg)
 
@@ -618,11 +623,11 @@ class DeltaPro3(BaseDevice):
                     return {"cmdFunc": cmd_func, "cmdId": cmd_id, "raw_data_length": len(pdata)}
 
             # BMSHeartBeatReport - Battery heartbeat with cycles and energy data
-            # Note: cmdFunc/cmdId mapping needs verification from actual MQTT logs
-            # Trying multiple potential combinations based on ioBroker implementation
+            # Verified from ioBroker implementation: cmdFunc=32, cmdId=50
+            # Reference: https://github.com/foxthefox/ioBroker.ecoflow-mqtt/blob/main/lib/dict_data/ef_deltapro3_data.js#L4958
             elif (cmd_func == 3 and cmd_id in [1, 2, 30, 50]) or \
                  (cmd_func == 254 and cmd_id in [24, 25, 26, 27, 28, 29, 30]) or \
-                 (cmd_func == 32 and cmd_id in [1, 3, 51, 52]):
+                 (cmd_func == 32 and cmd_id in [1, 3, 50, 51, 52]):
                 # BMSHeartBeatReport - contains cycles, input_watts, output_watts, accu_chg_energy, accu_dsg_energy
                 try:
                     msg = pb2.BMSHeartBeatReport()
@@ -633,11 +638,27 @@ class DeltaPro3(BaseDevice):
                     _LOGGER.debug(f"Failed to decode as BMSHeartBeatReport (cmdFunc={cmd_func}, cmdId={cmd_id}): {e}")
                     # Fall through to unknown message type
 
-            else:
-                _LOGGER.warning(
-                    f"Unknown message type: cmdFunc={cmd_func}, cmdId={cmd_id}"
-                )
-                return {}
+            # Unknown message type - try BMSHeartBeatReport as fallback
+            _LOGGER.warning(
+                f"Unknown message type: cmdFunc={cmd_func}, cmdId={cmd_id}, size={len(pdata)} bytes"
+            )
+
+            # Try to decode as BMSHeartBeatReport since that's what we're looking for
+            try:
+                msg = pb2.BMSHeartBeatReport()
+                msg.ParseFromString(pdata)
+                result = self._protobuf_to_dict(msg)
+                # Check if we got meaningful data (cycles or energy fields)
+                if 'cycles' in result or 'accu_chg_energy' in result or 'accu_dsg_energy' in result:
+                    _LOGGER.warning(
+                        f"🎯 FOUND BMSHeartBeatReport at unexpected cmdFunc={cmd_func}, cmdId={cmd_id}! "
+                        f"Please update _decode_message_by_type with this mapping."
+                    )
+                    return result
+            except Exception as e:
+                _LOGGER.debug(f"Failed fallback BMSHeartBeatReport decode: {e}")
+
+            return {}
 
         except Exception as e:
             _LOGGER.error(
