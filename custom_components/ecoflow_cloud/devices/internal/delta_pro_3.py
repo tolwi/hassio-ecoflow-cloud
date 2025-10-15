@@ -170,13 +170,14 @@ class DeltaPro3(BaseDevice):
                 client, self, "cms_min_dsg_soc", "Min Discharge SOC Setting"
             ),
             # Energy sensors from BMSHeartBeatReport
-            # Note: accu_chg_energy and accu_dsg_energy are in Wh, multiply by 0.001 for kWh display
+            # Note: accuChgEnergy and accuDsgEnergy are in Wh, multiply by 0.001 for kWh display
             # These fields do not exist in DisplayPropertyUpload - they come from BMSHeartBeatReport
+            # Using camelCase to match upstream pattern (see stream_ac.py)
             InEnergySensorEntity(
-                client, self, "accu_chg_energy", "Total Charge Energy"
+                client, self, "accuChgEnergy", "Total Charge Energy"
             ),
             OutEnergySensorEntity(
-                client, self, "accu_dsg_energy", "Total Discharge Energy"
+                client, self, "accuDsgEnergy", "Total Discharge Energy"
             ),
             # Note: The following fields do not exist in any Delta Pro 3 protobuf messages:
             # - pow_in_sum_energy (Total Input Energy)
