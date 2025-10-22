@@ -38,29 +38,26 @@ class EnabledEntity(BaseSwitchEntity[int]):
         enabled: bool = True,
         auto_enable: bool = False,
         enableValue: Any = None,
+        disableValue: Any = None,
     ):
         super().__init__(client, device, mqtt_key, title, command, enabled, auto_enable)
         self._enable_value = enableValue
+        self._disable_value = disableValue
 
     def _update_value(self, val: Any) -> bool:
         _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
-        if self._enable_value is not None:
-            if self._enable_value == val:
-                self._attr_is_on = True
-            else:
-                self._attr_is_on = False
-        else:
-            self._attr_is_on = bool(val)
+        self._attr_is_on = self._enable_value == val if self._enable_value is not None else bool(val)
         return True
 
     def turn_on(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_set_message(1, self.command_dict(1))
+            value = self._enable_value if self._enable_value is not None else 1
+            self.send_set_message(value, self.command_dict(value))
 
     def turn_off(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_set_message(0, self.command_dict(0))
-
+            value = self._disable_value if self._disable_value is not None else 0
+            self.send_set_message(value, self.command_dict(value))
 
 class BitMaskEnableEntity(EnabledEntity):
     """
@@ -151,21 +148,6 @@ class BitMaskEnableEntity(EnabledEntity):
             self.send_set_message(0, self.command_dict((self.switchNumber - 1)))
 
 
-class DisabledEntity(BaseSwitchEntity[int]):
-    def _update_value(self, val: Any) -> bool:
-        _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
-        self._attr_is_on = not bool(val)
-        return True
-
-    async def async_turn_on(self, **kwargs: Any) -> None:
-        if self._command:
-            self.send_set_message(0, self.command_dict(0))
-
-    async def async_turn_off(self, **kwargs: Any) -> None:
-        if self._command:
-            self.send_set_message(1, self.command_dict(1))
-
-
 class FanModeEntity(BaseSwitchEntity[int]):  # for River Max
     def _update_value(self, val: Any) -> bool:
         _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
@@ -181,8 +163,25 @@ class FanModeEntity(BaseSwitchEntity[int]):  # for River Max
             self.send_set_message(3, self.command_dict(3))
 
 
-class BeeperEntity(DisabledEntity):
+class BeeperEntity(EnabledEntity):
     _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        mqtt_key: str,
+        title: str,
+        command: Callable[[int], dict[str, Any] | Message]
+        | Callable[[int, dict[str, Any]], dict[str, Any] | Message]
+        | None,
+        enabled: bool = True,
+        auto_enable: bool = False,
+        # Inverted logic for beeper
+        enableValue: Any = 0,
+        disableValue: Any = 1,
+    ):
+        super().__init__(client, device, mqtt_key, title, command, enabled, auto_enable, enableValue, disableValue)
 
     @property
     def icon(self) -> str | None:

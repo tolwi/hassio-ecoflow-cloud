@@ -63,6 +63,33 @@ class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
             .replace("]", "-")
         )
 
+    def with_category(self, category: EntityCategory) -> EcoFlowAbstractEntity:
+        self._attr_entity_category = category
+        return self
+
+    def with_device_class(
+        self, device_class: str
+    ) -> EcoFlowAbstractEntity:
+        self._attr_device_class = device_class
+        return self
+
+    def with_icon(
+        self, icon: str
+    ) -> EcoFlowAbstractEntity:
+        self._attr_icon = icon
+        return self
+
+    def with_state_class(
+        self, state_class: str
+    ) -> EcoFlowAbstractEntity:
+        self._attr_state_class = state_class
+        return self
+
+    def with_unit_of_measurement(
+        self, unit: str
+    ) -> EcoFlowAbstractEntity:
+        self._attr_native_unit_of_measurement = unit
+        return self
 
 class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def __init__(
@@ -79,6 +106,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self.__mqtt_key = mqtt_key
         self._mqtt_key_adopted = self._adopt_json_key(mqtt_key)
         self._mqtt_key_expr = jp.parse(self._mqtt_key_adopted)
+        self._multiple_value_sum = False
 
         self._auto_enable = auto_enable
         self._attr_entity_registry_enabled_default = enabled
@@ -126,16 +154,25 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
             attr_values = key_expr.find(data)
             if len(attr_values) == 1:
                 self.__attrs[title] = attr_values[0].value
+            elif len(attr_values) > 1 and self._multiple_value_sum:
+                total = attr_values[0].value
+                for v in attr_values[1:]:
+                    total += v.value
+                self.__attrs[title] = total
 
         # update value
         values = self._mqtt_key_expr.find(data)
-        if len(values) == 1:
+        if len(values) == 1 or (len(values) > 1 and self._multiple_value_sum):
             self._attr_available = True
             if self._auto_enable:
                 self._attr_entity_registry_enabled_default = True
                 self._attr_entity_registry_visible_default = True
 
-            if self._update_value(values[0].value):
+            total = values[0].value
+            if len(values) > 1 and self._multiple_value_sum:
+                for v in values[1:]:
+                    total += v.value
+            if self._update_value(total):
                 self.schedule_update_ha_state()
 
     @property
@@ -145,6 +182,14 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def _update_value(self, val: Any) -> bool:
         return False
 
+    # This allows summing the multiple values found by a jsonpath expression that returns multiple matches
+    # Specifically useful for multiple circuits being combined into a single entity in the Smart Home Panels
+    def with_multiple_value_sum(self) -> EcoFlowDictEntity:
+        self._multiple_value_sum = True
+        return self
+
+    def multiple_value_sum_enabled(self) -> bool:
+        return self._multiple_value_sum
 
 class EcoFlowBaseCommandEntity[_CommandArg](EcoFlowDictEntity):
     def __init__(

@@ -230,6 +230,14 @@ DC_TIMEOUT = "DC (12V) Timeout"
 DC_CHARGE_CURRENT = "DC (12V) Charge Current"
 GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
+GEN_BAT_CHARGING_POWER = "Generator Battery Charging Power"
+GEN_MAX_OUTPUT_POWER = "Generator Max Output Power"
+GEN_TYPE = "Generator Type"
+GEN_TYPE_OPTIONS = {
+    "Not Set": 0,
+    "Single-Phase (120V)": 1,
+    "Split-Phase (240V)": 2,
+}
 
 POWER = "Power"
 ENERGY = "Energy"
@@ -380,27 +388,16 @@ AC_IN_CURRENT = "AC In Current"
 
 EPS_MODE = "EPS Mode"
 STORM_GUARD = "Storm Guard"
-
-BREAKER_N_POWER = "Breaker %i Power"                                              
-BREAKER_N_CURRENT = "Breaker %i Current"                                          
-
-BATTERY_STATUS = "Battery Status"
-
-BATTERY_STATUS_OPTIONS = {
-    "No operation": 0,
-    "Enabled": 1,
-    "Disabled": 2
-}
+IN_STORM_MODE = "In Storm Mode"
+POWER_GRID = "Power Grid"
+POWER_GRID_VOLTAGE = "Power Grid Voltage"
+BATTERY = "Battery"
 
 BATTERY_N_POWER = "Battery %i Power"
 BATTERY_N_LEVEL = "Battery %i Level"
 BATTERY_N_FORCE_CHARGE = "Battery %i Force Charge"
 
-BATTERY_FORCE_CHARGE_OPTIONS =  {
-    "Off": "FORCE_CHARGE_OFF",
-    "On": "FORCE_CHARGE_ON"
-}
-
+RELAY_N_OPERATION_COUNT = "Relay %i Operation Count"
 SMART_BACKUP_MODE = "Operating Mode"
 
 SMART_BACKUP_MODE_OPTIONS = {

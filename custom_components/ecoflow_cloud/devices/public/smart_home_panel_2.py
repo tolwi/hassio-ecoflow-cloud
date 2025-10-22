@@ -1,3 +1,9 @@
+import logging
+
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import UnitOfPower
+
 from custom_components.ecoflow_cloud.select import DictSelectEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
@@ -8,42 +14,58 @@ from ...entities import (
     BaseSensorEntity,
     BaseSwitchEntity,
 )
-from ...number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
+from ...number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity, ValueUpdateEntity
 from ...sensor import (
+    CyclesSensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
+    MiscBinarySensorEntity,
     OutWattsSensorEntity,
+    QuotaScheduledStatusSensorEntity,
     RemainSensorEntity,
+    VoltSensorEntity,
     WattsSensorEntity,
 )
 from .. import BaseDevice, const
 
+_LOGGER = logging.getLogger(__name__)
+
 class SmartHomePanel2(BaseDevice):
 
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
+
+        # Find all split-phase circuits
+        circuits = []
+        for x in range(1,13):
+            name: str = self.data.params[f"pd303_mc.loadIncreInfo.hall1IncreInfo.ch{x}Info.chName"]
+            is_split: bool = self.data.params[f'pd303_mc.loadIncreInfo.hall1IncreInfo.ch{x}Info.splitphase.linkMark']
+            split_reference: int = self.data.params[f'pd303_mc.loadIncreInfo.hall1IncreInfo.ch{x}Info.splitphase.linkCh']
+
+            if is_split:
+                if x < split_reference: # The first of the split pair
+                    # Add our combined split circuit
+                    circuits.append(self._sensorsCircuit(client, x, name, True, True))
+                else: # The second of the split pair
+                    name = self.data.params[f"pd303_mc.loadIncreInfo.hall1IncreInfo.ch{split_reference}Info.chName"]
+                name = f'{name} (circuit {x})'
+            # Add normal circuits and the individual split circuits. We don't auto_enable individual split circuits
+            circuits.append(self._sensorsCircuit(client, x, name, False, not is_split))
         return [
+            QuotaScheduledStatusSensorEntity(client, self, 60), # Refresh Quota All every 60 seconds so settings changed in app are reflected here
             InWattsSensorEntity(client, self, "'wattInfo.gridWatt'", const.AC_IN_POWER).with_energy(),
             OutWattsSensorEntity(client, self, "'wattInfo.allHallWatt'", const.AC_OUT_POWER).with_energy(),
             LevelSensorEntity(client, self, "'backupIncreInfo.backupBatPer'", const.COMBINED_BATTERY_LEVEL),
             RemainSensorEntity(client, self, "'backupInfo.backupDischargeTime'", const.DISCHARGE_REMAINING_TIME),
-            self._sensorsSwitch(client, 0),
-            self._sensorsSwitch(client, 1),
-            self._sensorsSwitch(client, 2),
-            self._sensorsSwitch(client, 3),
-            self._sensorsSwitch(client, 4),
-            self._sensorsSwitch(client, 5),
-            self._sensorsSwitch(client, 6),
-            self._sensorsSwitch(client, 7),
-            self._sensorsSwitch(client, 8),
-            self._sensorsSwitch(client, 9),
-            self._sensorsSwitch(client, 10),
-            self._sensorsSwitch(client, 11),
-            self._sensorsBattery(client, 1),
-            self._sensorsBattery(client, 2),
-            self._sensorsBattery(client, 3),
-            self._sensorsBatteryPower(client, 0),
-            self._sensorsBatteryPower(client, 1),
-            self._sensorsBatteryPower(client, 2),
+            MiscBinarySensorEntity(client, self, "'pd303_mc.masterIncreInfo.gridSta'", const.POWER_GRID)
+                .with_icon("mdi:transmission-tower-off"),
+            VoltSensorEntity(client, self, "'pd303_mc.masterIncreInfo.gridVol'", const.POWER_GRID_VOLTAGE, False),
+            MiscBinarySensorEntity(client, self, "'pd303_mc.inStormMode'", const.IN_STORM_MODE)
+                .with_icon("mdi:flash-alert"),
+            *[CyclesSensorEntity(client, self, f"'pd303_mc.masterIncreInfo.masterRly{x}Cnt'", const.RELAY_N_OPERATION_COUNT % x, False)
+                .with_icon('mdi:cog-clockwise') for x in range(1,5)],
+            *[self._sensorsBattery(client, x, self.data.params[f'pd303_mc.backupIncreInfo.ch{x}Info.backupIsReady']) for x in range(1,4)],
+            *[self._sensorsBatteryPower(client, x, self.data.params[f'pd303_mc.backupIncreInfo.ch{x}Info.backupIsReady']) for x in range(1,4)],
+            *circuits,
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
@@ -86,10 +108,49 @@ class SmartHomePanel2(BaseDevice):
                     "cmdCode": "PD303_APP_SET",
                     "params": {"foceChargeHight": value}
                 },
+            ),
+            ChargingPowerEntity(
+                client,
+                self,
+                "'pd303_mc.oilEngineWatt'",
+                const.GEN_BAT_CHARGING_POWER,
+                500,
+                3000,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "PD303_APP_SET",
+                    "params": {"oilEngineWatt": value}
+                },
+            ).with_icon("mdi:generator-mobile"),
+            ValueUpdateEntity(
+                client,
+                self,
+                "'oilMaxOutputWatt'",
+                const.GEN_MAX_OUTPUT_POWER,
+                3000,
+                12000,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "PD303_APP_SET",
+                    "params": {"oilMaxOutputWatt": value}
+                },
             )
+            .with_device_class(SensorDeviceClass.POWER)
+            .with_unit_of_measurement(UnitOfPower.WATT)
+            .with_icon("mdi:generator-mobile"),
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+       # Find all split-phase circuits
+        circuits = []
+        for x in range(1,13):
+            name: str = self.data.params[f"pd303_mc.loadIncreInfo.hall1IncreInfo.ch{x}Info.chName"]
+            is_split: bool = self.data.params[f'pd303_mc.loadIncreInfo.hall1IncreInfo.ch{x}Info.splitphase.linkMark']
+            split_reference: int = self.data.params[f'pd303_mc.loadIncreInfo.hall1IncreInfo.ch{x}Info.splitphase.linkCh']
+
+            if not is_split or x < split_reference:
+                circuits.append(self._switchesCircuits(client, x, name, is_split))
+
         return [
             EnabledEntity(
                 client,
@@ -99,9 +160,12 @@ class SmartHomePanel2(BaseDevice):
                 lambda value: {
                     "sn": self.device_info.sn,
                     "cmdCode": "PD303_APP_SET",
-                    "params": {"epsModeInfo": value == 1}
+                    "params": {
+                        "epsModeInfo": value == 1,
+                        "smartBackupMode": 0 # Disable Smart Backup Mode when enabling EPS Mode
+                    }
                 },
-            ),
+            ).with_category(EntityCategory.CONFIG).with_icon("mdi:power-plug-battery"),
             EnabledEntity(
                 client,
                 self,
@@ -112,17 +176,22 @@ class SmartHomePanel2(BaseDevice):
                     "cmdCode": "PD303_APP_SET",
                     "params": {"stormIsEnable": value == 1}
                 },
-            ),
+            )
+            .with_category(EntityCategory.CONFIG)
+            .with_icon("mdi:weather-lightning"),
+            *[self._switchesBatteryEnabled(client,
+                                               x,
+                                               self.data.params[f'pd303_mc.backupIncreInfo.ch{x}Info.backupIsReady']
+                                               ) for x in range(1,4)],
+            *[self._switchesBatteryForceCharge(client,
+                                               x,
+                                               self.data.params[f'pd303_mc.backupIncreInfo.ch{x}Info.backupIsReady']
+                                               ) for x in range(1,4)],
+            *circuits,
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return [
-            self._selectsBatteryStatus(client, 1),
-            self._selectsBatteryStatus(client, 2),
-            self._selectsBatteryStatus(client, 3),
-            self._selectsBatteryForceCharge(client, 1),
-            self._selectsBatteryForceCharge(client, 2),
-            self._selectsBatteryForceCharge(client, 3),
             DictSelectEntity(
                 client,
                 self,
@@ -134,45 +203,106 @@ class SmartHomePanel2(BaseDevice):
                     "cmdCode": "PD303_APP_SET",
                     "params": {"smartBackupMode": value}
                 },
-            )
+            ),
+            DictSelectEntity(
+                client,
+                self,
+                "'pd303_mc.oilType'",
+                const.GEN_TYPE,
+                const.GEN_TYPE_OPTIONS,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdCode": "PD303_APP_SET",
+                    "params": {"oilType": value}
+                },
+            ).with_icon("mdi:generator-mobile"),
         ]
 
-    def _selectsBatteryStatus(self, client: EcoflowApiClient, index: int) -> BaseSelectEntity:
-        return DictSelectEntity(
+    def _switchesBatteryEnabled(self, client: EcoflowApiClient, index: int, enabled: bool) -> BaseSelectEntity:
+        return EnabledEntity(
             client,
             self,
             f"'ch{index}EnableSet'",
-            f"{const.BATTERY_STATUS} {index}",
-            const.BATTERY_STATUS_OPTIONS,
+            f"{const.BATTERY} {index}",
             lambda value: {
                 "sn": self.device_info.sn,
                 "cmdCode": "PD303_APP_SET",
                 "params": {f"ch{index}EnableSet": value}
             },
-        )
+            enabled,
+            False,
+            1,
+            2
+        ).with_category(EntityCategory.CONFIG).with_icon("mdi:battery-off")
 
-    def _selectsBatteryForceCharge(self, client: EcoflowApiClient, index: int) -> BaseSelectEntity:
-        return DictSelectEntity(
+    def _switchesBatteryForceCharge(self, client: EcoflowApiClient, index: int, enable: bool) -> BaseSwitchEntity:
+        return EnabledEntity(
             client,
             self,
-            f"'ch{index}ForceCharge'",
-            const.BATTERY_N_FORCE_CHARGE % index,
-            const.BATTERY_FORCE_CHARGE_OPTIONS,
+            f"ch{index}ForceCharge",
+            f"{const.BATTERY_N_FORCE_CHARGE % index}",
             lambda value: {
                 "sn": self.device_info.sn,
                 "cmdCode": "PD303_APP_SET",
                 "params": {f"ch{index}ForceCharge": value}
             },
+            enable,
+            True,
+            'FORCE_CHARGE_ON',
+            'FORCE_CHARGE_OFF',
+        ).with_category(EntityCategory.CONFIG).with_icon("mdi:battery-charging")
+
+    def _switchesCircuits(self, client: EcoflowApiClient, index: int, name: str, split: bool) -> BaseSwitchEntity:
+        def command_lambda(value):
+            hall_info = {
+                f"ch{index}Sta": {
+                    "loadSta": value
+                }
+            }
+            if split:
+                hall_info[f"ch{index+2}Sta"] = {
+                    "loadSta": value
+                }
+            return {
+                "sn": self.device_info.sn,
+                "cmdCode": "PD303_APP_SET",
+                "params": {
+                    "loadIncreInfo": {
+                        "hall1IncreInfo": hall_info
+                    }
+                }
+            }
+
+        return EnabledEntity(
+            client,
+            self,
+            f"'pd303_mc.loadIncreInfo.hall1IncreInfo.ch{index}Sta.loadSta'",
+            name,
+            command_lambda,
+            True,
+            True,
+            'LOAD_CH_POWER_ON',
+            'LOAD_CH_POWER_OFF',
         )
 
-    def _sensorsSwitch(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
-        return OutWattsSensorEntity(client, self, f"'loadInfo.hall1Watt'[{index}]", const.BREAKER_N_POWER % (index + 1)).with_energy()
+    def _sensorsCircuit(self, client: EcoflowApiClient, index: int, name: str, is_linked_split: bool, enabled: bool) -> BaseSensorEntity:
+        # NOTE: jsonpath-ng does not support an array index list (ex. 'loadInfo.hall1Watt'[0,2]),
+        #       but we CAN use a slice (ex. [0:3:2]) because the split circuits are always 2 apart
+        circuit = OutWattsSensorEntity(
+            client,
+            self,
+            f"'loadInfo.hall1Watt'[{index-1}:{index+2}:2]" if is_linked_split else f"'loadInfo.hall1Watt'[{index-1}]",
+            f'{name} {const.POWER}',
+            enabled,
+            False,
+        ).with_energy().with_category(EntityCategory.DIAGNOSTIC)
+        return circuit.with_multiple_value_sum() if is_linked_split else circuit
 
-    def _sensorsBattery(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
-        return LevelSensorEntity(client, self, f"'backupIncreInfo.Energy{index}Info.batteryPercentage'", const.BATTERY_N_LEVEL % index)
+    def _sensorsBattery(self, client: EcoflowApiClient, index: int, enabled: bool) -> BaseSensorEntity:
+        return LevelSensorEntity(client, self, f"'backupIncreInfo.Energy{index}Info.batteryPercentage'", const.BATTERY_N_LEVEL % index, enabled)
 
-    def _sensorsBatteryPower(self, client: EcoflowApiClient, index: int) -> BaseSensorEntity:
-        return WattsSensorEntity(client, self, f"'wattInfo.chWatt'[{index}]", const.BATTERY_N_POWER % (index + 1))
+    def _sensorsBatteryPower(self, client: EcoflowApiClient, index: int, enabled: bool) -> BaseSensorEntity:
+        return WattsSensorEntity(client, self, f"'wattInfo.chWatt'[{index-1}]", const.BATTERY_N_POWER % index, enabled).with_energy(False)
 
     def flat_json(self):
         return False
