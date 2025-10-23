@@ -201,7 +201,10 @@ class SmartHomePanel2(BaseDevice):
                 lambda value: {
                     "sn": self.device_info.sn,
                     "cmdCode": "PD303_APP_SET",
-                    "params": {"smartBackupMode": value}
+                    "params": {
+                        "smartBackupMode": value,
+                        "epsModeInfo": False # Disable EPS Mode when enabling Smart Backup Mode
+                    }
                 },
             ),
             DictSelectEntity(
