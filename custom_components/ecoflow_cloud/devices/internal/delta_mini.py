@@ -109,7 +109,7 @@ class DeltaMini(BaseDevice):
 
     def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
         return [
-            BeeperEntity(client, self, "mppt.beepState", const.BEEPER,
+            BeeperEntity(client, self, "pd.beepState", const.BEEPER,
                          lambda value: {"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enabled": value}}),
             EnabledEntity(client, self, "mppt.carState", const.DC_ENABLED,
                           lambda value: {"moduleType": 0, "operateType": "TCP",
