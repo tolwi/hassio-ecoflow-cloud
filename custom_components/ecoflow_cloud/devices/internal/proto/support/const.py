@@ -9,6 +9,7 @@ from .. import platform_pb2 as platform
 # https://github.com/tomvd/local-powerstream/issues/4#issuecomment-2781354316
 class AddressId(enum.Enum):
     IOT = 1
+    IOT2 = 2
     APP = 32
     MQTT = 53
 
@@ -21,6 +22,7 @@ class CommandFunc(enum.IntEnum):
     DEFAULT = 0
     SMART_PLUG = 2
     POWERSTREAM = 20
+    SMART_METER = 254
     PLATFORM = platform.PlCmdSets.PL_EXT_CMD_SETS
 
 
@@ -56,6 +58,9 @@ class Command(enum.Enum):
         func=CommandFunc.POWERSTREAM, id=143
     )
 
+    PRIVATE_API_SMART_METER_DISPLAY_PROPERTY_UPLOAD = CommandFuncAndId(func=CommandFunc.SMART_METER, id=21)
+    PRIVATE_API_SMART_METER_RUNTIME_PROPERTY_UPLOAD = CommandFuncAndId(func=CommandFunc.SMART_METER, id=22)
+
     PRIVATE_API_PLATFORM_WATTH = CommandFuncAndId(
         func=CommandFunc.PLATFORM, id=platform.PlCmdId.PL_CMD_ID_WATTH
     )
@@ -75,6 +80,7 @@ _expected_payload_types = dict[Command, type[ProtoMessageRaw]]()
 
 def get_expected_payload_type(cmd: Command) -> type[ProtoMessageRaw]:
     from .. import powerstream_pb2 as powerstream
+    from ..ecoflow import dev_apl_comm
 
     global _expected_payload_types
     if not _expected_payload_types:
@@ -90,6 +96,8 @@ def get_expected_payload_type(cmd: Command) -> type[ProtoMessageRaw]:
                     Command.WN511_SET_BRIGHTNESS_PACK: powerstream.BrightnessPack,
                     Command.PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT: powerstream.PrivateAPIGenericSetValue,
                     Command.PRIVATE_API_PLATFORM_WATTH: platform.BatchEnergyTotalReport,
+                    Command.PRIVATE_API_SMART_METER_DISPLAY_PROPERTY_UPLOAD: dev_apl_comm.DisplayPropertyUpload,
+                    Command.PRIVATE_API_SMART_METER_RUNTIME_PROPERTY_UPLOAD: dev_apl_comm.RuntimePropertyUpload
                 },
             )
         )

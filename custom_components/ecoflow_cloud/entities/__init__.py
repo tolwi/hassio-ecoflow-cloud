@@ -100,6 +100,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         title: str,
         enabled: bool = True,
         auto_enable: bool = False,
+        diagnostic: bool = None
     ):
         super().__init__(client, device, title, mqtt_key)
 
@@ -114,6 +115,8 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self._attr_available = enabled
         self.__attributes_mapping: dict[str, str] = {}
         self.__attrs = OrderedDict[str, Any]()
+        if diagnostic != None:
+            self._attr_entity_category = EntityCategory.DIAGNOSTIC if diagnostic else None
 
     def attr(self, mqtt_key: str, title: str, default: Any) -> EcoFlowDictEntity:
         self.__attributes_mapping[mqtt_key] = title
