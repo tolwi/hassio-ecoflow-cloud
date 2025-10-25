@@ -262,9 +262,11 @@ class WattsSensorEntity(BaseSensorEntity):
     ):
         super().__init__(client, device, mqtt_key, title, enabled, auto_enable)
         self._energy_enabled = False
+        self._energy_enabled_default = True
 
-    def with_energy(self):
+    def with_energy(self, enabled_default: bool = True):
         self._energy_enabled = True
+        self._energy_enabled_default = enabled_default
         return self
 
     def energy_enabled(self):
@@ -273,7 +275,7 @@ class WattsSensorEntity(BaseSensorEntity):
     def energy_sensor(self):
         if not self._energy_enabled:
             return None
-        return IntegralEnergySensorEntity(self)
+        return IntegralEnergySensorEntity(self, self._energy_enabled_default)
 
 
 class EnergySensorEntity(BaseSensorEntity):
@@ -618,11 +620,12 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
 
 class IntegralEnergySensorEntity(IntegrationSensor):
     _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_entity_registry_visible_default = False
 
-    def __init__(self, base: WattsSensorEntity):
+    def __init__(self, base: WattsSensorEntity, enabled_default: bool = True):
         super().__init__(
             base.coordinator.hass,
             integration_method="left",
@@ -635,3 +638,4 @@ class IntegralEnergySensorEntity(IntegrationSensor):
             max_sub_interval=timedelta(seconds=60),
         )
         self.device_info = base.device_info
+        self._attr_entity_registry_enabled_default = enabled_default and base.enabled_default
