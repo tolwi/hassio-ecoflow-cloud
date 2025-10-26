@@ -14,7 +14,7 @@ class PrivateAPIProtoDeviceMixin(object):
             and "cmdId" in message
         ):
             command_desc = CommandFuncAndId(
-                func=message.cmd_func, id=message.cmd_id
+                func=message["cmd_func"], id=message["cmd_id"]
             )
 
             try:

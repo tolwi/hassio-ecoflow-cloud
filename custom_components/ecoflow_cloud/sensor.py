@@ -252,7 +252,6 @@ class DeciampSensorEntity(BaseSensorEntity):
 
 
 class WattsSensorEntity(BaseSensorEntity):
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_device_class = SensorDeviceClass.POWER
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
@@ -262,7 +261,7 @@ class WattsSensorEntity(BaseSensorEntity):
     def __init__(
         self, client, device, mqtt_key, title, enabled=True, auto_enable=False, diagnostic=None
     ):
-        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic)
+        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic if diagnostic is not None else EntityCategory.DIAGNOSTIC)
         self._energy_enabled = False
         self._energy_enabled_default = True
 

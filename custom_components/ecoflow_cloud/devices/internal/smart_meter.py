@@ -124,7 +124,6 @@ class SmartMeter(BaseDevice):
             raw = self._prepare_data_status_topic(raw_data)
             self.data.update_status(raw)
         else:
-            _LOGGER.info(f"unknown data_type (topic) {data_type}")
             return False
         return True
 
@@ -188,8 +187,7 @@ class SmartMeter(BaseDevice):
                             ).items()
                         )
                     except Exception as e:
-                        # pass
-                        print(f"Failed to parse message (func {command.func}, id {command.id}, payload {message.pdata.hex()})")
+                        pass
                         
                 # Add cmd information to allow extraction in private_api_extract_quota_message
                 res["cmdFunc"] = command_desc.func
