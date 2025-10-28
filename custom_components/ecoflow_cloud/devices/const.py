@@ -115,6 +115,16 @@ POWER_SUPPLY_PRIORITY_OPTIONS = {
     "Prioritize power storage": 1
 }
 
+UTC_TIMEZONE = "Timezone"
+UTC_TIMEZONE_ID = "Timezone name"
+
+COUNTRY_CODE = "Country code"
+TOWN_CODE = "Town code"
+SYSTEM_GROUP_ID = "System group id"
+
+FACTORY_MODE = "Factory mode enabled"
+DEBUG_MODE = "Debug mode enabled"
+
 COMBINED_BATTERY_LEVEL = "Battery Level"
 COMBINED_BATTERY_LEVEL_F32 = "Battery Level (Precise)"
 BATTERY_CHARGING_STATE = "Battery Charging State"
@@ -301,13 +311,18 @@ SMART_METER_VOLT_L3 = "Power Grid (L3) Volts"
 SMART_METER_FLAG_L1 = "Flag L1"
 SMART_METER_FLAG_L2 = "Flag L2"
 SMART_METER_FLAG_L3 = "Flag L3"
+SMART_METER_RECORD_TODAY_ACTIVE_L1 = "L1 Lifetime net usage"
+SMART_METER_RECORD_TODAY_ACTIVE_L2 = "L2 Lifetime net usage"
+SMART_METER_RECORD_TODAY_ACTIVE_L3 = "L3 Lifetime net usage"
+SMART_METER_RECORD_ENERGY_L1_DAILY = "L1 net energy daily"
+SMART_METER_RECORD_ENERGY_L2_DAILY = "L2 net energy daily"
+SMART_METER_RECORD_ENERGY_L3_DAILY = "L3 net energy daily"
 SMART_METER_RECORD_ACTIVE_TODAY = "Lifetime consumption"
-SMART_METER_RECORD_ACTIVE_TOTAL = "Lifetime net usage"
-SMART_METER_RECORD_REACTIVE_TODAY = "Lifetime injection (2)"
-SMART_METER_RECORD_REACTIVE_TOTAL = "Lifetime injection"
-SMART_METER_RECORD_ACTIVE_TODAY_L1 = "L1 Lifetime net usage"
-SMART_METER_RECORD_ACTIVE_TODAY_L2 = "L2 Lifetime net usage"
-SMART_METER_RECORD_ACTIVE_TODAY_L3 = "L3 Lifetime net usage"
+SMART_METER_RECORD_LIFETIME_ENERGY_CONSUMPTION = "Lifetime consumption"
+SMART_METER_RECORD_LIFETIME_ENERGY_DELIVERY = "Lifetime delivery"
+SMART_METER_RECORD_NET_ENERGY_CONSUMPTION = "Net energy consumption"
+SMART_METER_GRID_CONNECTION_POWER_FACTOR = "Grid connection power factor"
+SMART_METER_GRID_CONNECTION_STATE = "Grid connection state"
 
 # Stream AC
 STREAM_POWER_AC = "Power AC" # <0 import from home to battery / >0 export from battery to home

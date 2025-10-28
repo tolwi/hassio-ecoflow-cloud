@@ -4,18 +4,18 @@ import struct
 from datetime import timedelta
 from typing import Any, Mapping, OrderedDict, override
 
-from homeassistant.components.binary_sensor import (
+from homeassistant.components.binary_sensor import ( # pyright: ignore[reportMissingImports]
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
-from homeassistant.components.sensor import (
+from homeassistant.components.sensor import ( # pyright: ignore[reportMissingImports]
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.components.integration.sensor import IntegrationSensor
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
+from homeassistant.components.integration.sensor import IntegrationSensor # pyright: ignore[reportMissingImports]
+from homeassistant.config_entries import ConfigEntry # pyright: ignore[reportMissingImports]
+from homeassistant.const import ( # pyright: ignore[reportMissingImports]
     PERCENTAGE,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
@@ -25,10 +25,10 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfTime,
 )
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import EntityCategory
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util import dt
+from homeassistant.core import HomeAssistant # pyright: ignore[reportMissingImports]
+from homeassistant.helpers.entity import EntityCategory # pyright: ignore[reportMissingImports]
+from homeassistant.helpers.entity_platform import AddEntitiesCallback # pyright: ignore[reportMissingImports]
+from homeassistant.util import dt # pyright: ignore[reportMissingImports]
 
 from . import (
     ATTR_MQTT_CONNECTED,
@@ -166,6 +166,7 @@ class VoltSensorEntity(BaseSensorEntity):
     _attr_native_unit_of_measurement = UnitOfElectricPotential.VOLT
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
+    _attr_suggested_display_precision = 1
 
 
 class MilliVoltSensorEntity(BaseSensorEntity):
@@ -251,16 +252,16 @@ class DeciampSensorEntity(BaseSensorEntity):
 
 
 class WattsSensorEntity(BaseSensorEntity):
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_device_class = SensorDeviceClass.POWER
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_value = 0
+    _attr_suggested_display_precision = 0
 
     def __init__(
-        self, client, device, mqtt_key, title, enabled=True, auto_enable=False
+        self, client, device, mqtt_key, title, enabled=True, auto_enable=False, diagnostic=None
     ):
-        super().__init__(client, device, mqtt_key, title, enabled, auto_enable)
+        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic if diagnostic is not None else EntityCategory.DIAGNOSTIC)
         self._energy_enabled = False
         self._energy_enabled_default = True
 
@@ -375,6 +376,7 @@ class OutAmpSensorEntity(AmpSensorEntity):
 
 class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
+    _attr_suggested_display_precision = 2
 
 
 class OutMilliampSensorEntity(MilliampSensorEntity):
