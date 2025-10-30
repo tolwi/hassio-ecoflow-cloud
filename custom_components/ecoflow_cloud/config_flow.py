@@ -308,7 +308,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
     async def async_step_api(self, user_input: dict[str, Any] | None = None):
         api_keys_auth_schema = vol.Schema(
             {
-                vol.Required(CONF_API_HOST): selector.SelectSelector(
+                vol.Required(CONF_API_HOST, default=self.new_data.get(CONF_API_HOST, "api-e.ecoflow.com")): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=["api-e.ecoflow.com", "api-a.ecoflow.com"],
                         mode=selector.SelectSelectorMode.DROPDOWN,

@@ -197,9 +197,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
-    await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
 
+    # Must load all device data before configuring devices because the data
+    # is used for entity setup.
     await api_client.quota_all(None)
+
+    # Forward entry setup to the platforms to set up the entities
+    await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 

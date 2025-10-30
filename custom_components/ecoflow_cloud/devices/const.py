@@ -115,6 +115,16 @@ POWER_SUPPLY_PRIORITY_OPTIONS = {
     "Prioritize power storage": 1
 }
 
+UTC_TIMEZONE = "Timezone"
+UTC_TIMEZONE_ID = "Timezone name"
+
+COUNTRY_CODE = "Country code"
+TOWN_CODE = "Town code"
+SYSTEM_GROUP_ID = "System group id"
+
+FACTORY_MODE = "Factory mode enabled"
+DEBUG_MODE = "Debug mode enabled"
+
 COMBINED_BATTERY_LEVEL = "Battery Level"
 COMBINED_BATTERY_LEVEL_F32 = "Battery Level (Precise)"
 BATTERY_CHARGING_STATE = "Battery Charging State"
@@ -230,6 +240,14 @@ DC_TIMEOUT = "DC (12V) Timeout"
 DC_CHARGE_CURRENT = "DC (12V) Charge Current"
 GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
+GEN_BAT_CHARGING_POWER = "Generator Battery Charging Power"
+GEN_MAX_OUTPUT_POWER = "Generator Max Output Power"
+GEN_TYPE = "Generator Type"
+GEN_TYPE_OPTIONS = {
+    "Not Set": 0,
+    "Single-Phase (120V)": 1,
+    "Split-Phase (240V)": 2,
+}
 
 POWER = "Power"
 ENERGY = "Energy"
@@ -293,13 +311,18 @@ SMART_METER_VOLT_L3 = "Power Grid (L3) Volts"
 SMART_METER_FLAG_L1 = "Flag L1"
 SMART_METER_FLAG_L2 = "Flag L2"
 SMART_METER_FLAG_L3 = "Flag L3"
+SMART_METER_RECORD_TODAY_ACTIVE_L1 = "L1 Lifetime net usage"
+SMART_METER_RECORD_TODAY_ACTIVE_L2 = "L2 Lifetime net usage"
+SMART_METER_RECORD_TODAY_ACTIVE_L3 = "L3 Lifetime net usage"
+SMART_METER_RECORD_ENERGY_L1_DAILY = "L1 net energy daily"
+SMART_METER_RECORD_ENERGY_L2_DAILY = "L2 net energy daily"
+SMART_METER_RECORD_ENERGY_L3_DAILY = "L3 net energy daily"
 SMART_METER_RECORD_ACTIVE_TODAY = "Lifetime consumption"
-SMART_METER_RECORD_ACTIVE_TOTAL = "Lifetime net usage"
-SMART_METER_RECORD_REACTIVE_TODAY = "Lifetime injection (2)"
-SMART_METER_RECORD_REACTIVE_TOTAL = "Lifetime injection"
-SMART_METER_RECORD_ACTIVE_TODAY_L1 = "L1 Lifetime net usage"
-SMART_METER_RECORD_ACTIVE_TODAY_L2 = "L2 Lifetime net usage"
-SMART_METER_RECORD_ACTIVE_TODAY_L3 = "L3 Lifetime net usage"
+SMART_METER_RECORD_LIFETIME_ENERGY_CONSUMPTION = "Lifetime consumption"
+SMART_METER_RECORD_LIFETIME_ENERGY_DELIVERY = "Lifetime delivery"
+SMART_METER_RECORD_NET_ENERGY_CONSUMPTION = "Net energy consumption"
+SMART_METER_GRID_CONNECTION_POWER_FACTOR = "Grid connection power factor"
+SMART_METER_GRID_CONNECTION_STATE = "Grid connection state"
 
 # Stream AC
 STREAM_POWER_AC = "Power AC" # <0 import from home to battery / >0 export from battery to home
@@ -380,27 +403,16 @@ AC_IN_CURRENT = "AC In Current"
 
 EPS_MODE = "EPS Mode"
 STORM_GUARD = "Storm Guard"
-
-BREAKER_N_POWER = "Breaker %i Power"                                              
-BREAKER_N_CURRENT = "Breaker %i Current"                                          
-
-BATTERY_STATUS = "Battery Status"
-
-BATTERY_STATUS_OPTIONS = {
-    "No operation": 0,
-    "Enabled": 1,
-    "Disabled": 2
-}
+IN_STORM_MODE = "In Storm Mode"
+POWER_GRID = "Power Grid"
+POWER_GRID_VOLTAGE = "Power Grid Voltage"
+BATTERY = "Battery"
 
 BATTERY_N_POWER = "Battery %i Power"
 BATTERY_N_LEVEL = "Battery %i Level"
 BATTERY_N_FORCE_CHARGE = "Battery %i Force Charge"
 
-BATTERY_FORCE_CHARGE_OPTIONS =  {
-    "Off": "FORCE_CHARGE_OFF",
-    "On": "FORCE_CHARGE_ON"
-}
-
+RELAY_N_OPERATION_COUNT = "Relay %i Operation Count"
 SMART_BACKUP_MODE = "Operating Mode"
 
 SMART_BACKUP_MODE_OPTIONS = {
