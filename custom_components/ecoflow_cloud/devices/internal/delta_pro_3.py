@@ -349,10 +349,13 @@ class DeltaPro3(BaseDevice):
         # Lazy import of Protocol Buffers modules to avoid blocking calls
         try:
             from .proto import ef_dp3_iobroker_pb2 as pb2
-        except ImportError as e:
-            _LOGGER.error(f"Failed to import ef_dp3_iobroker_pb2: {e}")
-            # Fallback to parent's JSON processing
-            _LOGGER.debug("Falling back to parent JSON processing")
+        except Exception as e:
+            # protobuf generated modules can raise non-ImportError exceptions
+            # (for example descriptor build errors when duplicate symbols exist).
+            # Catch all exceptions here and fall back to JSON processing so
+            # the integration doesn't crash Home Assistant.
+            _LOGGER.error("Failed to import ef_dp3_iobroker_pb2: %s: %s", type(e).__name__, e)
+            _LOGGER.debug("Falling back to parent JSON processing due to pb2 import error")
             return super()._prepare_data(raw_data)
 
         flat_dict: dict[str, Any] | None = None
