@@ -325,6 +325,70 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
+<details><summary> RIVER_3 <i>(sensors: 36, switches: 6, sliders: 4, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Solar In Power
+- Solar In Current
+- AC In Power
+- AC Out Power
+- AC In Volts
+- DC Out Power
+- Type-C (1) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- PCS DC Temperature
+- PCS AC Temperature
+- Battery Temperature
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Cycles
+- AC Output Energy
+- AC Input Energy
+- Solar In Energy
+- DC 12V Output Energy  _(disabled)_
+- Type-C Output Energy  _(disabled)_
+- USB-A Output Energy  _(disabled)_
+- Status
+
+*Switches*
+- Beeper 
+- AC Enabled _(only switch, no status)_
+- X-Boost Enabled 
+- DC (12V) Enabled _(only switch, no status)_
+- AC Always On 
+- Backup Reserve Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+- Backup Reserve Level 
+
+*Selects*
+- DC (12V) Charge Current 
+- DC Mode 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+
+</p></details>
+
 <details><summary> DELTA_PRO <i>(sensors: 71, switches: 6, sliders: 6, selects: 4)</i> </summary>
 <p>
 

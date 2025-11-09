@@ -1,0 +1,408 @@
+syntax = "proto3";
+
+// EcoFlow River 3 Protocol Buffer Definitions
+
+import "ecopacket.proto";
+
+// Display Property Upload - cmdFunc=254, cmdId=21
+message River3DisplayPropertyUpload {
+    optional uint32 errcode = 1;                          // Error code
+    optional float pow_in_sum_w = 3;                      // Total input power (W)
+    optional float pow_out_sum_w = 4;                     // Total output power (W)
+    optional uint32 energy_backup_en = 7;                 // Backup reserve enabled (bool)
+    optional uint32 energy_backup_start_soc = 8;          // Backup reserve SOC threshold (%)
+    optional float pow_get_qcusb1 = 9;                    // USB QC1 output power (W)
+    optional float pow_get_qcusb2 = 10;                   // USB QC2 output power (W)
+    optional float pow_get_typec1 = 11;                   // Type-C 1 output power (W)
+    optional float pow_get_typec2 = 12;                   // Type-C 2 output power (W)
+    optional uint32 flow_info_qcusb1 = 13;                // USB QC1 flow direction
+    optional uint32 flow_info_qcusb2 = 14;                // USB QC2 flow direction
+    optional uint32 flow_info_typec1 = 15;                // Type-C 1 flow direction
+    optional uint32 flow_info_typec2 = 16;                // Type-C 2 flow direction
+    optional uint32 dev_standby_time = 17;                // Unit timeout (min)
+    optional uint32 screen_off_time = 18;                 // Screen timeout (sec)
+    optional uint32 ac_standby_time = 19;                 // AC timeout (min)
+    optional uint32 ac_always_on_flag = 22;               // AC always on flag (bool)
+    optional uint32 ac_always_on_mini_soc = 23;           // AC always on min SOC (%)
+    optional uint32 xboost_en = 25;                       // X-Boost enabled (bool)
+    optional uint32 pcs_fan_level = 30;                   // PCS fan level
+    optional uint32 flow_info_12v = 33;                   // 12V DC flow direction
+    optional float pow_get_12v = 37;                      // 12V DC output power (W)
+    optional uint32 flow_info_ac2dc = 45;                 // AC to DC flow direction
+    optional uint32 flow_info_dc2ac = 46;                 // DC to AC flow direction
+    optional uint32 flow_info_ac_in = 47;                 // AC input flow direction
+    optional float pow_get_ac = 53;                       // AC output power (W)
+    optional float pow_get_ac_in = 54;                    // AC input power (W)
+    optional uint32 plug_in_info_ac_in_flag = 61;         // AC input connected flag
+    optional uint32 plug_in_info_ac_in_feq = 62;          // AC input frequency (Hz)
+    optional uint32 dc_out_open = 74;                     // DC output enabled (bool)
+    optional uint32 cfg_ac_out_open = 76;                 // AC output enabled
+    optional float pow_get_dcp2 = 77;                     // DCP2 power (W)
+    optional uint32 flow_info_dcp2_in = 78;               // DCP2 input flow
+    optional uint32 flow_info_dcp2_out = 79;              // DCP2 output flow
+    optional uint32 plug_in_info_dcp2_in_flag = 83;       // DCP2 input flag (bool)
+    optional uint32 plug_in_info_dcp2_dsg_chg_type = 84;  // DCP2 charge/discharge type
+    optional uint32 plug_in_info_dcp2_charger_flag = 85;  // DCP2 charger flag (bool)
+    optional uint32 plug_in_info_dcp2_type = 86;          // DCP2 type
+    optional uint32 plug_in_info_dcp2_detail = 87;        // DCP2 detail
+    optional string plug_in_info_dcp2_sn = 88;            // DCP2 serial number
+    optional uint32 plug_in_info_dcp2_run_state = 89;     // DCP2 run state
+    optional uint32 plug_in_info_dcp2_firm_ver = 90;      // DCP2 firmware version
+    optional uint32 bms_err_code = 140;                   // BMS error code
+    optional uint32 output_power_off_memory = 147;        // AC always on / power off memory (bool) - READ field
+    optional uint32 pv_chg_type = 148;                    // Solar charging type (0=Auto, 1=Solar, 2=Car)
+    optional uint32 flow_info_bms_dsg = 152;              // BMS discharge flow
+    optional uint32 flow_info_bms_chg = 153;              // BMS charge flow
+    optional float pow_get_bms = 158;                     // BMS power (W)
+    optional uint32 en_beep = 195;                        // Beeper enabled (bool)
+    optional uint32 plug_in_info_ac_charger_flag = 202;   // AC charger connected flag (bool)
+    optional uint32 plug_in_info_ac_in_chg_pow_max = 209; // AC charging power max (W)
+    optional uint32 ac_out_freq = 211;                    // AC output frequency (Hz)
+    optional uint32 dev_sleep_state = 212;                // Device sleep state
+    optional uint32 pd_err_code = 213;                    // PD error code
+    optional uint32 mppt_err_code = 215;                  // MPPT error code
+    optional uint32 llc_hv_lv_flag = 227;                 // LLC high/low voltage flag
+    optional uint32 llc_inv_err_code = 232;               // LLC inverter error code
+    optional uint32 plug_in_info_ac_out_dsg_pow_max = 238;// AC output max discharge power (W)
+    optional float bms_batt_soc = 242;                    // Battery SOC (%)
+    optional float bms_batt_soh = 243;                    // Battery SOH (%)
+    optional uint32 bms_design_cap = 248;                 // Battery design capacity (mAh)
+    optional uint32 bms_dsg_rem_time = 254;               // Discharge remaining time (min)
+    optional uint32 bms_chg_rem_time = 255;               // Charge remaining time (min)
+    optional int32 bms_min_cell_temp = 258;               // Min cell temperature (°C)
+    optional int32 bms_max_cell_temp = 259;               // Max cell temperature (°C)
+    optional int32 bms_min_mos_temp = 260;                // Min MOS temperature (°C)
+    optional int32 bms_max_mos_temp = 261;                // Max MOS temperature (°C)
+    optional float cms_batt_soc = 262;                    // Combined battery SOC (%)
+    optional float cms_batt_soh = 263;                    // Combined battery SOH (%)
+    optional uint32 cms_dsg_rem_time = 268;               // Combined discharge remaining time (min)
+    optional uint32 cms_chg_rem_time = 269;               // Combined charge remaining time (min)
+    optional uint32 cms_max_chg_soc = 270;                // Max charge SOC setting (%)
+    optional uint32 cms_min_dsg_soc = 271;                // Min discharge SOC setting (%)
+    optional uint32 cms_bms_run_state = 275;              // Combined BMS run state
+    optional uint32 bms_chg_dsg_state = 281;              // Charge/discharge state (0=idle, 1=dsg, 2=chg)
+    optional uint32 cms_chg_dsg_state = 282;              // Combined charge/discharge state
+    optional uint32 time_task_conflict_flag = 285;        // Time task conflict flag
+    optional uint32 time_task_change_cnt = 286;           // Time task change count
+    optional uint32 ups_alram = 355;                      // UPS alarm (bool)
+    optional uint32 plug_in_info_pv_dc_amp_max = 356;     // Max solar charge current (A)
+    optional uint32 led_mode = 357;                       // LED mode
+    optional uint32 low_power_alarm = 358;                // Low power alarm (W)
+    optional uint32 silence_chg_watt = 359;               // Silent charging watt (W)
+    optional uint32 flow_info_pv = 360;                   // Solar PV flow direction
+    optional float pow_get_pv = 361;                      // Solar input power (W)
+    optional uint32 plug_in_info_pv_flag = 362;           // Solar PV connected flag (bool)
+    optional uint32 plug_in_info_pv_type = 363;           // Solar PV input type
+    optional uint32 plug_in_info_pv_charger_flag = 364;   // PV charger flag (bool)
+    optional uint32 plug_in_info_pv_chg_amp_max = 365;    // PV charge amp max (A)
+    optional uint32 plug_in_info_pv_chg_vol_max = 366;    // PV charge vol max (V)
+    optional uint32 flow_info_ac_out = 367;               // AC output flow direction
+    optional float pow_get_ac_out = 368;                  // AC output power (W)
+    optional uint32 flow_info_dcp_in = 423;               // DCP input flow
+    optional uint32 flow_info_dcp_out = 424;              // DCP output flow
+    optional float pow_get_dcp = 425;                     // DCP power (W)
+    optional uint32 plug_in_info_dcp_in_flag = 426;       // DCP input flag (bool)
+    optional uint32 plug_in_info_dcp_type = 427;          // DCP type
+    optional uint32 plug_in_info_dcp_detail = 428;        // DCP detail
+    optional uint32 plug_in_info_dcp_dsg_chg_type = 431;  // DCP charge/discharge type
+    optional string plug_in_info_dcp_sn = 433;            // DCP serial number
+    optional uint32 plug_in_info_dcp_firm_ver = 434;      // DCP firmware version
+    optional uint32 plug_in_info_dcp_charger_flag = 435;  // DCP charger flag (bool)
+    optional uint32 plug_in_info_dcp_run_state = 436;     // DCP run state
+    optional uint32 plug_in_info_dcp_err_code = 438;      // DCP error code
+    optional uint32 plug_in_info_dcp2_err_code = 439;     // DCP2 error code
+    optional uint32 plug_in_info_ac_in_chg_hal_pow_max = 458; // AC input charge max power (W)
+    optional River3DisplayStatisticsRecordList display_statistics_sum = 463; // Statistics summary
+}
+
+// Runtime Property Upload - cmdFunc=254, cmdId=22
+message River3RuntimePropertyUpload {
+    optional uint32 ac_phase_type = 21;                   // AC phase type
+    optional uint32 pcs_work_mode = 24;                   // PCS work mode
+    optional float temp_pcs_dc = 26;                      // PCS DC temperature (°C)
+    optional float temp_pcs_ac = 27;                      // PCS AC temperature (°C)
+    optional uint32 plug_in_info_ac_out_type = 59;        // AC output type
+    optional uint32 plug_in_info_ac_out_freq = 60;        // AC output frequency (Hz)
+    optional float plug_in_info_ac_out_vol = 67;          // AC output voltage (V)
+    optional float plug_in_info_ac_in_vol = 68;           // AC input voltage (V)
+    optional float plug_in_info_bms_vol = 169;            // BMS voltage (mV)
+    optional uint32 pd_mppt_comm_err = 172;               // PD MPPT comm error (bool)
+    optional uint32 pd_llc_comm_err = 173;                // PD LLC comm error (bool)
+    optional uint32 pd_bms_comm_err = 174;                // PD BMS comm error (bool)
+    optional uint32 pd_iot_comm_err = 175;                // PD IOT comm error (bool)
+    optional uint32 pd_firm_ver = 176;                    // PD firmware version
+    optional uint32 iot_firm_ver = 177;                   // IoT firmware version
+    optional uint32 mppt_firm_ver = 178;                  // MPPT firmware version
+    optional float plug_in_info_ac_in_amp = 223;          // AC input current (mA)
+    optional float plug_in_info_ac_out_amp = 224;         // AC output current (mA)
+    optional uint32 llc_inv_firm_ver = 231;               // LLC inverter firmware version
+    optional uint32 bms_firm_ver = 241;                   // BMS firmware version
+    optional float bms_batt_vol = 244;                    // Battery voltage (V)
+    optional float bms_batt_amp = 245;                    // Battery current (A)
+    optional uint32 bms_bal_state = 246;                  // BMS balance state
+    optional uint32 bms_full_cap = 247;                   // Battery full capacity (mAh)
+    optional uint32 bms_remain_cap = 249;                 // Battery remaining capacity (mAh)
+    optional uint32 bms_alm_state = 250;                  // BMS alarm state
+    optional uint32 bms_pro_state = 251;                  // BMS protection state
+    optional uint32 bms_flt_state = 252;                  // BMS fault state
+    optional uint32 bms_err_code = 253;                   // BMS error code
+    optional uint32 bms_min_cell_vol = 256;               // Min cell voltage (mV)
+    optional uint32 bms_max_cell_vol = 257;               // Max cell voltage (mV)
+    optional float cms_batt_vol = 264;                    // Combined battery voltage (V)
+    optional float cms_batt_amp = 265;                    // Combined battery current (A)
+    optional float cms_chg_req_vol = 266;                 // Charge request voltage (V)
+    optional float cms_chg_req_amp = 267;                 // Charge request current (A)
+    optional uint32 bms_overload_icon = 276;              // BMS overload icon
+    optional uint32 bms_warn_icon = 277;                  // BMS warning icon
+    optional uint32 bms_high_temp_icon = 278;             // BMS high temp icon
+    optional uint32 bms_low_temp_icon = 279;              // BMS low temp icon
+    optional uint32 bms_limit_icon = 280;                 // BMS limit icon
+    optional uint32 bms_alm_state_2 = 291;                // BMS alarm state 2
+    optional uint32 bms_pro_state_2 = 292;                // BMS protection state 2
+    optional int32 display_property_full_upload_period = 293;
+    optional int32 display_property_incremental_upload_period = 294;
+    optional int32 runtime_property_full_upload_period = 295;
+    optional int32 runtime_property_incremental_upload_period = 296;
+    optional float pv_vin_ref = 338;                      // PV voltage reference
+    optional uint32 inv_main_fsmstate = 349;              // Inverter main FSM state
+    optional uint32 l1_main_fsmstate = 350;               // L1 main FSM state
+    optional float dcdc_chg_req_cur = 376;                // DC-DC charge request current
+    optional float llc_recv_cms_chg_req_vol = 377;        // LLC receive CMS charge request voltage
+    optional float temp_pv = 379;                         // Solar PV temperature (°C)
+    optional float plug_in_info_pv_vol = 380;             // Solar input voltage (V)
+    optional float plug_in_info_pv_amp = 381;             // Solar input current (mA)
+    optional float plug_in_info_12v_vol = 382;            // 12V output voltage (V)
+    optional float plug_in_info_12v_amp = 383;            // 12V output current (A)
+    optional float llc_bat_vol = 384;                     // LLC battery voltage (V)
+    optional float llc_bat_cur = 385;                     // LLC battery current (A)
+    optional float llc_bus_vol = 386;                     // LLC bus voltage (V)
+    optional float plug_in_info_dcp_vol = 443;            // DCP voltage (V)
+    optional float plug_in_info_dcp_amp = 448;            // DCP current (A)
+}
+
+// Set Command - cmdFunc=254, cmdId=17
+message River3SetCommand {
+    optional int32 cfg_power_off = 3;                     // Power off command
+    optional uint32 cfg_utc_time = 6;                     // UTC time setting
+    optional int32 cfg_utc_timezone = 7;                  // Timezone offset
+    optional int32 en_beep = 9;                           // Beeper enable (0/1)
+    optional int32 ac_standby_time = 10;                  // AC standby timeout (min)
+    optional int32 dc_standby_time = 11;                  // DC standby timeout (min)
+    optional int32 screen_off_time = 12;                  // Screen off timeout (sec)
+    optional int32 dev_standby_time = 13;                 // Device standby timeout (min)
+    optional int32 lcd_light = 14;                        // LCD brightness
+    optional int32 cfg_dc12v_out_open = 18;               // DC 12V output enable (0/1)
+    optional int32 xboost_en = 25;                        // X-Boost enable (0/1)
+    optional int32 cms_max_chg_soc = 33;                  // Max charge SOC (%)
+    optional int32 cms_min_dsg_soc = 34;                  // Min discharge SOC (%)
+    optional River3CfgEnergyBackup cfg_energy_backup = 43;// Energy backup config
+    optional int32 plug_in_info_ac_in_chg_pow_max = 54;   // AC charging power max (W)
+    optional uint32 cfg_ac_out_open = 76;                 // AC output enable (0/1)
+    optional uint32 plug_in_info_pv_dc_amp_max = 87;      // Max solar charge current (A)
+    optional uint32 cfg_led_mode = 89;                    // LED mode
+    optional uint32 pv_chg_type = 90;                     // PV charge type (0=Auto, 1=Solar, 2=Car)
+    optional int32 output_power_off_memory = 141;         // AC always on enable (0/1)
+}
+
+// Set Reply - cmdFunc=254, cmdId=18
+message River3SetReply {
+    optional int32 action_id = 1;                         // Action ID
+    optional bool config_ok = 2;                          // Configuration success flag
+    optional uint32 cfg_utc_time = 6;                     // UTC time
+    optional int32 cfg_utc_timezone = 7;                  // Timezone offset
+    optional int32 en_beep = 9;                           // Beeper enabled
+    optional int32 ac_standby_time = 10;                  // AC standby timeout
+    optional int32 dc_standby_time = 11;                  // DC standby timeout
+    optional int32 screen_off_time = 12;                  // Screen off timeout
+    optional int32 dev_standby_time = 13;                 // Device standby timeout
+    optional int32 lcd_light = 14;                        // LCD brightness
+    optional int32 cfg_dc12v_out_open = 18;               // DC 12V output state
+    optional int32 xboost_en = 25;                        // X-Boost state
+    optional int32 cms_max_chg_soc = 33;                  // Max charge SOC
+    optional int32 cms_min_dsg_soc = 34;                  // Min discharge SOC
+    optional River3CfgEnergyBackup cfg_energy_backup = 43;// Energy backup config
+    optional int32 plug_in_info_ac_in_chg_pow_max = 54;   // AC charging power max
+    optional uint32 dc_out_open = 74;                     // DC output state
+    optional uint32 cfg_ac_out_open = 76;                 // AC output state
+    optional uint32 plug_in_info_pv_dc_amp_max = 87;      // Max solar charge current
+    optional uint32 cfg_led_mode = 89;                    // LED mode
+    optional uint32 pv_chg_type = 90;                     // PV charge type
+    optional int32 output_power_off_memory = 141;         // AC always on state
+}
+
+// Energy backup configuration
+message River3CfgEnergyBackup {
+    optional uint32 energy_backup_en = 1;                 // Backup reserve enabled
+    optional uint32 energy_backup_start_soc = 2;          // Backup reserve SOC threshold
+}
+
+// CMS Heartbeat Report - cmdFunc=32, cmdId=2
+message River3CMSHeartBeatReport {
+    optional River3CMSStatus1 msg32_2_1 = 1;
+    optional River3CMSStatus2 msg32_2_2 = 2;
+}
+
+message River3CMSStatus1 {
+    optional sint32 cms_status_misc1 = 1;
+    optional sint32 cms_status_misc2 = 2;
+    optional sint32 cms_status_misc3 = 3;
+    optional sint32 cms_batt_vol_mv = 4;                  // Battery voltage (mV)
+    optional uint32 cms_chg_req_amp = 5;                  // Charge request current (mA)
+    optional sint32 cms_status_misc4 = 6;
+    optional uint32 cms_max_chg_soc = 7;                  // Max charge SOC (%)
+    optional uint32 cms_min_dsg_soc = 8;                  // Min discharge SOC (%)
+    optional uint32 ac_out_freq = 9;                      // AC output frequency (Hz)
+    optional sint32 cms_status_misc5 = 10;
+    optional sint32 cms_status_misc6 = 11;
+    optional uint32 cms_chg_rem_time = 12;                // Charge remaining time (min)
+    optional uint32 cms_dsg_rem_time = 13;                // Discharge remaining time (min)
+    optional sint32 cms_chg_dsg_state = 14;               // Charge/discharge state
+    optional float cms_batt_soc = 15;                     // Battery SOC (%)
+    repeated sint32 bms_is_conn_state = 16;               // BMS connection states
+    optional sint32 cms_status_misc7 = 17;
+    optional sint32 cms_status_misc8 = 18;
+    optional sint32 cms_status_misc9 = 19;
+    optional sint32 cms_status_misc10 = 20;
+    optional sint32 cms_status_misc11 = 21;
+    optional sint32 cms_status_misc12 = 22;
+    optional uint32 cms_oil_off_soc = 23;                 // Generator auto-off SOC
+}
+
+message River3CMSStatus2 {
+    optional sint32 cms_status_misc13 = 1;
+    optional sint32 cms_status_misc14 = 2;
+    optional sint32 cms_status_misc15 = 3;
+    optional sint32 cms_status_misc16 = 4;
+    optional sint32 cms_status_misc17 = 5;
+}
+
+// BMS Heartbeat Report
+message River3BMSHeartBeatReport {
+    optional uint32 num = 1;                              // Battery pack number
+    optional uint32 type = 2;                             // Battery type
+    optional uint32 cell_id = 3;                          // Cell ID
+    optional uint32 err_code = 4;                         // Error code
+    optional uint32 sys_ver = 5;                          // System version
+    optional uint32 soc = 6;                              // State of Charge (%)
+    optional uint32 vol = 7;                              // Voltage (mV)
+    optional int32 amp = 8;                               // Current (mA)
+    optional int32 temp = 9;                              // Temperature (°C)
+    optional uint32 open_bms_flag = 10;                   // BMS open flag
+    optional uint32 design_cap = 11;                      // Design capacity (mAh)
+    optional uint32 remain_cap = 12;                      // Remaining capacity (mAh)
+    optional uint32 full_cap = 13;                        // Full capacity (mAh)
+    optional uint32 cycles = 14;                          // Cycle count
+    optional uint32 soh = 15;                             // State of Health (%)
+    optional uint32 max_cell_vol = 16;                    // Max cell voltage (mV)
+    optional uint32 min_cell_vol = 17;                    // Min cell voltage (mV)
+    optional int32 max_cell_temp = 18;                    // Max cell temperature (°C)
+    optional int32 min_cell_temp = 19;                    // Min cell temperature (°C)
+    optional int32 max_mos_temp = 20;                     // Max MOS temperature (°C)
+    optional int32 min_mos_temp = 21;                     // Min MOS temperature (°C)
+    optional uint32 bms_fault = 22;                       // BMS fault code
+    optional uint32 bq_sys_stat_reg = 23;                 // BQ system status register
+    optional uint32 tag_chg_amp = 24;                     // Target charge current (mA)
+    optional float f32_show_soc = 25;                     // Display SOC (%)
+    optional uint32 input_watts = 26;                     // Input power (W)
+    optional uint32 output_watts = 27;                    // Output power (W)
+    optional uint32 remain_time = 28;                     // Remaining time (min)
+    optional uint32 mos_state = 29;                       // MOS state
+    optional uint32 balance_state = 30;                   // Balance state
+    optional uint32 max_vol_diff = 31;                    // Max voltage difference (mV)
+    optional uint32 cell_series_num = 32;                 // Number of cells in series
+    repeated uint32 cell_vol = 33;                        // Individual cell voltages (mV)
+    optional uint32 cell_ntc_num = 34;                    // Number of cell NTC sensors
+    repeated int32 cell_temp = 35;                        // Individual cell temperatures (°C)
+    optional string hw_ver = 36;                          // Hardware version
+    optional uint32 bms_heartbeat_ver = 37;               // BMS heartbeat version
+    optional uint32 ecloud_ocv = 38;                      // eCloud OCV
+    optional string bms_sn = 39;                          // BMS serial number
+    optional uint32 product_type = 40;                    // Product type
+    optional uint32 product_detail = 41;                  // Product detail
+    optional float act_soc = 42;                          // Actual SOC (%)
+    optional float diff_soc = 43;                         // Difference SOC (%)
+    optional float target_soc = 44;                       // Target SOC (%)
+    optional uint32 sys_loader_ver = 45;                  // System loader version
+    optional uint32 sys_state = 46;                       // System state
+    optional uint32 chg_dsg_state = 47;                   // Charge/discharge state
+    optional uint32 all_err_code = 48;                    // All error codes
+    optional uint32 all_bms_fault = 49;                   // All BMS faults
+    optional uint32 accu_chg_cap = 50;                    // Accumulated charge capacity (mAh)
+    optional uint32 accu_dsg_cap = 51;                    // Accumulated discharge capacity (mAh)
+    optional float real_soh = 52;                         // Real SOH (%)
+    optional float calendar_soh = 53;                     // Calendar SOH (%)
+    optional float cycle_soh = 54;                        // Cycle SOH (%)
+    optional uint32 mos_ntc_num = 55;                     // Number of MOS NTC sensors
+    repeated int32 mos_temp = 56;                         // MOS temperatures (°C)
+    optional uint32 env_ntc_num = 57;                     // Number of environment NTC sensors
+    repeated int32 env_temp = 58;                         // Environment temperatures (°C)
+    optional uint32 heatfilm_ntc_num = 59;                // Number of heatfilm NTC sensors
+    repeated int32 heatfilm_temp = 60;                    // Heatfilm temperatures (°C)
+    optional uint32 cur_sensor_ntc_num = 61;              // Number of current sensor NTC
+    repeated int32 cur_sensor_temp = 62;                  // Current sensor temperatures (°C)
+    optional int32 max_env_temp = 63;                     // Max environment temperature (°C)
+    optional int32 min_env_temp = 64;                     // Min environment temperature (°C)
+    optional int32 max_heatfilm_temp = 65;                // Max heatfilm temperature (°C)
+    optional int32 min_heatfilm_temp = 66;                // Min heatfilm temperature (°C)
+    optional int32 max_cur_sensor_temp = 67;              // Max current sensor temp (°C)
+    optional int32 min_cur_sensor_temp = 68;              // Min current sensor temp (°C)
+    optional uint32 balance_cmd = 69;                     // Balance command
+    repeated uint32 remain_balance_time = 70;             // Remaining balance time
+    optional uint32 afe_sys_status = 71;                  // AFE system status
+    optional uint32 mcu_pin_in_status = 72;               // MCU pin input status
+    optional uint32 mcu_pin_out_status = 73;              // MCU pin output status
+    optional uint32 bms_alarm_state1 = 74;                // BMS alarm state 1
+    optional uint32 bms_alarm_state2 = 75;                // BMS alarm state 2
+    optional uint32 bms_protect_state1 = 76;              // BMS protect state 1
+    optional uint32 bms_protect_state2 = 77;              // BMS protect state 2
+    optional uint32 bms_fault_state = 78;                 // BMS fault state
+    optional uint32 accu_chg_energy = 79;                 // Accumulated charge energy (Wh)
+    optional uint32 accu_dsg_energy = 80;                 // Accumulated discharge energy (Wh)
+    optional string pack_sn = 81;                         // Battery pack serial number
+    optional uint32 water_in_flag = 82;                   // Water ingress flag
+}
+
+// Statistics enum
+enum River3StatisticsObject {
+    STATISTICS_OBJECT_START = 0;
+    STATISTICS_OBJECT_DEV_WORK_TIME = 1;
+    STATISTICS_OBJECT_AC_OUT_ENERGY = 2;
+    STATISTICS_OBJECT_DC12V_OUT_ENERGY = 3;
+    STATISTICS_OBJECT_TYPEC_OUT_ENERGY = 4;
+    STATISTICS_OBJECT_USBA_OUT_ENERGY = 5;
+    STATISTICS_OBJECT_AC_IN_ENERGY = 6;
+    STATISTICS_OBJECT_PV_IN_ENERGY = 7;
+    STATISTICS_OBJECT_AC_IN_0W_100W_TIME = 8;
+    STATISTICS_OBJECT_AC_IN_OVER_100W_TIME = 9;
+    STATISTICS_OBJECT_AC_OUT_0W_50W_TIME = 10;
+    STATISTICS_OBJECT_AC_OUT_50W_100W_TIME = 11;
+    STATISTICS_OBJECT_AC_OUT_100W_200W_TIME = 12;
+    STATISTICS_OBJECT_AC_OUT_OVER_200W_TIME = 13;
+    STATISTICS_OBJECT_AC_OUT_200W_300W_TIME = 14;
+    STATISTICS_OBJECT_AC_OUT_300W_400W_TIME = 15;
+    STATISTICS_OBJECT_AC_OUT_400W_500W_TIME = 16;
+    STATISTICS_OBJECT_AC_OUT_OVER_500W_TIME = 17;
+    STATISTICS_OBJECT_PV_IN_TIME = 18;
+    STATISTICS_OBJECT_TYPEC_IN_TIME = 19;
+    STATISTICS_OBJECT_DC_OUT_0W_60W_TIME = 20;
+    STATISTICS_OBJECT_DC_OUT_OVER_60W_TIME = 21;
+    STATISTICS_OBJECT_TYPEC_OUT_0W_30W_TIME = 22;
+    STATISTICS_OBJECT_TYPEC_OUT_30W_60W_TIME = 23;
+    STATISTICS_OBJECT_TYPEC_OUT_OVER_60W_TIME = 24;
+    STATISTICS_OBJECT_USBA_OUT_TIME = 25;
+    STATISTICS_OBJECT_LED_OUT_TIME = 26;
+}
+
+message River3StatisticsRecordItem {
+    optional River3StatisticsObject statistics_object = 1;
+    optional uint32 statistics_content = 2;
+}
+
+message River3DisplayStatisticsRecordList {
+    repeated River3StatisticsRecordItem list_info = 1;
+}
+
+// Header Message Wrapper
+message River3HeaderMessage {
+    repeated Header header = 1;
+}
