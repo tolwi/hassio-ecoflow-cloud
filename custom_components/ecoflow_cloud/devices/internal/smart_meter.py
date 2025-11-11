@@ -133,7 +133,7 @@ class SmartMeter(BaseDevice):
         from google.protobuf.json_format import MessageToDict # pyright: ignore[reportMissingModuleSource]
         from .proto.support import flatten_dict
 
-        from .proto.stream_ac_pb2 import SendHeaderMsg
+        from .proto.ecopacket_pb2  import SendHeaderMsg
         from .proto.support.const import Command, CommandFuncAndId
 
         try:
