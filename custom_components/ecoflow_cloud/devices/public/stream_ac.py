@@ -10,8 +10,9 @@ from custom_components.ecoflow_cloud.sensor import WattsSensorEntity,LevelSensor
     CyclesSensorEntity, EnergySensorEntity, CumulativeCapacitySensorEntity
 from ...switch import EnabledEntity
 from ...number import (
-    BatteryBackupLevel,MinBatteryLevelEntity, MaxBatteryLevelEntity,
+    BatteryBackupLevel
 )
+from ...select import PowerDictSelectEntity
 
 class StreamAC(BaseDevice):
 
@@ -325,6 +326,54 @@ class StreamAC(BaseDevice):
                     "dest": 2,
                     "needAck": True,
                     "params": {"cfgRelay3Onoff": value},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "energyStrategyOperateMode.operateSelfPoweredOpen",
+                const.STREAM_OPERATION_MODE_SELF_POWERED,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "cmdFunc": 254,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "dest": 2,
+                    "needAck": True,
+                    "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen":value}},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "energyStrategyOperateMode.operateIntelligentScheduleModeOpe",
+                const.STREAM_OPERATION_MODE_AI_MODE,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "cmdFunc": 254,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "dest": 2,
+                    "needAck": True,
+                    "params": {"operateIntelligentScheduleModeOpen": {"operateSelfPoweredOpen":value}},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "feedGridMode",
+                const.STREAM_FEED_IN_CONTROL,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "cmdFunc": 254,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "dest": 2,
+                    "needAck": True,
+                    "params": {"cfgFeedGridMode": 2 if value else 1},
                 },
             ),
         ]
