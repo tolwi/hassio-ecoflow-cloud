@@ -347,7 +347,7 @@ class StreamAC(BaseDevice):
             EnabledEntity(
                 client,
                 self,
-                "energyStrategyOperateMode.operateIntelligentScheduleModeOpe",
+                "energyStrategyOperateMode.operateIntelligentScheduleModeOpen",
                 const.STREAM_OPERATION_MODE_AI_MODE,
                 lambda value: {
                     "sn": self.device_info.sn,
