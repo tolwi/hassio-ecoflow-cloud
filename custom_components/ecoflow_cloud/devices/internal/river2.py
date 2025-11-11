@@ -95,7 +95,7 @@ class River2(BaseDevice):
                                                "params": {"chgWatts": int(value), "chgPauseFlag": 255}}),
 
             BatteryBackupLevel(client, self,"pd.bpPowerSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
-                               "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc",
+                               "bms_emsStatus.minDsgSoc", "bms_emsStatus.maxChargeSoc", 5,
                                lambda value: {"moduleType": 1, "operateType": "watthConfig",
                                               "params": {"isConfig": 1,
                                                          "bpPowerSoc": int(value),
