@@ -11,8 +11,8 @@ from custom_components.ecoflow_cloud.sensor import MiscSensorEntity, WattsSensor
 class SmartMeter(BaseDevice):
 
     def sensors(self, client: EcoflowApiClient) -> Sequence[BaseSensorEntity]:
-        timezoneEntity = MiscSensorEntity(client, self, "254_21.utcTimezone", const.UTC_TIMEZONE, False)
-        timezoneEntity.attr("254_21.utcTimezoneId", const.UTC_TIMEZONE_ID, "Unknown")
+        timezoneEntity = MiscSensorEntity(client, self, "utcTimezone", const.UTC_TIMEZONE, False)
+        timezoneEntity.attr("utcTimezoneId", const.UTC_TIMEZONE_ID, "Unknown")
         return [
             WattsSensorEntity(client, self, "powGetSysGrid", const.SMART_METER_POWER_GLOBAL),
 
