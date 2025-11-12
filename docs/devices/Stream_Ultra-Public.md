@@ -46,8 +46,6 @@
 *Switches*
 - AC 1 On (`relay2Onoff` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgRelay2Onoff": "VALUE"}}`)
 - AC 2 On (`relay3Onoff` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgRelay3Onoff": "VALUE"}}`)
-- Operating mode - Self-powered (`energyStrategyOperateMode.operateSelfPoweredOpen` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen": 6666}}}`)
-- Operating mode - AI Mode (`energyStrategyOperateMode.operateIntelligentScheduleModeOpen` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"operateIntelligentScheduleModeOpen": {"operateSelfPoweredOpen": 6666}}}`)
 - Feed-in control (`feedGridMode` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgFeedGridMode": 2}}`)
 
 *Sliders (numbers)*
