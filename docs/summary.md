@@ -1023,7 +1023,7 @@
 
 </p></details>
 
-<details><summary> SMART_METER <i>(sensors: 20, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> SMART_METER <i>(sensors: 28, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
@@ -1044,9 +1044,17 @@
 - L2 Lifetime net usage  _(disabled)_
 - L3 Lifetime net usage  _(disabled)_
 - Lifetime consumption
-- Lifetime injection (2)  _(disabled)_
-- Lifetime net usage
-- Lifetime injection
+- Lifetime delivery
+- Net energy consumption
+- Timezone  _(disabled)_
+- Grid connection power factor  _(disabled)_
+- Grid connection state  _(disabled)_
+- Country code  _(disabled)_
+- Town code  _(disabled)_
+- System group id  _(disabled)_
+- Factory mode enabled  _(disabled)_
+- Debug mode enabled  _(disabled)_
+- Status
 
 *Switches*
 
@@ -1412,16 +1420,16 @@
 <p>
 
 *Sensors*
-- Status
+- Status (Scheduled)
 - Remaining Time
 - Battery level SOC
 - Battery Count
-- Wireless 4G Data Max
-- Wireless 4G Data Remaining
-- Wireless 4G Resgistered
-- Wireless 4G Error Code
-- Wireless 4G SIM ID
-- Internet Connection Type
+- Wireless 4G Data Max  _(disabled)_
+- Wireless 4G Data Remaining  _(disabled)_
+- Wireless 4G Resgistered  _(disabled)_
+- Wireless 4G Error Code  _(disabled)_
+- Wireless 4G SIM ID  _(disabled)_
+- Internet Connection Type  _(disabled)_
 - Error Code
 - Total In Power (energy:  _[Device Name]_ Total In  Energy)
 - Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
@@ -2316,7 +2324,7 @@
 
 </p></details>
 
-<details><summary> Smart Meter (API) <i>(sensors: 20, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Smart Meter (API) <i>(sensors: 28, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
@@ -2337,9 +2345,17 @@
 - L2 Lifetime net usage  _(disabled)_
 - L3 Lifetime net usage  _(disabled)_
 - Lifetime consumption
-- Lifetime injection (2)  _(disabled)_
-- Lifetime net usage
-- Lifetime injection
+- Net energy consumption
+- Lifetime delivery
+- Timezone  _(disabled)_
+- Grid connection power factor  _(disabled)_
+- Grid connection state  _(disabled)_
+- Country code  _(disabled)_
+- Town code  _(disabled)_
+- System group id  _(disabled)_
+- Factory mode enabled  _(disabled)_
+- Debug mode enabled  _(disabled)_
+- Status
 
 *Switches*
 
@@ -2349,7 +2365,7 @@
 
 </p></details>
 
-<details><summary> Stream AC (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Stream AC (API) <i>(sensors: 41, switches: 5, sliders: 1, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
@@ -2359,6 +2375,8 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles
 - Design Capacity  _(disabled)_
 - Power Battery SOC
@@ -2394,14 +2412,20 @@
 - Battery Volts  _(disabled)_
 
 *Switches*
+- AC 1 On 
+- AC 2 On 
+- Operating mode - Self-powered 
+- Operating mode - AI Mode 
+- Feed-in control 
 
 *Sliders (numbers)*
+- Backup Reserve Level 
 
 *Selects*
 
 </p></details>
 
-<details><summary> Stream PRO (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Stream PRO (API) <i>(sensors: 41, switches: 5, sliders: 1, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
@@ -2411,6 +2435,8 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles
 - Design Capacity  _(disabled)_
 - Power Battery SOC
@@ -2446,14 +2472,20 @@
 - Battery Volts  _(disabled)_
 
 *Switches*
+- AC 1 On 
+- AC 2 On 
+- Operating mode - Self-powered 
+- Operating mode - AI Mode 
+- Feed-in control 
 
 *Sliders (numbers)*
+- Backup Reserve Level 
 
 *Selects*
 
 </p></details>
 
-<details><summary> Stream Ultra (API) <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Stream Ultra (API) <i>(sensors: 41, switches: 5, sliders: 1, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
@@ -2463,6 +2495,8 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles
 - Design Capacity  _(disabled)_
 - Power Battery SOC
@@ -2498,8 +2532,14 @@
 - Battery Volts  _(disabled)_
 
 *Switches*
+- AC 1 On 
+- AC 2 On 
+- Operating mode - Self-powered 
+- Operating mode - AI Mode 
+- Feed-in control 
 
 *Sliders (numbers)*
+- Backup Reserve Level 
 
 *Selects*
 
@@ -2530,10 +2570,11 @@
 
 </p></details>
 
-<details><summary> Smart Home Panel 2 (API) <i>(sensors: 22, switches: 2, sliders: 3, selects: 7)</i> </summary>
+<details><summary> Smart Home Panel 2 (API) <i>(sensors: 30, switches: 8, sliders: 5, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
+- Status (Scheduled)
 - AC In Power (energy:  _[Device Name]_ AC In  Energy)
 - AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
 - Battery Level
@@ -2550,30 +2591,40 @@
 - Breaker 10 Power (energy:  _[Device Name]_ Breaker 10  Energy)
 - Breaker 11 Power (energy:  _[Device Name]_ Breaker 11  Energy)
 - Breaker 12 Power (energy:  _[Device Name]_ Breaker 12  Energy)
-- Battery 1 Level
-- Battery 2 Level
-- Battery 3 Level
-- Battery 1 Power
-- Battery 2 Power
-- Battery 3 Power
+- Power Grid
+- Power Grid Voltage  _(disabled)_
+- In Storm Mode
+- Relay 1 Operation Count  _(disabled)_
+- Relay 2 Operation Count  _(disabled)_
+- Relay 3 Operation Count  _(disabled)_
+- Relay 4 Operation Count  _(disabled)_
+- Battery 1 Level  _(disabled)_
+- Battery 2 Level  _(disabled)_
+- Battery 3 Level  _(disabled)_
+- Battery 1 Power  _(disabled)_
+- Battery 2 Power  _(disabled)_
+- Battery 3 Power  _(disabled)_
 
 *Switches*
 - EPS Mode 
 - Storm Guard 
+- Battery 1 
+- Battery 2 
+- Battery 3 
+- Battery 1 Force Charge 
+- Battery 2 Force Charge 
+- Battery 3 Force Charge 
 
 *Sliders (numbers)*
 - Backup Reserve Level 
 - AC Charging Power 
 - Max Charge Level 
+- Generator Battery Charging Power 
+- Generator Max Output Power 
 
 *Selects*
-- Battery Status 1 
-- Battery Status 2 
-- Battery Status 3 
-- Battery 1 Force Charge 
-- Battery 2 Force Charge 
-- Battery 3 Force Charge 
 - Operating Mode 
+- Generator Type 
 
 </p></details>
 

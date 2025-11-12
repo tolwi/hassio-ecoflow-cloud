@@ -107,7 +107,7 @@ class Delta3(BaseDevice):
                                                  "params": {"minDsgSoc": int(value)}}),
 
             BatteryBackupLevel(client, self, "backupReverseSoc", const.BACKUP_RESERVE_LEVEL, 5, 100,
-                               "v1p0.minDsgSoc", "v1p0.maxChargeSoc",
+                               "v1p0.minDsgSoc", "v1p0.maxChargeSoc", 5,
                                lambda value: {"moduleType": 1, "operateType": "watthConfig",
                                               "params": {"isConfig": 1, "backupReverseSoc": int(value), "minDsgSoc": 0,
                                                          "minChgSoc": 0}}),

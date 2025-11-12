@@ -5,7 +5,6 @@ import os
 from typing import Any, List
 from unittest.mock import Mock
 
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.frame import async_setup as frame_setup
 
@@ -31,7 +30,6 @@ from custom_components.ecoflow_cloud.entities import (
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 # Configuration constants
 MARKER_VALUE = 6666
@@ -64,6 +62,7 @@ def create_test_device_info() -> EcoflowDeviceInfo:
         status_topic=None,
     )
 
+
 # Multi-device configurations
 MULTI_DEVICE_CONFIGURATIONS = {
     "Power Kits": [
@@ -77,7 +76,6 @@ MULTI_DEVICE_CONFIGURATIONS = {
         "ldac",
     ]
 }
-
 
 # Initialize configurations
 device_options = DeviceOptions(0, 0, False)
@@ -143,9 +141,9 @@ class DocumentationGenerator:
             ]
 
     def get_devices(
-        self, hass: HomeAssistant, device_type: str, dev: type[BaseDevice]
+            self, hass: HomeAssistant, device_type: str, dev: type[BaseDevice]
     ) -> List[BaseDevice]:
-        
+
         real_devices = []
         device_info = create_test_device_info()
         for device_data in self.get_device_data(device_type):
@@ -184,16 +182,16 @@ class DocumentationGenerator:
                 for device in real_devices:
                     if len(real_devices) > 1:
                         content = (
-                            content
-                            + f"\n### {device.device_data.device_type}\n"
+                                content
+                                + f"\n### {device.device_data.device_type}\n"
                         )
                     content = content + render_device_summary(device, True)
                 content_summary += (
-                    "<details><summary> %s <i>(%s)</i> </summary>"
-                    % (
-                        dt,
-                        self.device_summary(real_devices),
-                    )
+                        "<details><summary> %s <i>(%s)</i> </summary>"
+                        % (
+                            dt,
+                            self.device_summary(real_devices),
+                        )
                 )
                 content_summary += "\n<p>\n"
                 content_summary += content
@@ -208,16 +206,16 @@ class DocumentationGenerator:
                 for device in real_devices:
                     if len(real_devices) > 1:
                         content = (
-                            content
-                            + f"\n### {device.device_data.device_type}\n"
+                                content
+                                + f"\n### {device.device_data.device_type}\n"
                         )
                     content = content + render_device_summary(device, True)
                 content_summary += (
-                    "<details><summary> %s (API) <i>(%s)</i> </summary>"
-                    % (
-                        dt,
-                        self.device_summary(real_devices),
-                    )
+                        "<details><summary> %s (API) <i>(%s)</i> </summary>"
+                        % (
+                            dt,
+                            self.device_summary(real_devices),
+                        )
                 )
 
                 content_summary += "\n<p>\n"
@@ -228,7 +226,7 @@ class DocumentationGenerator:
         print(content_summary)
 
         with open(
-            SUMMARY_FILENAME, "w+", encoding="utf-8"
+                SUMMARY_FILENAME, "w+", encoding="utf-8"
         ) as f_summary:
             f_summary.write(content_summary)
             f_summary.write("\n")
@@ -245,8 +243,8 @@ class DocumentationGenerator:
                 for device in real_devices:
                     if len(real_devices) > 1:
                         content = (
-                            content
-                            + f"\n### {device.device_data.device_type}\n"
+                                content
+                                + f"\n### {device.device_data.device_type}\n"
                         )
                     content = content + render_device_summary(device)
 
@@ -265,8 +263,8 @@ class DocumentationGenerator:
                 for device in real_devices:
                     if len(real_devices) > 1:
                         content = (
-                            content
-                            + f"\n### {device.device_data.device_type}\n"
+                                content
+                                + f"\n### {device.device_data.device_type}\n"
                         )
                     content = content + render_device_summary(device)
 
@@ -419,11 +417,15 @@ def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
 
 if __name__ == "__main__":
 
+    print("Gen doc lancé !")
+
     async def main():
         hass = await MockSetup.setup_hass()
         generator = DocumentationGenerator()
 
         generator.update_full_summary(hass)
         generator.render_brief_summary(hass)
+
+        print("Gen doc terminé !")
 
     asyncio.run(main())

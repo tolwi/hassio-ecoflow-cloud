@@ -1,16 +1,16 @@
 ## DELTA_Pro_Ultra
 
 *Sensors*
-- Status
+- Status (Scheduled)
 - Remaining Time (`hs_yj751_pd_appshow_addr.remainTime`)
 - Battery level SOC (`hs_yj751_pd_appshow_addr.soc`)
 - Battery Count (`hs_yj751_pd_appshow_addr.bpNum`)
-- Wireless 4G Data Max (`hs_yj751_pd_appshow_addr.fullCombo`)
-- Wireless 4G Data Remaining (`hs_yj751_pd_appshow_addr.remainCombo`)
-- Wireless 4G Resgistered (`hs_yj751_pd_appshow_addr.wireless4gCon`)
-- Wireless 4G Error Code (`hs_yj751_pd_appshow_addr.wirlesss4gErrCode`)
-- Wireless 4G SIM ID (`hs_yj751_pd_appshow_addr.simIccid`)
-- Internet Connection Type (`hs_yj751_pd_appshow_addr.wireless4GSta`)
+- Wireless 4G Data Max (`hs_yj751_pd_appshow_addr.fullCombo`)   _(disabled)_
+- Wireless 4G Data Remaining (`hs_yj751_pd_appshow_addr.remainCombo`)   _(disabled)_
+- Wireless 4G Resgistered (`hs_yj751_pd_appshow_addr.wireless4gCon`)   _(disabled)_
+- Wireless 4G Error Code (`hs_yj751_pd_appshow_addr.wirlesss4gErrCode`)   _(disabled)_
+- Wireless 4G SIM ID (`hs_yj751_pd_appshow_addr.simIccid`)   _(disabled)_
+- Internet Connection Type (`hs_yj751_pd_appshow_addr.wireless4GSta`)   _(disabled)_
 - Error Code (`hs_yj751_pd_appshow_addr.sysErrCode`)
 - Total In Power (`hs_yj751_pd_appshow_addr.wattsInSum`) (energy:  _[Device Name]_ Total In  Energy)
 - Total Out Power (`hs_yj751_pd_appshow_addr.wattsOutSum`) (energy:  _[Device Name]_ Total Out  Energy)

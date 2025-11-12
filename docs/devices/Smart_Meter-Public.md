@@ -18,9 +18,17 @@
 - L2 Lifetime net usage (`gridConnectionDataRecord.todayActiveL2`)   _(disabled)_
 - L3 Lifetime net usage (`gridConnectionDataRecord.todayActiveL3`)   _(disabled)_
 - Lifetime consumption (`gridConnectionDataRecord.todayActive`)
-- Lifetime injection (2) (`gridConnectionDataRecord.todayReactive`)   _(disabled)_
-- Lifetime net usage (`gridConnectionDataRecord.totalActiveEnergy`)
-- Lifetime injection (`gridConnectionDataRecord.totalReactiveEnergy`)
+- Net energy consumption (`gridConnectionDataRecord.totalActiveEnergy`)
+- Lifetime delivery (`gridConnectionDataRecord.totalReactiveEnergy`)
+- Timezone (`254_21.utcTimezone`)   _(disabled)_
+- Grid connection power factor (`gridConnectionPowerFactor`)   _(disabled)_
+- Grid connection state (`gridConnectionSta`)   _(disabled)_
+- Country code (`countryCode`)   _(disabled)_
+- Town code (`townCode`)   _(disabled)_
+- System group id (`systemGroupId`)   _(disabled)_
+- Factory mode enabled (`factoryModeEnable`)   _(disabled)_
+- Debug mode enabled (`debugModeEnable`)   _(disabled)_
+- Status
 
 *Switches*
 
