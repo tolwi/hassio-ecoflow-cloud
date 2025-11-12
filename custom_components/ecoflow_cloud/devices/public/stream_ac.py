@@ -1,4 +1,3 @@
-from ...api import EcoflowApiClient
 from ...sensor import StatusSensorEntity
 from .data_bridge import to_plain
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
@@ -12,7 +11,6 @@ from ...switch import EnabledEntity
 from ...number import (
     BatteryBackupLevel
 )
-from ...select import PowerDictSelectEntity
 
 class StreamAC(BaseDevice):
 
@@ -332,42 +330,42 @@ class StreamAC(BaseDevice):
                 enableValue=True,
                 disableValue=False,
             ),
-            #EnabledEntity(
-            #    client,
-            #    self,
-            #    "energyStrategyOperateMode.operateSelfPoweredOpen",
-            #    const.STREAM_OPERATION_MODE_SELF_POWERED,
-            #    lambda value: {
-            #        "sn": self.device_info.sn,
-            #        "cmdId": 17,
-            #        "cmdFunc": 254,
-            #        "dirDest": 1,
-            #        "dirSrc": 1,
-            #        "dest": 2,
-            #        "needAck": True,
-            #    "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen":value}},
-            #        },
-            #    enableValue=True,
-            #    disableValue=False,
-            #),
-            #EnabledEntity(
-            #    client,
-            #    self,
-            #    "energyStrategyOperateMode.operateIntelligentScheduleModeOpen",
-            #    const.STREAM_OPERATION_MODE_AI_MODE,
-            #    lambda value: {
-            #        "sn": self.device_info.sn,
-            #        "cmdId": 17,
-            #        "cmdFunc": 254,
-            #        "dirDest": 1,
-            #        "dirSrc": 1,
-            #        "dest": 2,
-            #        "needAck": True,
-            #        "params": {"operateIntelligentScheduleModeOpen": {"operateSelfPoweredOpen":value}},
-            #        },
-            #    enableValue=True,
-            #    disableValue=False,
-            #),
+            EnabledEntity(
+                client,
+                self,
+                "energyStrategyOperateMode.operateSelfPoweredOpen",
+                const.STREAM_OPERATION_MODE_SELF_POWERED,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "cmdFunc": 254,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "dest": 2,
+                    "needAck": True,
+                "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen":value}},
+                    },
+                enableValue=True,
+                disableValue=False,
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "energyStrategyOperateMode.operateIntelligentScheduleModeOpen",
+                const.STREAM_OPERATION_MODE_AI_MODE,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "cmdFunc": 254,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "dest": 2,
+                    "needAck": True,
+                    "params": {"cfgEnergyStrategyOperateMode": {"operateIntelligentScheduleModeOpen":value}},
+                    },
+                enableValue=True,
+                disableValue=False,
+            ),
             EnabledEntity(
                 client,
                 self,
