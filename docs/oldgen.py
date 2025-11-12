@@ -284,7 +284,7 @@ def update_full_summary():
 
 
 if __name__ == "__main__":
-    print("Gen doc lancé !")
+    print("Doc generation started!")
     update_full_summary()
     render_brief_summary()
-    print("Gen doc terminé !")
+    print("Doc generation completed!")
