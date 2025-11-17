@@ -17,5 +17,5 @@
     "protobuf>=5.29.1",
     "jsonpath-ng>=1.7.0"
   ],
-  "version": "1.4.0-beta2"
+  "version": "1.4.0-beta3"
 }
