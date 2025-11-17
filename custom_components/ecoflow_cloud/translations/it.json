@@ -1,0 +1,76 @@
+{
+  "title": "EcoFlow-Cloud",
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "group": "Gruppo di dispositivi"
+        }
+      },
+      "api": {
+        "menu_options": {
+          "api_add_device": "Aggiungi dispositivo",
+          "remove_device": "Rimuovi dispositivo",
+          "finish": "Fine"
+        },
+        "data": {
+          "access_key": "Access key",
+          "secret_key": "Secret key",
+          "load_all_devices": "Caricamento automatico dei dispositivi"
+        }
+      },
+      "choose_type": {
+         "menu_options": {
+          "api": "Usa API pubblica",
+          "manual": "Usa API dell'applicazione"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "Seleziona dispositivo"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "Tipo di dispositivo",
+          "device_name": "Nome del dispositivo",
+          "device_id": "SN del dispositivo"
+        }
+      },
+      "manual": {
+        "menu_options": {
+          "manual_add_device": "Aggiungi dispositivo",
+          "remove_device": "Rimuovi dispositivo",
+          "finish": "Fine"
+        },
+        "data": {
+          "username": "Email utente",
+          "password": "Password utente"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "Tipo di dispositivo",
+          "device_name": "Nome del dispositivo",
+          "device_id": "SN del dispositivo"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "select_device": "Seleziona dispositivo"
+        }
+      },
+      "options": {
+        "data": {
+          "power_step": "Passo dello slider della potenza di carica",
+          "refresh_period_sec": "Periodo di aggiornamento dati (sec)",
+          "diagnostic_mode": "Modalità diagnostica"
+        }
+      }
+    }
+  }
+}
