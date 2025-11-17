@@ -1,0 +1,76 @@
+{
+  "title": "EcoFlow-Cloud",
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "group": "デバイスグループ"
+        }
+      },
+      "api": {
+        "menu_options": {
+          "api_add_device": "デバイスを追加",
+          "remove_device": "デバイスを削除",
+          "finish": "完了"
+        },
+        "data": {
+          "access_key": "アクセスキー",
+          "secret_key": "シークレットキー",
+          "load_all_devices": "自動デバイス読み込み"
+        }
+      },
+      "choose_type": {
+         "menu_options": {
+          "api": "パブリックAPIを使用",
+          "manual": "Ecoflowアカウントを使用"
+        }
+      },
+      "select_device": {
+        "data": {
+          "select_device": "デバイスを選択"
+        }
+      },
+      "confirm_cloud_device": {
+        "data": {
+          "device_type": "デバイスタイプ",
+          "device_name": "デバイス名",
+          "device_id": "デバイスSN"
+        }
+      },
+      "manual": {
+        "menu_options": {
+          "manual_add_device": "デバイスを追加",
+          "remove_device": "デバイスを削除",
+          "finish": "完了"
+        },
+        "data": {
+          "username": "ユーザーメールアドレス",
+          "password": "ユーザーパスワード"
+        }
+      },
+      "manual_device_input": {
+        "data": {
+          "device_type": "デバイスタイプ",
+          "device_name": "デバイス名",
+          "device_id": "デバイスSN"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "select_device": "デバイスを選択"
+        }
+      },
+      "options": {
+        "data": {
+          "power_step": "充電電力スライダーのステップ",
+          "refresh_period_sec": "データ更新間隔（秒）",
+          "diagnostic_mode": "診断モード"
+        }
+      }
+    }
+  }
+}

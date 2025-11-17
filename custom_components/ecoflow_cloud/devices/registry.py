@@ -1,45 +1,48 @@
-from typing import Type, OrderedDict
+from collections import OrderedDict
+from typing import Type
+
+from custom_components.ecoflow_cloud.devices import BaseDevice, DiagnosticDevice
 
 from .internal import (
     delta2 as internal_delta2,
+    delta2_max as internal_delta2_max,
     delta3 as internal_delta3,
+    delta_max as internal_delta_max,
+    delta_mini as internal_delta_mini,
+    delta_pro as internal_delta_pro,
+    delta_pro_3 as internal_delta_pro_3,
+    glacier as internal_glacier,
+    powerstream as internal_powerstream,
     river2 as internal_river2,
     river2_max as internal_river2_max,
     river2_pro as internal_river2_pro,
-    delta2_max as internal_delta2_max,
-    delta_pro as internal_delta_pro,
     river_max as internal_river_max,
-    river_pro as internal_river_pro,
     river_mini as internal_river_mini,
-    delta_mini as internal_delta_mini,
-    delta_max as internal_delta_max,
-    powerstream as internal_powerstream,
-    glacier as internal_glacier,
-    wave2 as internal_wave2,
+    river_pro as internal_river_pro,
     smart_meter as internal_smart_meter,
     stream_ac as internal_stream_ac,
+    wave2 as internal_wave2,
 )
 from .public import (
-    delta_pro as public_delta_pro,
-    delta_pro_ultra as public_delta_pro_ultra,
     delta2 as public_delta2,
     delta2_max as public_delta2_max,
     delta3 as public_delta3,
+    delta_max as public_delta_max,
+    delta_pro as public_delta_pro,
+    delta_pro_3 as public_delta_pro_3,
+    delta_pro_ultra as public_delta_pro_ultra,
+    powerkit as public_powerkit,
+    powerstream as public_powerstream,
     river2 as public_river2,
     river2_max as public_river2_max,
     river2_pro as public_river2_pro,
-    smart_plug as public_smart_plug,
-    delta_max as public_delta_max,
-    powerstream as public_powerstream,
-    delta_pro_3 as public_delta_pro_3,
-    powerkit as public_powerkit,
+    smart_home_panel_2 as public_smart_home_panel_2,
     smart_meter as public_smart_meter,
+    smart_plug as public_smart_plug,
     stream_ac as public_stream_ac,
     stream_microinverter as public_stream_microinverter,
     wave2 as public_wave2,
-    smart_home_panel_2 as public_smart_home_panel_2,
 )
-from ..devices import BaseDevice, DiagnosticDevice
 
 devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]](
     {
@@ -49,6 +52,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "RIVER_2_MAX": internal_river2_max.River2Max,
         "RIVER_2_PRO": internal_river2_pro.River2Pro,
         "DELTA_PRO": internal_delta_pro.DeltaPro,
+        "DELTA_PRO_3": internal_delta_pro_3.DeltaPro3,
         "RIVER_MAX": internal_river_max.RiverMax,
         "RIVER_PRO": internal_river_pro.RiverPro,
         "RIVER_MINI": internal_river_mini.RiverMini,
