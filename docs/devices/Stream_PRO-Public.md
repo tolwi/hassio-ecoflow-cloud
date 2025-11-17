@@ -7,6 +7,8 @@
 - Cumulative Energy Discharge (Wh) (`accuDsgEnergy`)
 - Charge Remaining Time (`bmsChgRemTime`)   _(disabled)_
 - Discharge Remaining Time (`bmsDsgRemTime`)   _(disabled)_
+- Max Charge Level (`cmsMaxChgSoc`)
+- Min Discharge Level (`cmsMinDsgSoc`)
 - Cycles (`cycles`)
 - Design Capacity (`designCap`)   _(disabled)_
 - Power Battery SOC (`f32ShowSoc`)
@@ -42,8 +44,14 @@
 - Battery Volts (`vol`)   _(disabled)_
 
 *Switches*
+- AC 1 On (`relay2Onoff` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgRelay2Onoff": "VALUE"}}`)
+- AC 2 On (`relay3Onoff` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgRelay3Onoff": "VALUE"}}`)
+- Operating mode - Self-powered (`energyStrategyOperateMode.operateSelfPoweredOpen` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen": 6666}}}`)
+- Operating mode - AI Mode (`energyStrategyOperateMode.operateIntelligentScheduleModeOpen` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgEnergyStrategyOperateMode": {"operateIntelligentScheduleModeOpen": 6666}}}`)
+- Feed-in control (`feedGridMode` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgFeedGridMode": "VALUE"}}`)
 
 *Sliders (numbers)*
+- Backup Reserve Level (`backupReverseSoc` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgBackupReverseSoc": "VALUE"}}` [3 - 95])
 
 *Selects*
 
