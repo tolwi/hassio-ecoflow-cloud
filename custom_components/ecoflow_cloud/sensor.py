@@ -641,3 +641,18 @@ class IntegralEnergySensorEntity(IntegrationSensor):
         )
         self.device_info = base.device_info
         self._attr_entity_registry_enabled_default = enabled_default and base.enabled_default
+
+class SolarPowerSensorEntity(WattsSensorEntity):
+    _attr_entity_category = None
+    _attr_suggested_display_precision = 1
+    _attr_icon = "mdi:solar-power"
+
+
+class SolarAmpSensorEntity(AmpSensorEntity):
+    _attr_suggested_display_precision = 1
+    _attr_icon = "mdi:current-dc"
+
+
+class SystemPowerSensorEntity(WattsSensorEntity):
+    _attr_entity_category = None
+    _attr_suggested_display_precision = 1
