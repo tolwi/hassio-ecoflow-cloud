@@ -42,20 +42,12 @@ def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
         if k != "param" and k != "params":
             new_params[f"{prefix}{k}"] = v
 
-    def _flatten(prefix_key: str, value: any):
-        new_params2[prefix_key] = value
-        if isinstance(value, dict):
-            for k_child, v_child in value.items():
-                next_key = f"{prefix_key}.{k_child}" if prefix_key else k_child
-                _flatten(next_key, v_child)
-        elif isinstance(value, list):
-            for idx, item in enumerate(value):
-                next_key = f"{prefix_key}[{idx}]"
-                _flatten(next_key, item)
-
     new_params2 = {}
     for k, v in new_params.items():
-        _flatten(k, v)
+        new_params2[k] = v
+        if isinstance(v, dict):
+            for k2, v2 in v.items():
+                new_params2[f"{k}.{k2}"] = v2
 
     result = {"params": new_params2, "raw_data": raw_data}
     _LOGGER.debug(str(result))

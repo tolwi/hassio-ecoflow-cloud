@@ -106,7 +106,27 @@ class PowerOcean(BaseDevice):
         res = super()._prepare_data(raw_data)
         _LOGGER.info(f"_prepare_data {raw_data}")
         res = to_plain(res)
+        params = res.get("params")
+        if isinstance(params, dict):
+            flattened: dict[str, Any] = {}
+            for key, value in list(params.items()):
+                self._flatten_param_branch(key, value, flattened)
+            params.update(flattened)
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
         return StatusSensorEntity(client, self)
+
+    def _flatten_param_branch(
+        self, prefix: str, value: Any, target: dict[str, Any]
+    ) -> None:
+        if isinstance(value, dict):
+            for child_key, child_value in value.items():
+                next_key = f"{prefix}.{child_key}"
+                target[next_key] = child_value
+                self._flatten_param_branch(next_key, child_value, target)
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                next_key = f"{prefix}[{index}]"
+                target[next_key] = item
+                self._flatten_param_branch(next_key, item, target)
