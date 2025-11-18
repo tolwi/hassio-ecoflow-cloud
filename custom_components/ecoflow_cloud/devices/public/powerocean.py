@@ -36,7 +36,7 @@ class PowerOcean(BaseDevice):
             WattsSensorEntity(client, self, "bpPwr", "bpPwr"),
             SystemPowerSensorEntity(client, self, "sysLoadPwr", "sysLoadPwr"),
             SystemPowerSensorEntity(client, self, "sysGridPwr", "sysGridPwr"),
-            # TODO: flatten Structure?
+
             # String 1
             SolarPowerSensorEntity(
                 client, self, "96_1.mpptHeartBeat[0].mpptPv[0].pwr", "mpptPv1.pwr"
