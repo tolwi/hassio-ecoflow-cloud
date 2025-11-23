@@ -404,6 +404,81 @@
 
 </p></details>
 
+<details><summary> DELTA_PRO_3 <i>(sensors: 47, switches: 8, sliders: 3, selects: 4)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Cycles
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Main Battery Current  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Battery Temperature
+- Charge Remaining Time
+- Discharge Remaining Time
+- Battery Level
+- Total Out Power
+- Total In Power
+- AC In Power
+- AC Out Power
+- AC HV Output Power
+- AC LV Output Power
+- AC In Volts
+- AC Input Current
+- 12V DC Output Power
+- 24V DC Output Power
+- 12V DC Output Voltage
+- 24V DC Output Voltage
+- Solar High Voltage Input Power
+- Solar Low Voltage Input Power
+- Solar HV Input Voltage
+- Solar LV Input Voltage
+- Solar HV Input Current
+- Solar LV Input Current
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Type-C (1) Out Power
+- Type-C (2) Out Power
+- 5P8 Power I/O Port Power
+- 4P8 Extra Battery Port 1 Power
+- 4P8 Extra Battery Port 2 Power
+- AC Output Frequency
+- Max Charge SOC Setting
+- Min Discharge SOC Setting
+- Total Charge Energy
+- Total Discharge Energy
+- Status
+
+*Switches*
+- Beeper 
+- AC HV Output Enabled 
+- AC LV Output Enabled 
+- 12V DC Output Enabled 
+- 24V DC Output Enabled 
+- X-Boost Enabled 
+- AC Energy Saving Enabled 
+- GFCI Protection Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- AC Charging Power 
+
+*Selects*
+- Screen Timeout 
+- AC Timeout 
+- DC Timeout 
+- AC Output Type 
+
+</p></details>
+
 <details><summary> RIVER_MAX <i>(sensors: 49, switches: 5, sliders: 1, selects: 3)</i> </summary>
 <p>
 
@@ -2625,6 +2700,46 @@
 *Selects*
 - Operating Mode 
 - Generator Type 
+
+</p></details>
+
+<details><summary> Power Ocean (API) <i>(sensors: 27, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- mpptPwr
+- bpSoc
+- bpPwr
+- sysLoadPwr
+- sysGridPwr
+- mpptPv1.pwr
+- mpptPv1.amp
+- mpptPv1.vol
+- mpptPv2.pwr
+- mpptPv2.amp
+- mpptPv2.vol
+- pcsAPhase.vol
+- pcsAPhase.amp
+- pcsAPhase.actPwr
+- pcsAPhase.reactPwr
+- pcsAPhase.apparentPwr
+- pcsBPhase.vol
+- pcsBPhase.amp
+- pcsBPhase.actPwr
+- pcsBPhase.reactPwr
+- pcsBPhase.apparentPwr
+- pcsCPhase.vol
+- pcsCPhase.amp
+- pcsCPhase.actPwr
+- pcsCPhase.reactPwr
+- pcsCPhase.apparentPwr
+- Status
+
+*Switches*
+
+*Sliders (numbers)*
+
+*Selects*
 
 </p></details>
 

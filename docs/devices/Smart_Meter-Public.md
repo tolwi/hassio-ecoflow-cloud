@@ -20,7 +20,7 @@
 - Lifetime consumption (`gridConnectionDataRecord.todayActive`)
 - Net energy consumption (`gridConnectionDataRecord.totalActiveEnergy`)
 - Lifetime delivery (`gridConnectionDataRecord.totalReactiveEnergy`)
-- Timezone (`254_21.utcTimezone`)   _(disabled)_
+- Timezone (`utcTimezone`)   _(disabled)_
 - Grid connection power factor (`gridConnectionPowerFactor`)   _(disabled)_
 - Grid connection state (`gridConnectionSta`)   _(disabled)_
 - Country code (`countryCode`)   _(disabled)_
