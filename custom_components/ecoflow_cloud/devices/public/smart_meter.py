@@ -5,7 +5,7 @@ from ...devices import const, BaseDevice
 from .data_bridge import to_plain
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, \
     BaseSelectEntity
-from custom_components.ecoflow_cloud.sensor import MiscSensorEntity, WattsSensorEntity, InAmpSensorEntity, MilliVoltSensorEntity, \
+from custom_components.ecoflow_cloud.sensor import MiscSensorEntity, WattsSensorEntity, InAmpSensorEntity, VoltSensorEntity, \
     EnergySensorEntity, MiscBinarySensorEntity
 
 class SmartMeter(BaseDevice):
@@ -24,9 +24,9 @@ class SmartMeter(BaseDevice):
             InAmpSensorEntity(client, self, "gridConnectionAmpL2", const.SMART_METER_IN_AMPS_L2, False),
             InAmpSensorEntity(client, self, "gridConnectionAmpL3", const.SMART_METER_IN_AMPS_L3, False),
 
-            MilliVoltSensorEntity(client, self, "gridConnectionVolL1", const.SMART_METER_VOLT_L1, False),
-            MilliVoltSensorEntity(client, self, "gridConnectionVolL2", const.SMART_METER_VOLT_L2, False),
-            MilliVoltSensorEntity(client, self, "gridConnectionVolL3", const.SMART_METER_VOLT_L3, False),
+            VoltSensorEntity(client, self, "gridConnectionVolL1", const.SMART_METER_VOLT_L1, False),
+            VoltSensorEntity(client, self, "gridConnectionVolL2", const.SMART_METER_VOLT_L2, False),
+            VoltSensorEntity(client, self, "gridConnectionVolL3", const.SMART_METER_VOLT_L3, False),
 
             MiscBinarySensorEntity(client, self, "gridConnectionFlagL1", const.SMART_METER_FLAG_L1, False),
             MiscBinarySensorEntity(client, self, "gridConnectionFlagL2", const.SMART_METER_FLAG_L2, False),
