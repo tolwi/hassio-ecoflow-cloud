@@ -6,7 +6,7 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
     BaseSelectEntity
 from custom_components.ecoflow_cloud.sensor import WattsSensorEntity,LevelSensorEntity,CapacitySensorEntity, \
     InWattsSensorEntity,OutWattsSensorEntity, RemainSensorEntity, MilliVoltSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, EnergySensorEntity, CumulativeCapacitySensorEntity
+    CyclesSensorEntity, EnergySensorEntity, CumulativeCapacitySensorEntity, VoltSensorEntity
 from ...switch import EnabledEntity
 from ...number import (
     BatteryBackupLevel
@@ -110,7 +110,7 @@ class StreamAC(BaseDevice):
             WattsSensorEntity(client, self, "gridConnectionPower", const.STREAM_POWER_AC),
             # "gridConnectionSta": "PANEL_GRID_IN",
             # "gridConnectionVol": 235.34576,
-            MilliVoltSensorEntity(client, self, "gridConnectionVol", const.STREAM_POWER_VOL, False),
+            VoltSensorEntity(client, self, "gridConnectionVol", const.STREAM_POWER_VOL, False),
             # "gridSysDeviceCnt": 2,
             # "heatfilmNtcNum": 0,
             # "heatfilmTemp": [],
