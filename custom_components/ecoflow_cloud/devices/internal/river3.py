@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Any, override
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass  # pyright: ignore[reportMissingImports]
@@ -7,6 +8,8 @@ from homeassistant.helpers.entity import EntityCategory  # pyright: ignore[repor
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.devices.internal.proto import ef_river3_pb2 as pb2
+from custom_components.ecoflow_cloud.devices.internal.proto.ecopacket_pb2 import SendHeaderMsg
+from custom_components.ecoflow_cloud.devices.internal.proto.support.message import ProtoMessage
 from custom_components.ecoflow_cloud.entities import (
     BaseNumberEntity,
     BaseSelectEntity,
@@ -42,18 +45,25 @@ from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 _LOGGER = logging.getLogger(__name__)
 
 
+class River3CommandMessage(ProtoMessage):
+    """Message wrapper for River 3 protobuf commands."""
+
+    def __init__(self, packet: SendHeaderMsg):
+        super().__init__(command=None, payload=None)
+        self._packet = packet
+
+    def private_api_to_mqtt_payload(self):
+        return self._packet.SerializeToString()
+
+
 def _create_river3_proto_command(field_name: str, value: int, device_sn: str, data_len: int | None = None):
     """Create a protobuf command for River 3."""
-    from .proto.ecopacket_pb2 import SendHeaderMsg
-    from .proto.support.message import ProtoMessage
-    import time
-
     # Build the command using the generated protobuf class
     cmd = pb2.River3SetCommand()
     try:
         setattr(cmd, field_name, int(value))
     except AttributeError:
-        _LOGGER.error(f"Unknown River3 set field: {field_name}")
+        _LOGGER.error("Unknown River3 set field: %s", field_name)
         return None
 
     pdata = cmd.SerializeToString()
@@ -76,14 +86,6 @@ def _create_river3_proto_command(field_name: str, value: int, device_sn: str, da
     message.data_len = data_len if data_len is not None else len(pdata)
     message.pdata = pdata
 
-    class River3CommandMessage(ProtoMessage):
-        def __init__(self, packet: SendHeaderMsg):
-            super().__init__(command=None, payload=None)
-            self._packet = packet
-
-        def private_api_to_mqtt_payload(self):
-            return self._packet.SerializeToString()
-
     return River3CommandMessage(packet)
 
 
@@ -93,15 +95,11 @@ def _create_river3_energy_backup_command(
     device_sn: str
 ):
     """Create a protobuf command for River 3 energy backup settings."""
-    from .proto.ecopacket_pb2 import SendHeaderMsg
-    from .proto.support.message import ProtoMessage
-    import time
-
     # Build the command using the generated protobuf classes
     cmd = pb2.River3SetCommand()
     cmd.cfg_energy_backup.energy_backup_start_soc = int(energy_backup_start_soc)
-    if energy_backup_en is not None and energy_backup_en == 1:
-        cmd.cfg_energy_backup.energy_backup_en = 1
+    if energy_backup_en is not None:
+        cmd.cfg_energy_backup.energy_backup_en = int(energy_backup_en)
 
     pdata = cmd.SerializeToString()
 
@@ -122,14 +120,6 @@ def _create_river3_energy_backup_command(
     message.device_sn = device_sn
     message.data_len = len(pdata)
     message.pdata = pdata
-
-    class River3CommandMessage(ProtoMessage):
-        def __init__(self, packet: SendHeaderMsg):
-            super().__init__(command=None, payload=None)
-            self._packet = packet
-
-        def private_api_to_mqtt_payload(self):
-            return self._packet.SerializeToString()
 
     return River3CommandMessage(packet)
 
@@ -341,13 +331,15 @@ class River3(BaseDevice):
             try:
                 decoded_payload = base64.b64decode(raw_data, validate=True)
                 raw_data = decoded_payload
-            except Exception:
-                pass
+            except Exception as e:
+                # If base64 decoding fails, proceed with the original raw_data (it may not be base64 encoded)
+                _LOGGER.debug("[River3] base64 decode failed: %s", e)
 
             try:
                 header_msg = pb2.River3HeaderMessage()
                 header_msg.ParseFromString(raw_data)
-            except Exception:
+            except Exception as e:
+                _LOGGER.debug("[River3] Failed to parse header message: %s", e)
                 return None
 
             if not header_msg.header:
@@ -371,7 +363,8 @@ class River3(BaseDevice):
                 "payloadVer": getattr(header, "payload_ver", 0),
                 "header_obj": header,
             }
-        except Exception:
+        except Exception as e:
+            _LOGGER.debug("[River3] Failed to decode header message: %s", e)
             return None
 
     def _extract_payload_data(self, header_obj: Any) -> bytes | None:
@@ -379,7 +372,8 @@ class River3(BaseDevice):
         try:
             pdata = getattr(header_obj, "pdata", b"")
             return pdata if pdata else None
-        except Exception:
+        except Exception as e:
+            _LOGGER.debug("[River3] Failed to extract payload data: %s", e)
             return None
 
     def _perform_xor_decode(self, pdata: bytes, header_info: dict[str, Any]) -> bytes:
@@ -429,7 +423,8 @@ class River3(BaseDevice):
                     msg = pb2.River3SetCommand()
                     msg.ParseFromString(pdata)
                     return self._protobuf_to_dict(msg)
-                except Exception:
+                except Exception as e:
+                    _LOGGER.debug("Failed to decode as River3SetCommand: %s", e)
                     return {}
 
             elif cmd_func == 254 and cmd_id == 18:
@@ -467,8 +462,8 @@ class River3(BaseDevice):
                 result = self._protobuf_to_dict(msg)
                 if "cycles" in result or "accu_chg_energy" in result or "accu_dsg_energy" in result:
                     return result
-            except Exception:
-                pass
+            except Exception as e:
+                _LOGGER.debug("Failed to decode as fallback BMSHeartBeatReport: %s", e)
 
             return {}
         except Exception as e:
@@ -520,8 +515,8 @@ class River3(BaseDevice):
                         if enum_name.startswith("STATISTICS_OBJECT_"):
                             field_name = enum_name.replace("STATISTICS_OBJECT_", "").lower()
                             data[field_name] = stat_content
-                    except ValueError:
-                        pass
+                    except ValueError as e:
+                        _LOGGER.warning("Failed to get enum name for statistics object %s: %s", stat_obj, e)
 
         return data
 
@@ -568,8 +563,9 @@ class River3(BaseDevice):
             try:
                 decoded_payload = base64.b64decode(raw_data, validate=True)
                 raw_data = decoded_payload
-            except Exception:
-                pass
+            except Exception as e:
+                # If base64 decoding fails, proceed with the original raw_data (it may not be base64 encoded)
+                _LOGGER.debug("[River3] base64 decode failed: %s", e)
 
             header_msg = pb2.River3HeaderMessage()
             header_msg.ParseFromString(raw_data)
