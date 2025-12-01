@@ -24,6 +24,8 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             'device':    device.device_info.device_type,
             'name':      device.device_info.name,
             'sn':        sn,
+            'params_time': device.data.params_time,
+            'status_time': device.data.status_time,
             'params':    dict(sorted(device.data.params.items())),
             'set':       [dict(sorted(k.items())) for k in device.data.set],
             'set_reply': [dict(sorted(k.items())) for k in device.data.set_reply],

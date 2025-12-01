@@ -130,8 +130,9 @@ class BaseDevice(ABC):
             online = int(cast(bool | int | str, message_data["online"]))
             if online == 1:
                 return {"params": message_data["quotaMap"], "time": dt.utcnow()}
-        raise ValueError("not a quota message")
 
+        return None
+            
     def private_api_get_quota(self) -> Message:
         return JSONMessage(
             {

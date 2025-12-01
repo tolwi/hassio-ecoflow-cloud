@@ -59,7 +59,11 @@ class EcoflowDataHolder:
 
     def last_received_time(self):
         return max(
-            self.status_time, self.params_time, self.get_reply_time, self.set_reply_time
+            self.status_time, self.params_time
+            
+            # 1. get_reply can receive '"message": "The device is not online"
+            # 2. if device is online - get_reply message will update params, so param_time will be updated as well
+            # , self.get_reply_time, self.set_reply_time 
         )
 
     def add_set_message(self, msg: dict[str, Any]):
