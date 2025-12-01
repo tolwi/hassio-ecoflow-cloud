@@ -4,7 +4,7 @@ from ...entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, Ba
 from ...number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
     MaxGenStopLevelEntity, MinGenStartLevelEntity, BatteryBackupLevel
 from ...select import DictSelectEntity, TimeoutDictSelectEntity
-from ...sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
+from ...sensor import ChargingStateSensorEntity, LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity, StatusSensorEntity, QuotaStatusSensorEntity
 from ...switch import BeeperEntity, EnabledEntity
@@ -25,6 +25,9 @@ class Delta2(BaseDevice):
             LevelSensorEntity(client, self, "bms_bmsStatus.soh", const.SOH),
 
             LevelSensorEntity(client, self, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
+
+            ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE),
+
             InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
             OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER).with_energy(),
 
@@ -51,6 +54,8 @@ class Delta2(BaseDevice):
 
             RemainSensorEntity(client, self, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, self, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
+
+            RemainSensorEntity(client, self, "pd.remainTime", const.REMAINING_TIME),
 
             TempSensorEntity(client, self, "inv.outTemp", "Inv Out Temperature"),
             CyclesSensorEntity(client, self, "bms_bmsStatus.cycles", const.CYCLES),
