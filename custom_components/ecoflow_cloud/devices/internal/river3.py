@@ -516,7 +516,7 @@ class River3(BaseDevice):
                             field_name = enum_name.replace("STATISTICS_OBJECT_", "").lower()
                             data[field_name] = stat_content
                     except ValueError as e:
-                        _LOGGER.warning("Failed to get enum name for statistics object %s: %s", stat_obj, e)
+                        _LOGGER.debug("Failed to get enum name for statistics object %s: %s", stat_obj, e)
 
         return data
 
