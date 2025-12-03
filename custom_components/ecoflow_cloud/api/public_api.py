@@ -112,6 +112,19 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Error retrieving %s", sn)
 
+    async def historical_data(
+        self, device_sn: str, begin_time: str, end_time: str, code: str
+    ) -> dict:
+        body = {
+            "sn": device_sn,
+            "params": {
+                "beginTime": begin_time,
+                "endTime": end_time,
+                "code": code,
+            },
+        }
+        return await self.post_api("/device/quota/data", body)
+
     async def call_api(self, endpoint: str, params: dict[str, str] = None) -> dict:
         self.nonce = str(random.randint(10000, 1000000))
         self.timestamp = str(int(time.time() * 1000))
@@ -141,6 +154,52 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 str(params_str),
                 str(json_resp),
             )
+            return json_resp
+
+    def __flatten_params(self, data: dict) -> list[tuple[str, str]]:
+        def _flatten(prefix: str, value) -> list[tuple[str, str]]:
+            items: list[tuple[str, str]] = []
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    key = f"{prefix}.{k}" if prefix else k
+                    items.extend(_flatten(key, v))
+            elif isinstance(value, list):
+                for idx, v in enumerate(value):
+                    key = f"{prefix}[{idx}]"
+                    items.extend(_flatten(key, v))
+            else:
+                items.append((prefix, str(value)))
+            return items
+
+        return _flatten("", data)
+
+    async def post_api(self, endpoint: str, body: dict) -> dict:
+        self.nonce = str(random.randint(10000, 1000000))
+        self.timestamp = str(int(time.time() * 1000))
+
+        # Build sign string from flattened JSON body
+        flat = [(k, v) for (k, v) in self.__flatten_params(body) if k]
+        flat.sort(key=lambda x: x[0])
+        params_str = "&".join([f"{k}={v}" for k, v in flat])
+        sign = self.__gen_sign(params_str)
+
+        headers = {
+            "accessKey": self.access_key,
+            "nonce": self.nonce,
+            "timestamp": self.timestamp,
+            "sign": sign,
+            "Content-Type": "application/json;charset=UTF-8",
+        }
+
+        async with aiohttp.ClientSession() as session:
+            _LOGGER.debug("POST Request: %s body=%s", str(endpoint), str(body))
+            resp = await session.post(
+                f"https://{self.api_domain}/iot-open/sign{endpoint}",
+                headers=headers,
+                json=body,
+            )
+            json_resp = await self._get_json_response(resp)
+            _LOGGER.debug("POST Response: %s", str(json_resp))
             return json_resp
 
     def __create_device_info(

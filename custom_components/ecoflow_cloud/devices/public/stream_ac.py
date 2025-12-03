@@ -1,4 +1,5 @@
 from ...sensor import StatusSensorEntity
+from homeassistant.util import dt
 from .data_bridge import to_plain
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import const, BaseDevice
@@ -11,6 +12,118 @@ from ...switch import EnabledEntity
 from ...number import (
     BatteryBackupLevel
 )
+
+# Historical metric codes as per API docs
+HIST_CODE_ENERGY_INDEPENDENCE = "BK621-App-HOME-INDEPENDENCE-PERCENT-FLOW-indep-progress_bar-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_ENV_IMPACT = "BK621-App-HOME-CO2-WEIGHT-FLOW-impact-progress_arc-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_SAVINGS_TOTAL = "BK621-App-HOME-SAVING-CURRENCY-FLOW-earnings-progress_arc-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_SOLAR_GENERATED = "BK621-App-HOME-SOLAR-ENERGY-FLOW-solor-line-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_ELECTRICITY_CONS = "BK621-App-HOME-LOAD-ENERGY-FLOW-consumption-prop_arc-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_GRID = "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
+
+
+class _HistoricalDataStatus(StatusSensorEntity):
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice):
+        super().__init__(client, device, "Status (Historical)", "status.historical")
+        self.offline_barrier_sec = 3600
+        self._last_fetch = dt.utcnow().replace(year=2000, month=1, day=1, hour=0)
+
+    async def _fetch_and_update(self):
+        # Prepare day range in UTC for day/hour level metrics
+        now = dt.utcnow()
+        begin_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_day = now.replace(hour=23, minute=59, second=59, microsecond=0)
+        fmt = "%Y-%m-%d %H:%M:%S"
+        sn = self._device.device_info.sn
+
+        params: dict[str, float | int] = {}
+
+        try:
+            # Energy independence (year-level) — ensure begin < end
+            begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
+            resp = await self._client.historical_data(
+                sn, begin_year.strftime(fmt), end_year.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                params["history.energyIndependence"] = float(items[0].get("indexValue", 0))
+
+            # Environmental impact (day-level, grams)
+            resp = await self._client.historical_data(
+                sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                params["history.environmentalImpact_g"] = float(items[0].get("indexValue", 0))
+
+            # Total solar energy savings (currency)
+            resp = await self._client.historical_data(
+                sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                params["history.totalSolarSavings"] = float(items[0].get("indexValue", 0))
+                # Optional: currency symbol items[0].get("unit")
+
+            # Solar-generated power (Wh)
+            resp = await self._client.historical_data(
+                sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                params["history.solarGeneratedWh"] = float(items[0].get("indexValue", 0))
+
+            # Electricity consumption (Wh)
+            resp = await self._client.historical_data(
+                sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                params["history.electricityConsumptionWh"] = float(items[0].get("indexValue", 0))
+
+            # Grid (Wh): extra 1/2
+            resp = await self._client.historical_data(
+                sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
+            )
+            items = resp.get("data", {}).get("data", [])
+            for it in items:
+                extra = str(it.get("extra", ""))
+                if extra == "1":
+                    params["history.gridImportWh"] = float(it.get("indexValue", 0))
+                elif extra == "2":
+                    params["history.gridExportWh"] = float(it.get("indexValue", 0))
+
+            # Battery charge/discharge (Wh): extra 2=charge, 1=discharge
+            resp = await self._client.historical_data(
+                sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
+            )
+            items = resp.get("data", {}).get("data", [])
+            for it in items:
+                extra = str(it.get("extra", ""))
+                if extra == "2":
+                    params["history.batteryChargeWh"] = float(it.get("indexValue", 0))
+                elif extra == "1":
+                    params["history.batteryDischargeWh"] = float(it.get("indexValue", 0))
+        except Exception as e:
+            # Log but do not break entity updates
+            from logging import getLogger
+
+            getLogger(__name__).error("Failed to fetch historical data: %s", e, exc_info=True)
+
+        if params:
+            self._device.data.update_data({"params": params})
+
+    def _actualize_status(self) -> bool:
+        changed = super()._actualize_status()
+        elapsed = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._last_fetch)
+        if elapsed > self.offline_barrier_sec:
+            self._last_fetch = dt.utcnow()
+            # Fire and forget background task
+            self.hass.async_create_background_task(self._fetch_and_update(), "fetch historical data")
+            changed = True
+        return changed
 
 class StreamAC(BaseDevice):
 
@@ -263,6 +376,17 @@ class StreamAC(BaseDevice):
             .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
 
+            # Historical data sensors (HTTP)
+            BaseSensorEntity(client, self, "history.energyIndependence", "Energy Independence").with_unit_of_measurement("%"),
+            BaseSensorEntity(client, self, "history.environmentalImpact_g", "Environmental Impact").with_unit_of_measurement("g"),
+            BaseSensorEntity(client, self, "history.totalSolarSavings", "Total Solar Savings").with_unit_of_measurement("€"),
+            EnergySensorEntity(client, self, "history.solarGeneratedWh", "Solar Generated").with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.electricityConsumptionWh", "Electricity Consumption").with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.gridImportWh", "Grid Import").with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.gridExportWh", "Grid Export").with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.batteryChargeWh", "Battery Charge").with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.batteryDischargeWh", "Battery Discharge").with_unit_of_measurement("Wh"),
+            _HistoricalDataStatus(client, self),
         ]
     # moduleWifiRssi
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
