@@ -76,8 +76,10 @@ class DeltaPro(BaseDevice):
                 const.COMBINED_BATTERY_LEVEL_F32,
                 False,
             ),
-            WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER)
+                .with_energy(),
+            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER)
+                .with_energy(),
             MilliampSensorEntity(client, self, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT),
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),

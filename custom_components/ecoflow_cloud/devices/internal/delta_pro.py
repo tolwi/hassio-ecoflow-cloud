@@ -34,9 +34,8 @@ class DeltaPro(BaseDevice):
 
             LevelSensorEntity(client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             LevelSensorEntity(client, self, "ems.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL_F32, False),
-            WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
-
+            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
+            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),
 

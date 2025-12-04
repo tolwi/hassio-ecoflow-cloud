@@ -63,6 +63,9 @@ class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
             .replace("]", "-")
         )
 
+    def title(self) -> str:
+        return self._attr_name
+
     def with_category(self, category: EntityCategory) -> EcoFlowAbstractEntity:
         self._attr_entity_category = category
         return self

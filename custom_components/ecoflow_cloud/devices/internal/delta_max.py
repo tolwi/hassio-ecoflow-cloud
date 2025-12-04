@@ -4,12 +4,11 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
     MaxGenStopLevelEntity, MinGenStartLevelEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
     InEnergySensorEntity, OutEnergySensorEntity, OutWattsDcSensorEntity, QuotaStatusSensorEntity, \
-    StatusSensorEntity, \
-    MilliampSensorEntity, InVoltSolarSensorEntity, InMilliampSolarSensorEntity, OutVoltDcSensorEntity
+    StatusSensorEntity, MilliampSensorEntity, InVoltSolarSensorEntity, InMilliampSolarSensorEntity, \
+    OutVoltDcSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 

@@ -2,7 +2,7 @@ from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, TempSensorEntity, \
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, \
     MilliampSensorEntity, InMilliVoltSensorEntity, \
     BeMilliVoltSensorEntity
@@ -33,9 +33,8 @@ class RiverMini(BaseDevice):
             OutEnergySensorEntity(client, self, "pd.dsgPowerAC", const.DISCHARGE_AC_ENERGY),
             OutEnergySensorEntity(client, self, "pd.dsgPowerDC", const.DISCHARGE_DC_ENERGY),
 
-            WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
-
+            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
+            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
             CyclesSensorEntity(client, self, "inv.cycles", const.CYCLES),
         ]
