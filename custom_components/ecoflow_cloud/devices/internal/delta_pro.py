@@ -6,7 +6,7 @@ from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatte
     MinGenStartLevelEntity, \
     MaxGenStopLevelEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsDifferenceSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
@@ -34,9 +34,13 @@ class DeltaPro(BaseDevice):
 
             LevelSensorEntity(client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             LevelSensorEntity(client, self, "ems.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL_F32, False),
-            WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
-
+            *WattsDifferenceSensorEntity.build_and_return_all(
+                client,
+                self,
+                const.POWER_DIFFERENCE,
+                InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
+                OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            ),
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),
 

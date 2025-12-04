@@ -37,6 +37,7 @@ from custom_components.ecoflow_cloud.sensor import (
     QuotaStatusSensorEntity,
     RemainSensorEntity,
     TempSensorEntity,
+    WattsDifferenceSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
@@ -93,8 +94,13 @@ class DeltaPro3(BaseDevice):
             RemainSensorEntity(client, self, "bms_chg_rem_time", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, self, "bms_dsg_rem_time", const.DISCHARGE_REMAINING_TIME),
             LevelSensorEntity(client, self, "cms_batt_soc", const.COMBINED_BATTERY_LEVEL),
-            OutWattsSensorEntity(client, self, "pow_out_sum_w", const.TOTAL_OUT_POWER),
-            InWattsSensorEntity(client, self, "pow_in_sum_w", const.TOTAL_IN_POWER),
+            *WattsDifferenceSensorEntity.build_and_return_all(
+                client,
+                self,
+                const.POWER_DIFFERENCE,
+                InWattsSensorEntity(client, self, "pow_in_sum_w", const.TOTAL_IN_POWER),
+                OutWattsSensorEntity(client, self, "pow_out_sum_w", const.TOTAL_OUT_POWER),
+            ),
             InWattsSensorEntity(client, self, "pow_get_ac_in", const.AC_IN_POWER),
             OutWattsSensorEntity(client, self, "pow_get_ac", const.AC_OUT_POWER),
             OutWattsSensorEntity(client, self, "pow_get_ac_hv_out", "AC HV Output Power"),

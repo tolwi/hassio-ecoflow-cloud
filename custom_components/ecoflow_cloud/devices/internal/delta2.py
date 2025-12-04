@@ -6,7 +6,7 @@ from ...number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLeve
 from ...select import DictSelectEntity, TimeoutDictSelectEntity
 from ...sensor import ChargingStateSensorEntity, LevelSensorEntity, RemainSensorEntity, TempSensorEntity, CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
-    OutMilliVoltSensorEntity, CapacitySensorEntity, StatusSensorEntity, QuotaStatusSensorEntity
+    OutMilliVoltSensorEntity, CapacitySensorEntity, StatusSensorEntity, QuotaStatusSensorEntity, WattsDifferenceSensorEntity
 from ...switch import BeeperEntity, EnabledEntity
 
 
@@ -28,16 +28,26 @@ class Delta2(BaseDevice):
 
             ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE),
 
-            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
-            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER).with_energy(),
+            *WattsDifferenceSensorEntity.build_and_return_all(
+                client,
+                self,
+                const.POWER_DIFFERENCE,
+                InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER)
+                    .with_energy(),
+                OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER)
+                    .with_energy(),
+            ),
 
-            InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
-            OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),
+            InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER)
+                .with_energy(),
+            OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER)
+                .with_energy(),
 
             InMilliVoltSensorEntity(client, self, "inv.acInVol", const.AC_IN_VOLT),
             OutMilliVoltSensorEntity(client, self, "inv.invOutVol", const.AC_OUT_VOLT),
 
-            InWattsSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER),
+            InWattsSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER)
+                .with_energy(),
 
             # OutWattsSensorEntity(client, self, "pd.carWatts", const.DC_OUT_POWER),
             # the same value as pd.carWatts

@@ -9,7 +9,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSens
     CyclesSensorEntity, \
     InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, InMilliampSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity, \
-    CumulativeCapacitySensorEntity, EnergySensorEntity, QuotaScheduledStatusSensorEntity
+    CumulativeCapacitySensorEntity, EnergySensorEntity, QuotaScheduledStatusSensorEntity, WattsDifferenceSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -32,9 +32,13 @@ class Delta2Max(BaseDevice):
             LevelSensorEntity(client, self, "bms_bmsStatus.soh", const.SOH),
 
             LevelSensorEntity(client, self, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
-
-            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            *WattsDifferenceSensorEntity.build_and_return_all(
+                client,
+                self,
+                const.POWER_DIFFERENCE,
+                InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
+                OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            ),
 
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),
