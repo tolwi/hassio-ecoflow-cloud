@@ -58,6 +58,25 @@ class _HistoricalDataStatus(StatusSensorEntity):
             if items:
                 params["history.environmentalImpact_g"] = float(items[0].get("indexValue", 0))
 
+            # Environmental impact cumulative (grams) since May 2017
+            try:
+                begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_all = await self._client.historical_data(
+                    sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
+                )
+                all_items = resp_all.get("data", {}).get("data", [])
+                if all_items:
+                    total_g = 0.0
+                    for it in all_items:
+                        try:
+                            total_g += float(it.get("indexValue", 0))
+                        except Exception:
+                            pass
+                    params["history.environmentalImpactCumulative_g"] = total_g
+            except Exception:
+                # Ignore cumulative errors to not block other updates
+                pass
+
             # Total solar energy savings (currency)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
@@ -398,9 +417,10 @@ class StreamAC(BaseDevice):
             # Historical data sensors (HTTP)
             BaseSensorEntity(client, self, "history.energyIndependence", "Energy Independence").with_unit_of_measurement("%"),
             BaseSensorEntity(client, self, "history.environmentalImpact_g", "Environmental Impact").with_unit_of_measurement("g"),
+            BaseSensorEntity(client, self, "history.environmentalImpactCumulative_g", "Cumulative Environmental Impact").with_unit_of_measurement("g"),
             BaseSensorEntity(client, self, "history.totalSolarSavings", "Total Solar Savings").with_unit_of_measurement("€"),
             EnergySensorEntity(client, self, "history.solarGeneratedWh", "Solar Generated").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
-            EnergySensorEntity(client, self, "history.solarGeneratedWhCumulative", "Solar Generated (Cumulative)").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
+            EnergySensorEntity(client, self, "history.solarGeneratedWhCumulative", "Cumulative Solar Generated").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
             EnergySensorEntity(client, self, "history.electricityConsumptionWh", "Electricity Consumption").with_unit_of_measurement("Wh"),
             EnergySensorEntity(client, self, "history.gridImportWh", "Grid Import").with_unit_of_measurement("Wh"),
             EnergySensorEntity(client, self, "history.gridExportWh", "Grid Export").with_unit_of_measurement("Wh"),
