@@ -422,10 +422,10 @@ class StreamAC(BaseDevice):
             EnergySensorEntity(client, self, "history.solarGeneratedWh", "Solar Generated").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
             EnergySensorEntity(client, self, "history.solarGeneratedWhCumulative", "Cumulative Solar Generated").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
             EnergySensorEntity(client, self, "history.electricityConsumptionWh", "Electricity Consumption").with_unit_of_measurement("Wh"),
-            EnergySensorEntity(client, self, "history.gridImportWh", "Grid Import").with_unit_of_measurement("Wh"),
-            EnergySensorEntity(client, self, "history.gridExportWh", "Grid Export").with_unit_of_measurement("Wh"),
-            EnergySensorEntity(client, self, "history.batteryChargeWh", "Battery Charge").with_unit_of_measurement("Wh"),
-            EnergySensorEntity(client, self, "history.batteryDischargeWh", "Battery Discharge").with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.gridImportWh", "Grid Import").with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-import"),
+            EnergySensorEntity(client, self, "history.gridExportWh", "Grid Export").with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-export"),
+            EnergySensorEntity(client, self, "history.batteryChargeWh", "Battery Charge").with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-up"),
+            EnergySensorEntity(client, self, "history.batteryDischargeWh", "Battery Discharge").with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-down"),
             _HistoricalDataStatus(client, self),
         ]
     # moduleWifiRssi
