@@ -380,7 +380,7 @@ class StreamAC(BaseDevice):
             BaseSensorEntity(client, self, "history.energyIndependence", "Energy Independence").with_unit_of_measurement("%"),
             BaseSensorEntity(client, self, "history.environmentalImpact_g", "Environmental Impact").with_unit_of_measurement("g"),
             BaseSensorEntity(client, self, "history.totalSolarSavings", "Total Solar Savings").with_unit_of_measurement("€"),
-            EnergySensorEntity(client, self, "history.solarGeneratedWh", "Solar Generated").with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.solarGeneratedWh", "Solar Generated").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
             EnergySensorEntity(client, self, "history.electricityConsumptionWh", "Electricity Consumption").with_unit_of_measurement("Wh"),
             EnergySensorEntity(client, self, "history.gridImportWh", "Grid Import").with_unit_of_measurement("Wh"),
             EnergySensorEntity(client, self, "history.gridExportWh", "Grid Export").with_unit_of_measurement("Wh"),
