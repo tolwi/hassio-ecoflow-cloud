@@ -129,12 +129,12 @@ class DeltaProUltra(BaseDevice):
         return [
             MinBatteryLevelEntity(client, self, "hs_yj751_pd_app_set_info_addr.dsgMinSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
                                 lambda value: {"sn": self.device_info.sn,
-                                               "cmdCode": "YJ751_PD_CHG_SOC_MAX_SET",
+                                               "cmdCode": "YJ751_PD_DSG_SOC_MIN_SET",
                                                "params": {"minDsgSoc": value}}),
 
             MaxBatteryLevelEntity(client, self, "hs_yj751_pd_app_set_info_addr.chgMaxSoc", const.MAX_CHARGE_LEVEL, 50, 100,
                                 lambda value: {"sn": self.device_info.sn,
-                                               "cmdCode": "YJ751_PD_DSG_SOC_MIN_SET",
+                                               "cmdCode": "YJ751_PD_CHG_SOC_MAX_SET",
                                                "params": {"maxChgSoc": value}}),
 
             ChargingPowerEntity(client, self, "hs_yj751_pd_app_set_info_addr.chgC20SetWatts", const.AC_CHARGING_POWER, 600, 1800,
