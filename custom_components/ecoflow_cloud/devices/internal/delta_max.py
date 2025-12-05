@@ -4,12 +4,11 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumbe
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MinBatteryLevelEntity, MaxBatteryLevelEntity, \
     MaxGenStopLevelEntity, MinGenStartLevelEntity
 from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, \
-    InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
+    CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, MilliVoltSensorEntity, \
     InMilliVoltSensorEntity, OutMilliVoltSensorEntity, CapacitySensorEntity, InWattsSolarSensorEntity, \
     InEnergySensorEntity, OutEnergySensorEntity, OutWattsDcSensorEntity, QuotaStatusSensorEntity, \
-    StatusSensorEntity, \
-    MilliampSensorEntity, InVoltSolarSensorEntity, InMilliampSolarSensorEntity, OutVoltDcSensorEntity
+    StatusSensorEntity, MilliampSensorEntity, InVoltSolarSensorEntity, InMilliampSolarSensorEntity, \
+    OutVoltDcSensorEntity, WattsDifferenceSensorEntity
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
@@ -32,8 +31,13 @@ class DeltaMax(BaseDevice):
 
             LevelSensorEntity(client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             LevelSensorEntity(client, self, "ems.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL_F32, False),
-            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            *WattsDifferenceSensorEntity.build_and_return_all(
+                client,
+                self,
+                const.POWER_DIFFERENCE,
+                InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
+                OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            ),
             MilliampSensorEntity(client, self, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT),
 
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),

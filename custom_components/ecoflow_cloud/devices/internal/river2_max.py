@@ -9,7 +9,7 @@ from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSens
     CyclesSensorEntity, InWattsSensorEntity, OutWattsSensorEntity, VoltSensorEntity, InMilliampSensorEntity, \
     InVoltSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, ChargingStateSensorEntity, CapacitySensorEntity, StatusSensorEntity, \
-    QuotaStatusSensorEntity
+    QuotaStatusSensorEntity, WattsDifferenceSensorEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 
@@ -35,20 +35,30 @@ class River2Max(BaseDevice):
 
             ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", BATTERY_CHARGING_STATE),
 
-            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
-            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER).with_energy(),
+            *WattsDifferenceSensorEntity.build_and_return_all(
+                client,
+                self,
+                const.POWER_DIFFERENCE,
+                InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER)
+                    .with_energy(),
+                OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER)
+                    .with_energy(),
+            ),
 
             InMilliampSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
             InVoltSensorEntity(client, self, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
 
-            InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
-            OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),
+            InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER)
+                .with_energy(),
+            OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER)
+                .with_energy(),
 
             InMilliVoltSensorEntity(client, self, "inv.acInVol", const.AC_IN_VOLT),
             OutMilliVoltSensorEntity(client, self, "inv.invOutVol", const.AC_OUT_VOLT),
 
             InWattsSensorEntity(client, self, "pd.typecChaWatts", const.TYPE_C_IN_POWER),
-            InWattsSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER),
+            InWattsSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER)
+                .with_energy(),
 
 
             OutWattsSensorEntity(client, self, "pd.carWatts", const.DC_OUT_POWER),

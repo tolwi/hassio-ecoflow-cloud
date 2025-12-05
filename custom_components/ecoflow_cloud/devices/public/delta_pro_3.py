@@ -11,6 +11,7 @@ from ...sensor import (
     InWattsSensorEntity,
     LevelSensorEntity,
     OutWattsSensorEntity,
+    WattsDifferenceSensorEntity,
 )
 from .. import BaseDevice, const
 
@@ -25,8 +26,15 @@ class DeltaPro3(BaseDevice):
                 client, self, "bmsDesignCap", const.MAIN_DESIGN_CAPACITY, False
             ),
             LevelSensorEntity(client, self, "cmsBattSoc", const.COMBINED_BATTERY_LEVEL),
-            InWattsSensorEntity(client, self, "powInSumW", const.TOTAL_IN_POWER),
-            OutWattsSensorEntity(client, self, "powOutSumW", const.TOTAL_OUT_POWER),
+            *WattsDifferenceSensorEntity.build_and_return_all(
+                client,
+                self,
+                const.POWER_DIFFERENCE,
+                InWattsSensorEntity(client, self, "powInSumW", const.TOTAL_IN_POWER)
+                    .with_energy(),
+                OutWattsSensorEntity(client, self, "powOutSumW", const.TOTAL_OUT_POWER)
+                    .with_energy()
+            ),
             InWattsSensorEntity(client, self, "powGetAcIn", const.AC_IN_POWER),
         ]
 
