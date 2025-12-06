@@ -48,6 +48,9 @@ class _HistoricalDataStatus(StatusSensorEntity):
             items = resp.get("data", {}).get("data", [])
             if items:
                 params["history.energyIndependence"] = float(items[0].get("indexValue", 0))
+                unit = items[0].get("unit")
+                if isinstance(unit, str) and unit:
+                    params["history.energyIndependenceUnit"] = unit
 
             # Environmental impact (day-level, grams)
             resp = await self._client.historical_data(
@@ -419,6 +422,7 @@ class StreamAC(BaseDevice):
             .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
             # Historical data sensors (HTTP)
+            # Energy independence (last 365 days)
             BaseSensorEntity(client, self, "history.energyIndependence", const.STREAM_HISTORY_ENERGY_INDEPENDENCE)
             .with_unit_of_measurement("%")
             .with_icon("mdi:solar-panel"),
@@ -635,7 +639,6 @@ class StreamAC(BaseDevice):
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
         # Status entity shows online/offline; use a connectivity icon
         return StatusSensorEntity(client, self).with_icon("mdi:lan-connect")
-
 
 class DynamicCurrencySensorEntity(BaseSensorEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, key: str, name: str, unit_param_key: str, default_unit: str = "€"):
