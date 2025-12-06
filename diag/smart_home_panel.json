@@ -1,0 +1,1376 @@
+{
+  "integration_manifest": {
+    "domain": "ecoflow_cloud",
+    "name": "Ecoflow-Cloud",
+    "codeowners": [
+      "@tolwi"
+    ],
+    "config_flow": true,
+    "documentation": "https://github.com/tolwi/hassio-ecoflow-cloud",
+    "iot_class": "cloud_push",
+    "issue_tracker": "https://github.com/tolwi/hassio-ecoflow-cloud/issues",
+    "requirements": [
+      "paho-mqtt>=2.1.0",
+      "protobuf>=4.23.0",
+      "jsonpath-ng>=1.7.0"
+    ],
+    "version": "1.3.0",
+    "is_built_in": false,
+    "overwrites_built_in": false
+  },
+  "data": {
+        "device": "Smart Home Panel",
+        "name": "Smart Home Panel",
+        "params": {
+          "addr": 0,
+          "areaInfo.area": "Ukraine,Kyiv Oblast",
+          "areaInfo.cmdSet": 11,
+          "areaInfo.id": 35,
+          "backupChaDiscCfg.cmdSet": 11,
+          "backupChaDiscCfg.discLower": 10,
+          "backupChaDiscCfg.forceChargeHigh": 95,
+          "backupChaDiscCfg.id": 30,
+          "backupLoadWatt.cmdSet": 11,
+          "backupLoadWatt.id": 49,
+          "backupLoadWatt.rtc": "2025-12-6",
+          "backupLoadWatt.watth": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              49,
+              125,
+              8,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              5,
+              17,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              68,
+              71,
+              100,
+              62,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              54,
+              77,
+              39,
+              6,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              6,
+              7,
+              7,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              17,
+              22,
+              7,
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              4,
+              5,
+              5,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              16,
+              58,
+              58,
+              7,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              30,
+              33,
+              33,
+              17,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              9,
+              35,
+              35,
+              5,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              24,
+              28,
+              15,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              22,
+              23,
+              3,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              10,
+              43,
+              109,
+              35,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              3,
+              20,
+              25,
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              6,
+              17,
+              35,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              13,
+              34,
+              23,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              65,
+              75,
+              75,
+              37,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              45,
+              112,
+              72,
+              2,
+              0,
+              0
+            ]
+          ],
+          "cfgSta.cmdSet": 11,
+          "cfgSta.id": 8,
+          "cfgSta.sta": 1,
+          "chUseInfo.cmdSet": 11,
+          "chUseInfo.id": 27,
+          "chUseInfo.isEnable": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "channelPower.cmdSet": 11,
+          "channelPower.id": 96,
+          "channelPower.infoList": [
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 23.782784
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 57.26182
+            },
+            {
+              "powType": 1,
+              "chWatt": 34.882557
+            },
+            {
+              "powType": 1,
+              "chWatt": 28.446913
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 20.932957
+            },
+            {
+              "powType": 1,
+              "chWatt": 263.45914
+            },
+            {
+              "powType": 0,
+              "chWatt": 0.0
+            }
+          ],
+          "channelPower.time.day": 6,
+          "channelPower.time.hour": 21,
+          "channelPower.time.min": 8,
+          "channelPower.time.month": 12,
+          "channelPower.time.sec": 37,
+          "channelPower.time.week": 6,
+          "channelPower.time.year": 2025,
+          "cmdFunc": 0,
+          "cmdId": 0,
+          "emergencyStrategy.backupMode": 1,
+          "emergencyStrategy.chSta": [
+            {
+              "priority": 0,
+              "isEnable": 1
+            },
+            {
+              "priority": 1,
+              "isEnable": 1
+            },
+            {
+              "priority": 2,
+              "isEnable": 1
+            },
+            {
+              "priority": 3,
+              "isEnable": 1
+            },
+            {
+              "priority": 4,
+              "isEnable": 1
+            },
+            {
+              "priority": 5,
+              "isEnable": 1
+            },
+            {
+              "priority": 6,
+              "isEnable": 1
+            },
+            {
+              "priority": 7,
+              "isEnable": 1
+            },
+            {
+              "priority": 8,
+              "isEnable": 1
+            },
+            {
+              "priority": 9,
+              "isEnable": 1
+            }
+          ],
+          "emergencyStrategy.cmdSet": 11,
+          "emergencyStrategy.id": 65,
+          "emergencyStrategy.isCfg": 1,
+          "emergencyStrategy.overloadMode": 1,
+          "epsModeInfo.cmdSet": 11,
+          "epsModeInfo.eps": true,
+          "epsModeInfo.id": 25,
+          "gridInfo.cmdSet": 11,
+          "gridInfo.gridFreq": 50,
+          "gridInfo.gridVol": 230,
+          "gridInfo.id": 23,
+          "heartbeat": {
+            "backupCmdChCtrlInfos": [
+              {
+                "powCh": 0,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 0
+              },
+              {
+                "powCh": 0,
+                "ctrlSta": 0,
+                "ctrlMode": 0,
+                "priority": 0
+              }
+            ],
+            "gridDayWatth": 7280.39,
+            "backupFullCap": 78275,
+            "errorCodes": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "workTime": 4502164979,
+            "backupBatPer": 54,
+            "backupDayWatth": 2294.229,
+            "loadCmdChCtrlInfos": [
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 0
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 1
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 2
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 3
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 4
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 5
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 6
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 7
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 8
+              },
+              {
+                "powCh": 1,
+                "ctrlSta": 1,
+                "ctrlMode": 0,
+                "priority": 9
+              }
+            ],
+            "cmdSet": 11,
+            "backupChaTime": 443,
+            "gridSta": 0,
+            "time": {
+              "sec": 2,
+              "week": 6,
+              "min": 47,
+              "hour": 21,
+              "month": 12,
+              "year": 2025,
+              "day": 6
+            },
+            "id": 2,
+            "mm100Sn": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "timezoneInfo": {
+              "timezone": 200
+            },
+            "energyInfos": [
+              {
+                "dischargeTime": 442,
+                "mulPackNum": 0,
+                "stateBean": {
+                  "isPowerOutput": 1,
+                  "isGridCharge": 0,
+                  "isConnect": 1,
+                  "isMpptCharge": 0,
+                  "isAcOpen": 1,
+                  "isEnable": 1
+                },
+                "outputPower": 203.0,
+                "lcdInputWatts": 0,
+                "fullCap": 80000.0,
+                "chargeTime": 443,
+                "emsChgFlag": 0,
+                "type": 14,
+                "emsBatTemp": 33,
+                "ratePower": 3600.0,
+                "batteryPercentage": 54,
+                "oilPackNum": 0
+              },
+              {
+                "dischargeTime": 0,
+                "mulPackNum": 0,
+                "stateBean": {
+                  "isPowerOutput": 0,
+                  "isGridCharge": 0,
+                  "isConnect": 0,
+                  "isMpptCharge": 0,
+                  "isAcOpen": 0,
+                  "isEnable": 0
+                },
+                "outputPower": 0.0,
+                "lcdInputWatts": 0,
+                "fullCap": 0.0,
+                "chargeTime": 0,
+                "emsChgFlag": 0,
+                "type": 0,
+                "emsBatTemp": 0,
+                "ratePower": 0.0,
+                "batteryPercentage": 0,
+                "oilPackNum": 0
+              }
+            ]
+          },
+          "heartbeat.backupBatPer": 54,
+          "heartbeat.backupChaTime": 443,
+          "heartbeat.backupCmdChCtrlInfos": [
+            {
+              "powCh": 0,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 0
+            },
+            {
+              "powCh": 0,
+              "ctrlSta": 0,
+              "ctrlMode": 0,
+              "priority": 0
+            }
+          ],
+          "heartbeat.backupDayWatth": 2294.229,
+          "heartbeat.backupFullCap": 78275,
+          "heartbeat.cmdSet": 11,
+          "heartbeat.energyInfos": [
+            {
+              "dischargeTime": 442,
+              "mulPackNum": 0,
+              "stateBean": {
+                "isPowerOutput": 1,
+                "isGridCharge": 0,
+                "isConnect": 1,
+                "isMpptCharge": 0,
+                "isAcOpen": 1,
+                "isEnable": 1
+              },
+              "outputPower": 203.0,
+              "lcdInputWatts": 0,
+              "fullCap": 80000.0,
+              "chargeTime": 443,
+              "emsChgFlag": 0,
+              "type": 14,
+              "emsBatTemp": 33,
+              "ratePower": 3600.0,
+              "batteryPercentage": 54,
+              "oilPackNum": 0
+            },
+            {
+              "dischargeTime": 0,
+              "mulPackNum": 0,
+              "stateBean": {
+                "isPowerOutput": 0,
+                "isGridCharge": 0,
+                "isConnect": 0,
+                "isMpptCharge": 0,
+                "isAcOpen": 0,
+                "isEnable": 0
+              },
+              "outputPower": 0.0,
+              "lcdInputWatts": 0,
+              "fullCap": 0.0,
+              "chargeTime": 0,
+              "emsChgFlag": 0,
+              "type": 0,
+              "emsBatTemp": 0,
+              "ratePower": 0.0,
+              "batteryPercentage": 0,
+              "oilPackNum": 0
+            }
+          ],
+          "heartbeat.errorCodes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "heartbeat.gridDayWatth": 7280.39,
+          "heartbeat.gridSta": 0,
+          "heartbeat.id": 2,
+          "heartbeat.loadCmdChCtrlInfos": [
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 0
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 1
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 2
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 3
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 4
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 5
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 6
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 7
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 8
+            },
+            {
+              "powCh": 1,
+              "ctrlSta": 1,
+              "ctrlMode": 0,
+              "priority": 9
+            }
+          ],
+          "heartbeat.mm100Sn": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "heartbeat.time": {
+            "sec": 2,
+            "week": 6,
+            "min": 47,
+            "hour": 21,
+            "month": 12,
+            "year": 2025,
+            "day": 6
+          },
+          "heartbeat.time.day": 6,
+          "heartbeat.time.hour": 21,
+          "heartbeat.time.min": 47,
+          "heartbeat.time.month": 12,
+          "heartbeat.time.sec": 2,
+          "heartbeat.time.week": 6,
+          "heartbeat.time.year": 2025,
+          "heartbeat.timezoneInfo": {
+            "timezone": 200
+          },
+          "heartbeat.timezoneInfo.timezone": 200,
+          "heartbeat.workTime": 4502164979,
+          "id": 2150184470694595599,
+          "infoList": [
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 10.766009
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 55.601562
+            },
+            {
+              "powType": 1,
+              "chWatt": 33.136715
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 0.0
+            },
+            {
+              "powType": 1,
+              "chWatt": 173.76236
+            },
+            {
+              "powType": 0,
+              "chWatt": 0.0
+            }
+          ],
+          "loadChCurInfo.cmdSet": 11,
+          "loadChCurInfo.cur": [
+            16,
+            30,
+            16,
+            30,
+            16,
+            16,
+            16,
+            16,
+            16,
+            20,
+            16,
+            16
+          ],
+          "loadChCurInfo.id": 21,
+          "loadChInfo": {
+            "info": [
+              {
+                "iconNum": 0,
+                "chName": "Circuit 1"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 2"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 3"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 4"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 5"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 6"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 7"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 8"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 9"
+              },
+              {
+                "iconNum": 27,
+                "chName": "Crcuit 10"
+              }
+            ]
+          },
+          "mainsLoadWatt.cmdSet": 11,
+          "mainsLoadWatt.id": 48,
+          "mainsLoadWatt.rtc": "2025-12-6",
+          "mainsLoadWatt.watth": [
+            [
+              5,
+              5,
+              5,
+              11,
+              5,
+              5,
+              5,
+              9,
+              47,
+              0,
+              0,
+              138,
+              41,
+              7,
+              50,
+              244,
+              37,
+              11,
+              45,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              3,
+              3,
+              3,
+              1254,
+              4,
+              3,
+              3,
+              3,
+              0,
+              0,
+              0,
+              207,
+              547,
+              3,
+              3,
+              3,
+              4,
+              3,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              79,
+              81,
+              87,
+              82,
+              76,
+              79,
+              31,
+              87,
+              7,
+              0,
+              0,
+              31,
+              90,
+              116,
+              94,
+              92,
+              110,
+              173,
+              104,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              8,
+              7,
+              7,
+              8,
+              7,
+              8,
+              58,
+              57,
+              1,
+              0,
+              0,
+              4,
+              7,
+              7,
+              7,
+              30,
+              7,
+              8,
+              42,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              5,
+              5,
+              5,
+              5,
+              5,
+              5,
+              5,
+              5,
+              0,
+              0,
+              0,
+              2,
+              5,
+              5,
+              5,
+              5,
+              5,
+              50,
+              24,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              34,
+              33,
+              33,
+              31,
+              33,
+              33,
+              34,
+              34,
+              3,
+              0,
+              0,
+              16,
+              32,
+              33,
+              34,
+              36,
+              34,
+              34,
+              25,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              7,
+              6,
+              6,
+              6,
+              6,
+              6,
+              6,
+              6,
+              0,
+              0,
+              0,
+              3,
+              6,
+              6,
+              7,
+              7,
+              7,
+              7,
+              7,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              5,
+              2,
+              2,
+              1,
+              2,
+              2,
+              5,
+              2,
+              0,
+              0,
+              0,
+              26,
+              44,
+              13,
+              40,
+              67,
+              91,
+              58,
+              16,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              8,
+              6,
+              6,
+              15,
+              6,
+              6,
+              6,
+              6,
+              0,
+              0,
+              0,
+              5,
+              10,
+              7,
+              6,
+              6,
+              41,
+              28,
+              33,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              100,
+              69,
+              82,
+              68,
+              66,
+              67,
+              67,
+              64,
+              7,
+              0,
+              0,
+              38,
+              73,
+              72,
+              124,
+              153,
+              169,
+              149,
+              87,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "selfCheck.chErrorSta": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "selfCheck.cmdSet": 11,
+          "selfCheck.errorCode": 0,
+          "selfCheck.flag": 1,
+          "selfCheck.id": 113,
+          "selfCheck.phaseType": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "selfCheck.result": 1,
+          "selfCheck.vIn": [
+            229.67172,
+            231.51883,
+            230.60693,
+            230.7868,
+            231.46167,
+            231.76704,
+            232.37221,
+            230.70715,
+            232.11232,
+            232.59239
+          ],
+          "selfCheck.vOut": [
+            0.0,
+            0.0,
+            0.0,
+            1.2539078,
+            0.0,
+            0.29152763,
+            0.5049407,
+            0.20614117,
+            0.58305526,
+            0.29152763
+          ],
+          "splitPhaseInfo.cfgList": [
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            },
+            {
+              "linkMark": 0,
+              "linkCh": 0
+            }
+          ],
+          "splitPhaseInfo.cmdSet": 11,
+          "splitPhaseInfo.id": 19,
+          "timestamp": 1765050417075,
+          "topupLoadWatt.cmdSet": 11,
+          "topupLoadWatt.id": 50,
+          "topupLoadWatt.rtc": "2025-12-6",
+          "topupLoadWatt.watth": [
+            [
+              465,
+              0,
+              0,
+              0,
+              0,
+              26,
+              296,
+              0,
+              0,
+              0,
+              0,
+              577,
+              1140,
+              612,
+              0,
+              0,
+              0,
+              275,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "version": "1.0"
+        },
+        "set": [],
+        "set_reply": [],
+        "get": [],
+        "get_reply": [],
+        "raw_data": []
+      },
+  "issues": []
+}
