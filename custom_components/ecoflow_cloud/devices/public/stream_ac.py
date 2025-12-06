@@ -426,7 +426,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.environmentalImpact_g",
-                const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_G,
+                const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT,
             )
             .with_unit_of_measurement("g")
             .with_icon("mdi:leaf"),
@@ -434,7 +434,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.environmentalImpactCumulative_g",
-                const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE_G,
+                const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE,
             )
             .with_unit_of_measurement("g")
             .with_icon("mdi:leaf"),
@@ -449,54 +449,54 @@ class StreamAC(BaseDevice):
             EnergySensorEntity(
                 client,
                 self,
-                "history.solarGeneratedWh",
-                const.STREAM_HISTORY_SOLAR_GENERATED_TODAY_WH,
+                "",
+                const.STREAM_HISTORY_SOLAR_GENERATED_TODAY,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:solar-power"),
             EnergySensorEntity(
                 client,
                 self,
-                "history.solarGeneratedWhCumulative",
-                const.STREAM_HISTORY_SOLAR_GENERATED_CUMULATIVE_WH,
+                "Cumulative",
+                const.STREAM_HISTORY_SOLAR_GENERATED_CUMULATIVE,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:solar-power"),
             EnergySensorEntity(
                 client,
                 self,
-                "history.electricityConsumptionWh",
-                const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_WH,
+                "",
+                const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION,
             ).with_unit_of_measurement("Wh"),
             EnergySensorEntity(
                 client,
                 self,
-                "history.gridImportWh",
-                const.STREAM_HISTORY_GRID_IMPORT_WH,
+                "",
+                const.STREAM_HISTORY_GRID_IMPORT,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:transmission-tower-import"),
             EnergySensorEntity(
                 client,
                 self,
-                "history.gridExportWh",
-                const.STREAM_HISTORY_GRID_EXPORT_WH,
+                "",
+                const.STREAM_HISTORY_GRID_EXPORT,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:transmission-tower-export"),
             EnergySensorEntity(
                 client,
                 self,
-                "history.batteryChargeWh",
-                const.STREAM_HISTORY_BATTERY_CHARGE_WH,
+                "",
+                const.STREAM_HISTORY_BATTERY_CHARGE,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:battery-arrow-up"),
             EnergySensorEntity(
                 client,
                 self,
-                "history.batteryDischargeWh",
-                const.STREAM_HISTORY_BATTERY_DISCHARGE_WH,
+                "",
+                const.STREAM_HISTORY_BATTERY_DISCHARGE,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:battery-arrow-down"),
