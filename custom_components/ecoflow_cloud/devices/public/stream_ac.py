@@ -28,6 +28,14 @@ class _HistoricalDataStatus(StatusSensorEntity):
         self.offline_barrier_sec = 60
         self._last_fetch = dt.utcnow().replace(year=2000, month=1, day=1, hour=0)
 
+    async def async_added_to_hass(self) -> None:
+        # Kick off an immediate fetch when the entity is added so
+        # history units/values are present before other sensors render.
+        try:
+            self.hass.async_create_background_task(self._fetch_and_update(), "initial historical data fetch")
+        except Exception:
+            pass
+
     async def _fetch_and_update(self):
         # Prepare day range in UTC for day/hour level metrics
         now = dt.utcnow()
@@ -448,8 +456,7 @@ class StreamAC(BaseDevice):
                 "history.totalSolarSavings",
                 const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS,
                 unit_param_key="history.totalSolarSavingsUnit",
-                default_unit="€",
-            ).with_icon("mdi:cash"),
+            ).with_unit_of_measurement("€").with_icon("mdi:cash").attr("history.totalSolarSavingsUnit", "Currency Unit", ""),
             EnergySensorEntity(
                 client,
                 self,
@@ -641,28 +648,14 @@ class StreamAC(BaseDevice):
         return StatusSensorEntity(client, self).with_icon("mdi:lan-connect")
 
 class DynamicCurrencySensorEntity(BaseSensorEntity):
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, key: str, name: str, unit_param_key: str, default_unit: str = "€"):
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, key: str, name: str, unit_param_key: str):
         super().__init__(client, device, key, name)
         self._unit_param_key = unit_param_key
-        self._default_unit = default_unit
-        self.with_unit_of_measurement(default_unit)
+        # For now, fix currency to euros; attribute will expose actual symbol
+        self.with_unit_of_measurement("€")
 
     def _actualize_status(self) -> bool:
-        # Update unit dynamically from params before normal actualization
-        changed = False
-        try:
-            params = self._device.data.get("params", {})
-            unit = params.get(self._unit_param_key)
-            if isinstance(unit, str) and unit:
-                # If unit differs, update and mark as changed
-                if getattr(self, "_unit_of_measurement", self._default_unit) != unit:
-                    self.with_unit_of_measurement(unit)
-                    changed = True
-        except Exception:
-            # Keep default unit on any error
-            pass
-        # Proceed with normal status update
-        base_changed = super()._actualize_status()
-        return changed or base_changed
+        # No dynamic unit updates; rely on fixed unit and attribute for symbol
+        return super()._actualize_status()
 
 
