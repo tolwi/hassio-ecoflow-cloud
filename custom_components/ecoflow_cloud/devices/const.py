@@ -326,7 +326,7 @@ SMART_METER_RECORD_NET_ENERGY_CONSUMPTION = "Net energy consumption"
 SMART_METER_GRID_CONNECTION_POWER_FACTOR = "Grid connection power factor"
 SMART_METER_GRID_CONNECTION_STATE = "Grid connection state"
 
-# Stream AC
+# Stream Series
 STREAM_POWER_AC = "Power AC" # <0 import from home to battery / >0 export from battery to home
 STREAM_POWER_VOL = "Power Volts" # <0 import from home to battery / >0 export from battery to home
 STREAM_POWER_AMP = "Power In Amps"
@@ -364,6 +364,17 @@ STREAM_STR_OUT_POWER = "Output Power %s"
 STREAM_OPERATION_MODE_SELF_POWERED = "Operating mode - Self-powered"
 STREAM_OPERATION_MODE_AI_MODE = "Operating mode - AI Mode"
 STREAM_FEED_IN_CONTROL = "Feed-in control"
+STREAM_HISTORY_ENERGY_INDEPENDENCE = "Energy Independence"
+STREAM_HISTORY_ENVIRONMENTAL_IMPACT_G = "Environmental Impact (g)"
+STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE_G = "Cumulative Environmental Impact (g)"
+STREAM_HISTORY_TOTAL_SOLAR_SAVINGS = "Total solar energy savings"
+STREAM_HISTORY_SOLAR_GENERATED_TODAY_WH = "Solar-generated energy today (Wh)"
+STREAM_HISTORY_SOLAR_GENERATED_CUMULATIVE_WH = "Cumulative Solar-generated energy (Wh)"
+STREAM_HISTORY_ELECTRICITY_CONSUMPTION_WH = "Electricity Consumption (Wh)"
+STREAM_HISTORY_GRID_IMPORT_WH = "Grid Import (Wh)"
+STREAM_HISTORY_GRID_EXPORT_WH = "Grid Export (Wh)"
+STREAM_HISTORY_BATTERY_CHARGE_WH = "Battery Charge (Wh)"
+STREAM_HISTORY_BATTERY_DISCHARGE_WH = "Battery Discharge (Wh)"
 
 ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
 ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
@@ -426,16 +437,3 @@ SMART_BACKUP_MODE_OPTIONS = {
     "Self-powered" : 2,
     "Scheduled tasks": 3
 }
-
-# Historical data sensor names
-ENERGY_INDEPENDENCE = "Energy Independence"
-ENVIRONMENTAL_IMPACT_G = "Environmental Impact (g)"
-ENVIRONMENTAL_IMPACT_CUMULATIVE_G = "Cumulative Environmental Impact (g)"
-TOTAL_SOLAR_SAVINGS = "Total solar energy savings"
-SOLAR_GENERATED_TODAY_WH = "Solar-generated energy today (Wh)"
-SOLAR_GENERATED_CUMULATIVE_WH = "Cumulative Solar-generated energy (Wh)"
-ELECTRICITY_CONSUMPTION_WH = "Electricity Consumption (Wh)"
-GRID_IMPORT_WH = "Grid Import (Wh)"
-GRID_EXPORT_WH = "Grid Export (Wh)"
-BATTERY_CHARGE_WH = "Battery Charge (Wh)"
-BATTERY_DISCHARGE_WH = "Battery Discharge (Wh)"

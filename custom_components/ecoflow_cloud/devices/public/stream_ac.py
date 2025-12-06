@@ -431,22 +431,22 @@ class StreamAC(BaseDevice):
             # "waterInFlag": 0,
 
             # Historical data sensors (HTTP)
-            BaseSensorEntity(client, self, "history.energyIndependence", const.ENERGY_INDEPENDENCE).with_unit_of_measurement("%").with_icon("mdi:solar-panel"),
+            BaseSensorEntity(client, self, "history.energyIndependence", const.STREAM_HISTORY_ENERGY_INDEPENDENCE).with_unit_of_measurement("%").with_icon("mdi:solar-panel"),
             BaseSensorEntity(client, self, "history.environmentalImpact_g",
-                             const.ENVIRONMENTAL_IMPACT_G).with_unit_of_measurement("g").with_icon("mdi:leaf"),
-            BaseSensorEntity(client, self, "history.environmentalImpactCumulative_g", const.ENVIRONMENTAL_IMPACT_CUMULATIVE_G).with_unit_of_measurement("g").with_icon("mdi:leaf"),
-            DynamicCurrencySensorEntity(client, self, "history.totalSolarSavings", const.TOTAL_SOLAR_SAVINGS,
+                             const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_G).with_unit_of_measurement("g").with_icon("mdi:leaf"),
+            BaseSensorEntity(client, self, "history.environmentalImpactCumulative_g", const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE_G).with_unit_of_measurement("g").with_icon("mdi:leaf"),
+            DynamicCurrencySensorEntity(client, self, "history.totalSolarSavings", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS,
                                         unit_param_key="history.totalSolarSavingsUnit", default_unit="€")
                 .with_icon("mdi:cash"),
             EnergySensorEntity(client, self, "history.solarGeneratedWh",
-                               const.SOLAR_GENERATED_TODAY_WH).with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
+                               const.STREAM_HISTORY_SOLAR_GENERATED_TODAY_WH).with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
             EnergySensorEntity(client, self, "history.solarGeneratedWhCumulative",
-                               const.SOLAR_GENERATED_CUMULATIVE_WH).with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
-            EnergySensorEntity(client, self, "history.electricityConsumptionWh", const.ELECTRICITY_CONSUMPTION_WH).with_unit_of_measurement("Wh"),
-            EnergySensorEntity(client, self, "history.gridImportWh", const.GRID_IMPORT_WH).with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-import"),
-            EnergySensorEntity(client, self, "history.gridExportWh", const.GRID_EXPORT_WH).with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-export"),
-            EnergySensorEntity(client, self, "history.batteryChargeWh", const.BATTERY_CHARGE_WH).with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-up"),
-            EnergySensorEntity(client, self, "history.batteryDischargeWh", const.BATTERY_DISCHARGE_WH).with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-down"),
+                               const.STREAM_HISTORY_SOLAR_GENERATED_CUMULATIVE_WH).with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
+            EnergySensorEntity(client, self, "history.electricityConsumptionWh", const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_WH).with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.gridImportWh", const.STREAM_HISTORY_GRID_IMPORT_WH).with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-import"),
+            EnergySensorEntity(client, self, "history.gridExportWh", const.STREAM_HISTORY_GRID_EXPORT_WH).with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-export"),
+            EnergySensorEntity(client, self, "history.batteryChargeWh", const.STREAM_HISTORY_BATTERY_CHARGE_WH).with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-up"),
+            EnergySensorEntity(client, self, "history.batteryDischargeWh", const.STREAM_HISTORY_BATTERY_DISCHARGE_WH).with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-down"),
             _HistoricalDataStatus(client, self),
         ]
     # moduleWifiRssi
