@@ -4,6 +4,7 @@ from typing import Final
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 from .device_data import DeviceData, DeviceOptions
@@ -188,8 +189,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         return False
 
     devices_list: dict[str, DeviceData] = extract_devices(entry)
+    # try to connect
+    try:  
+        await api_client.login()
+    except Exception as ex:
+        raise ConfigEntryNotReady(f"Connexion error EcoFlow: {ex}") from ex
 
-    await api_client.login()
 
     for sn, device_data in devices_list.items():
         device = api_client.configure_device(device_data)
