@@ -22,7 +22,6 @@ HIST_CODE_ELECTRICITY_CONS = "BK621-App-HOME-LOAD-ENERGY-FLOW-consumption-prop_a
 HIST_CODE_GRID = "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-MASTER_DATA"
 HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
 
-
 class _HistoricalDataStatus(StatusSensorEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice):
         super().__init__(client, device, "Status (Historical)", "status.historical")
@@ -233,7 +232,6 @@ class StreamAC(BaseDevice):
             # "cmsBmsRunState": 1,
             # "cmsChgDsgState": 2,
             # "cmsChgRemTime": 88,
-                # duplicate removed; charge remaining already defined above
             # "cmsMaxChgSoc": 100,
             # "cmsMinDsgSoc": 5,
             LevelSensorEntity(client, self, "cmsMaxChgSoc", const.MAX_CHARGE_LEVEL),
@@ -281,7 +279,8 @@ class StreamAC(BaseDevice):
             # "heatfilmTemp": [],
             # "hwVer": "V0.0.0",
             # "inputWatts": 900,
-            InWattsSensorEntity(client, self, "inputWatts", "In Power").with_icon("mdi:power-plug"),
+            InWattsSensorEntity(client, self, "inputWatts",
+                                const.STREAM_IN_POWER).with_icon("mdi:power-plug"),
             # "invNtcTemp3": 49,
             # "maxBpInput": 1050,
             # "maxBpOutput": 1200,
@@ -312,7 +311,8 @@ class StreamAC(BaseDevice):
             # "num": 0,
             # "openBmsFlag": 1,
             # "outputWatts": 0,
-            OutWattsSensorEntity(client, self, "outputWatts", "Total Output Power").with_icon("mdi:power-plug"),
+            OutWattsSensorEntity(client, self, "outputWatts",
+                                 const.STREAM_OUT_POWER).with_icon("mdi:power-plug"),
             # "packSn": "BKxxxxx",
             # "plugInInfoPv2Amp": 0.0,
             # "plugInInfoPv2Flag": false,
@@ -431,22 +431,22 @@ class StreamAC(BaseDevice):
             # "waterInFlag": 0,
 
             # Historical data sensors (HTTP)
-            BaseSensorEntity(client, self, "history.energyIndependence", "Energy Independence").with_unit_of_measurement("%").with_icon("mdi:solar-panel"),
+            BaseSensorEntity(client, self, "history.energyIndependence", const.ENERGY_INDEPENDENCE).with_unit_of_measurement("%").with_icon("mdi:solar-panel"),
             BaseSensorEntity(client, self, "history.environmentalImpact_g",
-                             "Environmental Impact (g)").with_unit_of_measurement("g").with_icon("mdi:leaf"),
-            BaseSensorEntity(client, self, "history.environmentalImpactCumulative_g", "Cumulative Environmental Impact (g)").with_unit_of_measurement("g").with_icon("mdi:leaf"),
-            DynamicCurrencySensorEntity(client, self, "history.totalSolarSavings", "Total solar energy savings",
+                             const.ENVIRONMENTAL_IMPACT_G).with_unit_of_measurement("g").with_icon("mdi:leaf"),
+            BaseSensorEntity(client, self, "history.environmentalImpactCumulative_g", const.ENVIRONMENTAL_IMPACT_CUMULATIVE_G).with_unit_of_measurement("g").with_icon("mdi:leaf"),
+            DynamicCurrencySensorEntity(client, self, "history.totalSolarSavings", const.TOTAL_SOLAR_SAVINGS,
                                         unit_param_key="history.totalSolarSavingsUnit", default_unit="€")
                 .with_icon("mdi:cash"),
             EnergySensorEntity(client, self, "history.solarGeneratedWh",
-                               "Solar-generated energy today (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
+                               const.SOLAR_GENERATED_TODAY_WH).with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
             EnergySensorEntity(client, self, "history.solarGeneratedWhCumulative",
-                               "Cumulative Solar-generated energy (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
-            EnergySensorEntity(client, self, "history.electricityConsumptionWh", "Electricity Consumption (Wh)").with_unit_of_measurement("Wh"),
-            EnergySensorEntity(client, self, "history.gridImportWh", "Grid Import (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-import"),
-            EnergySensorEntity(client, self, "history.gridExportWh", "Grid Export (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-export"),
-            EnergySensorEntity(client, self, "history.batteryChargeWh", "Battery Charge (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-up"),
-            EnergySensorEntity(client, self, "history.batteryDischargeWh", "Battery Discharge (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-down"),
+                               const.SOLAR_GENERATED_CUMULATIVE_WH).with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
+            EnergySensorEntity(client, self, "history.electricityConsumptionWh", const.ELECTRICITY_CONSUMPTION_WH).with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.gridImportWh", const.GRID_IMPORT_WH).with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-import"),
+            EnergySensorEntity(client, self, "history.gridExportWh", const.GRID_EXPORT_WH).with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-export"),
+            EnergySensorEntity(client, self, "history.batteryChargeWh", const.BATTERY_CHARGE_WH).with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-up"),
+            EnergySensorEntity(client, self, "history.batteryDischargeWh", const.BATTERY_DISCHARGE_WH).with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-down"),
             _HistoricalDataStatus(client, self),
         ]
     # moduleWifiRssi

@@ -426,3 +426,16 @@ SMART_BACKUP_MODE_OPTIONS = {
     "Self-powered" : 2,
     "Scheduled tasks": 3
 }
+
+# Historical data sensor names
+ENERGY_INDEPENDENCE = "Energy Independence"
+ENVIRONMENTAL_IMPACT_G = "Environmental Impact (g)"
+ENVIRONMENTAL_IMPACT_CUMULATIVE_G = "Cumulative Environmental Impact (g)"
+TOTAL_SOLAR_SAVINGS = "Total solar energy savings"
+SOLAR_GENERATED_TODAY_WH = "Solar-generated energy today (Wh)"
+SOLAR_GENERATED_CUMULATIVE_WH = "Cumulative Solar-generated energy (Wh)"
+ELECTRICITY_CONSUMPTION_WH = "Electricity Consumption (Wh)"
+GRID_IMPORT_WH = "Grid Import (Wh)"
+GRID_EXPORT_WH = "Grid Export (Wh)"
+BATTERY_CHARGE_WH = "Battery Charge (Wh)"
+BATTERY_DISCHARGE_WH = "Battery Discharge (Wh)"
