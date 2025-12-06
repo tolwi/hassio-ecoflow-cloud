@@ -27,7 +27,7 @@ UNIT_TIMEOUT_OPTIONS = {
     "4 hr": 240,
     "6 hr": 360,
     "12 hr": 720,
-    "24 hr": 1440,
+    "24 hr": 1440
 }
 
 UNIT_TIMEOUT_OPTIONS_LIMITED = {
@@ -36,7 +36,7 @@ UNIT_TIMEOUT_OPTIONS_LIMITED = {
     "1 hr": 60,
     "2 hr": 120,
     "6 hr": 360,
-    "12 hr": 720,
+    "12 hr": 720
 }
 
 AC_TIMEOUT_OPTIONS = {
@@ -79,19 +79,40 @@ DC_TIMEOUT_OPTIONS_LIMITED = {
     "24 hr": 1440,
 }
 
-DC_CHARGE_CURRENT_OPTIONS = {"4A": 4000, "6A": 6000, "8A": 8000}
+DC_CHARGE_CURRENT_OPTIONS = {
+    "4A": 4000,
+    "6A": 6000,
+    "8A": 8000
+}
 
-MAIN_MODE_OPTIONS = {"Cool": 0, "Heat": 1, "Fan": 2}
+MAIN_MODE_OPTIONS = {
+    "Cool": 0,
+    "Heat": 1,
+    "Fan": 2
+}
 
-FAN_MODE_OPTIONS = {"Low": 0, "Medium": 1, "High": 2}
+FAN_MODE_OPTIONS = {
+    "Low": 0,
+    "Medium": 1,
+    "High": 2
+}
 
-REMOTE_MODE_OPTIONS = {"Startup": 1, "Standby": 2, "Shutdown": 3}
+REMOTE_MODE_OPTIONS = {
+    "Startup": 1,
+    "Standby": 2,
+    "Shutdown": 3
+}
 
-POWER_SUB_MODE_OPTIONS = {"Max": 0, "Sleep": 1, "Eco": 2, "Manual": 3}
+POWER_SUB_MODE_OPTIONS = {
+    "Max": 0,
+    "Sleep": 1,
+    "Eco": 2,
+    "Manual": 3
+}
 
 POWER_SUPPLY_PRIORITY_OPTIONS = {
     "Prioritize power supply": 0,
-    "Prioritize power storage": 1,
+    "Prioritize power storage": 1
 }
 
 UTC_TIMEZONE = "Timezone"
@@ -278,17 +299,38 @@ REMOTE_MODE = "Remote startup/shutdown"
 POWER_SUB_MODE = "Sub-mode"
 
 
-# Stream Series
-STREAM_POWER_AC = (
-    "Power AC"  # <0 import from home to battery / >0 export from battery to home
-)
-STREAM_POWER_VOL = (
-    "Power Volts"  # <0 import from home to battery / >0 export from battery to home
-)
+# Smart Meter
+SMART_METER_POWER_GLOBAL = "Power Grid Global"
+SMART_METER_POWER_L1 = "Power Grid L1"
+SMART_METER_POWER_L2 = "Power Grid L2"
+SMART_METER_POWER_L3 = "Power Grid L3"
+SMART_METER_IN_AMPS_L1 = "Power Grid (L1) In Amps"
+SMART_METER_IN_AMPS_L2 = "Power Grid (L2) In Amps"
+SMART_METER_IN_AMPS_L3 = "Power Grid (L3) In Amps"
+SMART_METER_VOLT_L1 = "Power Grid (L1) Volts"
+SMART_METER_VOLT_L2 = "Power Grid (L2) Volts"
+SMART_METER_VOLT_L3 = "Power Grid (L3) Volts"
+SMART_METER_FLAG_L1 = "Flag L1"
+SMART_METER_FLAG_L2 = "Flag L2"
+SMART_METER_FLAG_L3 = "Flag L3"
+SMART_METER_RECORD_TODAY_ACTIVE_L1 = "L1 Lifetime net usage"
+SMART_METER_RECORD_TODAY_ACTIVE_L2 = "L2 Lifetime net usage"
+SMART_METER_RECORD_TODAY_ACTIVE_L3 = "L3 Lifetime net usage"
+SMART_METER_RECORD_ENERGY_L1_DAILY = "L1 net energy daily"
+SMART_METER_RECORD_ENERGY_L2_DAILY = "L2 net energy daily"
+SMART_METER_RECORD_ENERGY_L3_DAILY = "L3 net energy daily"
+SMART_METER_RECORD_ACTIVE_TODAY = "Lifetime consumption"
+SMART_METER_RECORD_LIFETIME_ENERGY_CONSUMPTION = "Lifetime consumption"
+SMART_METER_RECORD_LIFETIME_ENERGY_DELIVERY = "Lifetime delivery"
+SMART_METER_RECORD_NET_ENERGY_CONSUMPTION = "Net energy consumption"
+SMART_METER_GRID_CONNECTION_POWER_FACTOR = "Grid connection power factor"
+SMART_METER_GRID_CONNECTION_STATE = "Grid connection state"
+
+# Stream AC
+STREAM_POWER_AC = "Power AC" # <0 import from home to battery / >0 export from battery to home
+STREAM_POWER_VOL = "Power Volts" # <0 import from home to battery / >0 export from battery to home
 STREAM_POWER_AMP = "Power In Amps"
-STREAM_POWER_AC_SYS = (
-    "Power AC SYS"  # <0 import from home to battery / >0 export from battery to home
-)
+STREAM_POWER_AC_SYS = "Power AC SYS" # <0 import from home to battery / >0 export from battery to home
 STREAM_POWER_PV_1 = "Power PV 1"
 STREAM_POWER_PV_2 = "Power PV 2"
 STREAM_POWER_PV_3 = "Power PV 3"
@@ -298,17 +340,15 @@ STREAM_IN_AMPS_PV_2 = "Power PV2 In Amps"
 STREAM_IN_VOL_PV_1 = "Power PV1 Volts"
 STREAM_IN_VOL_PV_2 = "Power PV2 Volts"
 STREAM_POWER_PV_SUM = "Power PV Sum"
-STREAM_GET_SYS_LOAD = "Power Sys Load"  # powGetSysLoad
-STREAM_GET_SYS_LOAD_FROM_BP = "Power Sys Load From Battery"  # powGetSysLoadFromBp
-STREAM_GET_SYS_LOAD_FROM_GRID = "Power Sys Load From Grid"  # powGetSysLoadFromGrid
-STREAM_GET_SYS_LOAD_FROM_PV = "Power Sys Load From PV"  # powGetSysLoadFromPv
-STREAM_GET_SCHUKO1 = "Power SCHUKO1"  # powGetSchuko1
-STREAM_GET_SCHUKO2 = "Power SCHUKO2"  # powGetSchuko2
-STREAM_POWER_GRID = "Power Grid"  # power from smart meter or shelly
-STREAM_POWER_BATTERY = "Power Battery"  # <0 discharge battery / >0 charge batterie
-STREAM_POWER_BATTERY_SOC = (
-    "Power Battery SOC"  # <0 discharge battery / >0 charge batterie
-)
+STREAM_GET_SYS_LOAD = "Power Sys Load" # powGetSysLoad
+STREAM_GET_SYS_LOAD_FROM_BP = "Power Sys Load From Battery" # powGetSysLoadFromBp
+STREAM_GET_SYS_LOAD_FROM_GRID = "Power Sys Load From Grid" # powGetSysLoadFromGrid
+STREAM_GET_SYS_LOAD_FROM_PV = "Power Sys Load From PV" # powGetSysLoadFromPv
+STREAM_GET_SCHUKO1 = "Power SCHUKO1" # powGetSchuko1
+STREAM_GET_SCHUKO2 = "Power SCHUKO2" # powGetSchuko2
+STREAM_POWER_GRID = "Power Grid" # power from smart meter or shelly
+STREAM_POWER_BATTERY = "Power Battery" # <0 discharge battery / >0 charge batterie
+STREAM_POWER_BATTERY_SOC = "Power Battery SOC" # <0 discharge battery / >0 charge batterie
 STREAM_BATTERY_LEVEL = "Battery Level"
 STREAM_DESIGN_CAPACITY = "Design Capacity"
 STREAM_FULL_CAPACITY = "Full Capacity"
@@ -347,35 +387,35 @@ SLAVE_N_ACCU_DISCHARGE_CAP = "Slave %i Cumulative Capacity Discharge (mAh)"
 SLAVE_N_ACCU_DISCHARGE_ENERGY = "Slave %i Cumulative Energy Discharge (Wh)"
 
 # Delta Pro Ultra
-PIO_PORT_CHARGING_POWER = "Power I/O Port Charging Power"
-PIO_PORT_N_POWER = "Power I/O Port %i Power"
-PIO_PORT_N_CHARGE_REMAINING_TIME = "Power I/O Port %i Charge Remaining Time"
+PIO_PORT_CHARGING_POWER = "Power I/O Port Charging Power"                         
+PIO_PORT_N_POWER = "Power I/O Port %i Power"                                      
+PIO_PORT_N_CHARGE_REMAINING_TIME = "Power I/O Port %i Charge Remaining Time"      
 PIO_PORT_N_DISCHARGE_REMAINING_TIME = "Power I/O Port %i Discharge Remaining Time"
-PIO_PORT_IN_POWER = "Power I/O Port Input Power"
-PIO_PORT_IN_CURRENT = "Power I/O Port Input Current"
-PIO_PORT_IN_VOLTAGE = "Power I/O Port Input Voltage"
-PIO_PORT_OUT_POWER = "Power I/O Port Output Power"
-PIO_PORT_OUT_CURRENT = "Power I/O Port Output Current"
-PIO_PORT_OUT_VOLTAGE = "Power I/O Port Output Voltage"
-PIO_PORT_OUT_FREQ = "Power I/O Port Output Frequency"
-PIO_PORT_INPUT_TYPE = "Power I/O Port Input Type"
-AC_N_OUT_POWER = "AC (%i) Out Power"
-AC_N_OUT_CURRENT = "AC (%i) Out Current"
-AC_N_OUT_VOLTAGE = "AC (%i) Out Voltage"
-AC_N_OUT_FREQ = "AC (%i) Out Frequency"
-WIRELESS_4G_ENABLED = "Wireless 4G Enabled"
-WIRELESS_4G_REGISTERED = "Wireless 4G Resgistered"
-WIRELESS_4G_ERROR_CODE = "Wireless 4G Error Code"
-WIRELESS_4G_DATA_MAX = "Wireless 4G Data Max"
-WIRELESS_4G_DATA_REMAINING = "Wireless 4G Data Remaining"
-WIRELESS_4G_SIM_ID = "Wireless 4G SIM ID"
-INTERNET_CONNECTION_TYPE = "Internet Connection Type"
-BATTERY_COUNT = "Battery Count"
+PIO_PORT_IN_POWER = "Power I/O Port Input Power"             
+PIO_PORT_IN_CURRENT = "Power I/O Port Input Current"         
+PIO_PORT_IN_VOLTAGE = "Power I/O Port Input Voltage"         
+PIO_PORT_OUT_POWER = "Power I/O Port Output Power"           
+PIO_PORT_OUT_CURRENT = "Power I/O Port Output Current"       
+PIO_PORT_OUT_VOLTAGE = "Power I/O Port Output Voltage"       
+PIO_PORT_OUT_FREQ = "Power I/O Port Output Frequency"        
+PIO_PORT_INPUT_TYPE = "Power I/O Port Input Type"            
+AC_N_OUT_POWER = "AC (%i) Out Power"                         
+AC_N_OUT_CURRENT = "AC (%i) Out Current"                     
+AC_N_OUT_VOLTAGE = "AC (%i) Out Voltage"                     
+AC_N_OUT_FREQ = "AC (%i) Out Frequency"                      
+WIRELESS_4G_ENABLED = "Wireless 4G Enabled"                  
+WIRELESS_4G_REGISTERED = "Wireless 4G Resgistered"           
+WIRELESS_4G_ERROR_CODE = "Wireless 4G Error Code"            
+WIRELESS_4G_DATA_MAX = "Wireless 4G Data Max"                
+WIRELESS_4G_DATA_REMAINING = "Wireless 4G Data Remaining"    
+WIRELESS_4G_SIM_ID = "Wireless 4G SIM ID"                    
+INTERNET_CONNECTION_TYPE = "Internet Connection Type"        
+BATTERY_COUNT = "Battery Count"                              
 BATTERY_AUTO_HEATING_ENABLED = "Battery Auto-Heating Enabled"
-ERROR_CODE = "Error Code"
-AC_IN_CURRENT = "AC In Current"
-
-# Smart Home Panel 2
+ERROR_CODE = "Error Code"                      
+AC_IN_CURRENT = "AC In Current"                
+ 
+#Smart Home Panel 2
 
 EPS_MODE = "EPS Mode"
 STORM_GUARD = "Storm Guard"
@@ -393,7 +433,7 @@ SMART_BACKUP_MODE = "Operating Mode"
 
 SMART_BACKUP_MODE_OPTIONS = {
     "None": 0,
-    "TOU": 1,
-    "Self-powered": 2,
-    "Scheduled tasks": 3,
+    "TOU" : 1,
+    "Self-powered" : 2,
+    "Scheduled tasks": 3
 }
