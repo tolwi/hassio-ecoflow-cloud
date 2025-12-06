@@ -453,15 +453,15 @@ class StreamAC(BaseDevice):
             EnergySensorEntity(
                 client,
                 self,
-                "",
-                const.STREAM_HISTORY_SOLAR_GENERATED_TODAY,
+                "history.solarGeneratedWh",
+                const.STREAM_HISTORY_SOLAR_GENERATED,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:solar-power"),
             EnergySensorEntity(
                 client,
                 self,
-                "Cumulative",
+                "history.solarGeneratedWhCumulative",
                 const.STREAM_HISTORY_SOLAR_GENERATED_CUMULATIVE,
             )
             .with_unit_of_measurement("Wh")
@@ -469,13 +469,13 @@ class StreamAC(BaseDevice):
             EnergySensorEntity(
                 client,
                 self,
-                "",
+                "history.electricityConsumptionWh",
                 const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION,
             ).with_unit_of_measurement("Wh"),
             EnergySensorEntity(
                 client,
                 self,
-                "",
+                "history.gridImportWh",
                 const.STREAM_HISTORY_GRID_IMPORT,
             )
             .with_unit_of_measurement("Wh")
@@ -483,7 +483,7 @@ class StreamAC(BaseDevice):
             EnergySensorEntity(
                 client,
                 self,
-                "",
+                "history.gridExportWh",
                 const.STREAM_HISTORY_GRID_EXPORT,
             )
             .with_unit_of_measurement("Wh")
@@ -491,7 +491,7 @@ class StreamAC(BaseDevice):
             EnergySensorEntity(
                 client,
                 self,
-                "",
+                "history.batteryChargeWh",
                 const.STREAM_HISTORY_BATTERY_CHARGE,
             )
             .with_unit_of_measurement("Wh")
@@ -499,7 +499,7 @@ class StreamAC(BaseDevice):
             EnergySensorEntity(
                 client,
                 self,
-                "",
+                "history.batteryDischargeWh",
                 const.STREAM_HISTORY_BATTERY_DISCHARGE,
             )
             .with_unit_of_measurement("Wh")
