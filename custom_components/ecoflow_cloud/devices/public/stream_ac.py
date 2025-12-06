@@ -26,7 +26,7 @@ HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGU
 class _HistoricalDataStatus(StatusSensorEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice):
         super().__init__(client, device, "Status (Historical)", "status.historical")
-        self.offline_barrier_sec = 3600
+        self.offline_barrier_sec = 60
         self._last_fetch = dt.utcnow().replace(year=2000, month=1, day=1, hour=0)
 
     async def _fetch_and_update(self):
@@ -84,9 +84,15 @@ class _HistoricalDataStatus(StatusSensorEntity):
             items = resp.get("data", {}).get("data", [])
             if items:
                 params["history.totalSolarSavings"] = float(items[0].get("indexValue", 0))
-                # Optional: currency symbol items[0].get("unit")
+                unit = items[0].get("unit")
+                if isinstance(unit, str) and unit:
+                    params["history.totalSolarSavingsUnit"] = unit
+                from logging import getLogger
+                getLogger(__name__).debug(
+                    "Historical savings fetched: value=%s unit=%s", params["history.totalSolarSavings"], unit
+                )
 
-            # Solar-generated power (Wh)
+            # Solar-generated energy (Wh)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
             )
@@ -168,13 +174,17 @@ class StreamAC(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
             # "accuChgCap": 198511,
-            CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False),
+            CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False)
+                .with_icon("mdi:battery-arrow-up"),
             # "accuChgEnergy": 3992,
-            EnergySensorEntity(client, self, "accuChgEnergy", const.ACCU_CHARGE_ENERGY),
+            EnergySensorEntity(client, self, "accuChgEnergy", const.ACCU_CHARGE_ENERGY)
+                .with_icon("mdi:battery-arrow-up"),
             # "accuDsgCap": 184094,
-            CumulativeCapacitySensorEntity(client, self, "accuDsgCap", const.ACCU_DISCHARGE_CAP, False),
+            CumulativeCapacitySensorEntity(client, self, "accuDsgCap", const.ACCU_DISCHARGE_CAP, False)
+                .with_icon("mdi:battery-arrow-down"),
             # "accuDsgEnergy": 3646,
-            EnergySensorEntity(client, self, "accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY),
+            EnergySensorEntity(client, self, "accuDsgEnergy", const.ACCU_DISCHARGE_ENERGY)
+                .with_icon("mdi:battery-arrow-down"),
             # "actSoc": 46.0,
             # "amp": 44671,
             # "backupReverseSoc": 5,
@@ -187,7 +197,7 @@ class StreamAC(BaseDevice):
             # "bmsBattSoh": 100.0,
             # "bmsChgDsgState": 2,
             # "bmsChgRemTime": 88,
-            RemainSensorEntity(client, self, "bmsChgRemTime", const.CHARGE_REMAINING_TIME, False),
+            RemainSensorEntity(client, self, "bmsChgRemTime", const.CHARGE_REMAINING_TIME, False).with_icon("mdi:battery-clock"),
             # "bmsDesignCap": 1920,
             # "bmsDsgRemTime": 5939,
             RemainSensorEntity(client, self, "bmsDsgRemTime", const.DISCHARGE_REMAINING_TIME, False).with_icon("mdi:battery-clock"),
@@ -223,7 +233,7 @@ class StreamAC(BaseDevice):
             # "cmsBmsRunState": 1,
             # "cmsChgDsgState": 2,
             # "cmsChgRemTime": 88,
-                RemainSensorEntity(client, self, "bmsChgRemTime", const.CHARGE_REMAINING_TIME, False).with_icon("mdi:battery-clock"),
+                # duplicate removed; charge remaining already defined above
             # "cmsMaxChgSoc": 100,
             # "cmsMinDsgSoc": 5,
             LevelSensorEntity(client, self, "cmsMaxChgSoc", const.MAX_CHARGE_LEVEL),
@@ -234,7 +244,9 @@ class StreamAC(BaseDevice):
             # "cycles": 1,
             CyclesSensorEntity(client, self, "cycles", const.CYCLES),
             # "designCap": 100000,
-            CapacitySensorEntity(client, self, "designCap", const.STREAM_DESIGN_CAPACITY,False),
+            CapacitySensorEntity(client, self, "designCap", const.STREAM_DESIGN_CAPACITY, False)
+                .with_unit_of_measurement("mAh")
+                .with_icon("mdi:battery"),
             # "devCtrlStatus": 1,
             # "devSleepState": 0,
             # "diffSoc": 0.2050476,
@@ -253,12 +265,14 @@ class StreamAC(BaseDevice):
             # "feedGridModePowLimit": 800,
             # "feedGridModePowMax": 800,
             # "fullCap": 100000,
-            CapacitySensorEntity(client, self, "fullCap", const.STREAM_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, self, "fullCap", const.STREAM_FULL_CAPACITY, False)
+                .with_unit_of_measurement("mAh")
+                .with_icon("mdi:battery"),
             # "gridCodeSelection": "GRID_STD_CODE_UTE_MAINLAND",
             # "gridCodeVersion": 10001,
             # "gridConnectionFreq": 49.974655,
             # "gridConnectionPower": -967.2364,
-            WattsSensorEntity(client, self, "gridConnectionPower", const.STREAM_POWER_AC),
+            WattsSensorEntity(client, self, "gridConnectionPower", const.STREAM_POWER_AC).with_icon("mdi:current-ac"),
             # "gridConnectionSta": "PANEL_GRID_IN",
             # "gridConnectionVol": 235.34576,
             VoltSensorEntity(client, self, "gridConnectionVol", const.STREAM_POWER_VOL, False),
@@ -267,7 +281,7 @@ class StreamAC(BaseDevice):
             # "heatfilmTemp": [],
             # "hwVer": "V0.0.0",
             # "inputWatts": 900,
-            InWattsSensorEntity(client, self, "inputWatts", const.STREAM_IN_POWER),
+            InWattsSensorEntity(client, self, "inputWatts", "In Power").with_icon("mdi:power-plug"),
             # "invNtcTemp3": 49,
             # "maxBpInput": 1050,
             # "maxBpOutput": 1200,
@@ -298,7 +312,7 @@ class StreamAC(BaseDevice):
             # "num": 0,
             # "openBmsFlag": 1,
             # "outputWatts": 0,
-            OutWattsSensorEntity(client, self, "outputWatts", const.STREAM_OUT_POWER),
+            OutWattsSensorEntity(client, self, "outputWatts", "Total Output Power").with_icon("mdi:power-plug"),
             # "packSn": "BKxxxxx",
             # "plugInInfoPv2Amp": 0.0,
             # "plugInInfoPv2Flag": false,
@@ -314,31 +328,31 @@ class StreamAC(BaseDevice):
             # "plugInInfoPvVol": 0.0,
             # "powConsumptionMeasurement": 2,
             # "powGetBpCms": 1915.0862,
-            WattsSensorEntity(client, self, "powGetBpCms", const.STREAM_POWER_BATTERY),
+            WattsSensorEntity(client, self, "powGetBpCms", const.STREAM_POWER_BATTERY).with_icon("mdi:battery"),
             # "powGetPv": 0.0,
-            WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True),
+            WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True).with_icon("mdi:solar-power"),
             # "powGetPv2": 0.0,
-            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False, True),
+            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False, True).with_icon("mdi:solar-power"),
             # "powGetPv3": 0.0,
-            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False, True),
+            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False, True).with_icon("mdi:solar-power"),
             # "powGetPv4": 0.0,
-            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
+            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True).with_icon("mdi:solar-power"),
             # "powGetPvSum": 2051.3975,
-            WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM),
+            WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM).with_icon("mdi:solar-power"),
             # "powGetSchuko1": 0.0,
-            WattsSensorEntity(client, self, "powGetSchuko1", const.STREAM_GET_SCHUKO1, False, True),
+            WattsSensorEntity(client, self, "powGetSchuko1", const.STREAM_GET_SCHUKO1, False, True).with_icon("mdi:power-socket"),
             # "powGetSchuko2": 18.654325,
-            WattsSensorEntity(client, self, "powGetSchuko2", const.STREAM_GET_SCHUKO2, False, True),
+            WattsSensorEntity(client, self, "powGetSchuko2", const.STREAM_GET_SCHUKO2, False, True).with_icon("mdi:power-socket"),
             # "powGetSysGrid": -135.0,
-            WattsSensorEntity(client, self, "powGetSysGrid", const.STREAM_POWER_GRID),
+            WattsSensorEntity(client, self, "powGetSysGrid", const.STREAM_POWER_GRID).with_icon("mdi:transmission-tower"),
             # "powGetSysLoad": 0.0,
-            WattsSensorEntity(client, self, "powGetSysLoad", const.STREAM_GET_SYS_LOAD),
+            WattsSensorEntity(client, self, "powGetSysLoad", const.STREAM_GET_SYS_LOAD).with_icon("mdi:power-plug"),
             # "powGetSysLoadFromBp": 0.0,
-            WattsSensorEntity(client, self, "powGetSysLoadFromBp", const.STREAM_GET_SYS_LOAD_FROM_BP),
+            WattsSensorEntity(client, self, "powGetSysLoadFromBp", const.STREAM_GET_SYS_LOAD_FROM_BP).with_icon("mdi:battery"),
             # "powGetSysLoadFromGrid": 0.0,
-            WattsSensorEntity(client, self, "powGetSysLoadFromGrid", const.STREAM_GET_SYS_LOAD_FROM_GRID),
+            WattsSensorEntity(client, self, "powGetSysLoadFromGrid", const.STREAM_GET_SYS_LOAD_FROM_GRID).with_icon("mdi:transmission-tower"),
             # "powGetSysLoadFromPv": 0.0,
-            WattsSensorEntity(client, self, "powGetSysLoadFromPv", const.STREAM_GET_SYS_LOAD_FROM_PV),
+            WattsSensorEntity(client, self, "powGetSysLoadFromPv", const.STREAM_GET_SYS_LOAD_FROM_PV).with_icon("mdi:solar-power"),
             # "powSysAcInMax": 4462,
             # "powSysAcOutMax": 800,
             # "productDetail": 5,
@@ -350,7 +364,9 @@ class StreamAC(BaseDevice):
             # "relay3Onoff": true,
             # "relay4Onoff": true,
             # "remainCap": 46317,
-            CapacitySensorEntity(client, self, "remainCap", const.STREAM_REMAIN_CAPACITY,False),
+            CapacitySensorEntity(client, self, "remainCap", const.STREAM_REMAIN_CAPACITY, False)
+                .with_unit_of_measurement("mAh")
+                .with_icon("mdi:battery-medium"),
             # "remainTime": 88,
                 RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME).with_icon("mdi:battery-clock"),
             # "runtimePropertyFullUploadPeriod": 120000,
@@ -369,7 +385,7 @@ class StreamAC(BaseDevice):
             # "stormPatternEndTime": 0,
             # "stormPatternOpenFlag": false,
             # "sysGridConnectionPower": -2020.0437,
-            WattsSensorEntity(client, self, "sysGridConnectionPower", const.STREAM_POWER_AC_SYS),
+            WattsSensorEntity(client, self, "sysGridConnectionPower", const.STREAM_POWER_AC_SYS).with_icon("mdi:current-ac"),
             # "sysLoaderVer": 4294967295,
             # "sysState": 3,
             # "sysVer": 33620026,
@@ -416,16 +432,21 @@ class StreamAC(BaseDevice):
 
             # Historical data sensors (HTTP)
             BaseSensorEntity(client, self, "history.energyIndependence", "Energy Independence").with_unit_of_measurement("%").with_icon("mdi:solar-panel"),
-            BaseSensorEntity(client, self, "history.environmentalImpact_g", "Environmental Impact").with_unit_of_measurement("g").with_icon("mdi:leaf"),
-            BaseSensorEntity(client, self, "history.environmentalImpactCumulative_g", "Cumulative Environmental Impact").with_unit_of_measurement("g").with_icon("mdi:leaf"),
-            BaseSensorEntity(client, self, "history.totalSolarSavings", "Total Solar Savings").with_unit_of_measurement("€"),
-            EnergySensorEntity(client, self, "history.solarGeneratedWh", "Solar Generated").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
-            EnergySensorEntity(client, self, "history.solarGeneratedWhCumulative", "Cumulative Solar Generated").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
-            EnergySensorEntity(client, self, "history.electricityConsumptionWh", "Electricity Consumption").with_unit_of_measurement("Wh"),
-            EnergySensorEntity(client, self, "history.gridImportWh", "Grid Import").with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-import"),
-            EnergySensorEntity(client, self, "history.gridExportWh", "Grid Export").with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-export"),
-            EnergySensorEntity(client, self, "history.batteryChargeWh", "Battery Charge").with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-up"),
-            EnergySensorEntity(client, self, "history.batteryDischargeWh", "Battery Discharge").with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-down"),
+            BaseSensorEntity(client, self, "history.environmentalImpact_g",
+                             "Environmental Impact (g)").with_unit_of_measurement("g").with_icon("mdi:leaf"),
+            BaseSensorEntity(client, self, "history.environmentalImpactCumulative_g", "Cumulative Environmental Impact (g)").with_unit_of_measurement("g").with_icon("mdi:leaf"),
+            DynamicCurrencySensorEntity(client, self, "history.totalSolarSavings", "Total solar energy savings",
+                                        unit_param_key="history.totalSolarSavingsUnit", default_unit="€")
+                .with_icon("mdi:cash"),
+            EnergySensorEntity(client, self, "history.solarGeneratedWh",
+                               "Solar-generated energy today (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
+            EnergySensorEntity(client, self, "history.solarGeneratedWhCumulative",
+                               "Cumulative Solar-generated energy (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:solar-power"),
+            EnergySensorEntity(client, self, "history.electricityConsumptionWh", "Electricity Consumption (Wh)").with_unit_of_measurement("Wh"),
+            EnergySensorEntity(client, self, "history.gridImportWh", "Grid Import (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-import"),
+            EnergySensorEntity(client, self, "history.gridExportWh", "Grid Export (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:transmission-tower-export"),
+            EnergySensorEntity(client, self, "history.batteryChargeWh", "Battery Charge (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-up"),
+            EnergySensorEntity(client, self, "history.batteryDischargeWh", "Battery Discharge (Wh)").with_unit_of_measurement("Wh").with_icon("mdi:battery-arrow-down"),
             _HistoricalDataStatus(client, self),
         ]
     # moduleWifiRssi
@@ -559,6 +580,33 @@ class StreamAC(BaseDevice):
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return StatusSensorEntity(client, self)
+        # Status entity shows online/offline; use a connectivity icon
+        return StatusSensorEntity(client, self).with_icon("mdi:lan-connect")
+
+
+class DynamicCurrencySensorEntity(BaseSensorEntity):
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, key: str, name: str, unit_param_key: str, default_unit: str = "€"):
+        super().__init__(client, device, key, name)
+        self._unit_param_key = unit_param_key
+        self._default_unit = default_unit
+        self.with_unit_of_measurement(default_unit)
+
+    def _actualize_status(self) -> bool:
+        # Update unit dynamically from params before normal actualization
+        changed = False
+        try:
+            params = self._device.data.get("params", {})
+            unit = params.get(self._unit_param_key)
+            if isinstance(unit, str) and unit:
+                # If unit differs, update and mark as changed
+                if getattr(self, "_unit_of_measurement", self._default_unit) != unit:
+                    self.with_unit_of_measurement(unit)
+                    changed = True
+        except Exception:
+            # Keep default unit on any error
+            pass
+        # Proceed with normal status update
+        base_changed = super()._actualize_status()
+        return changed or base_changed
 
 
