@@ -176,8 +176,10 @@ class River3(BaseDevice):
             LevelSensorEntity(client, self, "bms_batt_soh", const.SOH),
             LevelSensorEntity(client, self, "cms_batt_soc", const.COMBINED_BATTERY_LEVEL),
             River3ChargingStateSensorEntity(client, self, "bms_chg_dsg_state", const.BATTERY_CHARGING_STATE),
-            InWattsSensorEntity(client, self, "pow_in_sum_w", const.TOTAL_IN_POWER).with_energy(),
-            OutWattsSensorEntity(client, self, "pow_out_sum_w", const.TOTAL_OUT_POWER).with_energy(),
+            InWattsSensorEntity(client, self, "pow_in_sum_w", const.TOTAL_IN_POWER)
+                .with_energy(),
+            OutWattsSensorEntity(client, self, "pow_out_sum_w", const.TOTAL_OUT_POWER)
+                .with_energy(),
             InWattsSensorEntity(client, self, "pow_get_pv", const.SOLAR_IN_POWER),
             InMilliampSensorEntity(client, self, "plug_in_info_pv_amp", const.SOLAR_IN_CURRENT),
             InWattsSensorEntity(client, self, "pow_get_ac_in", const.AC_IN_POWER),
