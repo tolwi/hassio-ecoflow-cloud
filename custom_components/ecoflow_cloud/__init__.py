@@ -189,12 +189,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         return False
 
     devices_list: dict[str, DeviceData] = extract_devices(entry)
-    # try to connect
-    try:  
+    # Try to connect and authenticate
+    try:
         await api_client.login()
-    except Exception as ex:
-        raise ConfigEntryNotReady(f"Connexion error EcoFlow: {ex}") from ex
-
+    except (ConnectionError, TimeoutError) as ex:
+        # Transient network issues - retry later
+        _LOGGER.warning("Failed to connect to EcoFlow API: %s", ex)
+        raise ConfigEntryNotReady(f"Connection failed: {ex}") from ex
 
     for sn, device_data in devices_list.items():
         device = api_client.configure_device(device_data)
