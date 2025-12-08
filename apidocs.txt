@@ -1,0 +1,1769 @@
+Host
+Key	Value
+host
+
+https://api-e.ecoflow.com
+HTTP access steps
+Create a signature with accesskey and secretkey for authentication when HTTP requesting.
+
+How to implement signature:
+
+Step 1: request parameters must be sorted by ASCII value and concatenated with characters =, &
+
+E.g. str=param1=value1&param2=value2
+
+Step 2: if the type is nested, expand and splice according to the method of step 1.
+
+E.g. deviceInfo.id=1&deviceList[0].id=1&deviceList[1].id=2&ids[0]=1&ids[1]=2&ids[2]=3&name=demo1
+
+{
+    // General Parameter, expand to: name=demo1
+    "name" : "demo1" ,
+    // Array, expand to: ids[0]=1&ids[1]=2&ids[2]=3
+    "ids" :[1, 2, 3],
+    // Object, expand to: deviceInfo.id=1
+    "deviceInfo" :{
+        "id" :1
+    },
+    // Object Array, expand to: deviceList[0].id=1&deviceList[1].id=2
+    "deviceList" :[
+        {
+            "id" :1
+        },
+        {
+            "id" :2
+        }
+    ]
+}
+Step 3: concatenate accessKey, nonce, timestamp
+
+E.g. str=param1=value1&param2=value2&accessKey=***&nonce=...&timestamp=...
+
+Step 4: encrypt
+
+E.g. byte[] signBytes = HMAC-SHA256(str, secretKey)
+
+Step 5: convert byte[] to hexadecimal string. String sign = bytesToHexString(signBytes)
+
+E.g. sign=85776ede686fe4783eac48135b0b1748ba2d7e9bb7791b826dc942fc29d4ada8
+
+Step 6: add accessKey, nonce, timestamp, sign to HTTP header
+
+E.g.
+
+// HTTP Header
+accessKey:ba2d7e9...
+nonce:123456
+timestamp:1671171709428
+sign:85776ede686fe...
+Step 7: get request data according to Content-Type header
+
+If Content-Type is "application/json;charset=UTF-8", get request data from request body, else get from request query string.
+
+E.g.
+
+// HTTP header content-type=application/json;charset=UTF-8
+// HTTP body
+{
+ "name": "...",   
+ "begin_time": 123456789
+}
+
+// HTTP header content-type is none or other
+// HTTP query string
+https://${host}//iot-open/sign/device/quota/all?sn=123
+Step8: verify that the steps to generate the signature are correct
+
+accessKey=Fp4SvIprYSDPXtYJidEtUAd1o
+secretKey=WIbFEKre0s6sLnh4ei7SPUeYnptHG6V
+nonce=345164
+timestamp=1671171709428
+
+// HTTP json Body
+{
+    "sn" : "123456789" ,
+    "params" :{
+        "cmdSet" :11,
+        "id" :24,
+        "eps" :0
+    }
+}
+
+// key-value string
+params.cmdSet=11&params.eps=0&params.id=24&sn=123456789&accessKey=Fp4SvIprYSDPXtYJidEtUAd1o&nonce=345164&timestamp=1671171709428
+
+// sign. If the signature you generated is this value, than is correct
+07c13b65e037faf3b153d51613638fa80003c4c38d2407379a7f52851af1473e
+General HTTP Header
+Field	Field's Type	Required	Description
+accessKey
+
+string
+
+Yes
+
+Get from IoT platform
+
+nonce
+
+int
+
+Yes
+
+Random number, 6 digits. Such as 537642
+
+timestamp
+
+long
+
+Yes
+
+UTC timestamp. Such as 1672382607378
+
+sign
+
+string
+
+Yes
+
+Creating by the signature rule
+
+Query the user's bound device list
+Only returns the device bound to itself, not by share.
+
+Key	Value
+Method
+
+GET
+
+URL
+
+https://${host}/iot-open/sign/device/list
+Content-Type
+
+none
+
+Request Body
+
+None
+
+Response Body
+
+Field	Field's Type	Required	Description
+code
+
+string
+
+Yes
+
+0: success
+
+message
+
+string
+
+data
+
+List
+
+Device's info list
+
+DeviceInfo
+
+Field	Field's Type	Required	Description
+sn
+
+string
+
+Yes
+
+Device's sequence number
+
+deviceName
+
+string
+
+Yes
+
+Device's name
+
+online
+
+int
+
+Yes
+
+Device online or not0: No, 1: Yes
+
+Example
+
+// request
+curl -X GET https://api-e.ecoflow.com/iot-open/sign/device/list \
+-H 'accessKey:OCHzRuj6NLF7o43***' \
+-H 'timestamp:1681796503289' \
+-H 'nonce:234762' \
+-H 'sign:f560c3e31d96ad31e4567939f9b3dca7b2c454ca7003f60***'
+
+// response
+{
+    "code":"0",
+    "message":"Success",
+    "data":[
+        {
+            "sn":"DCABZ****",
+            "online":1
+        }
+    ]
+}
+Setting device's function
+Key	Value
+Method
+
+PUT
+
+URL
+
+https://${host}/iot-open/sign/device/quota
+Content-Type
+
+application/json;charset=UTF-8
+
+Request Body
+
+Field	Field's Type	Required	Description
+sn
+
+string
+
+Yes
+
+Device's sequence number
+
+params
+
+SetCmdRequest
+
+Yes
+
+Response Body
+
+Field	Field's Type	Required	Description
+code
+
+string
+
+Yes
+
+0: success
+
+message
+
+string
+
+Example
+
+// Delta Pro: Setting the X-Boost switch
+// Request
+curl -X PUT https://api-e.ecoflow.com/iot-open/sign/device/quota \
+-H 'Content-Type:application/json;charset=UTF-8' \
+-H 'accessKey:OCHzRuj6NLF7o43***' \
+-H 'timestamp:1681872798000' \
+-H 'nonce:238752' \
+-H 'sign:0f3a1b102cd9a306307b7a9a0f0a9add7b8bfc93cf11***' \
+-d '{"sn":"DCABZ***","params":{"cmdSet":32,"id":66,"enabled":1}}'
+
+// Response
+{
+    "code":"0",
+    "message":"Success"
+}
+Query the device's quota infomation
+Key	Value
+Method
+
+POST
+
+URL
+
+https://${host}/iot-open/sign/device/quota
+Content-Type
+
+application/json;charset=UTF-8
+
+Request Body
+
+Field	Field's Type	Required	Description
+sn
+
+string
+
+Yes
+
+Device's sequence number
+
+params
+
+GetCmdRequest
+
+Yes
+
+Response Body
+
+Field	Field's Type	Required	Description
+code
+
+string
+
+Yes
+
+0: success
+
+message
+
+string
+
+data
+
+GetCmdResponse
+
+Example
+
+// Delta Pro: Get the X-Boost switch value
+// Request
+curl -X POST https://api-e.ecoflow.com/iot-open/sign/device/quota \
+-H 'Content-Type:application/json;charset=UTF-8' \
+-H 'accessKey:OCHzRuj6NLF7o43***' \
+-H 'timestamp:1681872798000' \
+-H 'nonce:238752' \
+-H 'sign:1e48307441d06a6b31d4c0d66be1580c7748fd0***' \
+-d '{"sn":"DCABZ***","params":{"cmdSet":32,"id":66,"quotas":["inv.cfgAcEnabled"]}}'
+
+// Response
+{
+    "code":"0",
+    "message":"Success",
+    "data":{
+        "inv.cfgAcEnabled":1
+    }
+}
+Query device's all quota infomation
+Key	Value
+Method
+
+GET
+
+URL
+
+https://${host}/iot-open/sign/device/quota/all
+Content-Type
+
+none
+
+Request Query String
+
+Field	Field's Type	Required	Description
+sn
+
+string
+
+Yes
+
+Device's sequence number
+
+Response Body
+
+Field	Field's Type	Required	Description
+code
+
+string
+
+Yes
+
+0: success
+
+message
+
+string
+
+data
+
+GetAllQuotaResponse
+
+Example
+
+// Get Delta Pro all quota values
+// Request
+curl -X GET https://api-e.ecoflow.com/iot-open/sign/device/quota/all?sn=DCABZ*** \
+-H 'accessKey:OCHzRuj6NLF7o43***' \
+-H 'timestamp:1681872798000' \
+-H 'nonce:238752' \
+-H 'sign:534215ccfe93979588975630ea0ad7091c7e250ae5***'
+
+// Response
+{
+    "code":"0",
+    "message":"Success",
+    "data":{
+        "bmsMaster.soc":"100",
+        "bmsMaster.temp":"34",
+        "bmsMaster.inputWatts":"0",
+        "bmsMaster.outputWatts":"0",
+        "pd.remainTime":"14781",
+        "inv.cfgAcEnabled":"0",
+        "mppt.carState":"0",
+        "pd.usb1Watts":"0",
+        "pd.usb2Watts":"0",
+        "pd.qcUsb1Watts":"0",
+        ...
+    }
+}
+MQTT certificate acquisition
+Get the MQTT certification, using it for MQTT communication.
+
+Key	Value
+Method
+
+GET
+
+URL
+
+https://${host}/iot-open/sign/certification
+Content-Type
+
+none
+
+Request Body
+
+None
+
+Response Body
+
+Field	Field's Type	Required	Description
+code
+
+string
+
+Yes
+
+0: success
+
+message
+
+string
+
+data
+
+AppCertification
+
+AppCertification
+
+Field	Field's Type	Required	Description
+certificateAccount
+
+string
+
+Yes
+
+MQTT certification account
+
+certificatePassword
+
+string
+
+Yes
+
+MQTT certification password
+
+url
+
+string
+
+Yes
+
+MQTT host
+
+port
+
+string
+
+Yes
+
+MQTT port
+
+protocol
+
+string
+
+Yes
+
+MQTT communication protocol: mqtt、mqtts
+
+Example
+
+// Request
+curl -X GET https://api-e.ecoflow.com/iot-open/sign/certification \
+-H 'accessKey:OCHzRuj6NLF7o43***' \
+-H 'timestamp:1681872798000' \
+-H 'nonce:238752' \
+-H 'sign:0396ef9748bf273ecf6ad7ded6333f343d778945f7***'
+
+// Response
+{
+    "code":"0",
+    "message":"Success",
+    "data":{
+        "certificateAccount":"open-57c134518b5***",
+        "certificatePassword":"959253cc103a4008***",
+        "url":"mqtt.ecoflow.com",
+        "port":"8883",
+        "protocol":"mqtts"
+    }
+}
+MQTT Topic
+Usage of Topic	Topic	From	To
+Report device quota
+
+/open/${certificateAccount}/${sn}/quota
+
+device
+
+app
+
+Set device function
+
+/open/${certificateAccount}/${sn}/set
+
+app
+
+device
+
+Reply to the set result
+
+/open/${certificateAccount}/${sn}/set_reply
+
+device
+
+app
+
+Get some quota
+
+/open/${certificateAccount}/${sn/get
+
+app
+
+device
+
+Reply to the get result
+
+/open/${certificateAccount}/${sn}/get_reply
+
+device
+
+app
+
+Report Device status
+
+/open/${certificateAccount}/${sn}/status
+
+device
+
+app
+
+Description
+
+Field	Get from the HTTP** **API
+certificateAccount
+
+GET: /iot-open/sign/certification
+sn
+
+GET: /iot-open/sign/device/list
+Request Topic's Common Field
+Field	Field Type	Description
+id
+
+string
+
+Message ID, unique per request.Such as UTC timestamp: 1672389360845Response will return the same id
+
+version
+
+string
+
+Protocol version. Input 1.0 at this moment
+
+operateType
+
+string
+
+Device's operator typeDelta Pro, Smart Home Panel device input TCP
+
+from
+
+string
+
+Request from source. Such as iOS, Android, Web
+
+params
+
+ParamInfo
+
+Example
+
+{
+  "id":"123456789",
+  "version":"1.0",
+  "operateType":"TCP",
+  "from":"iOS",
+  "params": {
+    "cmdSet": 32,
+    "id": 33,
+    "standByMode": 0
+  }
+}
+3.Reply Topic's Common Field
+
+Field	Field Type	Description
+id
+
+string
+
+Message ID, unique per request.Such as UTC timestamp: 1672389360845Response will return the same id
+
+version
+
+string
+
+Protocol version. Input 1.0 at this moment
+
+operateType
+
+string
+
+Device's operator typeDelta Pro, Smart Home Panel device input TCP
+
+code
+
+string
+
+Response result0: success-1: this device don't belong to user-2: device offline
+
+message
+
+string
+
+Error information
+
+data
+
+DataInfo
+
+Response data
+
+Example
+
+{
+    "id":123456789,
+    "version":"1.0",
+    "operateType": "TCP",
+    "code": "0",
+    "data": {
+        "cmdSet": 32,
+        "id": 33,
+        "ack": 0
+    }
+}
+Report Device status
+Usage of Topic	Topic	From	To
+Report Device status
+
+/open/${certificateAccount}/${sn}/status
+
+device
+
+app
+
+Message Format
+
+{
+  "id":"123456789",
+  "version":"1.0",
+  "timestamp": 1634841971000,
+  "params": {
+    "status": 0
+  }
+}
+Field
+
+Field	Field Type	Description
+status
+
+int
+
+Device online or not0: No, 1: Yes
+
+HTTP communication mode
+Obtain the main device serial number of the STREAM system
+GET: /iot-open/sign/device/system/main/sn?sn=BK51ZE1B2H4H0029
+
+In BKW systems with multiple devices, the parameters for the AC1 switch and AC2 switch are the serial number of the corresponding devices. For all other commands, you will first need to use this API to obtain the main device serial number.
+
+Request Parameters
+
+Field	Field's Type	Description
+sn	string	Any device SN of the BKW system
+Response Example
+
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "sn": "BK31ZEBB2H390033"
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Set & Get Quota
+How to transfer request parameters by these two HTTP API.
+
+PUT: /iot-open/sign/device/quota: SetCmdRequest
+
+POST: /iot-open/sign/device/quota: GetCmdRequest, GetCmdResponse
+
+setting
+Set Command
+
+setCmdRequest
+
+GetCmdRequest
+
+GetCmdResponse
+
+AC1 switch
+
+Supported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM Ultra X, STREAM Ultra (US);
+
+Unsupported devices: STREAM Max, STREAM AC
+
+(On: true
+
+Off: false)
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgRelay2Onoff": true
+    }
+}
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "quotas": [
+            "relay2Onoff"
+        ]
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "relay2Onoff": false
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+AC2 switch
+
+Supported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM Ultra X, STREAM Ultra (US);
+
+Unsupported devices: STREAM Max, STREAM AC
+
+(On: true
+
+Off: false)
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgRelay3Onoff": true
+    }
+}
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "quotas": [
+            "relay3Onoff"
+        ]
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "relay3Onoff": false
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+AC switch
+
+Supported devices: STREAM Max;
+
+Unsupported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM AC, STREAM Ultra X, STREAM Ultra (US);
+
+(On: true
+
+Off: false)
+
+{
+    "sn": "BK41ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgRelay2Onoff": true
+    }
+}
+{
+    "sn": "BK41ZEBB2H350011",
+    "params": {
+        "quotas": [
+            "relay2Onoff"
+        ]
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "relay2Onoff": false
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Backup reserve level
+
+Recommended level: 3–95%
+
+The backup reserve level should be greater than the discharging level and less than the charging level;
+
+Due to device restrictions, the backup reserve level should be 3% higher than the discharging level;
+
+The recommended maximum charging level is 95%;
+
+If there are multiple devices, use the API to obtain the serial number of the main device
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgBackupReverseSoc": 10
+    }
+}
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "quotas": [
+            "backupReverseSoc"
+        ]
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "backupReverseSoc": 10
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Operating mode — Self-powered
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgEnergyStrategyOperateMode": {
+            "operateSelfPoweredOpen": true
+        }
+    }
+}
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "quotas": [
+            "energyStrategyOperateMode.operateSelfPoweredOpen"
+        ]
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "energyStrategyOperateMode.operateSelfPoweredOpen": true
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Operating mode — AI Mode
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgEnergyStrategyOperateMode": {
+            "operateIntelligentScheduleModeOpen": true
+        }
+    }
+}
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "quotas": [
+            "energyStrategyOperateMode.operateIntelligentScheduleModeOpen"
+        ]
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "energyStrategyOperateMode.operateIntelligentScheduleModeOpen": true
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Feed-in control
+
+(1-off, 2-on)
+
+If there are multiple devices, use the API to obtain the serial number of the main device
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgFeedGridMode": 1
+    }
+}
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "quotas": [
+            "feedGridMode"
+        ]
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "feedGridMode": 1
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Historical data
+Obtaining historical data: POST: /iot-open/sign/device/quota/data
+
+Request Parameters
+
+Request Params Field	Field's Type	Description
+beginTime	dateTime	Query start time, formatted as 'yyyy-MM-dd HH:mm:ss', in UTC timezone. The effective range refers to the query latitude column.
+endTime	dateTime	Query end time, formatted as 'yyyy-MM-dd HH:mm:ss', in UTC timezone. The effective range refers to the query latitude column.
+code	string	The metric code to be queried
+Example
+
+Set Command
+
+GetCmdRequest
+
+GetCmdRequest
+
+Minimum lookup period
+
+Energy independence
+
+If there are multiple devices, use the API to obtain the serial number of the main device
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "beginTime": "2025-09-18 00:00:00",
+        "endTime": "2025-09-18 23:59:59",
+        "code": "BK621-App-HOME-INDEPENDENCE-PERCENT-FLOW-indep-progress_bar-NOTDISTINGUISH-MASTER_DATA"
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "code": "0",
+        "message": "Success",
+        "data": [
+            {
+                "indexName": "master_data",
+                "indexValue": 19.5,
+                "unit": "%"
+            }
+        ],
+        "eagleEyeTraceId": "",
+        "tid": ""
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Year.
+
+For example, "beginTime": "2025-09-18 12:00:00" will return data for the year 2025;
+
+Environmental impact
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "beginTime": "2025-09-18 00:00:00",
+        "endTime": "2025-09-18 23:59:59",
+        "code": "BK621-App-HOME-CO2-WEIGHT-FLOW-impact-progress_arc-NOTDISTINGUISH-MASTER_DATA"
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "code": "0",
+        "message": "Success",
+        "data": [
+            {
+                "indexName": "master_data",
+                "indexValue": 3970,
+                "unit": "g"
+            }
+        ],
+        "eagleEyeTraceId": "",
+        "tid": ""
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Day.
+
+For example, "beginTime": "2025-09-18 12:00:00" will return data for the day 2025-09-18;
+
+Total solar energy savings
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+The lookup period is in days;
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "beginTime": "2025-09-18 00:00:00",
+        "endTime": "2025-09-18 23:59:59",
+        "code": "BK621-App-HOME-SAVING-CURRENCY-FLOW-earnings-progress_arc-NOTDISTINGUISH-MASTER_DATA"
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "code": "0",
+        "message": "Success",
+        "data": [
+            {
+                "indexName": "master_data",
+                "indexValue": 0,
+                "unit": "€"
+            }
+        ],
+        "eagleEyeTraceId": "",
+        "tid": ""
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Day.
+
+For example, "beginTime": "2025-09-18 12:00:00" will return data for the day 2025-09-18;
+
+Solar-generated power
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+The lookup period is in days;
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "beginTime": "2025-09-18 00:00:00",
+        "endTime": "2025-09-18 23:59:59",
+        "code": "BK621-App-HOME-SOLAR-ENERGY-FLOW-solor-line-NOTDISTINGUISH-MASTER_DATA"
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "code": "0",
+        "message": "Success",
+        "data": [
+            {
+                "unit": "wh",
+                "indexName": "master_data",
+                "indexValue": "9945"
+            }
+        ],
+        "eagleEyeTraceId": "",
+        "tid": ""
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Day.
+
+For example, "beginTime": "2025-09-18 12:00:00" will return data for the day 2025-09-18;
+
+Electricity consumption
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+The lookup period is in days;
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "beginTime": "2025-09-18 00:00:00",
+        "endTime": "2025-09-18 23:59:59",
+        "code": "BK621-App-HOME-LOAD-ENERGY-FLOW-consumption-prop_arc-NOTDISTINGUISH-MASTER_DATA"
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "code": "0",
+        "message": "Success",
+        "data": [
+            {
+                "unit": "wh",
+                "indexName": "master_data",
+                "indexValue": "12094"
+            }
+        ],
+        "eagleEyeTraceId": "",
+        "tid": ""
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Hour.
+
+For example, "beginTime": "2025-09-18 12:00:00" will return data for the hour starting 12:00:00 on the day 2025-09-18;
+
+Grid
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+The lookup period is in days;
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "beginTime": "2025-09-18 00:00:00",
+        "endTime": "2025-09-18 23:59:59",
+        "code": "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-MASTER_DATA"
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "code": "0",
+        "message": "Success",
+        "data": [
+            {
+                "unit": "wh",
+                "indexName": "master_data",
+                "extra": "1",
+                "indexValue": "2886"
+            },
+            {
+                "unit": "wh",
+                "indexName": "master_data",
+                "extra": "2",
+                "indexValue": "0"
+            }
+        ],
+        "eagleEyeTraceId": "",
+        "tid": ""
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Hour.
+
+For example, "beginTime": "2025-09-18 12:00:00" will return data for the hour starting 12:00:00 on the day 2025-09-18;
+
+Battery charging/discharging power
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+The lookup period is in days;
+
+{
+    "sn": "BK11ZEBB2H350011",
+    "params": {
+        "beginTime": "2025-09-18 00:00:00",
+        "endTime": "2025-09-18 23:59:59",
+        "code": "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
+    }
+}
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "code": "0",
+        "message": "Success",
+        "data": [
+            {
+                "unit": "wh",
+                "indexName": "master_data",
+                "extra": "2",
+                "indexValue": "2425"
+            },
+            {
+                "unit": "wh",
+                "indexName": "master_data",
+                "extra": "1",
+                "indexValue": "1967"
+            }
+        ],
+        "eagleEyeTraceId": "",
+        "tid": ""
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+Hour.
+
+For example, "beginTime": "2025-09-18 12:00:00" will return data for the hour starting 12:00:00 on the day 2025-09-18;
+
+GetAllQuotaResponse
+How to transfer request parameters by this HTTP API.
+
+GET: /iot-open/sign/device/quota/all?sn=BK51ZE1B2H4H0029
+
+Get Parameters
+
+Field	Field's Type	Description
+sn	string	the serial number of the main device;
+Response Parameters
+
+Field
+
+Field's Type
+
+Description
+
+relay2Onoff（AC1）
+
+bool
+
+AC1 switch, 0-off, 1-on;
+
+Supported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM Ultra X, STREAM Ultra (US);
+
+Unsupported devices: STREAM Max, STREAM AC
+
+relay3Onoff（AC2）
+
+bool
+
+AC2 switch, 0-off, 1-on;
+
+Supported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM Ultra X, STREAM Ultra (US);
+
+Unsupported devices: STREAM Max, STREAM AC
+
+relay2Onoff（AC）
+
+bool
+
+AC switch, 0-off, 1-on;
+
+Supported devices: STREAM Max;
+
+Unsupported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM AC, STREAM Ultra X, STREAM Ultra (US);
+
+powGetPvSum
+
+float
+
+System real-time PV power, unit: W
+
+feedGridMode
+
+int
+
+System feed-in control switch (1-off, 2-on)
+
+gridConnectionPower
+
+float
+
+Grid port active power (input power is positive, feed-in power is negative), unit: W
+
+energyStrategyOperateMode.operateIntelligentScheduleModeOpen
+
+bool
+
+System operating mode — AI Mode, false-off, true-on For self-powered mode and AI mode, one of them must be "true" and the other must be "false".
+
+energyStrategyOperateMode.operateSelfPoweredOpen
+
+bool
+
+System operating mode — Self-powered, false-off, true-on For self-powered mode and AI mode, one of them must be "true" and the other must be "false".
+
+powGetSysGrid
+
+float
+
+System real-time load power, unit: W
+
+powGetSysLoad
+
+float
+
+System real-time load power, unit: W
+
+cmsBattSoc
+
+float
+
+System real-time load power, unit: W
+
+powGetBpCms
+
+float
+
+Real-time aggregated battery power of the system. Positive values refer to the battery's charging power, while negative values refer to the discharging power. Unit: W
+
+backupReverseSoc
+
+int
+
+System backup reserve level. Recommended level: 3–95%
+
+cmsMaxChgSoc
+
+int
+
+Charge limit
+
+cmsMinDsgSoc
+
+int
+
+Discharge limit
+
+quota_cloud_ts
+
+dateTime
+
+Heartbeat report time
+
+Response Example
+
+{
+    "code": "0",
+    "message": "Success",
+    "data": {
+        "feedGridMode": 1,
+        "gridConnectionPower": -1064.9087,
+        "relay3Onoff": false,
+        "powGetPvSum": 0.0,
+        "energyStrategyOperateMode.operateIntelligentScheduleModeOpen": false,
+        "powGetSysGrid": 1664.9087,
+        "powGetSysLoad": 600.0,
+        "energyStrategyOperateMode.operateSelfPoweredOpen": true,
+        "backupReverseSoc": 64,
+        "cmsBattSoc": 33.0,
+        "quota_cloud_ts": "2025-09-25 20:13:46",
+        "powGetBpCms": 1064.9087,
+        "relay2Onoff": true,
+        "cmsMaxChgSoc": 95,
+        "cmsMinDsgSoc": 0
+    },
+    "eagleEyeTraceId": "",
+    "tid": ""
+}
+MQTT communication mode
+Set & Set Reply
+Usage of Topic
+
+Topic
+
+From
+
+To
+
+Set device function
+
+/open/${certificateAccount}/${sn}/set
+
+app
+
+device
+
+Reply to the set result
+
+/open/${certificateAccount}/${sn}/set_reply
+
+device
+
+app
+
+Full Format Example
+
+Set Command
+
+setCmdRequest
+
+GetCmdRequest
+
+Backup reserve level
+
+Recommended level: 3–95%
+
+The backup reserve level should be greater than the discharging level and less than the charging level;
+
+Due to device restrictions, the backup reserve level should be 3% higher than the discharging level;
+
+The recommended maximum charging level is 95%;
+
+If there are multiple devices, use the API to obtain the serial number of the main device
+
+{
+    "id": 123,
+    "version": "1.0",
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgBackupReverseSoc": 10
+    }
+}
+{    "data": {        "cfgBackupReverseSoc": 10        "configOk": true,        "actionId": 381    },    "id": 123}
+Operating mode — Self-powered
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+{
+    "id": 1234566789,
+    "version": "1.0",
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgEnergyStrategyOperateMode": {
+            "operateSelfPoweredOpen": true
+        }
+    }
+}
+{
+    "data": {
+        "cfgEnergyStrategyOperateMode": {
+            "operateTouModeOpen": false,
+            "operateScheduledOpen": false,
+            "operateSelfPoweredOpen": true,
+            "operateIntelligentScheduleModeOpen": false
+        },
+        "cfgCfgIntelligentScheduleMode": {
+            "intelligentScheduleMode": 0,
+            "joinIntelligentSchedule": 0
+        },
+        "configOk": true,
+        "actionId": 106
+    },
+    "id": 1234566789
+}
+Operating mode — AI Mode
+
+If there are multiple devices, use the API to obtain the serial number of the main device;
+
+{
+    "id": 1234566789,
+    "version": "1.0",
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgEnergyStrategyOperateMode": {
+            "operateIntelligentScheduleModeOpen": true
+        }
+    }
+}
+{
+    "data": {
+        "cfgEnergyStrategyOperateMode": {
+            "operateTouModeOpen": false,
+            "operateScheduledOpen": false,
+            "operateSelfPoweredOpen": false,
+            "operateIntelligentScheduleModeOpen": true
+        },
+        "cfgCfgIntelligentScheduleMode": {
+            "intelligentScheduleMode": 0,
+            "joinIntelligentSchedule": 0
+        },
+        "configOk": true,
+        "actionId": 106
+    },
+    "id": 1234566789
+}
+Feed-in control
+
+(1-off, 2-on)
+
+If there are multiple devices, use the API to obtain the serial number of the main device
+
+{
+    "id": 123,
+    "version": "1.0",
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgFeedGridMode": 1
+    }
+}
+{
+    "data": {
+        "cfgFeedGridMode": 1,
+        "configOk": true,
+        "actionId": 381
+    },
+    "id": 123
+}
+AC1 switch
+
+Supported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM Ultra X, STREAM Ultra (US);
+
+Unsupported devices: STREAM Max, STREAM AC
+
+(On: true
+
+Off: false)
+
+{
+    "id": 123,
+    "version": "1.0",
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgRelay2Onoff": true
+    }
+}
+{
+    "data": {
+        "cfgRelay2Onoff": true,
+        "configOk": true,
+        "actionId": 381
+    },
+    "id": 123
+}
+AC2 switch
+
+Supported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM Ultra X, STREAM Ultra (US);
+
+Unsupported devices: STREAM Max, STREAM AC
+
+(On: true
+
+Off: false)
+
+{
+    "id": 123,
+    "version": "1.0",
+    "sn": "BK11ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgRelay3Onoff": true
+    }
+}
+{
+    "data": {
+        "cfgRelay3Onoff": true,
+        "configOk": true,
+        "actionId": 381
+    },
+    "id": 123
+}
+AC switch
+
+Supported devices: STREAM Max;
+
+Unsupported devices: STREAM Ultra, STREAM Pro, STREAM AC Pro, STREAM AC, STREAM Ultra X, STREAM Ultra (US);
+
+(On: true
+
+Off: false)
+
+{
+    "id": 123,
+    "version": "1.0",
+    "sn": "BK41ZEBB2H350011",
+    "cmdId": 17,
+    "cmdFunc": 254,
+    "dirDest": 1,
+    "dirSrc": 1,
+    "dest": 2,
+    "needAck": true,
+    "params": {
+        "cfgRelay2Onoff": true
+    }
+}
+{
+    "data": {
+        "cfgRelay2Onoff": true,
+        "configOk": true,
+        "actionId": 381
+    },
+    "id": 123
+}
+Report Device Quota
+Usage of Topic
+
+Topic
+
+From
+
+To
+
+Report device quota
+
+/open/${certificateAccount}/${sn}/quota
+
+device
+
+app
+
+Please see HTTP GetAllQuotaResponse and Set & Set Reply for the fields definition.
+
+Response Example
+
+{
+    "feedGridMode": 2,
+    "gridConnectionPower": 0.0,
+    "relay3Onoff": true,
+    "powGetPvSum": 498.0,
+    "energyStrategyOperateMode.operateIntelligentScheduleModeOpen": true,
+    "powGetSysLoadFromGrid": 600.0,
+    "powGetSysLoad": 600.0,
+    "energyStrategyOperateMode.operateSelfPoweredOpen": false,
+    "backupReverseSoc": 10,
+    "cmsBattSoc": 12.0,
+    "powGetBpCms": 498.0,
+    "relay2Onoff": true，
+    "cmsMaxChgSoc": 95,
+    "cmsMinDsgSoc": 0
+}
+Report Device status
+Usage of Topic
+
+Topic
+
+From
+
+To
+
+Report Device status
+
+/open/${certificateAccount}/${sn}/status
+
+device
+
+app
+
+Message Format
+
+{
+    "id": "123456789",
+    "version": "1.0",
+    "timestamp": 1634841971000,
+    "params": {
+        "status": 1
+    }
+}
+Field
+
+Field	Field Type	Description
+status	int	Device online or not 0: No, 1: Yes
