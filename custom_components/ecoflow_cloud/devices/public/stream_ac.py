@@ -1,5 +1,6 @@
 from ...sensor import StatusSensorEntity
 from homeassistant.util import dt
+from datetime import timedelta
 from .data_bridge import to_plain
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import const, BaseDevice
@@ -48,17 +49,45 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
         try:
             # Energy independence (year-level) — ensure begin < end
-            begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-            end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
-            resp = await self._client.historical_data(
-                sn, begin_year.strftime(fmt), end_year.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
+            # Daily (today)
+            resp_d = await self._client.historical_data(
+                sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
             )
-            items = resp.get("data", {}).get("data", [])
-            if items:
-                params["history.energyIndependence"] = float(items[0].get("indexValue", 0))
-                unit = items[0].get("unit")
+            items_d = resp_d.get("data", {}).get("data", [])
+            if items_d:
+                params["history.energyIndependenceDaily"] = float(items_d[0].get("indexValue", 0))
+                unit = items_d[0].get("unit")
                 if isinstance(unit, str) and unit:
                     params["history.energyIndependenceUnit"] = unit
+
+            # Weekly (last 7 days including today)
+            begin_week = now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
+            resp_w = await self._client.historical_data(
+                sn, begin_week.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
+            )
+            items_w = resp_w.get("data", {}).get("data", [])
+            if items_w:
+                # Independence often provided already as period metric; use first value
+                params["history.energyIndependenceWeekly"] = float(items_w[0].get("indexValue", 0))
+
+            # Monthly (calendar month to date)
+            begin_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            resp_m = await self._client.historical_data(
+                sn, begin_month.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
+            )
+            items_m = resp_m.get("data", {}).get("data", [])
+            if items_m:
+                params["history.energyIndependenceMonthly"] = float(items_m[0].get("indexValue", 0))
+
+            # Yearly (calendar year)
+            begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
+            resp_y = await self._client.historical_data(
+                sn, begin_year.strftime(fmt), end_year.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
+            )
+            items_y = resp_y.get("data", {}).get("data", [])
+            if items_y:
+                params["history.energyIndependenceYearly"] = float(items_y[0].get("indexValue", 0))
 
             # Environmental impact (day-level, grams)
             resp = await self._client.historical_data(
@@ -66,7 +95,67 @@ class _HistoricalDataStatus(StatusSensorEntity):
             )
             items = resp.get("data", {}).get("data", [])
             if items:
-                params["history.environmentalImpact_g"] = float(items[0].get("indexValue", 0))
+                params["history."] = float(items[0].get("indexValue", 0))
+
+            # Environmental impact aggregates for yesterday, week, month, year
+            try:
+                # Yesterday
+                begin_yesterday = (begin_day - timedelta(days=1))
+                end_yesterday = (end_day - timedelta(days=1))
+                resp_y = await self._client.historical_data(
+                    sn, begin_yesterday.strftime(fmt), end_yesterday.strftime(fmt), HIST_CODE_ENV_IMPACT
+                )
+                items_y = resp_y.get("data", {}).get("data", [])
+                if items_y:
+                    params["history.environmentalImpactYesterday"] = float(items_y[0].get("indexValue", 0))
+
+                # Week (last 7 days including today)
+                begin_week = now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
+                resp_w = await self._client.historical_data(
+                    sn, begin_week.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
+                )
+                items_w = resp_w.get("data", {}).get("data", [])
+                if items_w:
+                    total_w = 0.0
+                    for it in items_w:
+                        try:
+                            total_w += float(it.get("indexValue", 0))
+                        except Exception:
+                            pass
+                    params["history.environmentalImpactWeek"] = total_w
+
+                # Month (calendar month to date)
+                begin_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_m = await self._client.historical_data(
+                    sn, begin_month.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
+                )
+                items_m = resp_m.get("data", {}).get("data", [])
+                if items_m:
+                    total_m = 0.0
+                    for it in items_m:
+                        try:
+                            total_m += float(it.get("indexValue", 0))
+                        except Exception:
+                            pass
+                    params["history.environmentalImpactMonth"] = total_m
+
+                # Year (calendar year to date)
+                begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_ytd = await self._client.historical_data(
+                    sn, begin_year.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
+                )
+                items_ytd = resp_ytd.get("data", {}).get("data", [])
+                if items_ytd:
+                    total_y = 0.0
+                    for it in items_ytd:
+                        try:
+                            total_y += float(it.get("indexValue", 0))
+                        except Exception:
+                            pass
+                    params["history.environmentalImpactYear"] = total_y
+            except Exception:
+                # Ignore aggregate errors
+                pass
 
             # Environmental impact cumulative (grams) since May 2017
             try:
@@ -82,7 +171,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                             total_g += float(it.get("indexValue", 0))
                         except Exception:
                             pass
-                    params["history.environmentalImpactCumulative_g"] = total_g
+                    params["history.environmentalImpactCumulative"] = total_g
             except Exception:
                 # Ignore cumulative errors to not block other updates
                 pass
@@ -430,22 +519,35 @@ class StreamAC(BaseDevice):
             .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
             # Historical data sensors (HTTP)
-            # Energy independence (last 365 days)
-            BaseSensorEntity(client, self, "history.energyIndependence", const.STREAM_HISTORY_ENERGY_INDEPENDENCE)
+            # Energy independence per period
+            BaseSensorEntity(client, self, "history.energyIndependenceDaily", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_DAILY)
             .with_unit_of_measurement("%")
-            .with_icon("mdi:solar-panel"),
+            .with_icon("mdi:shield-check"),
+            BaseSensorEntity(client, self, "history.energyIndependenceWeekly", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_WEEKLY)
+            .with_unit_of_measurement("%")
+            .with_icon("mdi:shield-check"),
+            BaseSensorEntity(client, self, "history.energyIndependenceMonthly", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_MONTHLY)
+            .with_unit_of_measurement("%")
+            .with_icon("mdi:shield-check"),
+            BaseSensorEntity(client, self, "history.energyIndependenceYearly", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_YEARLY)
+            .with_unit_of_measurement("%")
+            .with_icon("mdi:shield-check"),
             BaseSensorEntity(
                 client,
                 self,
-                "history.environmentalImpact_g",
+                "history.",
                 const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT,
             )
             .with_unit_of_measurement("g")
-            .with_icon("mdi:leaf"),
+            .with_icon("mdi:leaf")
+            .attr("history.environmentalImpactYesterday", "Yesterday", 0)
+            .attr("history.environmentalImpactWeek", "Week", 0)
+            .attr("history.environmentalImpactMonth", "Month", 0)
+            .attr("history.environmentalImpactYear", "Year", 0),
             BaseSensorEntity(
                 client,
                 self,
-                "history.environmentalImpactCumulative_g",
+                "history.environmentalImpactCumulative",
                 const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE,
             )
             .with_unit_of_measurement("g")
