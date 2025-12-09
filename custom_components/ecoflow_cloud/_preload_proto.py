@@ -6,6 +6,4 @@ from .devices.internal.proto import (
     powerstream_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
 )
 
-# dev_apl_comm removed from preload to avoid duplicate symbol 'TIME_TASK_MODE' conflict with ef_dp3_iobroker_pb2
-# It is loaded lazily in const.py when needed
 # TODO: Switch everything to the new protos, but loading current and new at once leads to conflicts
