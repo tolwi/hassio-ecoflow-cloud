@@ -80,7 +80,7 @@ _expected_payload_types = dict[Command, type[ProtoMessageRaw]]()
 
 def get_expected_payload_type(cmd: Command) -> type[ProtoMessageRaw]:
     from .. import powerstream_pb2 as powerstream
-    from ..ecoflow import dev_apl_comm
+    from .. import ef_dp3_iobroker_pb2 as dev_apl_comm
 
     global _expected_payload_types
     if not _expected_payload_types:
