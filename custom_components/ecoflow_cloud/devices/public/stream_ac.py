@@ -860,9 +860,4 @@ class StreamAC(BaseDevice):
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        # Status entity shows online/offline; use a connectivity icon
         return StatusSensorEntity(client, self).with_icon("mdi:lan-connect")
-
-# Removed DynamicCurrencySensorEntity; use BaseSensorEntity with fixed currency unit
-
-
