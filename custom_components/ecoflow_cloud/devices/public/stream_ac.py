@@ -4,7 +4,8 @@ from homeassistant.util import dt
 from .data_bridge import to_plain
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import const, BaseDevice
-from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, \
+    BaseSelectEntity
 from custom_components.ecoflow_cloud.sensor import WattsSensorEntity,LevelSensorEntity,CapacitySensorEntity, \
     InWattsSensorEntity,OutWattsSensorEntity, RemainSensorEntity, MilliVoltSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, EnergySensorEntity, CumulativeCapacitySensorEntity, VoltSensorEntity
@@ -543,7 +544,7 @@ class StreamAC(BaseDevice):
             .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             # "socketMeasurePower": 0.0,
             # "soh": 100,
-            LevelSensorEntity(client, self, "soh", const.SOH).with_icon("mdi:battery-heart"),       
+            LevelSensorEntity(client, self, "soh", const.SOH).with_icon("mdi:battery-heart"),
             # "stormPatternEnable": false,
             # "stormPatternEndTime": 0,
             # "stormPatternOpenFlag": false,
@@ -927,7 +928,7 @@ class StreamAC(BaseDevice):
             ),
         ]
 
-    def selects(self, client: EcoflowApiClient) -> list:
+    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
         return []
 
     def _prepare_data(self, raw_data) -> dict[str, any]:
