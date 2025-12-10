@@ -1,12 +1,10 @@
 from ...sensor import StatusSensorEntity
 from homeassistant.components.sensor import SensorStateClass  # pyright: ignore[reportMissingImports]
 from homeassistant.util import dt
-from datetime import timedelta
 from .data_bridge import to_plain
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import const, BaseDevice
-from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, \
-    BaseSelectEntity
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity
 from custom_components.ecoflow_cloud.sensor import WattsSensorEntity,LevelSensorEntity,CapacitySensorEntity, \
     InWattsSensorEntity,OutWattsSensorEntity, RemainSensorEntity, MilliVoltSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, EnergySensorEntity, CumulativeCapacitySensorEntity, VoltSensorEntity
@@ -97,65 +95,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 params["history.environmentalImpactDailyToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.environmentalImpactDailyToday.endTime"] = end_day.strftime(fmt)
 
-            # Environmental impact aggregates for yesterday, week, month, year
-            try:
-                # Yesterday
-                begin_yesterday = (begin_day - timedelta(days=1))
-                end_yesterday = (end_day - timedelta(days=1))
-                resp_y = await self._client.historical_data(
-                    sn, begin_yesterday.strftime(fmt), end_yesterday.strftime(fmt), HIST_CODE_ENV_IMPACT
-                )
-                items_y = resp_y.get("data", {}).get("data", [])
-                if items_y:
-                    params["history.environmentalImpactYesterday"] = float(items_y[0].get("indexValue", 0))
-
-                # Week (last 7 days including today)
-                begin_week = now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
-                resp_w = await self._client.historical_data(
-                    sn, begin_week.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
-                )
-                items_w = resp_w.get("data", {}).get("data", [])
-                if items_w:
-                    total_w = 0.0
-                    for it in items_w:
-                        try:
-                            total_w += float(it.get("indexValue", 0))
-                        except Exception:
-                            pass
-                    params["history.environmentalImpactWeek"] = total_w
-
-                # Month (calendar month to date)
-                begin_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-                resp_m = await self._client.historical_data(
-                    sn, begin_month.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
-                )
-                items_m = resp_m.get("data", {}).get("data", [])
-                if items_m:
-                    total_m = 0.0
-                    for it in items_m:
-                        try:
-                            total_m += float(it.get("indexValue", 0))
-                        except Exception:
-                            pass
-                    params["history.environmentalImpactMonth"] = total_m
-
-                # Year (calendar year to date)
-                begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-                resp_ytd = await self._client.historical_data(
-                    sn, begin_year.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
-                )
-                items_ytd = resp_ytd.get("data", {}).get("data", [])
-                if items_ytd:
-                    total_y = 0.0
-                    for it in items_ytd:
-                        try:
-                            total_y += float(it.get("indexValue", 0))
-                        except Exception:
-                            pass
-                    params["history.environmentalImpactYear"] = total_y
-            except Exception:
-                # Ignore aggregate errors
-                pass
+            # Removed weekly/monthly/yesterday/year aggregates to declutter and reduce API calls
 
             # Environmental impact cumulative (grams) since May 2017
             try:
@@ -987,7 +927,7 @@ class StreamAC(BaseDevice):
             ),
         ]
 
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list:
         return []
 
     def _prepare_data(self, raw_data) -> dict[str, any]:
