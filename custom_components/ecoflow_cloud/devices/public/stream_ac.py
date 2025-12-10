@@ -232,7 +232,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             except Exception:
                 pass
 
-            # Solar-generated energy today (Wh)
+            # Solar-Generated Energy today (Wh)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
             )
@@ -242,7 +242,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 params["history.solarGeneratedWhDailyToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.solarGeneratedWhDailyToday.endTime"] = end_day.strftime(fmt)
 
-            # Solar-generated cumulative (Wh) since May 2017
+            # Solar-Generated cumulative (Wh) since May 2017
             try:
                 begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_all = await self._client.historical_data(
@@ -654,7 +654,7 @@ class StreamAC(BaseDevice):
             # "waterInFlag": 0,
             # Historical data sensors (HTTP)
             # Energy independence per period
-            BaseSensorEntity(client, self, "history.energyIndependenceDailyToday", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_DAILY_TODAY)
+            BaseSensorEntity(client, self, "history.energyIndependenceDailyToday", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_TODAY)
             .with_unit_of_measurement("%")
             .with_icon("mdi:shield-check")
             .with_state_class(SensorStateClass.MEASUREMENT)
@@ -673,7 +673,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.environmentalImpactDailyToday",
-                const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_DAILY_TODAY,
+                const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_TODAY,
             )
             .with_unit_of_measurement("g")
             .with_icon("mdi:leaf")
@@ -711,7 +711,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.solarEnergySavingsDailyToday",
-                const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_DAILY_TODAY,
+                const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY,
                 unit_param_key="history.solarEnergySavingsUnit",
             ).with_icon("mdi:cash")
              .with_state_class(SensorStateClass.MEASUREMENT)
@@ -719,12 +719,12 @@ class StreamAC(BaseDevice):
              .attr("history.solarEnergySavingsDailyToday.endTime", "End Time", "")
              .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
              .attr("history.mainSn", "Main Device SN", ""),
-            # Solar-generated Energy (today-so-far)
+            # Solar-Generated Energy (today-so-far)
             BaseSensorEntity(
                 client,
                 self,
                 "history.solarGeneratedWhDailyToday",
-                const.STREAM_HISTORY_SOLAR_GENERATED_DAILY_TODAY,
+                const.STREAM_HISTORY_SOLAR_GENERATED_TODAY,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:solar-power")
@@ -761,7 +761,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.electricityConsumptionWhDailyToday",
-                const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_DAILY_TODAY,
+                const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_TODAY,
             )
             .with_unit_of_measurement("Wh")
             .with_state_class(SensorStateClass.MEASUREMENT)
@@ -773,7 +773,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.gridImportWh",
-                const.STREAM_HISTORY_GRID_IMPORT,
+                const.STREAM_HISTORY_GRID_IMPORT_TODAY,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:transmission-tower-import")
@@ -784,7 +784,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.gridExportWh",
-                const.STREAM_HISTORY_GRID_EXPORT,
+                const.STREAM_HISTORY_GRID_EXPORT_TODAY,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:transmission-tower-export")
@@ -820,7 +820,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.batteryChargeWh",
-                const.STREAM_HISTORY_BATTERY_CHARGE,
+                const.STREAM_HISTORY_BATTERY_CHARGE_TODAY,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:battery-arrow-up")
@@ -831,7 +831,7 @@ class StreamAC(BaseDevice):
                 client,
                 self,
                 "history.batteryDischargeWh",
-                const.STREAM_HISTORY_BATTERY_DISCHARGE,
+                const.STREAM_HISTORY_BATTERY_DISCHARGE_TODAY,
             )
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:battery-arrow-down")
