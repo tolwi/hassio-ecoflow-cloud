@@ -1,5 +1,5 @@
 {
-  "image": "dcbr/hass-custom-devcontainer",
+  "image": "thomasloven/hass-custom-devcontainer",
   "postCreateCommand": "sudo -E container setup",
   "postStartCommand": "sudo -E container launch",
   "appPort": ["7123:8123", "8123:8123", "7357:4357"],
