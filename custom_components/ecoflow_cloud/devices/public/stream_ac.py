@@ -529,7 +529,7 @@ class StreamAC(BaseDevice):
             # "relay3Onoff": true,
             # "relay4Onoff": true,
             # "remainCap": 46317,
-            CapacitySensorEntity(client, self, "remainCap", const.STREAM_REMAIN_CAPACITY, False).with_unit_of_measurement("mAh").with_icon("mdi:battery-medium"),
+            CapacitySensorEntity(client, self, "remainCap", const.STREAM_REMAIN_CAPACITY, False).with_icon("mdi:battery-medium"),
             # "remainTime": 88,
             RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME).with_icon("mdi:battery-clock"),
             # "runtimePropertyFullUploadPeriod": 120000,
