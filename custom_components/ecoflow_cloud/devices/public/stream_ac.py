@@ -82,7 +82,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 params["history.energyIndependenceYear.beginTime"] = begin_year.strftime(fmt)
                 params["history.energyIndependenceYear.endTime"] = end_year.strftime(fmt)
 
-            # Environmental impact (today)
+            # Environmental impact (Today)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
             )
@@ -92,9 +92,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 params["history.environmentalImpactDailyToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.environmentalImpactDailyToday.endTime"] = end_day.strftime(fmt)
 
-            # Removed weekly/monthly/yesterday/year aggregates to declutter and reduce API calls
-
-            # Environmental Impact (Cumulative) since May 2017
+            # Environmental Impact (Cumulative)
             try:
                 begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_all = await self._client.historical_data(
@@ -111,13 +109,10 @@ class _HistoricalDataStatus(StatusSensorEntity):
                     params["history.environmentalImpactCumulative"] = total_g
                     params["history.environmentalImpactCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.environmentalImpactCumulative.endTime"] = end_day.strftime(fmt)
-                    # capture unit from last item if present
-                    # unit attribute not required for environmental impact
             except Exception:
-                # Ignore cumulative errors to not block other updates
                 pass
 
-            # Total solar energy savings (cumulative currency)
+            # Solar Energy Savings (Cumulative)
             try:
                 begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_sav_all = await self._client.historical_data(
@@ -143,7 +138,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             except Exception:
                 pass
 
-            # Total solar energy savings today (currency)
+            # Solar-Generated Energy (Today)
             try:
                 resp_sav_today = await self._client.historical_data(
                     sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
@@ -169,7 +164,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             except Exception:
                 pass
 
-            # Solar-Generated Energy today (Wh)
+            # Solar-Generated Energy (Today)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
             )
@@ -200,7 +195,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 # Ignore cumulative errors to not block other updates
                 pass
 
-            # Electricity consumption today (Wh)
+            # Electricity Consumption (Today)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
             )
