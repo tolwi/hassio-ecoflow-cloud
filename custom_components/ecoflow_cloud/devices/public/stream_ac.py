@@ -635,31 +635,33 @@ class StreamAC(BaseDevice):
             .attr("history.environmentalImpactCumulative.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Total solar energy savings (cumulative currency)
-            DynamicCurrencySensorEntity(
+            BaseSensorEntity(
                 client,
                 self,
                 "history.solarEnergySavingsCumulative",
                 const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE,
-                unit_param_key="history.solarEnergySavingsUnit",
-            ).with_icon("mdi:cash")
-             .with_state_class(SensorStateClass.TOTAL_INCREASING)
-             .attr("history.solarEnergySavingsCumulative.beginTime", "Begin Time", "")
-             .attr("history.solarEnergySavingsCumulative.endTime", "End Time", "")
-             .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
-             .attr("history.mainSn", "Main Device SN", ""),
+            )
+            .with_unit_of_measurement("€")
+            .with_icon("mdi:cash")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.solarEnergySavingsCumulative.beginTime", "Begin Time", "")
+            .attr("history.solarEnergySavingsCumulative.endTime", "End Time", "")
+            .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
+            .attr("history.mainSn", "Main Device SN", ""),
             # Total solar energy savings (today)
-            DynamicCurrencySensorEntity(
+            BaseSensorEntity(
                 client,
                 self,
                 "history.solarEnergySavingsDailyToday",
                 const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY,
-                unit_param_key="history.solarEnergySavingsUnit",
-            ).with_icon("mdi:cash")
-             .with_state_class(SensorStateClass.MEASUREMENT)
-             .attr("history.solarEnergySavingsDailyToday.beginTime", "Begin Time", "")
-             .attr("history.solarEnergySavingsDailyToday.endTime", "End Time", "")
-             .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
-             .attr("history.mainSn", "Main Device SN", ""),
+            )
+            .with_unit_of_measurement("€")
+            .with_icon("mdi:cash")
+            .with_state_class(SensorStateClass.MEASUREMENT)
+            .attr("history.solarEnergySavingsDailyToday.beginTime", "Begin Time", "")
+            .attr("history.solarEnergySavingsDailyToday.endTime", "End Time", "")
+            .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
+            .attr("history.mainSn", "Main Device SN", ""),
             # Solar-Generated Energy (today-so-far)
             BaseSensorEntity(
                 client,
@@ -940,15 +942,6 @@ class StreamAC(BaseDevice):
         # Status entity shows online/offline; use a connectivity icon
         return StatusSensorEntity(client, self).with_icon("mdi:lan-connect")
 
-class DynamicCurrencySensorEntity(BaseSensorEntity):
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, key: str, name: str, unit_param_key: str):
-        super().__init__(client, device, key, name)
-        self._unit_param_key = unit_param_key
-        # For now, fix currency to euros; attribute will expose actual symbol
-        self.with_unit_of_measurement("€")
-
-    def _actualize_status(self) -> bool:
-        # No dynamic unit updates; rely on fixed unit and attribute for symbol
-        return super()._actualize_status()
+# Removed DynamicCurrencySensorEntity; use BaseSensorEntity with fixed currency unit
 
 
