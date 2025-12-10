@@ -3,8 +3,7 @@ from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, BaseSelectEntity
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
 from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
-from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, WattsSensorEntity, RemainSensorEntity, \
-    TempSensorEntity, \
+from custom_components.ecoflow_cloud.sensor import LevelSensorEntity, RemainSensorEntity, TempSensorEntity, \
     CyclesSensorEntity, InEnergySensorEntity, InWattsSensorEntity, OutEnergySensorEntity, OutWattsSensorEntity, \
     InMilliampSensorEntity, MilliampSensorEntity, MilliVoltSensorEntity, InMilliVoltSensorEntity, \
     OutMilliVoltSensorEntity, CapacitySensorEntity, QuotaStatusSensorEntity
@@ -23,8 +22,8 @@ class RiverMax(BaseDevice):
             CapacitySensorEntity(client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
 
             LevelSensorEntity(client, self, "pd.soc", const.COMBINED_BATTERY_LEVEL),
-            WattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
-            WattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
+            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
+            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER),
 
             InMilliampSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
             InMilliVoltSensorEntity(client, self, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),

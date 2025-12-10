@@ -1,5 +1,6 @@
 import enum
 import logging
+import re
 import struct
 from datetime import timedelta
 from typing import Any, Mapping, OrderedDict, override
@@ -17,6 +18,8 @@ from homeassistant.components.integration.sensor import IntegrationSensor # pyri
 from homeassistant.config_entries import ConfigEntry # pyright: ignore[reportMissingImports]
 from homeassistant.const import ( # pyright: ignore[reportMissingImports]
     PERCENTAGE,
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
@@ -25,9 +28,10 @@ from homeassistant.const import ( # pyright: ignore[reportMissingImports]
     UnitOfTemperature,
     UnitOfTime,
 )
-from homeassistant.core import HomeAssistant # pyright: ignore[reportMissingImports]
+from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback # pyright: ignore[reportMissingImports]
 from homeassistant.helpers.entity import EntityCategory # pyright: ignore[reportMissingImports]
 from homeassistant.helpers.entity_platform import AddEntitiesCallback # pyright: ignore[reportMissingImports]
+from homeassistant.helpers.event import async_track_state_change_event # pyright: ignore[reportMissingImports]
 from homeassistant.util import dt # pyright: ignore[reportMissingImports]
 
 from . import (
@@ -59,12 +63,23 @@ async def async_setup_entry(
         # Add regular sensors
         async_add_entities(sensors)
 
-        # Add IntegralEnergySensors
-        integralSensors = filter(
+        # Add integral energy sensors for power sensors that have it enabled
+        integral_sensors = filter(
             lambda s: isinstance(s, WattsSensorEntity) and s.energy_enabled(), sensors
         )
-        async_add_entities(map(lambda s: s.energy_sensor(), integralSensors))
+        async_add_entities([s.energy_sensor() for s in integral_sensors])
 
+        # Add power difference sensors for new HA Energy panel "now" tab
+        total_in_power = next(filter(lambda s: isinstance(s, InWattsSensorEntity) and s.title() == const.TOTAL_IN_POWER, sensors), None)
+        total_out_power = next(filter(lambda s: isinstance(s, OutWattsSensorEntity) and s.title() == const.TOTAL_OUT_POWER, sensors), None)
+        if total_in_power and total_out_power:
+            async_add_entities([WattsDifferenceSensorEntity(
+                client,
+                device,
+                const.POWER_DIFFERENCE,
+                total_in_power,
+                total_out_power,
+            )])
 
 class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
     def _update_value(self, val: Any) -> bool:
@@ -619,7 +634,6 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
         else:
             return super()._actualize_status()
 
-
 class IntegralEnergySensorEntity(IntegrationSensor):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -631,7 +645,7 @@ class IntegralEnergySensorEntity(IntegrationSensor):
         super().__init__(
             base.coordinator.hass,
             integration_method="left",
-            name=f"{base._device.device_info.name} {base._attr_name.replace(f'{const.POWER}', f' {const.ENERGY}')}",
+            name=f"{base._device.device_info.name} {base.title().replace(f'{const.POWER}', f' {const.ENERGY}')}",
             round_digits=4,
             source_entity=base.entity_id,
             unique_id=f"{base._attr_unique_id}_energy",
@@ -656,3 +670,101 @@ class SolarAmpSensorEntity(AmpSensorEntity):
 class SystemPowerSensorEntity(WattsSensorEntity):
     _attr_entity_category = None
     _attr_suggested_display_precision = 1
+
+# Code based on HA's native MinMaxSensor helper sensor for combining multiple sensors with math operations
+class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
+    """Sensor to calculate power consumed as output minus input power for Energy panel."""
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_native_unit_of_measurement = UnitOfPower.WATT
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_should_poll = False
+
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        title: str,
+        input: InWattsSensorEntity,
+        output: OutWattsSensorEntity,
+    ):
+        super().__init__(client, device, title, re.sub(r'[^a-zA-Z0-9-]', '_', title.lower()))
+
+        self._output_sensor = output
+        self._input_sensor = input
+        self._difference: float | None = None
+        self._states: dict[str, float | str] = {}
+
+    async def async_added_to_hass(self) -> None:
+        """Handle added to Hass."""
+        source_entity_ids = [self._input_sensor.entity_id, self._output_sensor.entity_id]
+        self.async_on_remove(
+            async_track_state_change_event(
+                self.hass, source_entity_ids, self._async_difference_sensor_state_listener
+            )
+        )
+
+        # Replay current state of source entities
+        for entity_id in source_entity_ids:
+            state = self.hass.states.get(entity_id)
+            state_event: Event[EventStateChangedData] = Event(
+                "", {"entity_id": entity_id, "new_state": state, "old_state": None}
+            )
+            self._async_difference_sensor_state_listener(state_event, update_state=False)
+
+        self._calc_difference()
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the state of the sensor."""
+        value: float | None = self._difference
+        return value
+
+    @callback
+    def _async_difference_sensor_state_listener(
+        self, event: Event[EventStateChangedData], update_state: bool = True
+    ) -> None:
+        """Handle the sensor state changes."""
+        new_state = event.data["new_state"]
+        entity = event.data["entity_id"]
+
+        if (
+            new_state is None
+            or new_state.state is None
+            or new_state.state
+            in [
+                STATE_UNKNOWN,
+                STATE_UNAVAILABLE,
+            ]
+        ):
+            self._states[entity] = STATE_UNKNOWN
+            if not update_state:
+                return
+
+            self._calc_difference()
+            self.async_write_ha_state()
+            return
+
+        try:
+            self._states[entity] = float(new_state.state)
+        except ValueError:
+            _LOGGER.warning(
+                "Unable to store state. Only numerical states are supported"
+            )
+
+        if not update_state:
+            return
+
+        self._calc_difference()
+        self.async_write_ha_state()
+
+    @callback
+    def _calc_difference(self) -> None:
+        """Calculate the difference."""
+        if (
+            self._states.get(self._input_sensor.entity_id) is STATE_UNKNOWN
+            or self._states.get(self._output_sensor.entity_id) is STATE_UNKNOWN
+        ):
+            self._difference = None
+            return
+        self._difference = self._states[self._output_sensor.entity_id] - self._states[self._input_sensor.entity_id]

@@ -475,7 +475,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
 class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
     def __init__(self, config_entry: ConfigEntry) -> None:
         super().__init__(config_entry)
-        self.devices: dict[str, DeviceData] = extract_devices(self.config_entry)
+        self.devices: dict[str, DeviceData] = extract_devices(config_entry)
         self.device_selector = {}
         for _, device in self.devices.items():
             self.device_selector[f"{device.name} ({device.sn})"] = device

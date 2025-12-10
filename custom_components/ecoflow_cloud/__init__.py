@@ -4,6 +4,7 @@ from typing import Final
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 from .device_data import DeviceData, DeviceOptions
@@ -188,8 +189,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         return False
 
     devices_list: dict[str, DeviceData] = extract_devices(entry)
-
-    await api_client.login()
+    # Try to connect and authenticate
+    try:
+        await api_client.login()
+    except (ConnectionError, TimeoutError) as ex:
+        # Transient network issues - retry later
+        _LOGGER.warning("Failed to connect to EcoFlow API: %s", ex)
+        raise ConfigEntryNotReady(f"Connection failed: {ex}") from ex
 
     for sn, device_data in devices_list.items():
         device = api_client.configure_device(device_data)

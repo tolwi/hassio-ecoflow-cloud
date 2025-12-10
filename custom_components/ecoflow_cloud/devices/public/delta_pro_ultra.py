@@ -45,51 +45,59 @@ class DeltaProUltra(BaseDevice):
             MiscSensorEntity(client, self, "hs_yj751_pd_appshow_addr.sysErrCode", const.ERROR_CODE),
 
             InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.wattsInSum", const.TOTAL_IN_POWER)
-                    .with_energy(),
+                .with_energy(),
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.wattsOutSum", const.TOTAL_OUT_POWER)
-                    .with_energy(),
+                .with_energy(),
 
             InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inAc5p8Pwr", const.PIO_PORT_IN_POWER)
-                    .with_energy(),
+                .with_energy(),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.inAc5p8Amp", const.PIO_PORT_IN_CURRENT, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.inAc5p8Vol", const.PIO_PORT_IN_VOLTAGE, False),
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAc5p8Pwr", const.PIO_PORT_OUT_POWER)
-                    .with_energy(),
+                .with_energy(),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAc5p8Amp", const.PIO_PORT_OUT_CURRENT, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAc5p8Vol", const.PIO_PORT_OUT_VOLTAGE, False),
             MiscSensorEntity(client, self, "hs_yj751_pd_appshow_addr.access5p8InType", const.PIO_PORT_INPUT_TYPE),
 
             InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inAcC20Pwr", const.AC_IN_POWER)
-                    .with_energy(False),
+                .with_energy(False),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.inAcC20Amp", const.AC_IN_CURRENT, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.inAcC20Vol", const.AC_IN_VOLT, False),
 
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outUsb1Pwr", const.USB_1_OUT_POWER)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:usb-port"),
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outUsb2Pwr", const.USB_2_OUT_POWER)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:usb-port"),
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outTypec1Pwr", const.TYPEC_1_OUT_POWER)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:usb-c-port"),
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outTypec2Pwr", const.TYPEC_2_OUT_POWER)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:usb-c-port"),
 
             InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inHvMpptPwr", const.SOLAR_1_IN_POWER)
-                    .with_energy(),
+                .with_energy()
+                .with_icon("mdi:solar-power"),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.inHvMpptAmp", const.SOLAR_1_IN_AMPS, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.inHvMpptVol", const.SOLAR_1_IN_VOLTS, False),
             InWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.inLvMpptPwr", const.SOLAR_2_IN_POWER)
-                    .with_energy(),
+                .with_energy()
+                .with_icon("mdi:solar-power"),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.inLvMpptAmp", const.SOLAR_2_IN_AMPS, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.inLvMpptVol", const.SOLAR_2_IN_VOLTS, False),
 
             # 20A 120V Backup UPS
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAcL11Pwr", const.AC_N_OUT_POWER % 1)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:power-socket-us"),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL11Amp", const.AC_N_OUT_CURRENT % 1, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL11Vol", const.AC_N_OUT_VOLTAGE % 1, False),
             FrequencySensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL11Pf", const.AC_N_OUT_FREQ % 1, False),
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAcL12Pwr", const.AC_N_OUT_POWER % 2)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:power-socket-us"),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL12Amp", const.AC_N_OUT_CURRENT % 2, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL12Vol", const.AC_N_OUT_VOLTAGE % 2, False),
             FrequencySensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL12Pf", const.AC_N_OUT_FREQ % 2, False),
@@ -97,50 +105,55 @@ class DeltaProUltra(BaseDevice):
 
             # 20A 120V Online UPS
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAcL21Pwr", const.AC_N_OUT_POWER % 3)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:power-socket-us"),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL21Amp", const.AC_N_OUT_CURRENT % 3, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL21Vol", const.AC_N_OUT_VOLTAGE % 3, False),
             FrequencySensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL21Pf", const.AC_N_OUT_FREQ % 3, False),
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAcL22Pwr", const.AC_N_OUT_POWER % 4)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:power-socket-us"),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL22Amp", const.AC_N_OUT_CURRENT % 4, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL22Vol", const.AC_N_OUT_VOLTAGE % 4, False),
             FrequencySensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL22Pf", const.AC_N_OUT_FREQ % 4, False),
 
             # 30A 120V
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAcL14Pwr", const.AC_N_OUT_POWER % 5)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:power-socket-au"),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL14Amp", const.AC_N_OUT_CURRENT % 5, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL14Vol", const.AC_N_OUT_VOLTAGE % 5, False),
             FrequencySensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcL14Pf", const.AC_N_OUT_FREQ % 5, False),
 
             # 30A 120/240V
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAcTtPwr", const.AC_N_OUT_POWER % 6)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:power-socket-de"),
             AmpSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcTtAmp", const.AC_N_OUT_CURRENT % 6, False),
             VoltSensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcTtVol", const.AC_N_OUT_VOLTAGE % 6, False),
             FrequencySensorEntity(client, self, "hs_yj751_pd_backend_addr.outAcTtPf", const.AC_N_OUT_FREQ % 6, False),
 
             OutWattsSensorEntity(client, self, "hs_yj751_pd_appshow_addr.outAdsPwr", const.DC_ANDERSON_OUT_POWER)
-                    .with_energy(False),
+                .with_energy(False)
+                .with_icon("mdi:connection"),
         ]
     
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
             MinBatteryLevelEntity(client, self, "hs_yj751_pd_app_set_info_addr.dsgMinSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
                                 lambda value: {"sn": self.device_info.sn,
-                                               "cmdCode": "YJ751_PD_CHG_SOC_MAX_SET",
+                                               "cmdCode": "YJ751_PD_DSG_SOC_MIN_SET",
                                                "params": {"minDsgSoc": value}}),
 
             MaxBatteryLevelEntity(client, self, "hs_yj751_pd_app_set_info_addr.chgMaxSoc", const.MAX_CHARGE_LEVEL, 50, 100,
                                 lambda value: {"sn": self.device_info.sn,
-                                               "cmdCode": "YJ751_PD_DSG_SOC_MIN_SET",
+                                               "cmdCode": "YJ751_PD_CHG_SOC_MAX_SET",
                                                "params": {"maxChgSoc": value}}),
 
             ChargingPowerEntity(client, self, "hs_yj751_pd_app_set_info_addr.chgC20SetWatts", const.AC_CHARGING_POWER, 600, 1800,
                                 lambda value: {"sn": self.device_info.sn,
                                                "cmdCode": "YJ751_PD_AC_CHG_SET",
-                                               "params": {"chgC20Watts": value}}),
+                                               "params": {"chgC20Watts": value}}).with_icon("mdi:power-plug"),
             ChargingPowerEntity(client, self, "hs_yj751_pd_app_set_info_addr.chg5p8SetWatts", const.PIO_PORT_CHARGING_POWER, 600, 7200,
                                 lambda value: {"sn": self.device_info.sn,
                                                "cmdCode": "YJ751_PD_AC_CHG_SET",
@@ -152,15 +165,15 @@ class DeltaProUltra(BaseDevice):
             EnabledEntity(client, self, "hs_yj751_pd_appshow_addr.wireless4gOn", const.WIRELESS_4G_ENABLED,
                                 lambda value: {"sn": self.device_info.sn,
                                                "cmdCode": "YJ751_PD_4G_SWITCH_SET",
-                                               "params": {"en4GOpen": value}}),
+                                               "params": {"en4GOpen": value}}).with_icon("mdi:signal-4g"),
             EnabledEntity(client, self, "hs_yj751_pd_app_set_info_addr.bmsModeSet", const.BATTERY_AUTO_HEATING_ENABLED,
                                 lambda value: {"sn": self.device_info.sn,
                                                "cmdCode": "YJ751_PD_BP_HEAT_SET",
-                                               "params": {"enBpHeat": value}}),
-            EnabledEntity(client, self, "hs_yj751_pd_appshow_addr.showFlag.6", const.DC_ENABLED,
+                                               "params": {"enBpHeat": value}}).with_icon("mdi:thermometer-check"),
+            EnabledEntity(client, self, "hs_yj751_pd_appshow_addr.showFlag.6", const.DC_MODE,
                                 lambda value: {"sn": self.device_info.sn,
                                                "cmdCode": "YJ751_PD_DC_SWITCH_SET",
-                                               "params": {"enable": value}}),
+                                               "params": {"enable": value}}).with_icon("mdi:current-dc"),
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:

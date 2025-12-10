@@ -2709,6 +2709,30 @@
 
 </p></details>
 
+<details><summary> Smart Home Panel (API) <i>(sensors: 8, switches: 1, sliders: 2, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Power Grid
+- Battery Level
+- Discharge Remaining Time
+- Main Battery Level
+- Main Charge Remaining Time
+- Main Discharge Remaining Time
+- Main Battery Temperature
+- Main Battery Output Power
+
+*Switches*
+- EPS Mode 
+
+*Sliders (numbers)*
+- Backup Discharge Lower Limit 
+- Backup Force Charge High Limit 
+
+*Selects*
+
+</p></details>
+
 <details><summary> Smart Home Panel 2 (API) <i>(sensors: 30, switches: 8, sliders: 5, selects: 2)</i> </summary>
 <p>
 
