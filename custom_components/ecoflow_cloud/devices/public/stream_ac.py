@@ -224,7 +224,6 @@ class _HistoricalDataStatus(StatusSensorEntity):
                     params["history.solarGeneratedCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.solarGeneratedCumulative.endTime"] = end_day.strftime(fmt)
             except Exception:
-                # Ignore cumulative errors to not block other updates
                 pass
 
             # Electricity Consumption (Today)
