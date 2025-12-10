@@ -2067,6 +2067,31 @@ Once installed, use Add Integration -> Ecoflow Cloud.
 
 </p></details>
 
+<details><summary> Smart Home Panel (API) <i>(sensors: 8, switches: 2, sliders: 2, selects: 0)</i> </summary>
+<p>
+
+*Sensors*
+- Power Grid
+- Battery Level
+- Remaining Time
+- Main Battery Temperature
+- Main Battery Input Power (energy:  _[Device Name]_ Main Battery Input  Energy)
+- Main Battery Output Power (energy:  _[Device Name]_ Main Battery Output  Energy)
+- Power Grid Today
+- Battery Today
+
+*Switches*
+- EPS Mode 
+- Main Battery Charge 
+
+*Sliders (numbers)*
+- Min Discharge Level 
+- Max Charge Level 
+
+*Selects*
+
+</p></details>
+
 <details><summary> Smart Plug (API) <i>(sensors: 4, switches: 1, sliders: 1, selects: 0)</i> </summary>
 <p>
 
