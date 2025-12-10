@@ -404,13 +404,24 @@ BATTERY_COUNT = "Battery Count"
 BATTERY_AUTO_HEATING_ENABLED = "Battery Auto-Heating Enabled"
 ERROR_CODE = "Error Code"                      
 AC_IN_CURRENT = "AC In Current"                
- 
+
+# Smart Home Panel
+
+POWER_GRID = "Power Grid"
+POWER_GRID_TODAY = "Power Grid Today"
+BATTERY_TODAY = "Battery Today"
+EPS_MODE = "EPS Mode"
+MAIN_CHARGE_REMAINING_TIME = "Main Charge Remaining Time"
+MAIN_DISCHARGE_REMAINING_TIME = "Main Discharge Remaining Time"
+MAIN_BATTERY_TEMP = "Main Battery Temperature"
+MAIN_BATTERY_IN_POWER = "Main Battery Input Power"
+MAIN_BATTERY_OUT_POWER = "Main Battery Output Power"
+MAIN_BATTERY_CHARGE = "Main Battery Charge"
+
 #Smart Home Panel 2
 
-EPS_MODE = "EPS Mode"
 STORM_GUARD = "Storm Guard"
 IN_STORM_MODE = "In Storm Mode"
-POWER_GRID = "Power Grid"
 POWER_GRID_VOLTAGE = "Power Grid Voltage"
 BATTERY = "Battery"
 

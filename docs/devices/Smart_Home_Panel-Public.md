@@ -3,19 +3,20 @@
 *Sensors*
 - Power Grid (`heartbeat.gridSta`)
 - Battery Level (`heartbeat.backupBatPer`)
-- Discharge Remaining Time (`heartbeat.backupChaTime`)
-- Main Battery Level (`heartbeat.energyInfos[0].batteryPercentage`)
-- Main Charge Remaining Time (`heartbeat.energyInfos[0].chargeTime`)
-- Main Discharge Remaining Time (`heartbeat.energyInfos[0].dischargeTime`)
+- Remaining Time (`heartbeat.backupChaTime`)
 - Main Battery Temperature (`heartbeat.energyInfos[0].emsBatTemp`)
-- Main Battery Output Power (`heartbeat.energyInfos[0].outputPower`)
+- Main Battery Input Power (`heartbeat.energyInfos[0].lcdInputWatts`) (energy:  _[Device Name]_ Main Battery Input  Energy)
+- Main Battery Output Power (`heartbeat.energyInfos[0].outputPower`) (energy:  _[Device Name]_ Main Battery Output  Energy)
+- Power Grid Today (`heartbeat.gridDayWatth`)
+- Battery Today (`heartbeat.backupDayWatth`)
 
 *Switches*
 - EPS Mode (`'epsModeInfo.eps'` -> `{"operateType": "TCP", "params": {"cmdSet": 11, "id": 24, "eps": "VALUE"}}`)
+- Main Battery Charge (`heartbeat.backupCmdChCtrlInfos[0].ctrlSta` -> `{"operateType": "TCP", "params": {"cmdSet": 11, "id": 17, "sta": 2, "ctrlMode": 1, "ch": 10}}`)
 
 *Sliders (numbers)*
-- Backup Discharge Lower Limit (`'backupChaDiscCfg.discLower'` -> `{"operateType": "TCP", "params": {"cmdSet": 11, "id": 29, "discLower": "VALUE", "forceChargeHigh": 100}}` [0 - 30])
-- Backup Force Charge High Limit (`'backupChaDiscCfg.forceChargeHigh'` -> `{"operateType": "TCP", "params": {"cmdSet": 11, "id": 29, "forceChargeHigh": "VALUE", "discLower": 0}}` [50 - 100])
+- Min Discharge Level (`'backupChaDiscCfg.discLower'` -> `{"operateType": "TCP", "params": {"cmdSet": 11, "id": 29, "discLower": "VALUE", "forceChargeHigh": 100}}` [0 - 30])
+- Max Charge Level (`'backupChaDiscCfg.forceChargeHigh'` -> `{"operateType": "TCP", "params": {"cmdSet": 11, "id": 29, "forceChargeHigh": "VALUE", "discLower": 0}}` [50 - 100])
 
 *Selects*
 

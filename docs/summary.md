@@ -2709,25 +2709,26 @@
 
 </p></details>
 
-<details><summary> Smart Home Panel (API) <i>(sensors: 8, switches: 1, sliders: 2, selects: 0)</i> </summary>
+<details><summary> Smart Home Panel (API) <i>(sensors: 8, switches: 2, sliders: 2, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
 - Power Grid
 - Battery Level
-- Discharge Remaining Time
-- Main Battery Level
-- Main Charge Remaining Time
-- Main Discharge Remaining Time
+- Remaining Time
 - Main Battery Temperature
-- Main Battery Output Power
+- Main Battery Input Power (energy:  _[Device Name]_ Main Battery Input  Energy)
+- Main Battery Output Power (energy:  _[Device Name]_ Main Battery Output  Energy)
+- Power Grid Today
+- Battery Today
 
 *Switches*
 - EPS Mode 
+- Main Battery Charge 
 
 *Sliders (numbers)*
-- Backup Discharge Lower Limit 
-- Backup Force Charge High Limit 
+- Min Discharge Level 
+- Max Charge Level 
 
 *Selects*
 
