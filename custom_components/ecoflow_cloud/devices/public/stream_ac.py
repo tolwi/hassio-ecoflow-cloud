@@ -60,9 +60,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
         params: dict[str, float | int] = {}
 
         try:
-            # Energy independence — Today and Yearly
-
-            # Daily (today-so-far, live)
+            # Energy Independence (Today)
             resp_td = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
             )
@@ -72,9 +70,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 params["history.energyIndependenceDailyToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.energyIndependenceDailyToday.endTime"] = end_day.strftime(fmt)
 
-            # Remove weekly/monthly for declutter
-
-            # Yearly (calendar year)
+            # Energy Independence (Year)
             begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
             end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
             resp_y = await self._client.historical_data(
@@ -82,11 +78,11 @@ class _HistoricalDataStatus(StatusSensorEntity):
             )
             items_y = resp_y.get("data", {}).get("data", [])
             if items_y:
-                params["history.energyIndependenceYearly"] = float(items_y[0].get("indexValue", 0))
-                params["history.energyIndependenceYearly.beginTime"] = begin_year.strftime(fmt)
-                params["history.energyIndependenceYearly.endTime"] = end_year.strftime(fmt)
+                params["history.energyIndependenceYear"] = float(items_y[0].get("indexValue", 0))
+                params["history.energyIndependenceYear.beginTime"] = begin_year.strftime(fmt)
+                params["history.energyIndependenceYear.endTime"] = end_year.strftime(fmt)
 
-            # Environmental impact (today, grams)
+            # Environmental impact (today)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
             )
@@ -98,7 +94,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
             # Removed weekly/monthly/yesterday/year aggregates to declutter and reduce API calls
 
-            # Environmental impact cumulative (grams) since May 2017
+            # Environmental Impact (Cumulative) since May 2017
             try:
                 begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_all = await self._client.historical_data(
@@ -602,12 +598,12 @@ class StreamAC(BaseDevice):
             .attr("history.energyIndependenceDailyToday.beginTime", "Begin Time", "")
             .attr("history.energyIndependenceDailyToday.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
-            BaseSensorEntity(client, self, "history.energyIndependenceYearly", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_YEARLY)
+            BaseSensorEntity(client, self, "history.energyIndependenceYear", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_YEARLY)
             .with_unit_of_measurement("%")
             .with_icon("mdi:shield-check")
             .with_state_class(SensorStateClass.MEASUREMENT)
-            .attr("history.energyIndependenceYearly.beginTime", "Begin Time", "")
-            .attr("history.energyIndependenceYearly.endTime", "End Time", "")
+            .attr("history.energyIndependenceYear.beginTime", "Begin Time", "")
+            .attr("history.energyIndependenceYear.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Environmental Impact (cumulative grams)
             BaseSensorEntity(
