@@ -59,6 +59,65 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
         params: dict[str, float | int] = {}
 
+        # Small helpers to keep parsing logic tidy
+        def _sum_grid(items: list[dict]) -> tuple[float, float]:
+            """Return (import, export) totals from GRID items based on 'extra'."""
+            imp = 0.0
+            exp = 0.0
+            for it in items:
+                try:
+                    val = float(it.get("indexValue", 0))
+                except Exception:
+                    val = 0.0
+                extra = str(it.get("extra", ""))
+                if extra == "1":
+                    imp += val
+                elif extra == "2":
+                    exp += val
+            return imp, exp
+
+        def _first_value_and_unit(items: list[dict]) -> tuple[float, str | None]:
+            """Return the first item's numeric value and optional unit."""
+            if not items:
+                return 0.0, None
+            it0 = items[0]
+            try:
+                val = float(it0.get("indexValue", 0))
+            except Exception:
+                val = 0.0
+            u = it0.get("unit")
+            unit = u if isinstance(u, str) and u else None
+            return val, unit
+
+        def _first_value(items: list[dict]) -> float:
+            val, _ = _first_value_and_unit(items)
+            return val
+
+        def _sum_values(items: list[dict]) -> float:
+            total = 0.0
+            for it in items:
+                try:
+                    total += float(it.get("indexValue", 0))
+                except Exception:
+                    pass
+            return total
+
+        def _sum_battery(items: list[dict]) -> tuple[float, float]:
+            """Return (charge, discharge) totals based on 'extra' (2=charge,1=discharge)."""
+            chg = 0.0
+            dsg = 0.0
+            for it in items:
+                try:
+                    val = float(it.get("indexValue", 0))
+                except Exception:
+                    val = 0.0
+                extra = str(it.get("extra", ""))
+                if extra == "2":
+                    chg += val
+                elif extra == "1":
+                    dsg += val
+            return chg, dsg
+
         try:
             # Energy Independence (Today)
             resp_td = await self._client.historical_data(
@@ -66,7 +125,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             )
             items_td = resp_td.get("data", {}).get("data", [])
             if items_td:
-                params["history.energyIndependenceDailyToday"] = float(items_td[0].get("indexValue", 0))
+                params["history.energyIndependenceDailyToday"] = _first_value(items_td)
                 params["history.energyIndependenceDailyToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.energyIndependenceDailyToday.endTime"] = end_day.strftime(fmt)
 
@@ -78,7 +137,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             )
             items_y = resp_y.get("data", {}).get("data", [])
             if items_y:
-                params["history.energyIndependenceYear"] = float(items_y[0].get("indexValue", 0))
+                params["history.energyIndependenceYear"] = _first_value(items_y)
                 params["history.energyIndependenceYear.beginTime"] = begin_year.strftime(fmt)
                 params["history.energyIndependenceYear.endTime"] = end_year.strftime(fmt)
 
@@ -88,7 +147,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             )
             items = resp.get("data", {}).get("data", [])
             if items:
-                params["history.environmentalImpactDailyToday"] = float(items[0].get("indexValue", 0))
+                params["history.environmentalImpactDailyToday"] = _first_value(items)
                 params["history.environmentalImpactDailyToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.environmentalImpactDailyToday.endTime"] = end_day.strftime(fmt)
 
@@ -100,15 +159,28 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 )
                 all_items = resp_all.get("data", {}).get("data", [])
                 if all_items:
-                    total_g = 0.0
-                    for it in all_items:
-                        try:
-                            total_g += float(it.get("indexValue", 0))
-                        except Exception:
-                            pass
-                    params["history.environmentalImpactCumulative"] = total_g
+                    params["history.environmentalImpactCumulative"] = _sum_values(all_items)
                     params["history.environmentalImpactCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.environmentalImpactCumulative.endTime"] = end_day.strftime(fmt)
+            except Exception:
+                pass
+            
+            # Solar Energy Savings (Today)
+            try:
+                resp_sav_today = await self._client.historical_data(
+                    sn,
+                    begin_day.strftime(fmt),
+                    end_day.strftime(fmt),
+                    HIST_CODE_SAVINGS_TOTAL,
+                )
+                items_sav_today = resp_sav_today.get("data", {}).get("data", [])
+                if items_sav_today:
+                    val_td, unit_td = _first_value_and_unit(items_sav_today)
+                    params["history.solarEnergySavingsDailyToday"] = val_td
+                    params["history.solarEnergySavingsDailyToday.beginTime"] = begin_day.strftime(fmt)
+                    params["history.solarEnergySavingsDailyToday.endTime"] = end_day.strftime(fmt)
+                    if unit_td:
+                        params["history.solarEnergySavingsUnit"] = unit_td
             except Exception:
                 pass
 
@@ -120,13 +192,9 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 )
                 items_sav_all = resp_sav_all.get("data", {}).get("data", [])
                 if items_sav_all:
-                    total_sav = 0.0
+                    total_sav = _sum_values(items_sav_all)
                     unit = None
                     for it in items_sav_all:
-                        try:
-                            total_sav += float(it.get("indexValue", 0))
-                        except Exception:
-                            pass
                         u = it.get("unit")
                         if isinstance(u, str) and u:
                             unit = u
@@ -139,38 +207,12 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 pass
 
             # Solar-Generated Energy (Today)
-            try:
-                resp_sav_today = await self._client.historical_data(
-                    sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
-                )
-                items_sav_today = resp_sav_today.get("data", {}).get("data", [])
-                if items_sav_today:
-                    unit_td = None
-                    val_td = 0.0
-                    # API usually returns single item for the day
-                    it0 = items_sav_today[0]
-                    try:
-                        val_td = float(it0.get("indexValue", 0))
-                    except Exception:
-                        val_td = 0.0
-                    u = it0.get("unit")
-                    if isinstance(u, str) and u:
-                        unit_td = u
-                    params["history.solarEnergySavingsDailyToday"] = val_td
-                    params["history.solarEnergySavingsDailyToday.beginTime"] = begin_day.strftime(fmt)
-                    params["history.solarEnergySavingsDailyToday.endTime"] = end_day.strftime(fmt)
-                    if unit_td:
-                        params["history.solarEnergySavingsUnit"] = unit_td
-            except Exception:
-                pass
-
-            # Solar-Generated Energy (Today)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
             )
             items = resp.get("data", {}).get("data", [])
             if items:
-                params["history.solarGeneratedDailyToday"] = float(items[0].get("indexValue", 0))
+                params["history.solarGeneratedDailyToday"] = _first_value(items)
                 params["history.solarGeneratedDailyToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.solarGeneratedDailyToday.endTime"] = end_day.strftime(fmt)
 
@@ -182,13 +224,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 )
                 all_items = resp_all.get("data", {}).get("data", [])
                 if all_items:
-                    total_wh = 0.0
-                    for it in all_items:
-                        try:
-                            total_wh += float(it.get("indexValue", 0))
-                        except Exception:
-                            pass
-                    params["history.solarGeneratedCumulative"] = total_wh
+                    params["history.solarGeneratedCumulative"] = _sum_values(all_items)
                     params["history.solarGeneratedCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.solarGeneratedCumulative.endTime"] = end_day.strftime(fmt)
             except Exception:
@@ -201,7 +237,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             )
             items = resp.get("data", {}).get("data", [])
             if items:
-                params["history.electricityConsumptionDailyToday"] = float(items[0].get("indexValue", 0))
+                params["history.electricityConsumptionDailyToday"] = _first_value(items)
                 params["history.electricityConsumptionDailyToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.electricityConsumptionDailyToday.endTime"] = end_day.strftime(fmt)
 
@@ -213,35 +249,27 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 )
                 items_ec_all = resp_ec_all.get("data", {}).get("data", [])
                 if items_ec_all:
-                    total_cons_wh = 0.0
-                    for it in items_ec_all:
-                        try:
-                            total_cons_wh += float(it.get("indexValue", 0))
-                        except Exception:
-                            pass
-                    params["history.electricityConsumptionCumulative"] = total_cons_wh
+                    params["history.electricityConsumptionCumulative"] = _sum_values(items_ec_all)
                     params["history.electricityConsumptionCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.electricityConsumptionCumulative.endTime"] = end_day.strftime(fmt)
             except Exception:
                 pass
 
-            # Grid Import (Today) / Export (Today): extra 1=import, 2=export
+            # Grid Import (Today) / Grid Export (Today)
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
             )
             items = resp.get("data", {}).get("data", [])
-            for it in items:
-                extra = str(it.get("extra", ""))
-                if extra == "1":
-                    params["history.gridImport"] = float(it.get("indexValue", 0))
-                    params["history.gridImport.beginTime"] = begin_day.strftime(fmt)
-                    params["history.gridImport.endTime"] = end_day.strftime(fmt)
-                elif extra == "2":
-                    params["history.gridExport"] = float(it.get("indexValue", 0))
-                    params["history.gridExport.beginTime"] = begin_day.strftime(fmt)
-                    params["history.gridExport.endTime"] = end_day.strftime(fmt)
+            if items:
+                imp_td, exp_td = _sum_grid(items)
+                params["history.gridImport"] = imp_td
+                params["history.gridImport.beginTime"] = begin_day.strftime(fmt)
+                params["history.gridImport.endTime"] = end_day.strftime(fmt)
+                params["history.gridExport"] = exp_td
+                params["history.gridExport.beginTime"] = begin_day.strftime(fmt)
+                params["history.gridExport.endTime"] = end_day.strftime(fmt)
 
-            # Grid cumulative (Wh) since May 2017: split import/export by extra
+            # Grid Import (Cumulative) / Export (Cumulative)
             try:
                 begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_grid_all = await self._client.historical_data(
@@ -249,42 +277,29 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 )
                 items_grid_all = resp_grid_all.get("data", {}).get("data", [])
                 if items_grid_all:
-                    total_import = 0.0
-                    total_export = 0.0
-                    for it in items_grid_all:
-                        try:
-                            val = float(it.get("indexValue", 0))
-                        except Exception:
-                            val = 0.0
-                        extra = str(it.get("extra", ""))
-                        if extra == "1":
-                            total_import += val
-                        elif extra == "2":
-                            total_export += val
-                    params["history.gridImportCumulative"] = total_import
+                    imp_all, exp_all = _sum_grid(items_grid_all)
+                    params["history.gridImportCumulative"] = imp_all
                     params["history.gridImportCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.gridImportCumulative.endTime"] = end_day.strftime(fmt)
-                    params["history.gridExportCumulative"] = total_export
+                    params["history.gridExportCumulative"] = exp_all
                     params["history.gridExportCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.gridExportCumulative.endTime"] = end_day.strftime(fmt)
             except Exception:
                 pass
 
-            # Battery charge/discharge (Wh): extra 2=charge, 1=discharge
+            # Battery charge/discharge (Today): extra 2=charge, 1=discharge
             resp = await self._client.historical_data(
                 sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
             )
             items = resp.get("data", {}).get("data", [])
-            for it in items:
-                extra = str(it.get("extra", ""))
-                if extra == "2":
-                    params["history.batteryCharge"] = float(it.get("indexValue", 0))
-                    params["history.batteryCharge.beginTime"] = begin_day.strftime(fmt)
-                    params["history.batteryCharge.endTime"] = end_day.strftime(fmt)
-                elif extra == "1":
-                    params["history.batteryDischarge"] = float(it.get("indexValue", 0))
-                    params["history.batteryDischarge.beginTime"] = begin_day.strftime(fmt)
-                    params["history.batteryDischarge.endTime"] = end_day.strftime(fmt)
+            if items:
+                chg_td, dsg_td = _sum_battery(items)
+                params["history.batteryCharge"] = chg_td
+                params["history.batteryCharge.beginTime"] = begin_day.strftime(fmt)
+                params["history.batteryCharge.endTime"] = end_day.strftime(fmt)
+                params["history.batteryDischarge"] = dsg_td
+                params["history.batteryDischarge.beginTime"] = begin_day.strftime(fmt)
+                params["history.batteryDischarge.endTime"] = end_day.strftime(fmt)
 
             # Battery cumulative (Wh) since May 2017
             try:
@@ -294,18 +309,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
                 )
                 items_batt_all = resp_batt_all.get("data", {}).get("data", [])
                 if items_batt_all:
-                    total_charge = 0.0
-                    total_discharge = 0.0
-                    for it in items_batt_all:
-                        try:
-                            val = float(it.get("indexValue", 0))
-                        except Exception:
-                            val = 0.0
-                        extra = str(it.get("extra", ""))
-                        if extra == "2":
-                            total_charge += val
-                        elif extra == "1":
-                            total_discharge += val
+                    total_charge, total_discharge = _sum_battery(items_batt_all)
                     params["history.batteryChargeCumulative"] = total_charge
                     params["history.batteryChargeCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.batteryChargeCumulative.endTime"] = end_day.strftime(fmt)
