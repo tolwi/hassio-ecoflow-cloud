@@ -417,7 +417,7 @@ def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
 
 if __name__ == "__main__":
 
-    print("Gen doc lancé !")
+    print("Generate docs started !")
 
     async def main():
         hass = await MockSetup.setup_hass()
@@ -426,6 +426,6 @@ if __name__ == "__main__":
         generator.update_full_summary(hass)
         generator.render_brief_summary(hass)
 
-        print("Gen doc terminé !")
+        print("Generate docs finished !")
 
     asyncio.run(main())

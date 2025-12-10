@@ -25,6 +25,7 @@ Current integrations details:
 - [DELTA_2_Max](devices/DELTA_2_Max-Public.md)
 - [RIVER_2](devices/RIVER_2-Public.md)
 - [RIVER_2_Max](devices/RIVER_2_Max-Public.md)
+- [Smart_Home_Panel](devices/Smart_Home_Panel-Public.md)
 - [Smart_Meter](devices/Smart_Meter-Public.md)
 - [Smart_Plug](devices/Smart_Plug-Public.md)
 - [Stream_AC](devices/Stream_AC-Public.md)
