@@ -1,22 +1,48 @@
 import json
 import logging
-from typing import override
+from typing import Protocol, override
 
 from google.protobuf.message import Message as ProtoMessageRaw
 from paho.mqtt.client import PayloadType
 
 from .....api.message import JSONMessage, JSONType, Message
 from .....api.private_api import PrivateAPIMessageProtocol
-from .const import AddressId, Command, DirectionId, get_expected_payload_type
+
+import enum
+
+
+# https://github.com/tomvd/local-powerstream/issues/4#issuecomment-2781354316
+class AddressId(enum.Enum):
+    IOT = 1
+    IOT2 = 2
+    APP = 32
+    MQTT = 53
+
+
+class DirectionId(enum.Enum):
+    DEFAULT = 1
+
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class ProtoCommand(Protocol):
+    """Protocol for command objects with func, id, and name properties."""
+
+    @property
+    def func(self) -> int: ...
+    @property
+    def id(self) -> int: ...
+    @property
+    def name(self) -> str: ...
 
 
 class ProtoMessage(PrivateAPIMessageProtocol, Message):
     def __init__(
         self,
         *,
-        command: Command | None = None,
+        create_packet: type[ProtoMessageRaw],
+        command: ProtoCommand | None = None,
         payload: ProtoMessageRaw | None = None,
         src: AddressId | None = None,
         dest: AddressId | None = None,
@@ -36,24 +62,11 @@ class ProtoMessage(PrivateAPIMessageProtocol, Message):
         self.need_ack = need_ack
         self.from_ = from_
         self.device_sn = device_sn
-
-    def _verify_command_and_payload(self) -> None:
-        if (
-            self.command is not None
-            and self.payload is not None
-            and not isinstance(self.payload, get_expected_payload_type(self.command))
-        ):
-            _LOGGER.warning(
-                'Command "%s": allowed payload types %s, got %s',
-                self.command.name,
-                get_expected_payload_type(self.command),
-                type(self.payload),
-            )
+        self.create_packet = create_packet
 
     def to_proto_message(self) -> ProtoMessageRaw:
-        from .. import ecopacket_pb2 as ecopacket
-
-        packet = ecopacket.SendHeaderMsg()
+        """Convert to protobuf message using device-specific header types."""
+        packet = self.create_packet()
         message = packet.msg.add()
 
         if self.command is not None:
@@ -71,8 +84,7 @@ class ProtoMessage(PrivateAPIMessageProtocol, Message):
             message.dest = self.dest.value
         if self.device_sn is not None:
             message.device_sn = self.device_sn
-
-        if self.need_ack:
+        if self.need_ack is not None:
             message.need_ack = self.need_ack
 
         message.seq = JSONMessage.gen_seq()
@@ -88,7 +100,10 @@ class ProtoMessage(PrivateAPIMessageProtocol, Message):
             packet["sn"] = self.device_sn
 
         if self.command is not None:
-            packet["cmdCode"] = self.command.name
+            if hasattr(self.command, "name"):
+                packet["cmdCode"] = self.command.name
+            else:
+                packet["cmdCode"] = str(self.command)
 
         if self.payload is not None:
             packet["params"] = MessageToDict(
@@ -99,10 +114,8 @@ class ProtoMessage(PrivateAPIMessageProtocol, Message):
 
     @override
     def private_api_to_mqtt_payload(self) -> PayloadType:
-        self._verify_command_and_payload()
         return self.to_proto_message().SerializeToString()
 
     @override
     def to_mqtt_payload(self) -> PayloadType:
-        self._verify_command_and_payload()
         return json.dumps(self.to_json_message())

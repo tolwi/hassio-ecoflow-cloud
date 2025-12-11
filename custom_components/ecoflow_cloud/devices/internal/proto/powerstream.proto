@@ -1,5 +1,41 @@
 syntax = "proto3";
 
+package powerstream;
+
+message PowerStreamHeader
+{
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src= 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+    optional int32 time_snap = 18;
+    optional int32 is_rw_cmd = 19;
+    optional int32 is_queue = 20;
+    optional int32 ack_type= 21;
+    optional string code = 22;
+    optional string from = 23;
+    optional string module_sn = 24;
+    optional string device_sn = 25;
+}
+
+message PowerStreamSendHeaderMsg
+{
+    repeated PowerStreamHeader msg = 1;
+}
+
+
 message InverterHeartbeat {
     optional uint32 inv_error_code = 1;
     optional uint32 inv_warning_code = 3;
@@ -130,4 +166,108 @@ message MeshChildNodeInfo
 message PrivateAPIGenericSetValue
 {
     optional int32 value = 1;
+}
+
+message EnergyItem
+{
+    optional uint32 timestamp = 1;
+    optional uint32 watth_type = 2;
+    repeated uint32 watth = 3;
+}
+
+message EnergyTotalReport
+{
+    optional uint32 watth_seq = 1;
+    optional EnergyItem watth_item = 2;
+}
+
+message BatchEnergyTotalReport
+{
+    optional uint32 watth_seq = 1;
+    repeated EnergyItem watth_item = 2;
+}
+
+message EnergyTotalReportAck
+{
+    optional uint32 result = 1;
+    optional uint32 watth_seq = 2;
+    optional uint32 watth_type = 3;
+}
+
+message EventRecordItem
+{
+    optional uint32 timestamp = 1;
+    optional uint32 sys_ms = 2;
+    optional uint32 event_no = 3;
+    repeated float event_detail = 4;
+}
+
+message EventRecordReport
+{
+    optional uint32 event_ver = 1;
+    optional uint32 event_seq = 2;
+    repeated EventRecordItem event_item = 3;
+}
+
+message EventInfoReportAck
+{
+    optional uint32 result = 1;
+    optional uint32 event_seq = 2;
+    optional uint32 event_item_num =3;
+}
+
+message ProductNameSet
+{
+    optional string name = 1;
+}
+
+message ProductNameSetAck
+{
+    optional uint32 result = 1;
+}
+
+message ProductNameGet { }
+
+message ProductNameGetAck
+{
+    optional string name = 3;
+}
+
+message RTCTimeGet { }
+
+message RTCTimeGetAck
+{
+    optional uint32 timestamp = 1;
+    optional int32 timezone = 2;
+}
+
+message RTCTimeSet
+{
+    optional uint32 timestamp = 1;
+    optional int32 timezone = 2;
+}
+
+message RTCTimeSetAck
+{
+    optional uint32 result = 1;
+}
+
+message country_town_message
+{
+    optional uint32 country = 1;
+    optional uint32 town = 2;
+}
+
+enum PlCmdSets
+{
+    PL_NONE_CMD_SETS = 0;
+    PL_BASIC_CMD_SETS = 1;
+    PL_EXT_CMD_SETS = 254;
+}
+
+enum PlCmdId
+{
+    PL_CMD_ID_NONE = 0;
+    PL_CMD_ID_XLOG = 16;
+    PL_CMD_ID_WATTH = 32;
 }

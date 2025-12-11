@@ -1,180 +1,180 @@
 syntax = "proto3";
 
-    message HeaderStream {
-        optional bytes pdata = 1;
-        optional int32 src = 2;
-        optional int32 dest = 3;
-        optional int32 d_src= 4;
-        optional int32 d_dest = 5;
-        optional int32 enc_type = 6;
-        optional int32 check_type = 7;
-        optional int32 cmd_func = 8;
-        optional int32 cmd_id = 9;
-        optional int32 data_len = 10;
-        optional int32 need_ack = 11;
-        optional int32 is_ack = 12;
-        optional int32 seq = 14;
-        optional int32 product_id = 15;
-        optional int32 version = 16;
-        optional int32 payload_ver = 17;
-        optional int32 time_snap = 18;
-        optional int32 is_rw_cmd = 19;
-        optional int32 is_queue = 20;
-        optional int32 ack_type= 21;
-        optional string code = 22;
-        optional string from = 23;
-        optional string module_sn = 24;
-        optional string device_sn = 25;
-    }
+message HeaderStream {
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src= 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+    optional int32 time_snap = 18;
+    optional int32 is_rw_cmd = 19;
+    optional int32 is_queue = 20;
+    optional int32 ack_type= 21;
+    optional string code = 22;
+    optional string from = 23;
+    optional string module_sn = 24;
+    optional string device_sn = 25;
+}
 
-    message SendHeaderStreamMsg {
-        optional HeaderStream msg = 1;
-    }
+message SendHeaderStreamMsg {
+    optional HeaderStream msg = 1;
+}
 
-    message Champ_cmd50_4 {
-        optional uint32 Champ_cmd50_4_field1 = 1;
-    }
-    message Champ_cmd50_3 {
-        optional uint32 Champ_cmd50_3_field1 = 1;
-        optional uint32 Champ_cmd50_3_field2 = 2;
-        optional uint32 Champ_cmd50_3_field3 = 3;
-        optional uint32 Champ_cmd50_3_field4 = 4;
-        optional uint32 Champ_cmd50_3_field5 = 5;
-        optional uint32 Champ_cmd50_3_field6 = 6;
-        optional uint32 Champ_cmd50_3_field7 = 7;
-        optional uint32 Champ_cmd50_3_field8 = 8;
-        optional uint32 Champ_cmd50_3_field9 = 9;
-        optional uint32 Champ_cmd50_3_field10 = 10;
-        optional uint32 Champ_cmd50_3_field11 = 11;
-        optional uint32 Champ_cmd50_3_field12 = 12;
-        optional uint32 Champ_cmd50_3_field13 = 13;
-        optional uint32 Champ_cmd50_3_field14 = 14;
-        optional uint32 Champ_cmd50_3_field15 = 15;
-        optional uint32 Champ_cmd50_3_field16 = 16;
-        optional uint32 Champ_cmd50_3_field17 = 17;
-        optional uint32 Champ_cmd50_3_field18 = 18;
-        optional uint32 Champ_cmd50_3_field19 = 19;
-        optional uint32 Champ_cmd50_3_field20 = 20;
-        optional uint32 Champ_cmd50_3_field21 = 21;
-        optional uint32 Champ_cmd50_3_field22 = 22;
-        optional uint32 Champ_cmd50_3_field23 = 23;
-        optional uint32 Champ_cmd50_3_field24 = 24;
-        optional float Champ_cmd50_3_field25 = 25;
-        optional uint32 Champ_cmd50_3_field26 = 26;
-        optional uint32 Champ_cmd50_3_field27 = 27;
-        optional uint32 Champ_cmd50_3_field28 = 28;
-        optional uint32 Champ_cmd50_3_field29 = 29;
-        optional uint32 Champ_cmd50_3_field30 = 30;
-        optional uint32 Champ_cmd50_3_field31 = 31;
-        optional uint32 Champ_cmd50_3_field32 = 32;
-        optional string Champ_cmd50_3_field33 = 33;
-        optional uint32 Champ_cmd50_3_field34 = 34;
-        optional Champ_cmd50_4 Champ_cmd50_3_filed35 = 35;
-        optional string version = 36;
-        optional uint32 Champ_cmd50_3_field37 = 37;
-        optional uint32 Champ_cmd50_3_field38 = 38;
-        optional string sn1 = 39;
-        optional uint32 Champ_cmd50_3_field40 = 40;
-        optional uint32 Champ_cmd50_3_field41 = 41;
-        optional float Champ_cmd50_3_field42 = 42;
-        optional float Champ_cmd50_3_field43 = 43;
-        optional float Champ_cmd50_3_field44 = 44;
-        optional uint32 Champ_cmd50_3_field45 = 45;
-        optional uint32 Champ_cmd50_3_field46 = 46;
-        optional uint32 Champ_cmd50_3_field47 = 47;
-        optional uint32 Champ_cmd50_3_field48 = 48;
-        optional uint32 Champ_cmd50_3_field49 = 49;
-        optional uint32 Champ_cmd50_3_field50 = 50;
-        optional uint32 Champ_cmd50_3_field51 = 51;
-        optional float Champ_cmd50_3_field52 = 52;
-        optional float Champ_cmd50_3_field53 = 53;
-        optional float Champ_cmd50_3_field54 = 54;
-        optional uint32 Champ_cmd50_3_field55 = 55;
-        optional string Champ_cmd50_3_field56 = 56;
-        optional uint32 Champ_cmd50_3_field57 = 57;
-        optional uint32 Champ_cmd50_3_field58 = 59;
-        optional uint32 Champ_cmd50_3_field59 = 61;
-        optional uint32 Champ_cmd50_3_field60 = 63;
-        optional uint32 Champ_cmd50_3_field61 = 64;
-        optional uint32 Champ_cmd50_3_field65 = 65;
-        optional uint32 Champ_cmd50_3_field66 = 66;
-        optional uint32 Champ_cmd50_3_field67 = 67;
-        optional uint32 Champ_cmd50_3_field68 = 68;
-        optional uint32 Champ_cmd50_3_field69 = 69;
-        optional string Champ_cmd50_3_sn = 70;
-        optional uint32 Champ_cmd50_3_field71 = 71;
-        optional uint32 Champ_cmd50_3_field72 = 72;
-        optional uint32 Champ_cmd50_3_field73 = 73;
-        optional uint32 Champ_cmd50_3_field74 = 74;
-        optional uint32 Champ_cmd50_3_field75 = 75;
-        optional uint32 Champ_cmd50_3_field76 = 76;
-        optional uint32 Champ_cmd50_3_field77 = 77;
-        optional uint32 Champ_cmd50_3_field78 = 78;
-        optional uint32 Champ_cmd50_3_field79 = 79;
-        optional uint32 Champ_cmd50_3_field80 = 80;
-        optional string sn2 = 81;
-        optional uint32 Champ_cmd50_3_field82 = 82;
+message Champ_cmd50_4 {
+    optional uint32 Champ_cmd50_4_field1 = 1;
+}
+message Champ_cmd50_3 {
+    optional uint32 Champ_cmd50_3_field1 = 1;
+    optional uint32 Champ_cmd50_3_field2 = 2;
+    optional uint32 Champ_cmd50_3_field3 = 3;
+    optional uint32 Champ_cmd50_3_field4 = 4;
+    optional uint32 Champ_cmd50_3_field5 = 5;
+    optional uint32 Champ_cmd50_3_field6 = 6;
+    optional uint32 Champ_cmd50_3_field7 = 7;
+    optional uint32 Champ_cmd50_3_field8 = 8;
+    optional uint32 Champ_cmd50_3_field9 = 9;
+    optional uint32 Champ_cmd50_3_field10 = 10;
+    optional uint32 Champ_cmd50_3_field11 = 11;
+    optional uint32 Champ_cmd50_3_field12 = 12;
+    optional uint32 Champ_cmd50_3_field13 = 13;
+    optional uint32 Champ_cmd50_3_field14 = 14;
+    optional uint32 Champ_cmd50_3_field15 = 15;
+    optional uint32 Champ_cmd50_3_field16 = 16;
+    optional uint32 Champ_cmd50_3_field17 = 17;
+    optional uint32 Champ_cmd50_3_field18 = 18;
+    optional uint32 Champ_cmd50_3_field19 = 19;
+    optional uint32 Champ_cmd50_3_field20 = 20;
+    optional uint32 Champ_cmd50_3_field21 = 21;
+    optional uint32 Champ_cmd50_3_field22 = 22;
+    optional uint32 Champ_cmd50_3_field23 = 23;
+    optional uint32 Champ_cmd50_3_field24 = 24;
+    optional float Champ_cmd50_3_field25 = 25;
+    optional uint32 Champ_cmd50_3_field26 = 26;
+    optional uint32 Champ_cmd50_3_field27 = 27;
+    optional uint32 Champ_cmd50_3_field28 = 28;
+    optional uint32 Champ_cmd50_3_field29 = 29;
+    optional uint32 Champ_cmd50_3_field30 = 30;
+    optional uint32 Champ_cmd50_3_field31 = 31;
+    optional uint32 Champ_cmd50_3_field32 = 32;
+    optional string Champ_cmd50_3_field33 = 33;
+    optional uint32 Champ_cmd50_3_field34 = 34;
+    optional Champ_cmd50_4 Champ_cmd50_3_filed35 = 35;
+    optional string version = 36;
+    optional uint32 Champ_cmd50_3_field37 = 37;
+    optional uint32 Champ_cmd50_3_field38 = 38;
+    optional string sn1 = 39;
+    optional uint32 Champ_cmd50_3_field40 = 40;
+    optional uint32 Champ_cmd50_3_field41 = 41;
+    optional float Champ_cmd50_3_field42 = 42;
+    optional float Champ_cmd50_3_field43 = 43;
+    optional float Champ_cmd50_3_field44 = 44;
+    optional uint32 Champ_cmd50_3_field45 = 45;
+    optional uint32 Champ_cmd50_3_field46 = 46;
+    optional uint32 Champ_cmd50_3_field47 = 47;
+    optional uint32 Champ_cmd50_3_field48 = 48;
+    optional uint32 Champ_cmd50_3_field49 = 49;
+    optional uint32 Champ_cmd50_3_field50 = 50;
+    optional uint32 Champ_cmd50_3_field51 = 51;
+    optional float Champ_cmd50_3_field52 = 52;
+    optional float Champ_cmd50_3_field53 = 53;
+    optional float Champ_cmd50_3_field54 = 54;
+    optional uint32 Champ_cmd50_3_field55 = 55;
+    optional string Champ_cmd50_3_field56 = 56;
+    optional uint32 Champ_cmd50_3_field57 = 57;
+    optional uint32 Champ_cmd50_3_field58 = 59;
+    optional uint32 Champ_cmd50_3_field59 = 61;
+    optional uint32 Champ_cmd50_3_field60 = 63;
+    optional uint32 Champ_cmd50_3_field61 = 64;
+    optional uint32 Champ_cmd50_3_field65 = 65;
+    optional uint32 Champ_cmd50_3_field66 = 66;
+    optional uint32 Champ_cmd50_3_field67 = 67;
+    optional uint32 Champ_cmd50_3_field68 = 68;
+    optional uint32 Champ_cmd50_3_field69 = 69;
+    optional string Champ_cmd50_3_sn = 70;
+    optional uint32 Champ_cmd50_3_field71 = 71;
+    optional uint32 Champ_cmd50_3_field72 = 72;
+    optional uint32 Champ_cmd50_3_field73 = 73;
+    optional uint32 Champ_cmd50_3_field74 = 74;
+    optional uint32 Champ_cmd50_3_field75 = 75;
+    optional uint32 Champ_cmd50_3_field76 = 76;
+    optional uint32 Champ_cmd50_3_field77 = 77;
+    optional uint32 Champ_cmd50_3_field78 = 78;
+    optional uint32 Champ_cmd50_3_field79 = 79;
+    optional uint32 Champ_cmd50_3_field80 = 80;
+    optional string sn2 = 81;
+    optional uint32 Champ_cmd50_3_field82 = 82;
 
-    }
+}
 
-    message Champ_cmd50_2 {
+message Champ_cmd50_2 {
 
-        optional Champ_cmd50_3 Champ_cmd50_2champ3 = 1;
-        optional bytes Champ_cmd50_2_field1 = 2;
-        optional uint32 Champ_cmd50_2_field2 = 3;
-        optional uint32 Champ_cmd50_2_field3 = 4;
-        optional uint32 Champ_cmd50_2_field4 = 5;
-        optional uint32 Champ_cmd50_2_field5 = 8;
-        optional uint32 Champ_cmd50_2_field6 = 9;
-        optional uint32 Champ_cmd50_2_field7 = 10;
-        optional uint32 Champ_cmd50_2_field8 = 16;
-        optional uint32 Champ_cmd50_2_field9 = 17;
-    }
+    optional Champ_cmd50_3 Champ_cmd50_2champ3 = 1;
+    optional bytes Champ_cmd50_2_field1 = 2;
+    optional uint32 Champ_cmd50_2_field2 = 3;
+    optional uint32 Champ_cmd50_2_field3 = 4;
+    optional uint32 Champ_cmd50_2_field4 = 5;
+    optional uint32 Champ_cmd50_2_field5 = 8;
+    optional uint32 Champ_cmd50_2_field6 = 9;
+    optional uint32 Champ_cmd50_2_field7 = 10;
+    optional uint32 Champ_cmd50_2_field8 = 16;
+    optional uint32 Champ_cmd50_2_field9 = 17;
+}
 
-    message Champ_cmd50 {
-        optional Champ_cmd50_2 Champ_cmd50_champ2 = 1;
+message Champ_cmd50 {
+    optional Champ_cmd50_2 Champ_cmd50_champ2 = 1;
 
-    }
+}
 
-    message CloudMetter {
-        optional uint32 Champ_cmd21_4_field1 = 1;
-        optional uint32 Champ_cmd21_4_field2 = 2;
-        optional string sn_metter = 3;
-        optional uint32 Champ_cmd21_4_field4 = 4;
+message CloudMetter {
+    optional uint32 Champ_cmd21_4_field1 = 1;
+    optional uint32 Champ_cmd21_4_field2 = 2;
+    optional string sn_metter = 3;
+    optional uint32 Champ_cmd21_4_field4 = 4;
 
-    }
+}
 
-    message Champ_cmd21_3 {
-        optional uint32 Champ_cmd21_3_field282 = 282;
-        optional uint32 Champ_cmd21_3_field460 = 460;
-        optional float powGetSysGrid = 515; // power grid
-        optional float powGetSysLoad = 516;
-        optional float powGetPvSum = 517; // pv sum
-        optional float powGetBpCms = 518;
-        optional float Champ_cmd21_3_field602 = 602;
-        optional float gridConnectionPower = 616;
-        optional CloudMetter cloudMetter = 785;
-        optional float sysGridConnectionPower = 992;
-        optional float powGetSysLoadFromBp = 1003;
-        optional float powGetSysLoadFromGrid = 1004;
-        optional float powGetSchuko1 = 1210;
+message Champ_cmd21_3 {
+    optional uint32 Champ_cmd21_3_field282 = 282;
+    optional uint32 Champ_cmd21_3_field460 = 460;
+    optional float powGetSysGrid = 515; // power grid
+    optional float powGetSysLoad = 516;
+    optional float powGetPvSum = 517; // pv sum
+    optional float powGetBpCms = 518;
+    optional float Champ_cmd21_3_field602 = 602;
+    optional float gridConnectionPower = 616;
+    optional CloudMetter cloudMetter = 785;
+    optional float sysGridConnectionPower = 992;
+    optional float powGetSysLoadFromBp = 1003;
+    optional float powGetSysLoadFromGrid = 1004;
+    optional float powGetSchuko1 = 1210;
 
-    }
+}
 
-    message Champ_cmd21_2 {
-        optional Champ_cmd21_3 Champ_cmd21_2_champ_cmd21_3 = 1;
-        optional uint32 Champ_cmd21_2_field2 = 2;
-        optional uint32 Champ_cmd21_2_field3 = 3;
-        optional uint32 Champ_cmd21_2_field4 = 4;
-        optional uint32 Champ_cmd21_2_field5 = 5;
-        optional uint32 Champ_cmd21_2_field8 = 8;
-        optional uint32 Champ_cmd21_2_field9 = 9;
-        optional uint32 Champ_cmd21_2_field10 = 10;
-        optional uint32 Champ_cmd21_2_field11 = 11;
-        optional uint32 Champ_cmd21_2_field16 = 16;
-        optional uint32 Champ_cmd21_2_field17 = 17;
-    }
+message Champ_cmd21_2 {
+    optional Champ_cmd21_3 Champ_cmd21_2_champ_cmd21_3 = 1;
+    optional uint32 Champ_cmd21_2_field2 = 2;
+    optional uint32 Champ_cmd21_2_field3 = 3;
+    optional uint32 Champ_cmd21_2_field4 = 4;
+    optional uint32 Champ_cmd21_2_field5 = 5;
+    optional uint32 Champ_cmd21_2_field8 = 8;
+    optional uint32 Champ_cmd21_2_field9 = 9;
+    optional uint32 Champ_cmd21_2_field10 = 10;
+    optional uint32 Champ_cmd21_2_field11 = 11;
+    optional uint32 Champ_cmd21_2_field16 = 16;
+    optional uint32 Champ_cmd21_2_field17 = 17;
+}
 
-    message Champ_cmd21 {
-        optional Champ_cmd21_2 Champ_cmd21_champ_cmd21_2 = 1;
-    }
+message Champ_cmd21 {
+    optional Champ_cmd21_2 Champ_cmd21_champ_cmd21_2 = 1;
+}

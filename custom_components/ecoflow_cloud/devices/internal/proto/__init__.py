@@ -1,11 +1,7 @@
-from .support.const import AddressId, Command, DirectionId
-from .support.device import PrivateAPIProtoDeviceMixin
-from .support.message import ProtoMessage
+from .support.message import AddressId, DirectionId, ProtoMessage
 
 __all__ = [
     "AddressId",
-    "Command",
     "DirectionId",
-    "PrivateAPIProtoDeviceMixin",
     "ProtoMessage",
 ]

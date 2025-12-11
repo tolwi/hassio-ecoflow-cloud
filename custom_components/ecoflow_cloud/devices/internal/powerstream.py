@@ -10,7 +10,10 @@ from homeassistant.util import dt
 
 from custom_components.ecoflow_cloud.devices import const
 from custom_components.ecoflow_cloud.select import PowerDictSelectEntity
-from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity, MinBatteryLevelEntity
+from custom_components.ecoflow_cloud.number import (
+    MaxBatteryLevelEntity,
+    MinBatteryLevelEntity,
+)
 
 from ...devices import BaseDevice
 from ...devices.internal.proto.support import (
@@ -18,7 +21,7 @@ from ...devices.internal.proto.support import (
 )
 
 from ...api import EcoflowApiClient
-from ...api.message import JSONDict
+from ...api.message import JSONDict, JSONMessage
 from ...sensor import (
     CelsiusSensorEntity,
     CentivoltSensorEntity,
@@ -42,28 +45,108 @@ from ...sensor import (
 from google.protobuf.message import Message as ProtoMessageRaw
 
 from ...switch import EnabledEntity
-from ..internal.proto import platform_pb2 as platform
+import enum
+from typing import NamedTuple
+
 from ..internal.proto import powerstream_pb2 as powerstream
-from ..internal.proto import AddressId, Command, ProtoMessage
-from .proto import PrivateAPIProtoDeviceMixin
-from .proto.support.const import WatthType, get_expected_payload_type
+from ..internal.proto import AddressId, ProtoMessage
 
 _LOGGER = logging.getLogger(__name__)
+
+
+# Local Constants
+class CommandFunc(enum.IntEnum):
+    POWERSTREAM = 20
+    PLATFORM = powerstream.PlCmdSets.PL_EXT_CMD_SETS
+
+
+class CommandFuncAndId(NamedTuple):
+    func: int
+    id: int
+
+
+class Command(enum.Enum):
+    @enum.property
+    def func(self) -> CommandFunc | int:
+        return self.value.func
+
+    @enum.property
+    def id(self) -> int:
+        return self.value.id
+
+    PRIVATE_API_POWERSTREAM_HEARTBEAT = CommandFuncAndId(
+        func=CommandFunc.POWERSTREAM, id=1
+    )
+
+    WN511_SET_PERMANENT_WATTS_PACK = CommandFuncAndId(
+        func=CommandFunc.POWERSTREAM, id=129
+    )
+    WN511_SET_SUPPLY_PRIORITY_PACK = CommandFuncAndId(
+        func=CommandFunc.POWERSTREAM, id=130
+    )
+    WN511_SET_BAT_LOWER_PACK = CommandFuncAndId(func=CommandFunc.POWERSTREAM, id=132)
+    WN511_SET_BAT_UPPER_PACK = CommandFuncAndId(func=CommandFunc.POWERSTREAM, id=133)
+    WN511_SET_BRIGHTNESS_PACK = CommandFuncAndId(func=CommandFunc.POWERSTREAM, id=135)
+
+    PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT = CommandFuncAndId(
+        func=CommandFunc.POWERSTREAM, id=143
+    )
+
+    PRIVATE_API_PLATFORM_WATTH = CommandFuncAndId(
+        func=CommandFunc.PLATFORM, id=powerstream.PlCmdId.PL_CMD_ID_WATTH
+    )
+
+
+class WatthType(enum.IntEnum):
+    TO_SMART_PLUGS = 2
+    TO_BATTERY = 3
+    FROM_BATTERY = 4
+    PV1 = 7
+    PV2 = 8
+
+
+# Local payload mapping
+def get_expected_payload_type(cmd: Command) -> type[ProtoMessageRaw]:
+    _expected_payload_types = {
+        Command.PRIVATE_API_POWERSTREAM_HEARTBEAT: powerstream.InverterHeartbeat,
+        Command.WN511_SET_PERMANENT_WATTS_PACK: powerstream.PermanentWattsPack,
+        Command.WN511_SET_SUPPLY_PRIORITY_PACK: powerstream.SupplyPriorityPack,
+        Command.WN511_SET_BAT_LOWER_PACK: powerstream.BatLowerPack,
+        Command.WN511_SET_BAT_UPPER_PACK: powerstream.BatUpperPack,
+        Command.WN511_SET_BRIGHTNESS_PACK: powerstream.BrightnessPack,
+        Command.PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT: powerstream.PrivateAPIGenericSetValue,
+        Command.PRIVATE_API_PLATFORM_WATTH: powerstream.BatchEnergyTotalReport,
+    }
+    return _expected_payload_types[cmd]
 
 
 def build_command(
     device_sn: str, command: Command, payload: ProtoMessageRaw
 ) -> ProtoMessage:
+    expected_type = get_expected_payload_type(command)
+    if not isinstance(payload, expected_type):
+        _LOGGER.error(
+            'Command "%s": allowed payload types %s, got %s',
+            command.name,
+            expected_type,
+            type(payload),
+        )
+        # We might want to raise an error here or just log.
+        # For now, let's just log as per previous behavior which was a warning,
+        # but better to stay safe. If it was a warning before, maybe keep it,
+        # but typically this is a coding error.
+
     return ProtoMessage(
         device_sn=device_sn,
         command=command,
         payload=payload,
         src=AddressId.APP,
         dest=AddressId.MQTT,
+        create_packet=expected_type,
     )
 
 
-class PowerStream(PrivateAPIProtoDeviceMixin, BaseDevice):
+class PowerStream(BaseDevice):
     @override
     def sensors(self, client: EcoflowApiClient) -> Sequence[SensorEntity]:
         return [
@@ -290,7 +373,7 @@ class PowerStream(PrivateAPIProtoDeviceMixin, BaseDevice):
                     device_sn=self.device_info.sn,
                     command=Command.WN511_SET_BAT_UPPER_PACK,
                     payload=powerstream.BatUpperPack(upper_limit=value),
-                ), 
+                ),
             ),
             MinBatteryLevelEntity(
                 client,
@@ -312,11 +395,8 @@ class PowerStream(PrivateAPIProtoDeviceMixin, BaseDevice):
         res: dict[str, Any] = {"params": {}}
         from google.protobuf.json_format import MessageToDict
 
-        from .proto import ecopacket_pb2 as ecopacket
-        from .proto.support.const import Command, CommandFuncAndId
-
         try:
-            packet = ecopacket.SendHeaderMsg()
+            packet = powerstream.PowerStreamSendHeaderMsg()
             _ = packet.ParseFromString(raw_data)
             for message in packet.msg:
                 _LOGGER.debug(
@@ -362,7 +442,7 @@ class PowerStream(PrivateAPIProtoDeviceMixin, BaseDevice):
                         ).items()
                     )
                 elif command in {Command.PRIVATE_API_PLATFORM_WATTH}:
-                    payload = platform.BatchEnergyTotalReport()
+                    payload = get_expected_payload_type(command)()
                     _ = payload.ParseFromString(message.pdata)
                     for watth_item in payload.watth_item:
                         try:
@@ -396,3 +476,33 @@ class PowerStream(PrivateAPIProtoDeviceMixin, BaseDevice):
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
         return QuotaStatusSensorEntity(client, self)
+
+    @override
+    def private_api_extract_quota_message(self, message: JSONDict) -> dict[str, Any]:
+        if "cmdFunc" in message and "cmdId" in message:
+            command_desc = CommandFuncAndId(
+                func=message["cmdFunc"], id=message["cmdId"]
+            )
+
+            try:
+                command = Command(command_desc)
+            except ValueError:
+                pass
+
+            if command in [
+                Command.PRIVATE_API_POWERSTREAM_HEARTBEAT,
+                Command.PRIVATE_API_PLATFORM_WATTH,
+            ]:
+                return {"params": message["params"], "time": dt.utcnow()}
+        raise ValueError("not a quota message")
+
+    @override
+    def private_api_get_quota(self) -> ProtoMessage:
+        json_prepared_payload = JSONMessage.prepare_payload({})
+
+        return ProtoMessage(
+            src=AddressId.APP,
+            dest=AddressId.APP,
+            from_=cast(str, json_prepared_payload["from"]),
+            create_packet=powerstream.PowerStreamSendHeaderMsg,
+        )
