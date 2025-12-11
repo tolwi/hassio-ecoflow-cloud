@@ -108,14 +108,14 @@ class WatthType(enum.IntEnum):
 # Local payload mapping
 def get_expected_payload_type(cmd: Command) -> type[ProtoMessageRaw]:
     _expected_payload_types = {
-        Command.PRIVATE_API_POWERSTREAM_HEARTBEAT: powerstream.InverterHeartbeat,
-        Command.WN511_SET_PERMANENT_WATTS_PACK: powerstream.PermanentWattsPack,
-        Command.WN511_SET_SUPPLY_PRIORITY_PACK: powerstream.SupplyPriorityPack,
-        Command.WN511_SET_BAT_LOWER_PACK: powerstream.BatLowerPack,
-        Command.WN511_SET_BAT_UPPER_PACK: powerstream.BatUpperPack,
-        Command.WN511_SET_BRIGHTNESS_PACK: powerstream.BrightnessPack,
-        Command.PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT: powerstream.PrivateAPIGenericSetValue,
-        Command.PRIVATE_API_PLATFORM_WATTH: powerstream.BatchEnergyTotalReport,
+        Command.PRIVATE_API_POWERSTREAM_HEARTBEAT: powerstream.PowerStreamInverterHeartbeat,
+        Command.WN511_SET_PERMANENT_WATTS_PACK: powerstream.PowerStreamPermanentWattsPack,
+        Command.WN511_SET_SUPPLY_PRIORITY_PACK: powerstream.PowerStreamSupplyPriorityPack,
+        Command.WN511_SET_BAT_LOWER_PACK: powerstream.PowerStreamBatLowerPack,
+        Command.WN511_SET_BAT_UPPER_PACK: powerstream.PowerStreamBatUpperPack,
+        Command.WN511_SET_BRIGHTNESS_PACK: powerstream.PowerStreamBrightnessPack,
+        Command.PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT: powerstream.PowerStreamSetValue,
+        Command.PRIVATE_API_PLATFORM_WATTH: powerstream.PowerStreamBatchEnergyTotalReport,
     }
     return _expected_payload_types[cmd]
 
@@ -335,7 +335,7 @@ class PowerStream(BaseDevice):
                 lambda value: build_command(
                     device_sn=self.device_info.sn,
                     command=Command.PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT,
-                    payload=powerstream.PrivateAPIGenericSetValue(value=value),
+                    payload=powerstream.PowerStreamSetValue(value=value),
                 ),
                 enabled=True,
                 enableValue=1,
@@ -354,7 +354,9 @@ class PowerStream(BaseDevice):
                 lambda value: build_command(
                     device_sn=self.device_info.sn,
                     command=Command.WN511_SET_SUPPLY_PRIORITY_PACK,
-                    payload=powerstream.SupplyPriorityPack(supply_priority=value),
+                    payload=powerstream.PowerStreamSupplyPriorityPack(
+                        supply_priority=value
+                    ),
                 ),
             ),
         ]
@@ -372,7 +374,7 @@ class PowerStream(BaseDevice):
                 lambda value: build_command(
                     device_sn=self.device_info.sn,
                     command=Command.WN511_SET_BAT_UPPER_PACK,
-                    payload=powerstream.BatUpperPack(upper_limit=value),
+                    payload=powerstream.PowerStreamBatUpperPack(upper_limit=value),
                 ),
             ),
             MinBatteryLevelEntity(
@@ -385,7 +387,7 @@ class PowerStream(BaseDevice):
                 lambda value: build_command(
                     device_sn=self.device_info.sn,
                     command=Command.WN511_SET_BAT_LOWER_PACK,
-                    payload=powerstream.BatLowerPack(lower_limit=value),
+                    payload=powerstream.PowerStreamBatLowerPack(lower_limit=value),
                 ),
             ),
         ]

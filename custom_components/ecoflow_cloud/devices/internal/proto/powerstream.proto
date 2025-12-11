@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-package powerstream;
 
 message PowerStreamHeader
 {
@@ -36,7 +35,7 @@ message PowerStreamSendHeaderMsg
 }
 
 
-message InverterHeartbeat {
+message PowerStreamInverterHeartbeat {
     optional uint32 inv_error_code = 1;
     optional uint32 inv_warning_code = 3;
     optional uint32 pv1_error_code = 2;
@@ -100,32 +99,32 @@ message InverterHeartbeat {
     optional uint32 feed_protect = 61;
 }
 
-message PermanentWattsPack
+message PowerStreamPermanentWattsPack
 {
     optional uint32 permanent_watts = 1;
 }
 
-message SupplyPriorityPack
+message PowerStreamSupplyPriorityPack
 {
     optional uint32 supply_priority = 1;
 }
 
-message BatLowerPack
+message PowerStreamBatLowerPack
 {
     optional int32 lower_limit = 1;
 }
 
-message BatUpperPack
+message PowerStreamBatUpperPack
 {
     optional int32 upper_limit = 1;
 }
 
-message BrightnessPack
+message PowerStreamBrightnessPack
 {
     optional int32 brightness = 1;
 }
 
-message PowerItem
+message PowerStreamPowerItem
 {
     optional uint32 timestamp = 1;
     optional sint32 timezone = 2;
@@ -136,65 +135,65 @@ message PowerItem
     optional uint32 pv2_output_power = 7;
 }
 
-message PowerPack
+message PowerStreamPowerPack
 {
     optional uint32 sys_seq = 1;
-    repeated PowerItem sys_power_stream = 2;
+    repeated PowerStreamPowerItem sys_power_stream = 2;
 }
 
-message PowerAckPack
+message PowerStreamPowerAckPack
 {
     optional uint32 sys_seq = 1;
 }
 
-message NodeMassage
+message PowerStreamNodeMessage
 {
     optional string sn = 1;
     optional bytes mac = 2;
 }
 
-message MeshChildNodeInfo
+message PowerStreamMeshChildNodeInfo
 {
     optional uint32 topology_type = 1;
     optional uint32 mesh_protocol = 2;
     optional uint32 max_sub_device_num = 3;
     optional bytes parent_mac_id = 4;
     optional bytes mesh_id = 5;
-    repeated NodeMassage sub_device_list = 6;
+    repeated PowerStreamNodeMessage sub_device_list = 6;
 }
 
-message PrivateAPIGenericSetValue
+message PowerStreamSetValue
 {
     optional int32 value = 1;
 }
 
-message EnergyItem
+message PowerStreamEnergyItem
 {
     optional uint32 timestamp = 1;
     optional uint32 watth_type = 2;
     repeated uint32 watth = 3;
 }
 
-message EnergyTotalReport
+message PowerStreamEnergyTotalReport
 {
     optional uint32 watth_seq = 1;
-    optional EnergyItem watth_item = 2;
+    optional PowerStreamEnergyItem watth_item = 2;
 }
 
-message BatchEnergyTotalReport
+message PowerStreamBatchEnergyTotalReport
 {
     optional uint32 watth_seq = 1;
-    repeated EnergyItem watth_item = 2;
+    repeated PowerStreamEnergyItem watth_item = 2;
 }
 
-message EnergyTotalReportAck
+message PowerStreamEnergyTotalReportAck
 {
     optional uint32 result = 1;
     optional uint32 watth_seq = 2;
     optional uint32 watth_type = 3;
 }
 
-message EventRecordItem
+message PowerStreamEventRecordItem
 {
     optional uint32 timestamp = 1;
     optional uint32 sys_ms = 2;
@@ -202,57 +201,57 @@ message EventRecordItem
     repeated float event_detail = 4;
 }
 
-message EventRecordReport
+message PowerStreamEventRecordReport
 {
     optional uint32 event_ver = 1;
     optional uint32 event_seq = 2;
-    repeated EventRecordItem event_item = 3;
+    repeated PowerStreamEventRecordItem event_item = 3;
 }
 
-message EventInfoReportAck
+message PowerStreamEventInfoReportAck
 {
     optional uint32 result = 1;
     optional uint32 event_seq = 2;
     optional uint32 event_item_num =3;
 }
 
-message ProductNameSet
+message PowerStreamProductNameSet
 {
     optional string name = 1;
 }
 
-message ProductNameSetAck
+message PowerStreamProductNameSetAck
 {
     optional uint32 result = 1;
 }
 
-message ProductNameGet { }
+message PowerStreamProductNameGet { }
 
-message ProductNameGetAck
+message PowerStreamProductNameGetAck
 {
     optional string name = 3;
 }
 
-message RTCTimeGet { }
+message PowerStreamRTCTimeGet { }
 
-message RTCTimeGetAck
+message PowerStreamRTCTimeGetAck
 {
     optional uint32 timestamp = 1;
     optional int32 timezone = 2;
 }
 
-message RTCTimeSet
+message PowerStreamRTCTimeSet
 {
     optional uint32 timestamp = 1;
     optional int32 timezone = 2;
 }
 
-message RTCTimeSetAck
+message PowerStreamRTCTimeSetAck
 {
     optional uint32 result = 1;
 }
 
-message country_town_message
+message PowerStreamCountryTownMessage
 {
     optional uint32 country = 1;
     optional uint32 town = 2;

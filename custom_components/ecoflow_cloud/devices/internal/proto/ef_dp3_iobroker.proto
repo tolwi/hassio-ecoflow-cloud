@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-package ef_dp3_iobroker;
-
 message DP3Header
 {
     optional bytes pdata = 1;
@@ -36,7 +34,7 @@ message DP3SendHeaderMsg
 }
 
 
-message RuntimePropertyUpload {
+message DP3RuntimePropertyUpload {
 	optional uint32 ac_phase_type = 21;
 	optional uint32 pcs_work_mode = 24;
 	optional float temp_pcs_dc = 26;
@@ -143,7 +141,7 @@ message RuntimePropertyUpload {
 	optional float pd_skt_ocp5 = 391;
 }
 
-message cmdFunc50_cmdId30_Report {
+message DP3BMSDetailedReport {
     optional sint32 bms_flt_state = 1; // BMS fault state (0: OK)
     optional sint32 bms_pro_state = 2; // BMS protection state (0: OK)
     optional sint32 bms_alm_state = 3; // BMS alarm state (0: OK)
@@ -249,11 +247,11 @@ enum TIME_TASK_MODE {
 	TIME_TASK_DETAIL_LEVEL = 3;
   }
 
-  message TimeTaskParamDetail {
+  message DP3TimeTaskParamDetail {
 	optional TIME_TASK_DETAIL_TYPE type = 1;
 	optional float val = 2;
   }
-message TimeTaskItemV2 {
+message DP3TimeTaskItemV2 {
 	optional uint32 task_index = 1;
 	optional bool is_cfg = 2;
 	optional bool is_enable = 3;
@@ -263,11 +261,11 @@ message TimeTaskItemV2 {
 	optional uint32 time_table = 7;
 	optional TIME_TASK_TYPE task_type = 8;
 	optional uint32 task_param = 9;
-	repeated TimeTaskParamDetail task_param_detail = 10;
+	repeated DP3TimeTaskParamDetail task_param_detail = 10;
 }
 
 
-message DisplayPropertyUpload {
+message DP3DisplayPropertyUpload {
 	optional uint32 errcode = 1;
 	optional float pow_in_sum_w = 3;
 	optional float pow_out_sum_w = 4;
@@ -321,7 +319,7 @@ message DisplayPropertyUpload {
   	optional uint32 plug_in_info_5p8_flag = 63;
    	optional uint32 plug_in_info_5p8_type = 64;
    	optional uint32 plug_in_info_5p8_detail = 65;
-	optional TimeTaskItemV2 current_time_task_v2_item = 126;
+	optional DP3TimeTaskItemV2 current_time_task_v2_item = 126;
 	optional int32 utc_timezone = 133;
 	optional string utc_timezone_id = 134;
 	optional uint32 utc_set_mode = 135; //bool
@@ -348,15 +346,15 @@ message DisplayPropertyUpload {
 	optional uint32 plug_in_info_pv_h_dc_amp_max = 181;
 	optional uint32 fast_charge_switch = 182;
 	optional uint32 plug_in_info_4p8_1_dsg_chg_type = 183;
-    optional ResvInfo plug_in_info_4p8_1_resv = 184;
+    optional DP3ResvInfo plug_in_info_4p8_1_resv = 184;
     optional string plug_in_info_4p8_1_sn = 185;
     optional uint32 plug_in_info_4p8_1_firm_ver = 186;
     optional uint32 plug_in_info_4p8_2_dsg_chg_type = 187;
-    optional ResvInfo plug_in_info_4p8_2_resv = 188;
+    optional DP3ResvInfo plug_in_info_4p8_2_resv = 188;
     optional string plug_in_info_4p8_2_sn = 189;
     optional uint32 plug_in_info_4p8_2_firm_ver = 190;
     optional uint32 plug_in_info_5p8_dsg_chg = 191;
-    optional ResvInfo plug_in_info_5p8_resv = 192;
+    optional DP3ResvInfo plug_in_info_5p8_resv = 192;
     optional string plug_in_info_5p8_sn = 193;
     optional uint32 plug_in_info_5p8_firm_ver = 194;
 	optional uint32 en_beep = 195; //bool
@@ -423,12 +421,12 @@ message DisplayPropertyUpload {
    	optional uint32 plug_in_info_ac_in_chg_hal_pow_max = 458;
 }
 
-message ResvInfo {
+message DP3ResvInfo {
   repeated uint32 resv_info = 1;
 }
 
 //ems
-message struct32_2_1 {
+message DP3CMSStatus1 {
     optional sint32 cms_status_misc1 = 1; // Misc status, meaning TBD
     optional sint32 cms_status_misc2 = 2; // Misc status, meaning TBD
     optional sint32 cms_status_misc3 = 3; // Misc status, meaning TBD
@@ -454,7 +452,7 @@ message struct32_2_1 {
     optional uint32 cms_oil_off_soc = 23; // %, SOC for automatically stopping Smart Generator (or cmsOilOnSoc)
 }
 
-message struct32_2_2 {
+message DP3CMSStatus2 {
     optional sint32 cms_status_misc13 = 1; // Misc status, meaning TBD
     optional sint32 cms_status_misc14 = 2; // Misc status, meaning TBD
     optional sint32 cms_status_misc15 = 3; // Misc status, meaning TBD
@@ -462,24 +460,24 @@ message struct32_2_2 {
     optional sint32 cms_status_misc17 = 5; // Misc status, meaning TBD
 }
 
-message cmdFunc32_cmdId2_Report {
-    optional struct32_2_1 msg32_2_1 = 1;
-    optional struct32_2_2 msg32_2_2 = 2;
+message DP3CMSHeartBeatReport {
+    optional DP3CMSStatus1 msg32_2_1 = 1;
+    optional DP3CMSStatus2 msg32_2_2 = 2;
 }
 
-message cmdFunc254_cmdId22_Report {
+message DP3RuntimePropertyReport {
     optional int32 report_timestamp = 1; // Timestamp of the report
     optional float unknown2_f22 = 2; // Changed from unknown2 to avoid conflict
     optional int32 unknown5_f22 = 5; // Changed from unknown5 to avoid conflict
 }
 
-message cmdFunc254_cmdId23_Report {
+message DP3DisplayPropertyReport {
     optional int32 report_timestamp = 1; // Timestamp of the report
     optional float unknown2_f23 = 2; // Changed from unknown2 to avoid conflict
     optional int32 unknown5_f23 = 5; // Changed from unknown5 to avoid conflict
 }
 
-message set_dp3 {
+message DP3SetCommand {
     optional int32 cfgPowerOff = 3;
 	optional int32 enBeep = 9;
     optional int32 acStandbyTime = 10;
@@ -509,7 +507,7 @@ message set_dp3 {
 	// fastChargeSwitch
 }
 
-message setReply_dp3 {
+message DP3SetReply {
     optional int32 actionId = 1;
     optional bool configOk = 2; //bool
 	optional int32 cfgPowerOff = 3;
@@ -541,21 +539,21 @@ message setReply_dp3 {
 	// fastChargeSwitch
 }
 
-message setValue {
+message DP3SetValue {
   optional int32 value = 1;
   optional int32 value2 = 2;
 }
 
 
-message setMessage {
+message DP3SetMessage {
     DP3Header header = 1;
 }
 
-message HeaderMessage {
+message DP3HeaderMessage {
 	repeated DP3Header header = 1;
 }
 
-message Send_Header_Msg
+message DP3SendHeaderMsgLegacy
 {
     optional DP3Header msg = 1;
 }
@@ -564,7 +562,7 @@ message Send_Header_Msg
 // Contains cycles, energy accumulation, and detailed battery status
 // Source: ioBroker.ecoflow-mqtt implementation
 // Note: cmdFunc/cmdId mapping TBD - needs verification from actual MQTT logs
-message BMSHeartBeatReport {
+message DP3BMSHeartBeatReport {
   optional uint32 num = 1;                      // Battery pack number (0/1/2 for main/slave1/slave2)
   optional uint32 type = 2;                     // Battery type
   optional uint32 cell_id = 3;                  // Cell ID

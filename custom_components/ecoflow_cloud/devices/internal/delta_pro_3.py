@@ -479,7 +479,7 @@ class DeltaPro3(BaseDevice):
 
             # Try to decode as HeaderMessage
             try:
-                header_msg = dp3.HeaderMessage()
+                header_msg = dp3.DP3HeaderMessage()
                 header_msg.ParseFromString(raw_data)
             except AttributeError as e:
                 _LOGGER.error(f"HeaderMessage class not found in pb2 module: {e}")
@@ -578,20 +578,20 @@ class DeltaPro3(BaseDevice):
 
             if cmd_func == 254 and cmd_id == 21:
                 # DisplayPropertyUpload
-                msg = dp3.DisplayPropertyUpload()
+                msg = dp3.DP3DisplayPropertyUpload()
                 msg.ParseFromString(pdata)
                 return self._protobuf_to_dict(msg)
 
             elif cmd_func == 32 and cmd_id == 2:
                 # cmdFunc32_cmdId2_Report (CMSHeartBeatReport)
-                msg = dp3.cmdFunc32_cmdId2_Report()
+                msg = dp3.DP3CMSHeartBeatReport()
                 msg.ParseFromString(pdata)
                 return self._protobuf_to_dict(msg)
 
             elif cmd_func == 254 and cmd_id == 22:
                 # RuntimePropertyUpload - frequently updated runtime properties
                 try:
-                    msg = dp3.RuntimePropertyUpload()
+                    msg = dp3.DP3RuntimePropertyUpload()
                     msg.ParseFromString(pdata)
                     return self._protobuf_to_dict(msg)
                 except AttributeError:
@@ -623,7 +623,7 @@ class DeltaPro3(BaseDevice):
             elif cmd_func == 254 and cmd_id == 23:
                 # cmdFunc254_cmdId23_Report - report with timestamp
                 try:
-                    msg = dp3.cmdFunc254_cmdId23_Report()
+                    msg = dp3.DP3DisplayPropertyReport()
                     msg.ParseFromString(pdata)
                     return self._protobuf_to_dict(msg)
                 except AttributeError:
@@ -658,7 +658,7 @@ class DeltaPro3(BaseDevice):
             elif self._is_bms_heartbeat(cmd_func, cmd_id):
                 # BMSHeartBeatReport - contains cycles, input_watts, output_watts, accu_chg_energy, accu_dsg_energy
                 try:
-                    msg = dp3.BMSHeartBeatReport()
+                    msg = dp3.DP3BMSHeartBeatReport()
                     msg.ParseFromString(pdata)
                     _LOGGER.info(
                         f"Successfully decoded BMSHeartBeatReport: cmdFunc={cmd_func}, cmdId={cmd_id}"
@@ -677,7 +677,7 @@ class DeltaPro3(BaseDevice):
 
             # Try to decode as BMSHeartBeatReport since that's a common case
             try:
-                msg = dp3.BMSHeartBeatReport()
+                msg = dp3.DP3BMSHeartBeatReport()
                 msg.ParseFromString(pdata)
                 result = self._protobuf_to_dict(msg)
                 # Check if we got meaningful data (cycles or energy fields)

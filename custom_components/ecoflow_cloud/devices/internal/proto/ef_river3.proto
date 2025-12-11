@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-package custom_components.ecoflow_cloud.devices.internal.proto;
-
 // EcoFlow River 3 Protocol Buffer Definitions
 
 message River3Header

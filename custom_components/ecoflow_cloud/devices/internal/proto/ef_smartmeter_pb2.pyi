@@ -63,7 +63,7 @@ class SmartMeterSendHeaderMsg(_message.Message):
     msg: _containers.RepeatedCompositeFieldContainer[SmartMeterHeader]
     def __init__(self, msg: _Optional[_Iterable[_Union[SmartMeterHeader, _Mapping]]] = ...) -> None: ...
 
-class RuntimePropertyUpload(_message.Message):
+class SmartMeterRuntimePropertyUpload(_message.Message):
     __slots__ = ("display_property_full_upload_period", "display_property_incremental_upload_period", "runtime_property_full_upload_period", "runtime_property_incremental_upload_period")
     DISPLAY_PROPERTY_FULL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
     DISPLAY_PROPERTY_INCREMENTAL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
@@ -75,7 +75,7 @@ class RuntimePropertyUpload(_message.Message):
     runtime_property_incremental_upload_period: int
     def __init__(self, display_property_full_upload_period: _Optional[int] = ..., display_property_incremental_upload_period: _Optional[int] = ..., runtime_property_full_upload_period: _Optional[int] = ..., runtime_property_incremental_upload_period: _Optional[int] = ...) -> None: ...
 
-class DisplayPropertyUpload(_message.Message):
+class SmartMeterDisplayPropertyUpload(_message.Message):
     __slots__ = ("utc_timezone", "utc_timezone_id", "utc_set_mode", "totalPower", "unknown618", "unknown619", "unknown627", "unknown728", "unknown729", "unknown732", "unknown733", "unknown762", "unknown763", "unknown764", "voltageL3", "powerL3", "energy", "voltageL1", "voltageL2", "powerL1", "powerL2")
     UTC_TIMEZONE_FIELD_NUMBER: _ClassVar[int]
     UTC_TIMEZONE_ID_FIELD_NUMBER: _ClassVar[int]
@@ -114,14 +114,14 @@ class DisplayPropertyUpload(_message.Message):
     unknown764: int
     voltageL3: float
     powerL3: float
-    energy: EnergyArray
+    energy: SmartMeterEnergyArray
     voltageL1: float
     voltageL2: float
     powerL1: float
     powerL2: float
-    def __init__(self, utc_timezone: _Optional[int] = ..., utc_timezone_id: _Optional[str] = ..., utc_set_mode: _Optional[int] = ..., totalPower: _Optional[float] = ..., unknown618: _Optional[float] = ..., unknown619: _Optional[int] = ..., unknown627: _Optional[_Iterable[str]] = ..., unknown728: _Optional[_Iterable[str]] = ..., unknown729: _Optional[int] = ..., unknown732: _Optional[int] = ..., unknown733: _Optional[int] = ..., unknown762: _Optional[int] = ..., unknown763: _Optional[int] = ..., unknown764: _Optional[int] = ..., voltageL3: _Optional[float] = ..., powerL3: _Optional[float] = ..., energy: _Optional[_Union[EnergyArray, _Mapping]] = ..., voltageL1: _Optional[float] = ..., voltageL2: _Optional[float] = ..., powerL1: _Optional[float] = ..., powerL2: _Optional[float] = ...) -> None: ...
+    def __init__(self, utc_timezone: _Optional[int] = ..., utc_timezone_id: _Optional[str] = ..., utc_set_mode: _Optional[int] = ..., totalPower: _Optional[float] = ..., unknown618: _Optional[float] = ..., unknown619: _Optional[int] = ..., unknown627: _Optional[_Iterable[str]] = ..., unknown728: _Optional[_Iterable[str]] = ..., unknown729: _Optional[int] = ..., unknown732: _Optional[int] = ..., unknown733: _Optional[int] = ..., unknown762: _Optional[int] = ..., unknown763: _Optional[int] = ..., unknown764: _Optional[int] = ..., voltageL3: _Optional[float] = ..., powerL3: _Optional[float] = ..., energy: _Optional[_Union[SmartMeterEnergyArray, _Mapping]] = ..., voltageL1: _Optional[float] = ..., voltageL2: _Optional[float] = ..., powerL1: _Optional[float] = ..., powerL2: _Optional[float] = ...) -> None: ...
 
-class EnergyArray(_message.Message):
+class SmartMeterEnergyArray(_message.Message):
     __slots__ = ("energyL1daily", "energyL2daily", "energyL3daily", "lifeTimeEnergyConsumption", "lifeTimeEnergyDelivery", "netEnergyConsumption")
     ENERGYL1DAILY_FIELD_NUMBER: _ClassVar[int]
     ENERGYL2DAILY_FIELD_NUMBER: _ClassVar[int]
@@ -137,13 +137,13 @@ class EnergyArray(_message.Message):
     netEnergyConsumption: float
     def __init__(self, energyL1daily: _Optional[float] = ..., energyL2daily: _Optional[float] = ..., energyL3daily: _Optional[float] = ..., lifeTimeEnergyConsumption: _Optional[float] = ..., lifeTimeEnergyDelivery: _Optional[float] = ..., netEnergyConsumption: _Optional[float] = ...) -> None: ...
 
-class setMessage(_message.Message):
+class SmartMeterSetMessage(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    header: setHeader
-    def __init__(self, header: _Optional[_Union[setHeader, _Mapping]] = ...) -> None: ...
+    header: SmartMeterSetHeader
+    def __init__(self, header: _Optional[_Union[SmartMeterSetHeader, _Mapping]] = ...) -> None: ...
 
-class setValue(_message.Message):
+class SmartMeterSetValue(_message.Message):
     __slots__ = ("value", "value2")
     VALUE_FIELD_NUMBER: _ClassVar[int]
     VALUE2_FIELD_NUMBER: _ClassVar[int]
@@ -151,7 +151,7 @@ class setValue(_message.Message):
     value2: int
     def __init__(self, value: _Optional[int] = ..., value2: _Optional[int] = ...) -> None: ...
 
-class setHeader(_message.Message):
+class SmartMeterSetHeader(_message.Message):
     __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
@@ -177,7 +177,7 @@ class setHeader(_message.Message):
     FROM_FIELD_NUMBER: _ClassVar[int]
     MODULE_SN_FIELD_NUMBER: _ClassVar[int]
     DEVICE_SN_FIELD_NUMBER: _ClassVar[int]
-    pdata: setValue
+    pdata: SmartMeterSetValue
     src: int
     dest: int
     d_src: int
@@ -200,21 +200,21 @@ class setHeader(_message.Message):
     code: str
     module_sn: str
     device_sn: str
-    def __init__(self, pdata: _Optional[_Union[setValue, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+    def __init__(self, pdata: _Optional[_Union[SmartMeterSetValue, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
 
-class sentDisplayPropertyUpload(_message.Message):
+class SmartMeterSentDisplayPropertyUpload(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    header: setHeader3
-    def __init__(self, header: _Optional[_Union[setHeader3, _Mapping]] = ...) -> None: ...
+    header: SmartMeterSetHeader3
+    def __init__(self, header: _Optional[_Union[SmartMeterSetHeader3, _Mapping]] = ...) -> None: ...
 
-class sentRuntimePropertyUpload(_message.Message):
+class SmartMeterSentRuntimePropertyUpload(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    header: setHeader4
-    def __init__(self, header: _Optional[_Union[setHeader4, _Mapping]] = ...) -> None: ...
+    header: SmartMeterSetHeader4
+    def __init__(self, header: _Optional[_Union[SmartMeterSetHeader4, _Mapping]] = ...) -> None: ...
 
-class setHeader4(_message.Message):
+class SmartMeterSetHeader4(_message.Message):
     __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
@@ -230,7 +230,7 @@ class setHeader4(_message.Message):
     PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
     VERSION_FIELD_NUMBER: _ClassVar[int]
     PAYLOAD_VER_FIELD_NUMBER: _ClassVar[int]
-    pdata: RuntimePropertyUpload
+    pdata: SmartMeterRuntimePropertyUpload
     src: int
     dest: int
     d_src: int
@@ -244,9 +244,9 @@ class setHeader4(_message.Message):
     product_id: int
     version: int
     payload_ver: int
-    def __init__(self, pdata: _Optional[_Union[RuntimePropertyUpload, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ...) -> None: ...
+    def __init__(self, pdata: _Optional[_Union[SmartMeterRuntimePropertyUpload, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ...) -> None: ...
 
-class setHeader3(_message.Message):
+class SmartMeterSetHeader3(_message.Message):
     __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
@@ -262,7 +262,7 @@ class setHeader3(_message.Message):
     PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
     VERSION_FIELD_NUMBER: _ClassVar[int]
     PAYLOAD_VER_FIELD_NUMBER: _ClassVar[int]
-    pdata: DisplayPropertyUpload
+    pdata: SmartMeterDisplayPropertyUpload
     src: int
     dest: int
     d_src: int
@@ -276,4 +276,4 @@ class setHeader3(_message.Message):
     product_id: int
     version: int
     payload_ver: int
-    def __init__(self, pdata: _Optional[_Union[DisplayPropertyUpload, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ...) -> None: ...
+    def __init__(self, pdata: _Optional[_Union[SmartMeterDisplayPropertyUpload, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ...) -> None: ...

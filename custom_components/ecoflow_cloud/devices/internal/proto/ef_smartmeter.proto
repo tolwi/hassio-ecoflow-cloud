@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-package ef_smartmeter;
-
 message SmartMeterHeader
 {
     optional bytes pdata = 1;
@@ -36,14 +34,14 @@ message SmartMeterSendHeaderMsg
 }
 
 
-message RuntimePropertyUpload {
+message SmartMeterRuntimePropertyUpload {
    optional int32 display_property_full_upload_period = 293;
    optional int32 display_property_incremental_upload_period = 294;
    optional int32 runtime_property_full_upload_period = 295;
    optional int32 runtime_property_incremental_upload_period = 296;
 } 
 
-message DisplayPropertyUpload {
+message SmartMeterDisplayPropertyUpload {
   optional int32 utc_timezone = 133;
   optional string utc_timezone_id = 134;
   optional uint32 utc_set_mode = 135; //bool
@@ -64,7 +62,7 @@ message DisplayPropertyUpload {
 
   optional float voltageL3 = 771;
   optional float powerL3 = 772;
-  optional EnergyArray energy = 773;
+  optional SmartMeterEnergyArray energy = 773;
   //optional float currentL1 = 784;
   optional float voltageL1 = 956;
   optional float voltageL2 = 957;
@@ -75,7 +73,7 @@ message DisplayPropertyUpload {
   //optional uint32 unknown = 984;
 }
 
-message EnergyArray {
+message SmartMeterEnergyArray {
   optional float energyL1daily = 1; //Nettoverbrauch L1
   optional float energyL2daily = 2; //Nettoverbrauch L2
   optional float energyL3daily = 3; //Nettoverbrauch L3
@@ -84,17 +82,17 @@ message EnergyArray {
   optional float netEnergyConsumption = 7; // Nettoverbrauch
 }
 
-message setMessage {
-    setHeader header = 1;
+message SmartMeterSetMessage {
+    SmartMeterSetHeader header = 1;
 }
 
-message setValue {
+message SmartMeterSetValue {
     optional int32 value = 1;
 	optional int32 value2 = 2;
 }
 
-message setHeader {
-    setValue pdata = 1;
+message SmartMeterSetHeader {
+    SmartMeterSetValue pdata = 1;
     int32 src = 2;
     int32 dest = 3;
     int32 d_src = 4;
@@ -120,16 +118,16 @@ message setHeader {
     string device_sn = 25;
 }
 
-    message sentDisplayPropertyUpload {
-        setHeader3 header = 1;
+    message SmartMeterSentDisplayPropertyUpload {
+        SmartMeterSetHeader3 header = 1;
     }
 
-    message sentRuntimePropertyUpload {
-        setHeader4 header = 1;
+    message SmartMeterSentRuntimePropertyUpload {
+        SmartMeterSetHeader4 header = 1;
     } 
 
- message setHeader4 {
-    RuntimePropertyUpload pdata = 1;
+ message SmartMeterSetHeader4 {
+    SmartMeterRuntimePropertyUpload pdata = 1;
     int32 src = 2;
     int32 dest = 3;
     int32 d_src = 4;
@@ -145,8 +143,8 @@ message setHeader {
     int32 payload_ver = 17;
 }
 
- message setHeader3 {
-    DisplayPropertyUpload pdata = 1;
+ message SmartMeterSetHeader3 {
+    SmartMeterDisplayPropertyUpload pdata = 1;
     int32 src = 2;
     int32 dest = 3;
     int32 d_src = 4;

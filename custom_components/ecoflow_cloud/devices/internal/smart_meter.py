@@ -36,7 +36,7 @@ from ..internal.proto import AddressId
 
 import enum
 from typing import NamedTuple
-from ..internal.proto import ef_dp3_iobroker_pb2 as ef_dp3_iobroker_pb2
+from ..internal.proto import ef_smartmeter_pb2
 from google.protobuf.message import Message as ProtoMessageRaw
 
 
@@ -69,8 +69,8 @@ class Command(enum.Enum):
 
 def get_expected_payload_type(cmd: Command) -> type[ProtoMessageRaw]:
     _expected_payload_types = {
-        Command.PRIVATE_API_SMART_METER_DISPLAY_PROPERTY_UPLOAD: ef_dp3_iobroker_pb2.DisplayPropertyUpload,
-        Command.PRIVATE_API_SMART_METER_RUNTIME_PROPERTY_UPLOAD: ef_dp3_iobroker_pb2.RuntimePropertyUpload,
+        Command.PRIVATE_API_SMART_METER_DISPLAY_PROPERTY_UPLOAD: ef_smartmeter_pb2.SmartMeterDisplayPropertyUpload,
+        Command.PRIVATE_API_SMART_METER_RUNTIME_PROPERTY_UPLOAD: ef_smartmeter_pb2.SmartMeterRuntimePropertyUpload,
     }
     return _expected_payload_types[cmd]
 

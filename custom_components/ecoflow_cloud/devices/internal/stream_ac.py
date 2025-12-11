@@ -351,7 +351,7 @@ class StreamAC(BaseDevice):
 
             while True:
                 _LOGGER.debug('payload "%s"', payload.hex())
-                packet = stream_ac.SendHeaderStreamMsg()
+                packet = stream_ac.StreamACSendHeaderMsg()
                 packet.ParseFromString(payload)
 
                 if hasattr(packet.msg, "pdata"):
