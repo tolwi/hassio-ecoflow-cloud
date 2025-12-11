@@ -25,7 +25,7 @@ HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGU
 
 class _HistoricalDataStatus(StatusSensorEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice):
-        super().__init__(client, device, "Status (Historical)", "status.historical")
+        super().__init__(client, device, "Status", "status.historical")
         self.offline_barrier_sec = 60
         self._last_fetch = dt.utcnow().replace(year=2000, month=1, day=1, hour=0)
 
