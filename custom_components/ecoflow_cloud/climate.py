@@ -26,9 +26,9 @@ class Wave2ClimateEntity(ClimateEntity, EcoFlowAbstractEntity):
     Proper climate entity that directly manages multiple MQTT keys
     without fighting the single-key EcoFlowDictEntity pattern.
     """
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_temperature_unit = UnitOfTemperature.CELSIUS # Default to Celsius
     _attr_target_temperature_step = 1
-    _attr_min_temp = 16  # Per vendor spec: 16-30°C
+    _attr_min_temp = 16
     _attr_max_temp = 30
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.COOL, HVACMode.HEAT, HVACMode.FAN_ONLY]
     _attr_fan_modes = ["Low", "Medium", "High"]
@@ -90,6 +90,16 @@ class Wave2ClimateEntity(ClimateEntity, EcoFlowAbstractEntity):
 
         # Always use Celsius as per vendor spec (16-30°C)
         # Let Home Assistant handle any user preference conversions in the UI
+
+        if "pd.tempSys" in data:
+            if data["pd.tempSys"] == 1 and self._attr_temperature_unit != UnitOfTemperature.FAHRENHEIT:
+                self._attr_temperature_unit = UnitOfTemperature.FAHRENHEIT
+                self._attr_min_temp = 60
+                self._attr_max_temp = 86
+            elif data["pd.tempSys"] == 0 and self._attr_temperature_unit != UnitOfTemperature.CELSIUS:
+                self._attr_temperature_unit = UnitOfTemperature.CELSIUS
+                self._attr_min_temp = 16
+                self._attr_max_temp = 30
 
         # Update current temperature from ambient sensor
         if "pd.envTemp" in data:
@@ -189,7 +199,6 @@ class Wave2ClimateEntity(ClimateEntity, EcoFlowAbstractEntity):
     async def async_set_temperature(self, **kwargs: Any) -> None:
         if ATTR_TEMPERATURE in kwargs:
             temperature = int(kwargs[ATTR_TEMPERATURE])
-            # Send temperature command in Celsius (16-30°C range)
             self._send_command("pd.setTemp", temperature, "setTemp", "setTemp")
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
