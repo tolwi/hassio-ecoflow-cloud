@@ -1,4 +1,5 @@
 from ...sensor import StatusSensorEntity
+from custom_components.ecoflow_cloud.sensor import _OnlineStatus
 from homeassistant.components.sensor import SensorStateClass  # pyright: ignore[reportMissingImports]
 from homeassistant.util import dt
 from .data_bridge import to_plain
@@ -13,6 +14,7 @@ from ...switch import EnabledEntity
 from ...number import (
     BatteryBackupLevel
 )
+from custom_components.ecoflow_cloud import ATTR_STATUS_DATA_LAST_UPDATE
 
 # Historical metric codes as per API docs
 HIST_CODE_ENERGY_INDEPENDENCE = "BK621-App-HOME-INDEPENDENCE-PERCENT-FLOW-indep-progress_bar-NOTDISTINGUISH-MASTER_DATA"
@@ -46,6 +48,14 @@ class _HistoricalDataStatus(StatusSensorEntity):
         # history units/values are present before other sensors render.
         try:
             self.hass.async_create_background_task(self._fetch_and_update(), "initial historical data fetch")
+        except Exception:
+            pass
+        # Initialize status and attributes immediately so UI doesn't show Unknown
+        try:
+            self._online = _OnlineStatus.ASSUME_OFFLINE
+            self._attr_native_value = "assume_offline"
+            self._actualize_attributes()
+            self.schedule_update_ha_state()
         except Exception:
             pass
 
@@ -322,16 +332,92 @@ class _HistoricalDataStatus(StatusSensorEntity):
         if params:
             params["history.mainSn"] = sn
             self._device.data.update_data({"params": params})
+            # Also mirror the historical params into entity attributes for UI visibility
+            self._merge_history_attrs()
 
     def _actualize_status(self) -> bool:
-        changed = super()._actualize_status()
+        changed = False
+        # Periodic refresh of historical aggregates
         elapsed = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._last_fetch)
         if elapsed > self.offline_barrier_sec:
             self._last_fetch = dt.utcnow()
-            # Fire and forget background task
             self.hass.async_create_background_task(self._fetch_and_update(), "fetch historical data")
             changed = True
+
+        # Determine online state: prefer explicit status; otherwise fall back to data recency and MQTT connectivity
+        try:
+            status_val = self.coordinator.data.data_holder.status.get("status")
+        except Exception:
+            status_val = None
+
+        new_state = None
+        if status_val == 0:
+            self._online = _OnlineStatus.OFFLINE
+            new_state = "offline"
+        elif status_val == 1:
+            self._online = _OnlineStatus.ONLINE
+            new_state = "online"
+        else:
+            # Use latest received time across status/params as heartbeat
+            try:
+                last_rx = self.coordinator.data.data_holder.last_received_time()
+            except Exception:
+                last_rx = self._device.data.params_time
+
+            recency = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(last_rx)
+            if recency < self.offline_barrier_sec:
+                self._online = _OnlineStatus.ONLINE
+                new_state = "online"
+            else:
+                # If MQTT is connected, prefer assume_online unless proven offline
+                try:
+                    if self._client.mqtt_client and self._client.mqtt_client.is_connected():
+                        self._online = _OnlineStatus.ONLINE
+                        new_state = "online"
+                    else:
+                        self._online = _OnlineStatus.ASSUME_OFFLINE
+                        new_state = "assume_offline"
+                except Exception:
+                    self._online = _OnlineStatus.ASSUME_OFFLINE
+                    new_state = "assume_offline"
+
+        if new_state and new_state != self._attr_native_value:
+            self._attr_native_value = new_state
+            self._actualize_attributes()
+            changed = True
         return changed
+
+    def _actualize_attributes(self):
+        # Keep base status attributes up to date
+        super()._actualize_attributes()
+        # Pull any history.* entries from device params into a grouped 'historical' attribute
+        try:
+            hist: dict[str, object] = {}
+            for k, v in self._device.data.params.items():
+                if isinstance(k, str) and k.startswith("history."):
+                    hist[k.split("history.", 1)[1]] = v
+            if hist:
+                # Flatten to plain types if needed and refresh last update timestamp
+                self._attrs["historical"] = to_plain(hist)
+                self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time
+        except Exception:
+            # Do not break status updates on attribute build errors
+            pass
+
+    def _merge_history_attrs(self):
+        # Helper to merge current params into attributes without waiting for coordinator tick
+        try:
+            hist: dict[str, object] = {}
+            for k, v in self._device.data.params.items():
+                if isinstance(k, str) and k.startswith("history."):
+                    hist[k.split("history.", 1)[1]] = v
+            if hist:
+                self._attrs["historical"] = to_plain(hist)
+                self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time
+                # Push immediate HA state update to reflect attribute changes
+                self.schedule_update_ha_state()
+        except Exception:
+            pass
 
 class StreamAC(BaseDevice):
 
