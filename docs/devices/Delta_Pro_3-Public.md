@@ -4,8 +4,8 @@
 - Main Battery Level (`bmsBattSoc`)
 - Main Design Capacity (`bmsDesignCap`)   _(disabled)_
 - Battery Level (`cmsBattSoc`)
-- Total In Power (`powInSumW`)
-- Total Out Power (`powOutSumW`)
+- Total In Power (`powInSumW`) (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (`powOutSumW`) (energy:  _[Device Name]_ Total Out  Energy)
 - AC In Power (`powGetAcIn`)
 
 *Switches*

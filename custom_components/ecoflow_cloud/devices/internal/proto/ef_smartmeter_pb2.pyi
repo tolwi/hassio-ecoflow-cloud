@@ -6,63 +6,6 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class SmartMeterHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
-    PDATA_FIELD_NUMBER: _ClassVar[int]
-    SRC_FIELD_NUMBER: _ClassVar[int]
-    DEST_FIELD_NUMBER: _ClassVar[int]
-    D_SRC_FIELD_NUMBER: _ClassVar[int]
-    D_DEST_FIELD_NUMBER: _ClassVar[int]
-    ENC_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CHECK_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CMD_FUNC_FIELD_NUMBER: _ClassVar[int]
-    CMD_ID_FIELD_NUMBER: _ClassVar[int]
-    DATA_LEN_FIELD_NUMBER: _ClassVar[int]
-    NEED_ACK_FIELD_NUMBER: _ClassVar[int]
-    IS_ACK_FIELD_NUMBER: _ClassVar[int]
-    SEQ_FIELD_NUMBER: _ClassVar[int]
-    PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
-    VERSION_FIELD_NUMBER: _ClassVar[int]
-    PAYLOAD_VER_FIELD_NUMBER: _ClassVar[int]
-    TIME_SNAP_FIELD_NUMBER: _ClassVar[int]
-    IS_RW_CMD_FIELD_NUMBER: _ClassVar[int]
-    IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
-    ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
-    CODE_FIELD_NUMBER: _ClassVar[int]
-    FROM_FIELD_NUMBER: _ClassVar[int]
-    MODULE_SN_FIELD_NUMBER: _ClassVar[int]
-    DEVICE_SN_FIELD_NUMBER: _ClassVar[int]
-    pdata: bytes
-    src: int
-    dest: int
-    d_src: int
-    d_dest: int
-    enc_type: int
-    check_type: int
-    cmd_func: int
-    cmd_id: int
-    data_len: int
-    need_ack: int
-    is_ack: int
-    seq: int
-    product_id: int
-    version: int
-    payload_ver: int
-    time_snap: int
-    is_rw_cmd: int
-    is_queue: int
-    ack_type: int
-    code: str
-    module_sn: str
-    device_sn: str
-    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
-
-class SmartMeterSendHeaderMsg(_message.Message):
-    __slots__ = ("msg",)
-    MSG_FIELD_NUMBER: _ClassVar[int]
-    msg: _containers.RepeatedCompositeFieldContainer[SmartMeterHeader]
-    def __init__(self, msg: _Optional[_Iterable[_Union[SmartMeterHeader, _Mapping]]] = ...) -> None: ...
-
 class SmartMeterRuntimePropertyUpload(_message.Message):
     __slots__ = ("display_property_full_upload_period", "display_property_incremental_upload_period", "runtime_property_full_upload_period", "runtime_property_incremental_upload_period")
     DISPLAY_PROPERTY_FULL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
@@ -138,10 +81,10 @@ class SmartMeterEnergyArray(_message.Message):
     def __init__(self, energyL1daily: _Optional[float] = ..., energyL2daily: _Optional[float] = ..., energyL3daily: _Optional[float] = ..., lifeTimeEnergyConsumption: _Optional[float] = ..., lifeTimeEnergyDelivery: _Optional[float] = ..., netEnergyConsumption: _Optional[float] = ...) -> None: ...
 
 class SmartMeterSetMessage(_message.Message):
-    __slots__ = ("header",)
-    HEADER_FIELD_NUMBER: _ClassVar[int]
-    header: SmartMeterSetHeader
-    def __init__(self, header: _Optional[_Union[SmartMeterSetHeader, _Mapping]] = ...) -> None: ...
+    __slots__ = ("msg",)
+    MSG_FIELD_NUMBER: _ClassVar[int]
+    msg: _containers.RepeatedCompositeFieldContainer[SmartMeterSetHeader]
+    def __init__(self, msg: _Optional[_Iterable[_Union[SmartMeterSetHeader, _Mapping]]] = ...) -> None: ...
 
 class SmartMeterSetValue(_message.Message):
     __slots__ = ("value", "value2")
@@ -152,7 +95,7 @@ class SmartMeterSetValue(_message.Message):
     def __init__(self, value: _Optional[int] = ..., value2: _Optional[int] = ...) -> None: ...
 
 class SmartMeterSetHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
+    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "from_", "module_sn", "device_sn")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
     DEST_FIELD_NUMBER: _ClassVar[int]
@@ -174,10 +117,10 @@ class SmartMeterSetHeader(_message.Message):
     IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
     ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
     CODE_FIELD_NUMBER: _ClassVar[int]
-    FROM_FIELD_NUMBER: _ClassVar[int]
+    FROM__FIELD_NUMBER: _ClassVar[int]
     MODULE_SN_FIELD_NUMBER: _ClassVar[int]
     DEVICE_SN_FIELD_NUMBER: _ClassVar[int]
-    pdata: SmartMeterSetValue
+    pdata: bytes
     src: int
     dest: int
     d_src: int
@@ -198,9 +141,10 @@ class SmartMeterSetHeader(_message.Message):
     is_queue: int
     ack_type: int
     code: str
+    from_: str
     module_sn: str
     device_sn: str
-    def __init__(self, pdata: _Optional[_Union[SmartMeterSetValue, _Mapping]] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., from_: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ...) -> None: ...
 
 class SmartMeterSentDisplayPropertyUpload(_message.Message):
     __slots__ = ("header",)

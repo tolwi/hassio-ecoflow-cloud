@@ -1,39 +1,5 @@
 syntax = "proto3";
 
-message SmartMeterHeader
-{
-    optional bytes pdata = 1;
-    optional int32 src = 2;
-    optional int32 dest = 3;
-    optional int32 d_src= 4;
-    optional int32 d_dest = 5;
-    optional int32 enc_type = 6;
-    optional int32 check_type = 7;
-    optional int32 cmd_func = 8;
-    optional int32 cmd_id = 9;
-    optional int32 data_len = 10;
-    optional int32 need_ack = 11;
-    optional int32 is_ack = 12;
-    optional int32 seq = 14;
-    optional int32 product_id = 15;
-    optional int32 version = 16;
-    optional int32 payload_ver = 17;
-    optional int32 time_snap = 18;
-    optional int32 is_rw_cmd = 19;
-    optional int32 is_queue = 20;
-    optional int32 ack_type= 21;
-    optional string code = 22;
-    optional string from = 23;
-    optional string module_sn = 24;
-    optional string device_sn = 25;
-}
-
-message SmartMeterSendHeaderMsg
-{
-    repeated SmartMeterHeader msg = 1;
-}
-
-
 message SmartMeterRuntimePropertyUpload {
    optional int32 display_property_full_upload_period = 293;
    optional int32 display_property_incremental_upload_period = 294;
@@ -46,19 +12,19 @@ message SmartMeterDisplayPropertyUpload {
   optional string utc_timezone_id = 134;
   optional uint32 utc_set_mode = 135; //bool
   optional float totalPower = 515;
-
+  
   optional float unknown618 = 618;
   optional uint32 unknown619 = 619; //bool?
   
   repeated string unknown627 = 627;
   repeated string unknown728 = 728;
 
-    optional uint32 unknown729 = 729;
-    optional uint32 unknown732 = 732;
-    optional uint32 unknown733 = 733;
-    optional uint32 unknown762 = 762;
-    optional uint32 unknown763 = 763;
-    optional uint32 unknown764 = 764;
+  optional uint32 unknown729 = 729;
+  optional uint32 unknown732 = 732;
+  optional uint32 unknown733 = 733;
+  optional uint32 unknown762 = 762;
+  optional uint32 unknown763 = 763;
+  optional uint32 unknown764 = 764;
 
   optional float voltageL3 = 771;
   optional float powerL3 = 772;
@@ -83,7 +49,7 @@ message SmartMeterEnergyArray {
 }
 
 message SmartMeterSetMessage {
-    SmartMeterSetHeader header = 1;
+    repeated SmartMeterSetHeader msg = 1;
 }
 
 message SmartMeterSetValue {
@@ -92,7 +58,7 @@ message SmartMeterSetValue {
 }
 
 message SmartMeterSetHeader {
-    SmartMeterSetValue pdata = 1;
+    bytes pdata = 1;
     int32 src = 2;
     int32 dest = 3;
     int32 d_src = 4;
@@ -113,18 +79,18 @@ message SmartMeterSetHeader {
     int32 is_queue = 20;
     int32 ack_type = 21;
     string code = 22;
-    string from = 23;
+    string from_ = 23;
     string module_sn = 24;
     string device_sn = 25;
 }
 
-    message SmartMeterSentDisplayPropertyUpload {
-        SmartMeterSetHeader3 header = 1;
-    }
+message SmartMeterSentDisplayPropertyUpload {
+    SmartMeterSetHeader3 header = 1;
+}
 
-    message SmartMeterSentRuntimePropertyUpload {
-        SmartMeterSetHeader4 header = 1;
-    } 
+message SmartMeterSentRuntimePropertyUpload {
+    SmartMeterSetHeader4 header = 1;
+} 
 
  message SmartMeterSetHeader4 {
     SmartMeterRuntimePropertyUpload pdata = 1;

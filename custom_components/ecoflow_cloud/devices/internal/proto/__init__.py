@@ -1,7 +1,12 @@
-from .support.message import AddressId, DirectionId, ProtoMessage
+from enum import IntEnum
 
-__all__ = [
-    "AddressId",
-    "DirectionId",
-    "ProtoMessage",
-]
+
+class AddressId(IntEnum):
+    IOT = 1
+    IOT2 = 2
+    APP = 32
+    MQTT = 53
+
+
+class DirectionId(IntEnum):
+    DEFAULT = 1

@@ -9,8 +9,8 @@
 - State of Health (`bmsMaster.soh`)
 - Battery Level (`ems.lcdShowSoc`)
 - Battery Level (Precise) (`ems.f32LcdShowSoc`)   _(disabled)_
-- Total In Power (`pd.wattsInSum`)
-- Total Out Power (`pd.wattsOutSum`)
+- Total In Power (`pd.wattsInSum`) (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (`pd.wattsOutSum`) (energy:  _[Device Name]_ Total Out  Energy)
 - Main Battery Current (`bmsMaster.amp`)
 - AC In Power (`inv.inputWatts`)
 - AC Out Power (`inv.outputWatts`)

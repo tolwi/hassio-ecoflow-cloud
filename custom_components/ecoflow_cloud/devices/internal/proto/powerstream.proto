@@ -24,7 +24,7 @@ message PowerStreamHeader
     optional int32 is_queue = 20;
     optional int32 ack_type= 21;
     optional string code = 22;
-    optional string from = 23;
+    optional string from_ = 23;
     optional string module_sn = 24;
     optional string device_sn = 25;
 }

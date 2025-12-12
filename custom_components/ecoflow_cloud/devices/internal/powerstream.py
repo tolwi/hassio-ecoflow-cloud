@@ -1,3 +1,6 @@
+from google.protobuf.json_format import MessageToDict
+from custom_components.ecoflow_cloud.devices.internal import to_lower_camel_case
+from custom_components.ecoflow_cloud.api.private_api import PrivateAPIMessageProtocol
 import logging
 from collections.abc import Sequence
 from typing import Any, cast, override
@@ -8,17 +11,13 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.util import dt
 
-from custom_components.ecoflow_cloud.devices import const
+from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.select import PowerDictSelectEntity
 from custom_components.ecoflow_cloud.number import (
     MaxBatteryLevelEntity,
     MinBatteryLevelEntity,
 )
 
-from ...devices import BaseDevice
-from ...devices.internal.proto.support import (
-    to_lower_camel_case,
-)
 
 from ...api import EcoflowApiClient
 from ...api.message import JSONDict, JSONMessage
@@ -48,16 +47,12 @@ from ...switch import EnabledEntity
 import enum
 from typing import NamedTuple
 
-from ..internal.proto import powerstream_pb2 as powerstream
-from ..internal.proto import AddressId, ProtoMessage
+from .proto import (
+    AddressId,
+    powerstream_pb2 as powerstream,
+)
 
 _LOGGER = logging.getLogger(__name__)
-
-
-# Local Constants
-class CommandFunc(enum.IntEnum):
-    POWERSTREAM = 20
-    PLATFORM = powerstream.PlCmdSets.PL_EXT_CMD_SETS
 
 
 class CommandFuncAndId(NamedTuple):
@@ -67,34 +62,23 @@ class CommandFuncAndId(NamedTuple):
 
 class Command(enum.Enum):
     @enum.property
-    def func(self) -> CommandFunc | int:
+    def func(self) -> int:
         return self.value.func
 
     @enum.property
     def id(self) -> int:
         return self.value.id
 
-    PRIVATE_API_POWERSTREAM_HEARTBEAT = CommandFuncAndId(
-        func=CommandFunc.POWERSTREAM, id=1
-    )
+    INVERTER_HEARTBEAT = CommandFuncAndId(func=20, id=1)
+    PERMANENT_WATTS_PACK = CommandFuncAndId(func=20, id=129)
+    SET_SUPPLY_PRIORITY = CommandFuncAndId(func=20, id=130)
+    SET_BAT_LOWER = CommandFuncAndId(func=20, id=132)
+    SET_BAT_UPPER = CommandFuncAndId(func=20, id=133)
+    SET_BRIGHTNESS = CommandFuncAndId(func=20, id=135)
+    SET_FEED_PROTECT = CommandFuncAndId(func=20, id=143)
+    RATED_POWER = CommandFuncAndId(func=20, id=146)
 
-    WN511_SET_PERMANENT_WATTS_PACK = CommandFuncAndId(
-        func=CommandFunc.POWERSTREAM, id=129
-    )
-    WN511_SET_SUPPLY_PRIORITY_PACK = CommandFuncAndId(
-        func=CommandFunc.POWERSTREAM, id=130
-    )
-    WN511_SET_BAT_LOWER_PACK = CommandFuncAndId(func=CommandFunc.POWERSTREAM, id=132)
-    WN511_SET_BAT_UPPER_PACK = CommandFuncAndId(func=CommandFunc.POWERSTREAM, id=133)
-    WN511_SET_BRIGHTNESS_PACK = CommandFuncAndId(func=CommandFunc.POWERSTREAM, id=135)
-
-    PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT = CommandFuncAndId(
-        func=CommandFunc.POWERSTREAM, id=143
-    )
-
-    PRIVATE_API_PLATFORM_WATTH = CommandFuncAndId(
-        func=CommandFunc.PLATFORM, id=powerstream.PlCmdId.PL_CMD_ID_WATTH
-    )
+    PLATFORM_WATTH = CommandFuncAndId(func=254, id=32)
 
 
 class WatthType(enum.IntEnum):
@@ -108,42 +92,68 @@ class WatthType(enum.IntEnum):
 # Local payload mapping
 def get_expected_payload_type(cmd: Command) -> type[ProtoMessageRaw]:
     _expected_payload_types = {
-        Command.PRIVATE_API_POWERSTREAM_HEARTBEAT: powerstream.PowerStreamInverterHeartbeat,
-        Command.WN511_SET_PERMANENT_WATTS_PACK: powerstream.PowerStreamPermanentWattsPack,
-        Command.WN511_SET_SUPPLY_PRIORITY_PACK: powerstream.PowerStreamSupplyPriorityPack,
-        Command.WN511_SET_BAT_LOWER_PACK: powerstream.PowerStreamBatLowerPack,
-        Command.WN511_SET_BAT_UPPER_PACK: powerstream.PowerStreamBatUpperPack,
-        Command.WN511_SET_BRIGHTNESS_PACK: powerstream.PowerStreamBrightnessPack,
-        Command.PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT: powerstream.PowerStreamSetValue,
-        Command.PRIVATE_API_PLATFORM_WATTH: powerstream.PowerStreamBatchEnergyTotalReport,
+        Command.INVERTER_HEARTBEAT: powerstream.PowerStreamInverterHeartbeat,
+        Command.PERMANENT_WATTS_PACK: powerstream.PowerStreamPermanentWattsPack,
+        Command.PLATFORM_WATTH: powerstream.PowerStreamBatchEnergyTotalReport,
+        Command.SET_SUPPLY_PRIORITY: powerstream.PowerStreamSupplyPriorityPack,
+        Command.SET_BAT_LOWER: powerstream.PowerStreamBatLowerPack,
+        Command.SET_BAT_UPPER: powerstream.PowerStreamBatUpperPack,
+        Command.SET_BRIGHTNESS: powerstream.PowerStreamBrightnessPack,
+        Command.SET_FEED_PROTECT: powerstream.PowerStreamSetValue,
     }
     return _expected_payload_types[cmd]
 
 
-def build_command(
-    device_sn: str, command: Command, payload: ProtoMessageRaw
-) -> ProtoMessage:
-    expected_type = get_expected_payload_type(command)
-    if not isinstance(payload, expected_type):
-        _LOGGER.error(
-            'Command "%s": allowed payload types %s, got %s',
-            command.name,
-            expected_type,
-            type(payload),
-        )
-        # We might want to raise an error here or just log.
-        # For now, let's just log as per previous behavior which was a warning,
-        # but better to stay safe. If it was a warning before, maybe keep it,
-        # but typically this is a coding error.
+class PowerStreamCommandMessage(PrivateAPIMessageProtocol):
+    """Message wrapper for PowerStream protobuf commands."""
 
-    return ProtoMessage(
-        device_sn=device_sn,
-        command=command,
-        payload=payload,
-        src=AddressId.APP,
-        dest=AddressId.MQTT,
-        create_packet=expected_type,
-    )
+    def __init__(
+        self,
+        device_sn: str,
+        command: CommandFuncAndId,
+        payload: ProtoMessageRaw | None,
+    ):
+        self._packet = powerstream.PowerStreamSendHeaderMsg()
+        self._payload = payload
+        message = self._packet.msg.add()
+        message.seq = JSONMessage.gen_seq()
+        message.device_sn = device_sn
+        message.from_ = "HomeAssistant"
+
+        if command == Command.INVERTER_HEARTBEAT:
+            message.src = AddressId.APP
+            message.dest = AddressId.APP
+            message.data_len = 0
+        else:
+            message.src = AddressId.APP
+            message.dest = AddressId.MQTT
+            message.d_src = 1
+            message.d_dest = 1
+            message.check_type = 3
+            message.need_ack = 1
+            message.version = 19
+            message.payload_ver = 1
+            if payload is not None:
+                pdata = payload.SerializeToString()
+                message.pdata = pdata
+                message.data_len = len(pdata)
+
+        message.cmd_func = command.func
+        message.cmd_id = command.id
+
+    @override
+    def to_mqtt_payload(self):
+        return self._packet.SerializeToString()
+
+    @override
+    def to_dict(self) -> dict:
+        result = MessageToDict(self._packet, preserving_proto_field_name=True)
+        result["msg"][0]["pdata"] = {
+            type(self._payload).__name__: MessageToDict(
+                self._payload, preserving_proto_field_name=True
+            )
+        }
+        return {type(self._packet).__name__: result}
 
 
 class PowerStream(BaseDevice):
@@ -332,9 +342,9 @@ class PowerStream(BaseDevice):
                 self,
                 "20_1.feedProtect",
                 "Feed-in Control",
-                lambda value: build_command(
+                lambda value: PowerStreamCommandMessage(
                     device_sn=self.device_info.sn,
-                    command=Command.PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT,
+                    command=Command.SET_FEED_PROTECT,
                     payload=powerstream.PowerStreamSetValue(value=value),
                 ),
                 enabled=True,
@@ -351,9 +361,9 @@ class PowerStream(BaseDevice):
                 "20_1.supplyPriority",
                 "Power supply mode",
                 const.POWER_SUPPLY_PRIORITY_OPTIONS,
-                lambda value: build_command(
+                lambda value: PowerStreamCommandMessage(
                     device_sn=self.device_info.sn,
-                    command=Command.WN511_SET_SUPPLY_PRIORITY_PACK,
+                    command=Command.SET_SUPPLY_PRIORITY,
                     payload=powerstream.PowerStreamSupplyPriorityPack(
                         supply_priority=value
                     ),
@@ -371,9 +381,9 @@ class PowerStream(BaseDevice):
                 const.MAX_CHARGE_LEVEL,
                 50,
                 100,
-                lambda value: build_command(
+                lambda value: PowerStreamCommandMessage(
                     device_sn=self.device_info.sn,
-                    command=Command.WN511_SET_BAT_UPPER_PACK,
+                    command=Command.SET_BAT_UPPER,
                     payload=powerstream.PowerStreamBatUpperPack(upper_limit=value),
                 ),
             ),
@@ -384,9 +394,9 @@ class PowerStream(BaseDevice):
                 const.MIN_DISCHARGE_LEVEL,
                 0,
                 30,
-                lambda value: build_command(
+                lambda value: PowerStreamCommandMessage(
                     device_sn=self.device_info.sn,
-                    command=Command.WN511_SET_BAT_LOWER_PACK,
+                    command=Command.SET_BAT_LOWER,
                     payload=powerstream.PowerStreamBatLowerPack(lower_limit=value),
                 ),
             ),
@@ -433,7 +443,7 @@ class PowerStream(BaseDevice):
                     continue
 
                 params = cast(JSONDict, res.setdefault("params", {}))
-                if command in {Command.PRIVATE_API_POWERSTREAM_HEARTBEAT}:
+                if command in {Command.INVERTER_HEARTBEAT}:
                     payload = get_expected_payload_type(command)()
                     _ = payload.ParseFromString(message.pdata)
                     params.update(
@@ -443,7 +453,7 @@ class PowerStream(BaseDevice):
                             MessageToDict(payload, preserving_proto_field_name=False),
                         ).items()
                     )
-                elif command in {Command.PRIVATE_API_PLATFORM_WATTH}:
+                elif command in {Command.PLATFORM_WATTH}:
                     payload = get_expected_payload_type(command)()
                     _ = payload.ParseFromString(message.pdata)
                     for watth_item in payload.watth_item:
@@ -492,19 +502,16 @@ class PowerStream(BaseDevice):
                 pass
 
             if command in [
-                Command.PRIVATE_API_POWERSTREAM_HEARTBEAT,
-                Command.PRIVATE_API_PLATFORM_WATTH,
+                Command.INVERTER_HEARTBEAT,
+                Command.PLATFORM_WATTH,
             ]:
                 return {"params": message["params"], "time": dt.utcnow()}
         raise ValueError("not a quota message")
 
     @override
-    def private_api_get_quota(self) -> ProtoMessage:
-        json_prepared_payload = JSONMessage.prepare_payload({})
-
-        return ProtoMessage(
-            src=AddressId.APP,
-            dest=AddressId.APP,
-            from_=cast(str, json_prepared_payload["from"]),
-            create_packet=powerstream.PowerStreamSendHeaderMsg,
+    def private_api_get_quota(self) -> PowerStreamCommandMessage:
+        return PowerStreamCommandMessage(
+            device_sn=self.device_info.sn,
+            command=Command.INVERTER_HEARTBEAT,
+            payload=None,
         )

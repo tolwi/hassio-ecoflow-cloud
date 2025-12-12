@@ -1,3 +1,4 @@
+from google.protobuf.json_format import MessageToDict
 import logging
 import time
 from typing import Any, override
@@ -53,11 +54,27 @@ _LOGGER = logging.getLogger(__name__)
 class River3CommandMessage(PrivateAPIMessageProtocol):
     """Message wrapper for River 3 protobuf commands."""
 
-    def __init__(self, packet: ef_river3_pb2.River3SendHeaderMsg):
+    def __init__(
+        self,
+        payload: ef_river3_pb2.River3SetCommand,
+        packet: ef_river3_pb2.River3SendHeaderMsg,
+    ):
         self._packet = packet
+        self._payload = payload
 
-    def private_api_to_mqtt_payload(self):
+    @override
+    def to_mqtt_payload(self):
         return self._packet.SerializeToString()
+
+    @override
+    def to_dict(self) -> dict:
+        result = MessageToDict(self._packet, preserving_proto_field_name=True)
+        result["msg"][0]["pdata"] = {
+            type(self._payload).__name__: MessageToDict(
+                self._payload, preserving_proto_field_name=True
+            )
+        }
+        return {type(self._packet).__name__: result}
 
 
 def _create_river3_proto_command(
@@ -65,14 +82,14 @@ def _create_river3_proto_command(
 ):
     """Create a protobuf command for River 3."""
     # Build the command using the generated protobuf class
-    cmd = ef_river3_pb2.River3SetCommand()
+    payload = ef_river3_pb2.River3SetCommand()
     try:
-        setattr(cmd, field_name, int(value))
+        setattr(payload, field_name, int(value))
     except AttributeError:
         _LOGGER.error("Unknown River3 set field: %s", field_name)
         return None
 
-    pdata = cmd.SerializeToString()
+    pdata = payload.SerializeToString()
 
     packet = ef_river3_pb2.River3SendHeaderMsg()
     message = packet.msg.add()
@@ -92,7 +109,7 @@ def _create_river3_proto_command(
     message.data_len = data_len if data_len is not None else len(pdata)
     message.pdata = pdata
 
-    return River3CommandMessage(packet)
+    return River3CommandMessage(payload, packet)
 
 
 def _create_river3_energy_backup_command(
@@ -100,12 +117,12 @@ def _create_river3_energy_backup_command(
 ):
     """Create a protobuf command for River 3 energy backup settings."""
     # Build the command using the generated protobuf classes
-    cmd = ef_river3_pb2.River3SetCommand()
-    cmd.cfg_energy_backup.energy_backup_start_soc = int(energy_backup_start_soc)
+    payload = ef_river3_pb2.River3SetCommand()
+    payload.cfg_energy_backup.energy_backup_start_soc = int(energy_backup_start_soc)
     if energy_backup_en is not None:
-        cmd.cfg_energy_backup.energy_backup_en = int(energy_backup_en)
+        payload.cfg_energy_backup.energy_backup_en = int(energy_backup_en)
 
-    pdata = cmd.SerializeToString()
+    pdata = payload.SerializeToString()
 
     packet = ef_river3_pb2.River3SendHeaderMsg()
     message = packet.msg.add()
@@ -125,7 +142,7 @@ def _create_river3_energy_backup_command(
     message.data_len = len(pdata)
     message.pdata = pdata
 
-    return River3CommandMessage(packet)
+    return River3CommandMessage(payload, packet)
 
 
 BMS_HEARTBEAT_COMMANDS: set[tuple[int, int]] = {

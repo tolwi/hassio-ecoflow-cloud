@@ -1,3 +1,7 @@
+from google.protobuf.json_format import MessageToDict
+from custom_components.ecoflow_cloud.devices.internal import flatten_dict
+from custom_components.ecoflow_cloud.api.private_api import PrivateAPIMessageProtocol
+from custom_components.ecoflow_cloud.api.message import JSONMessage
 import logging
 from typing import Any, cast, override
 
@@ -28,9 +32,6 @@ from ...sensor import (
     StatusSensorEntity,
 )
 
-# from google.protobuf.message import Message as ProtoMessageRaw # pyright: ignore[reportMissingModuleSource]
-
-from .proto.support.message import ProtoMessage
 
 from ..internal.proto import AddressId
 
@@ -40,11 +41,6 @@ from ..internal.proto import ef_smartmeter_pb2
 from google.protobuf.message import Message as ProtoMessageRaw
 
 
-# Local Constants
-class CommandFunc(enum.IntEnum):
-    SMART_METER = 254
-
-
 class CommandFuncAndId(NamedTuple):
     func: int
     id: int
@@ -52,30 +48,77 @@ class CommandFuncAndId(NamedTuple):
 
 class Command(enum.Enum):
     @enum.property
-    def func(self) -> CommandFunc | int:
+    def func(self) -> int:
         return self.value.func
 
     @enum.property
     def id(self) -> int:
         return self.value.id
 
-    PRIVATE_API_SMART_METER_DISPLAY_PROPERTY_UPLOAD = CommandFuncAndId(
-        func=CommandFunc.SMART_METER, id=21
-    )
-    PRIVATE_API_SMART_METER_RUNTIME_PROPERTY_UPLOAD = CommandFuncAndId(
-        func=CommandFunc.SMART_METER, id=22
-    )
+    HEARTBEAT = CommandFuncAndId(func=20, id=1)
+    DISPLAY_PROPERTY_UPLOAD = CommandFuncAndId(func=254, id=21)
+    RUNTIME_PROPERTY_UPLOAD = CommandFuncAndId(func=254, id=22)
 
 
 def get_expected_payload_type(cmd: Command) -> type[ProtoMessageRaw]:
     _expected_payload_types = {
-        Command.PRIVATE_API_SMART_METER_DISPLAY_PROPERTY_UPLOAD: ef_smartmeter_pb2.SmartMeterDisplayPropertyUpload,
-        Command.PRIVATE_API_SMART_METER_RUNTIME_PROPERTY_UPLOAD: ef_smartmeter_pb2.SmartMeterRuntimePropertyUpload,
+        Command.DISPLAY_PROPERTY_UPLOAD: ef_smartmeter_pb2.SmartMeterDisplayPropertyUpload,
+        Command.RUNTIME_PROPERTY_UPLOAD: ef_smartmeter_pb2.SmartMeterRuntimePropertyUpload,
     }
     return _expected_payload_types[cmd]
 
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class SmartMeterCommandMessage(PrivateAPIMessageProtocol):
+    """Message wrapper for SmartMeter protobuf commands."""
+
+    def __init__(
+        self, device_sn: str, command: CommandFuncAndId, payload: ProtoMessageRaw | None
+    ):
+        self._packet = ef_smartmeter_pb2.SmartMeterSetMessage()
+        self._payload = payload
+        message = self._packet.msg.add()    
+        message.seq = JSONMessage.gen_seq()
+        message.device_sn = device_sn
+        message.from_ = "HomeAssistant"
+
+        if command == Command.HEARTBEAT:
+            message.src = AddressId.APP
+            message.dest = AddressId.APP
+            message.data_len = 0
+
+        else:
+            message.src = AddressId.APP
+            message.dest = AddressId.MQTT
+            message.d_src = 1
+            message.d_dest = 1
+            message.check_type = 3
+            message.need_ack = 1
+            message.version = 19
+            message.payload_ver = 1
+            if payload is not None:
+                pdata = payload.SerializeToString()
+                message.pdata = pdata
+                message.data_len = len(pdata)
+
+        message.cmd_func = command.func
+        message.cmd_id = command.id
+
+    @override
+    def to_mqtt_payload(self):
+        return self._packet.SerializeToString()
+
+    @override
+    def to_dict(self) -> dict:
+        result = MessageToDict(self._packet, preserving_proto_field_name=True)
+        result["msg"][0]["pdata"] = {
+            type(self._payload).__name__: MessageToDict(
+                self._payload, preserving_proto_field_name=True
+            )
+        }
+        return {type(self._packet).__name__: result}
 
 
 class SmartMeter(BaseDevice):
@@ -91,22 +134,18 @@ class SmartMeter(BaseDevice):
             except ValueError:
                 pass
             if command in [
-                Command.PRIVATE_API_SMART_METER_DISPLAY_PROPERTY_UPLOAD,
-                Command.PRIVATE_API_SMART_METER_RUNTIME_PROPERTY_UPLOAD,
+                Command.DISPLAY_PROPERTY_UPLOAD,
+                Command.RUNTIME_PROPERTY_UPLOAD,
             ]:
                 return {"params": message["params"], "time": dt.utcnow()}
         raise ValueError("not a quota message")
 
     @override
-    def private_api_get_quota(self) -> ProtoMessage:
-        from .proto import ef_smartmeter_pb2
-
-        return ProtoMessage(
-            src=AddressId.APP,
-            dest=AddressId.APP,
-            from_="Android",
-            command=CommandFuncAndId(20, 1),
-            create_packet=ef_smartmeter_pb2.SmartMeterSendHeaderMsg,
+    def private_api_get_quota(self) -> SmartMeterCommandMessage:
+        return SmartMeterCommandMessage(
+            device_sn=self.device_info.sn,
+            command=Command.HEARTBEAT,
+            payload=None,
         )
 
     @override
@@ -295,38 +334,24 @@ class SmartMeter(BaseDevice):
         ]
 
     def update_data(self, raw_data: bytes, data_type: str) -> bool:
-        if data_type == self.device_info.data_topic:
-            raw = self._prepare_data_data_topic(raw_data)
-            self.data.update_data(raw)
-        elif data_type == self.device_info.set_topic:
-            # Commands send from HomeAssistant
-            pass
-        elif data_type == self.device_info.set_reply_topic:
-            raw = self._prepare_data_set_reply_topic(raw_data)
-            self.data.add_set_reply_message(raw)
-        elif data_type == self.device_info.get_topic:
-            # Commands send from HomeAssistant
-            pass
-        elif data_type == self.device_info.get_reply_topic:
-            raw = self._prepare_data_get_reply_topic(raw_data)
-            self.data.add_get_reply_message(raw)
-        elif data_type == self.device_info.status_topic:
-            raw = self._prepare_data_status_topic(raw_data)
-            self.data.update_status(raw)
-        else:
-            return False
+        if data_type not in [
+            self.device_info.data_topic,
+            self.device_info.set_reply_topic,
+            self.device_info.get_reply_topic,
+            self.device_info.status_topic,
+        ]:
+            super().update_data(raw_data, data_type)
         return True
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         res: dict[str, Any] = {"params": {}}
         from google.protobuf.json_format import MessageToDict  # pyright: ignore[reportMissingModuleSource]
-        from .proto.support import flatten_dict
 
-        from .proto.ef_smartmeter_pb2 import SmartMeterSendHeaderMsg
+        from .proto.ef_smartmeter_pb2 import SmartMeterSetMessage
 
         try:
-            packet = SmartMeterSendHeaderMsg()
+            packet = SmartMeterSetMessage()
             _ = packet.ParseFromString(raw_data)
             for message in packet.msg:
                 _LOGGER.debug(
@@ -361,7 +386,7 @@ class SmartMeter(BaseDevice):
                     continue
 
                 params = cast(JSONDict, res.setdefault("params", {}))
-                if command in {Command.PRIVATE_API_SMART_METER_DISPLAY_PROPERTY_UPLOAD}:
+                if command in {Command.DISPLAY_PROPERTY_UPLOAD}:
                     payload = get_expected_payload_type(command)()
                     try:
                         if message.enc_type == 1:
