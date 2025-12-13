@@ -68,12 +68,11 @@ class River3CommandMessage(PrivateAPIMessageProtocol):
 
     @override
     def to_dict(self) -> dict:
+        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
+
         result = MessageToDict(self._packet, preserving_proto_field_name=True)
-        result["msg"][0]["pdata"] = {
-            type(self._payload).__name__: MessageToDict(
-                self._payload, preserving_proto_field_name=True
-            )
-        }
+        result["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}
+        result["msg"][0].pop("seq", None)
         return {type(self._packet).__name__: result}
 
 

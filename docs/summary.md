@@ -1164,7 +1164,7 @@
 
 </p></details>
 
-<details><summary> SMART_METER <i>(sensors: 28, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> SMART_METER <i>(sensors: 18, switches: 0, sliders: 0, selects: 0)</i> </summary>
 <p>
 
 *Sensors*
@@ -1178,23 +1178,13 @@
 - Power Grid (L1) Volts  _(disabled)_
 - Power Grid (L2) Volts  _(disabled)_
 - Power Grid (L3) Volts  _(disabled)_
-- Flag L1  _(disabled)_
-- Flag L2  _(disabled)_
-- Flag L3  _(disabled)_
-- L1 Lifetime net usage  _(disabled)_
-- L2 Lifetime net usage  _(disabled)_
-- L3 Lifetime net usage  _(disabled)_
-- Lifetime consumption
-- Lifetime delivery
+- L1 net energy daily  _(disabled)_
+- L2 net energy daily  _(disabled)_
+- L3 net energy daily  _(disabled)_
 - Net energy consumption
+- Lifetime delivery
+- Lifetime consumption
 - Timezone  _(disabled)_
-- Grid connection power factor  _(disabled)_
-- Grid connection state  _(disabled)_
-- Country code  _(disabled)_
-- Town code  _(disabled)_
-- System group id  _(disabled)_
-- Factory mode enabled  _(disabled)_
-- Debug mode enabled  _(disabled)_
 - Status
 
 *Switches*

@@ -27,7 +27,6 @@ from ...sensor import (
     WattsSensorEntity,
     InAmpSensorEntity,
     EnergySensorEntity,
-    MiscBinarySensorEntity,
     QuotaStatusSensorEntity,
     StatusSensorEntity,
 )
@@ -79,7 +78,7 @@ class SmartMeterCommandMessage(PrivateAPIMessageProtocol):
     ):
         self._packet = ef_smartmeter_pb2.SmartMeterSetMessage()
         self._payload = payload
-        message = self._packet.msg.add()    
+        message = self._packet.msg.add()
         message.seq = JSONMessage.gen_seq()
         message.device_sn = device_sn
         message.from_ = "HomeAssistant"
@@ -112,12 +111,11 @@ class SmartMeterCommandMessage(PrivateAPIMessageProtocol):
 
     @override
     def to_dict(self) -> dict:
+        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
+
         result = MessageToDict(self._packet, preserving_proto_field_name=True)
-        result["msg"][0]["pdata"] = {
-            type(self._payload).__name__: MessageToDict(
-                self._payload, preserving_proto_field_name=True
-            )
-        }
+        result["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}
+        result["msg"][0].pop("seq", None)
         return {type(self._packet).__name__: result}
 
 
@@ -158,178 +156,178 @@ class SmartMeter(BaseDevice):
             WattsSensorEntity(
                 client,
                 self,
-                "254_21.powGetSysGrid",
+                "254_21.totalPower",
                 const.SMART_METER_POWER_GLOBAL,
                 diagnostic=False,
             ),
             WattsSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionPowerL1",
+                "254_21.powerL1",
                 const.SMART_METER_POWER_L1,
                 False,
             ),
             WattsSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionPowerL2",
+                "254_21.powerL2",
                 const.SMART_METER_POWER_L2,
                 False,
             ),
             WattsSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionPowerL3",
+                "254_21.powerL3",
                 const.SMART_METER_POWER_L3,
                 False,
             ),
             InAmpSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionAmpL1",
+                "254_21.currentL1",
                 const.SMART_METER_IN_AMPS_L1,
                 False,
             ),
             InAmpSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionAmpL2",
+                "254_21.currentL2",
                 const.SMART_METER_IN_AMPS_L2,
                 False,
             ),
             InAmpSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionAmpL3",
+                "254_21.currentL3",
                 const.SMART_METER_IN_AMPS_L3,
                 False,
             ),
             VoltSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionVolL1",
+                "254_21.voltageL1",
                 const.SMART_METER_VOLT_L1,
                 False,
             ),
             VoltSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionVolL2",
+                "254_21.voltageL2",
                 const.SMART_METER_VOLT_L2,
                 False,
             ),
             VoltSensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionVolL3",
+                "254_21.voltageL3",
                 const.SMART_METER_VOLT_L3,
                 False,
             ),
-            MiscBinarySensorEntity(
+            # MiscBinarySensorEntity(
+            #     client,
+            #     self,
+            #     "254_21.gridConnectionFlagL1",
+            #     const.SMART_METER_FLAG_L1,
+            #     False,
+            # ),
+            # MiscBinarySensorEntity(
+            #     client,
+            #     self,
+            #     "254_21.gridConnectionFlagL2",
+            #     const.SMART_METER_FLAG_L2,
+            #     False,
+            # ),
+            # MiscBinarySensorEntity(
+            #     client,
+            #     self,
+            #     "254_21.gridConnectionFlagL3",
+            #     const.SMART_METER_FLAG_L3,
+            #     False,
+            # ),
+            EnergySensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionFlagL1",
-                const.SMART_METER_FLAG_L1,
-                False,
-            ),
-            MiscBinarySensorEntity(
-                client,
-                self,
-                "254_21.gridConnectionFlagL2",
-                const.SMART_METER_FLAG_L2,
-                False,
-            ),
-            MiscBinarySensorEntity(
-                client,
-                self,
-                "254_21.gridConnectionFlagL3",
-                const.SMART_METER_FLAG_L3,
+                "254_21.energy.energyL1daily",
+                const.SMART_METER_RECORD_ENERGY_L1_DAILY,
                 False,
             ),
             EnergySensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionDataRecord.todayActiveL1",
-                const.SMART_METER_RECORD_TODAY_ACTIVE_L1,
+                "254_21.energy.energyL2daily",
+                const.SMART_METER_RECORD_ENERGY_L2_DAILY,
                 False,
             ),
             EnergySensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionDataRecord.todayActiveL2",
-                const.SMART_METER_RECORD_TODAY_ACTIVE_L2,
+                "254_21.energy.energyL3daily",
+                const.SMART_METER_RECORD_ENERGY_L3_DAILY,
                 False,
             ),
             EnergySensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionDataRecord.todayActiveL3",
-                const.SMART_METER_RECORD_TODAY_ACTIVE_L3,
-                False,
+                "254_21.energy.netEnergyConsumption",
+                const.SMART_METER_RECORD_NET_ENERGY_CONSUMPTION,
             ),
             EnergySensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionDataRecord.todayActive",
-                const.SMART_METER_RECORD_ACTIVE_TODAY,
-            ),
-            EnergySensorEntity(
-                client,
-                self,
-                "254_21.gridConnectionDataRecord.totalReactiveEnergy",
+                "254_21.energy.lifeTimeEnergyDelivery",
                 const.SMART_METER_RECORD_LIFETIME_ENERGY_DELIVERY,
             ),
             EnergySensorEntity(
                 client,
                 self,
-                "254_21.gridConnectionDataRecord.totalActiveEnergy",
-                const.SMART_METER_RECORD_NET_ENERGY_CONSUMPTION,
+                "254_21.energy.lifeTimeEnergyConsumption",
+                const.SMART_METER_RECORD_LIFETIME_ENERGY_CONSUMPTION,
             ),
             # Configurable?
             timezoneEntity,
             # Configurable?
-            MiscSensorEntity(
-                client,
-                self,
-                "254_21.gridConnectionPowerFactor",
-                const.SMART_METER_GRID_CONNECTION_POWER_FACTOR,
-                False,
-            ),
-            MiscSensorEntity(
-                client,
-                self,
-                "254_21.gridConnectionSta",
-                const.SMART_METER_GRID_CONNECTION_STATE,
-                False,
-            ),
+            # MiscSensorEntity(
+            #     client,
+            #     self,
+            #     "254_21.gridConnectionPowerFactor",
+            #     const.SMART_METER_GRID_CONNECTION_POWER_FACTOR,
+            #     False,
+            # ),
+            # MiscSensorEntity(
+            #     client,
+            #     self,
+            #     "254_21.gridConnectionSta",
+            #     const.SMART_METER_GRID_CONNECTION_STATE,
+            #     False,
+            # ),
             # Configurable?
-            MiscSensorEntity(
-                client, self, "254_21.countryCode", const.COUNTRY_CODE, False
-            ),
+            # MiscSensorEntity(
+            #     client, self, "254_21.countryCode", const.COUNTRY_CODE, False
+            # ),
             # Configurable?
-            MiscSensorEntity(client, self, "254_21.townCode", const.TOWN_CODE, False),
+            # MiscSensorEntity(client, self, "254_21.townCode", const.TOWN_CODE, False),
             # Configurable?
-            MiscSensorEntity(
-                client, self, "254_21.systemGroupId", const.SYSTEM_GROUP_ID, False
-            ),
+            # MiscSensorEntity(
+            #     client, self, "254_21.systemGroupId", const.SYSTEM_GROUP_ID, False
+            # ),
             # Configurable?
-            MiscBinarySensorEntity(
-                client,
-                self,
-                "254_21.factoryModeEnable",
-                const.FACTORY_MODE,
-                False,
-                diagnostic=True,
-            ),
+            # MiscBinarySensorEntity(
+            #     client,
+            #     self,
+            #     "254_21.factoryModeEnable",
+            #     const.FACTORY_MODE,
+            #     False,
+            #     diagnostic=True,
+            # ),
             # Configurable?
-            MiscBinarySensorEntity(
-                client,
-                self,
-                "254_21.debugModeEnable",
-                const.DEBUG_MODE,
-                False,
-                diagnostic=True,
-            ),
+            # MiscBinarySensorEntity(
+            #     client,
+            #     self,
+            #     "254_21.debugModeEnable",
+            #     const.DEBUG_MODE,
+            #     False,
+            #     diagnostic=True,
+            # ),
             self._status_sensor(client),
         ]
 
@@ -354,10 +352,12 @@ class SmartMeter(BaseDevice):
             packet = SmartMeterSetMessage()
             _ = packet.ParseFromString(raw_data)
             for message in packet.msg:
+                cmd_func = message.cmd_func
+                cmd_id = message.cmd_id
                 _LOGGER.debug(
                     'cmd_func %u, cmd_id %u, payload "%s"',
-                    message.cmd_func,
-                    message.cmd_id,
+                    cmd_func,
+                    cmd_id,
                     message.pdata.hex(),
                 )
 
@@ -371,9 +371,7 @@ class SmartMeter(BaseDevice):
                         self.device_data.sn,
                     )
 
-                command_desc = CommandFuncAndId(
-                    func=message.cmd_func, id=message.cmd_id
-                )
+                command_desc = CommandFuncAndId(func=cmd_func, id=cmd_id)
 
                 try:
                     command = Command(command_desc)
