@@ -3,3 +3,17 @@ _.python.venv = { path = ".venv", create = true }
 
 [tools]
 python = "3.13"
+
+
+[tasks.lint]
+description = "Lint code"
+dir = "custom_components"
+run = """
+# pyright .
+ruff check .
+"""
+
+[tasks.protoc]
+tools.protoc = "32.0"
+dir = "custom_components/ecoflow_cloud/devices/internal/proto"
+run = "protoc --proto_path=. --python_out=. --pyi_out=.  *.proto"

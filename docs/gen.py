@@ -1,3 +1,4 @@
+from custom_components.ecoflow_cloud.api.private_api import PrivateAPIMessageProtocol
 import asyncio
 import json
 import logging
@@ -10,9 +11,7 @@ from homeassistant.helpers.frame import async_setup as frame_setup
 
 from custom_components.ecoflow_cloud.device_data import DeviceData, DeviceOptions
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo
-from custom_components.ecoflow_cloud.devices.internal.proto.support.message import (
-    ProtoMessage,
-)
+
 from custom_components.ecoflow_cloud.devices.registry import (
     device_by_product,
     device_support_sub_devices,
@@ -121,9 +120,7 @@ class DocumentationGenerator:
                             None,
                         ),
                     )
-                    for module_type in MULTI_DEVICE_CONFIGURATIONS[
-                        device_type
-                    ]
+                    for module_type in MULTI_DEVICE_CONFIGURATIONS[device_type]
                 ]
             raise NotImplementedError(
                 f"Multi-device type '{device_type}' requires configuration but none provided"
@@ -141,9 +138,8 @@ class DocumentationGenerator:
             ]
 
     def get_devices(
-            self, hass: HomeAssistant, device_type: str, dev: type[BaseDevice]
+        self, hass: HomeAssistant, device_type: str, dev: type[BaseDevice]
     ) -> List[BaseDevice]:
-
         real_devices = []
         device_info = create_test_device_info()
         for device_data in self.get_device_data(device_type):
@@ -181,17 +177,11 @@ class DocumentationGenerator:
                 real_devices = self.get_devices(hass, dt, dev)
                 for device in real_devices:
                     if len(real_devices) > 1:
-                        content = (
-                                content
-                                + f"\n### {device.device_data.device_type}\n"
-                        )
+                        content = content + f"\n### {device.device_data.device_type}\n"
                     content = content + render_device_summary(device, True)
-                content_summary += (
-                        "<details><summary> %s <i>(%s)</i> </summary>"
-                        % (
-                            dt,
-                            self.device_summary(real_devices),
-                        )
+                content_summary += "<details><summary> %s <i>(%s)</i> </summary>" % (
+                    dt,
+                    self.device_summary(real_devices),
                 )
                 content_summary += "\n<p>\n"
                 content_summary += content
@@ -205,17 +195,14 @@ class DocumentationGenerator:
                 real_devices = self.get_devices(hass, dt, dev)
                 for device in real_devices:
                     if len(real_devices) > 1:
-                        content = (
-                                content
-                                + f"\n### {device.device_data.device_type}\n"
-                        )
+                        content = content + f"\n### {device.device_data.device_type}\n"
                     content = content + render_device_summary(device, True)
                 content_summary += (
-                        "<details><summary> %s (API) <i>(%s)</i> </summary>"
-                        % (
-                            dt,
-                            self.device_summary(real_devices),
-                        )
+                    "<details><summary> %s (API) <i>(%s)</i> </summary>"
+                    % (
+                        dt,
+                        self.device_summary(real_devices),
+                    )
                 )
 
                 content_summary += "\n<p>\n"
@@ -225,9 +212,7 @@ class DocumentationGenerator:
 
         print(content_summary)
 
-        with open(
-                SUMMARY_FILENAME, "w+", encoding="utf-8"
-        ) as f_summary:
+        with open(SUMMARY_FILENAME, "w+", encoding="utf-8") as f_summary:
             f_summary.write(content_summary)
             f_summary.write("\n")
 
@@ -242,10 +227,7 @@ class DocumentationGenerator:
                 real_devices = self.get_devices(hass, dt, dev)
                 for device in real_devices:
                     if len(real_devices) > 1:
-                        content = (
-                                content
-                                + f"\n### {device.device_data.device_type}\n"
-                        )
+                        content = content + f"\n### {device.device_data.device_type}\n"
                     content = content + render_device_summary(device)
 
                 filename = f"{OUTPUT_DIR}/{dt}.md"
@@ -262,10 +244,7 @@ class DocumentationGenerator:
                 real_devices = self.get_devices(hass, dt, dev)
                 for device in real_devices:
                     if len(real_devices) > 1:
-                        content = (
-                                content
-                                + f"\n### {device.device_data.device_type}\n"
-                        )
+                        content = content + f"\n### {device.device_data.device_type}\n"
                     content = content + render_device_summary(device)
 
                 name = dt.replace(" ", "_")
@@ -296,12 +275,11 @@ class MarkdownRenderer:
         if command_dict is not None:
             if isinstance(command_dict, dict):
                 json_dict = command_dict
-            elif isinstance(command_dict, ProtoMessage):
-                json_dict = command_dict.to_json_message()
+            elif isinstance(command_dict, PrivateAPIMessageProtocol):
+                json_dict = command_dict.to_dict()
             else:
                 raise TypeError(
-                    "Unsupported command_dict type: %s"
-                    % type(command_dict).__name__
+                    "Unsupported command_dict type: %s" % type(command_dict).__name__
                 )
 
             # Check if params exist and update marker values
@@ -416,7 +394,6 @@ def render_device_summary(device: BaseDevice, brief: bool = False) -> str:
 
 
 if __name__ == "__main__":
-
     print("Generate docs started !")
 
     async def main():

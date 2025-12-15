@@ -6,7 +6,7 @@
       "type": "debugpy",
       "request": "launch",
       "program": "gen.py",
-      "python": "${workspaceFolder}/venv/bin/python",
+      "python": "${workspaceFolder}/.venv/bin/python",
       "cwd": "${workspaceFolder}/docs",
       "env": {
         "PYTHONPATH": "${workspaceFolder}"
