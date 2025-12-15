@@ -1,9 +1,9 @@
-import ecopacket_pb2 as _ecopacket_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -50,7 +50,64 @@ TIME_TASK_DETAIL_POW: TIME_TASK_DETAIL_TYPE
 TIME_TASK_DETAIL_TEMP: TIME_TASK_DETAIL_TYPE
 TIME_TASK_DETAIL_LEVEL: TIME_TASK_DETAIL_TYPE
 
-class RuntimePropertyUpload(_message.Message):
+class DP3Header(_message.Message):
+    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
+    PDATA_FIELD_NUMBER: _ClassVar[int]
+    SRC_FIELD_NUMBER: _ClassVar[int]
+    DEST_FIELD_NUMBER: _ClassVar[int]
+    D_SRC_FIELD_NUMBER: _ClassVar[int]
+    D_DEST_FIELD_NUMBER: _ClassVar[int]
+    ENC_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CHECK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CMD_FUNC_FIELD_NUMBER: _ClassVar[int]
+    CMD_ID_FIELD_NUMBER: _ClassVar[int]
+    DATA_LEN_FIELD_NUMBER: _ClassVar[int]
+    NEED_ACK_FIELD_NUMBER: _ClassVar[int]
+    IS_ACK_FIELD_NUMBER: _ClassVar[int]
+    SEQ_FIELD_NUMBER: _ClassVar[int]
+    PRODUCT_ID_FIELD_NUMBER: _ClassVar[int]
+    VERSION_FIELD_NUMBER: _ClassVar[int]
+    PAYLOAD_VER_FIELD_NUMBER: _ClassVar[int]
+    TIME_SNAP_FIELD_NUMBER: _ClassVar[int]
+    IS_RW_CMD_FIELD_NUMBER: _ClassVar[int]
+    IS_QUEUE_FIELD_NUMBER: _ClassVar[int]
+    ACK_TYPE_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    FROM_FIELD_NUMBER: _ClassVar[int]
+    MODULE_SN_FIELD_NUMBER: _ClassVar[int]
+    DEVICE_SN_FIELD_NUMBER: _ClassVar[int]
+    pdata: bytes
+    src: int
+    dest: int
+    d_src: int
+    d_dest: int
+    enc_type: int
+    check_type: int
+    cmd_func: int
+    cmd_id: int
+    data_len: int
+    need_ack: int
+    is_ack: int
+    seq: int
+    product_id: int
+    version: int
+    payload_ver: int
+    time_snap: int
+    is_rw_cmd: int
+    is_queue: int
+    ack_type: int
+    code: str
+    module_sn: str
+    device_sn: str
+    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+
+class DP3SendHeaderMsg(_message.Message):
+    __slots__ = ("msg",)
+    MSG_FIELD_NUMBER: _ClassVar[int]
+    msg: _containers.RepeatedCompositeFieldContainer[DP3Header]
+    def __init__(self, msg: _Optional[_Iterable[_Union[DP3Header, _Mapping]]] = ...) -> None: ...
+
+class DP3RuntimePropertyUpload(_message.Message):
     __slots__ = ("ac_phase_type", "pcs_work_mode", "temp_pcs_dc", "temp_pcs_ac", "temp_pv_h", "temp_pv_l", "plug_in_info_pv_h_vol", "plug_in_info_pv_l_vol", "plug_in_info_ac_out_type", "plug_in_info_ac_out_freq", "plug_in_info_5p8_freq", "plug_in_info_ac_in_vol", "plug_in_info_24v_vol", "plug_in_info_24v_amp", "plug_in_info_l1_vol", "plug_in_info_4p8_1_vol", "plug_in_info_4p8_2_vol", "plug_in_info_bms_vol", "pd_mppt_comm_err", "pd_llc_comm_err", "pd_bms_comm_err", "pd_iot_comm_err", "pd_firm_ver", "iot_firm_ver", "mppt_firm_ver", "llc_firm_ver", "plug_in_info_l1_amp", "plug_in_info_l2_vol", "plug_in_info_l2_amp", "plug_in_info_acp_l1_vol", "plug_in_info_acp_l1l2_vol", "mppt_monitor_flag", "plug_in_info_pv_h_amp", "plug_in_info_pv_l_amp", "plug_in_info_ac_in_amp", "llc_inv_firm_ver", "plug_in_info_4p8_1_amp", "plug_in_info_4p8_2_amp", "bms_firm_ver", "bms_batt_vol", "bms_batt_amp", "bms_bal_state", "bms_full_cap", "bms_remain_cap", "bms_alm_state", "bms_pro_state", "bms_flt_state", "bms_err_code", "bms_min_cell_vol", "bms_max_cell_vol", "cms_batt_vol", "cms_batt_amp", "cms_chg_req_vol", "cms_chg_req_amp", "bms_overload_icon", "bms_warn_icon", "bms_high_temp_icon", "bms_low_temp_icon", "bms_limit_icon", "bms_alm_state_2", "bms_pro_state_2", "display_property_full_upload_period", "display_property_incremental_upload_period", "runtime_property_full_upload_period", "runtime_property_incremental_upload_period", "mppt_recv_cms_chg_req_vol", "mppt_recv_cms_chg_req_amp", "pv_vin_ref", "pv2_vin_ref", "pv2_bus_vol", "mppt_bat_vol", "mppt_bat_amp", "pv_pause_cnt", "pv2_pause_cnt", "mppt_fanspeed", "ads_ntc_temp", "mppt_hardware_ver", "inv_monitor_flag", "inv_main_fsmstate", "l1_main_fsmstate", "l2_main_fsmstate", "plug_in_info_pfc_out_vol", "pow_get_l1", "pow_get_l2", "inv_bus_vol", "inv_ntc_temp2", "inv_ntc_temp3", "llc_monitor_flag", "llc_ntc_temp", "llc_fsmstate", "pd_to_inv_dsg_mode", "dcdc_chg_req_cur", "llc_recv_cms_chg_req_vol", "inv_to_llc_ac_pow_lim", "plug_in_info_12v_vol", "plug_in_info_12v_amp", "llc_bat_vol", "llc_bat_cur", "llc_bus_vol", "pd_skt_ocp1", "pd_skt_ocp2", "pd_skt_ocp3", "pd_skt_ocp4", "pd_skt_ocp5")
     AC_PHASE_TYPE_FIELD_NUMBER: _ClassVar[int]
     PCS_WORK_MODE_FIELD_NUMBER: _ClassVar[int]
@@ -262,7 +319,7 @@ class RuntimePropertyUpload(_message.Message):
     pd_skt_ocp5: float
     def __init__(self, ac_phase_type: _Optional[int] = ..., pcs_work_mode: _Optional[int] = ..., temp_pcs_dc: _Optional[float] = ..., temp_pcs_ac: _Optional[float] = ..., temp_pv_h: _Optional[float] = ..., temp_pv_l: _Optional[float] = ..., plug_in_info_pv_h_vol: _Optional[float] = ..., plug_in_info_pv_l_vol: _Optional[float] = ..., plug_in_info_ac_out_type: _Optional[int] = ..., plug_in_info_ac_out_freq: _Optional[int] = ..., plug_in_info_5p8_freq: _Optional[int] = ..., plug_in_info_ac_in_vol: _Optional[float] = ..., plug_in_info_24v_vol: _Optional[float] = ..., plug_in_info_24v_amp: _Optional[float] = ..., plug_in_info_l1_vol: _Optional[float] = ..., plug_in_info_4p8_1_vol: _Optional[float] = ..., plug_in_info_4p8_2_vol: _Optional[float] = ..., plug_in_info_bms_vol: _Optional[float] = ..., pd_mppt_comm_err: _Optional[int] = ..., pd_llc_comm_err: _Optional[int] = ..., pd_bms_comm_err: _Optional[int] = ..., pd_iot_comm_err: _Optional[int] = ..., pd_firm_ver: _Optional[int] = ..., iot_firm_ver: _Optional[int] = ..., mppt_firm_ver: _Optional[int] = ..., llc_firm_ver: _Optional[int] = ..., plug_in_info_l1_amp: _Optional[float] = ..., plug_in_info_l2_vol: _Optional[float] = ..., plug_in_info_l2_amp: _Optional[float] = ..., plug_in_info_acp_l1_vol: _Optional[float] = ..., plug_in_info_acp_l1l2_vol: _Optional[float] = ..., mppt_monitor_flag: _Optional[int] = ..., plug_in_info_pv_h_amp: _Optional[float] = ..., plug_in_info_pv_l_amp: _Optional[float] = ..., plug_in_info_ac_in_amp: _Optional[float] = ..., llc_inv_firm_ver: _Optional[int] = ..., plug_in_info_4p8_1_amp: _Optional[float] = ..., plug_in_info_4p8_2_amp: _Optional[float] = ..., bms_firm_ver: _Optional[int] = ..., bms_batt_vol: _Optional[float] = ..., bms_batt_amp: _Optional[float] = ..., bms_bal_state: _Optional[int] = ..., bms_full_cap: _Optional[int] = ..., bms_remain_cap: _Optional[int] = ..., bms_alm_state: _Optional[int] = ..., bms_pro_state: _Optional[int] = ..., bms_flt_state: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., bms_min_cell_vol: _Optional[int] = ..., bms_max_cell_vol: _Optional[int] = ..., cms_batt_vol: _Optional[float] = ..., cms_batt_amp: _Optional[float] = ..., cms_chg_req_vol: _Optional[float] = ..., cms_chg_req_amp: _Optional[float] = ..., bms_overload_icon: _Optional[int] = ..., bms_warn_icon: _Optional[int] = ..., bms_high_temp_icon: _Optional[int] = ..., bms_low_temp_icon: _Optional[int] = ..., bms_limit_icon: _Optional[int] = ..., bms_alm_state_2: _Optional[int] = ..., bms_pro_state_2: _Optional[int] = ..., display_property_full_upload_period: _Optional[int] = ..., display_property_incremental_upload_period: _Optional[int] = ..., runtime_property_full_upload_period: _Optional[int] = ..., runtime_property_incremental_upload_period: _Optional[int] = ..., mppt_recv_cms_chg_req_vol: _Optional[float] = ..., mppt_recv_cms_chg_req_amp: _Optional[float] = ..., pv_vin_ref: _Optional[float] = ..., pv2_vin_ref: _Optional[float] = ..., pv2_bus_vol: _Optional[float] = ..., mppt_bat_vol: _Optional[float] = ..., mppt_bat_amp: _Optional[float] = ..., pv_pause_cnt: _Optional[int] = ..., pv2_pause_cnt: _Optional[int] = ..., mppt_fanspeed: _Optional[int] = ..., ads_ntc_temp: _Optional[int] = ..., mppt_hardware_ver: _Optional[int] = ..., inv_monitor_flag: _Optional[int] = ..., inv_main_fsmstate: _Optional[int] = ..., l1_main_fsmstate: _Optional[int] = ..., l2_main_fsmstate: _Optional[int] = ..., plug_in_info_pfc_out_vol: _Optional[float] = ..., pow_get_l1: _Optional[float] = ..., pow_get_l2: _Optional[float] = ..., inv_bus_vol: _Optional[float] = ..., inv_ntc_temp2: _Optional[int] = ..., inv_ntc_temp3: _Optional[int] = ..., llc_monitor_flag: _Optional[int] = ..., llc_ntc_temp: _Optional[int] = ..., llc_fsmstate: _Optional[int] = ..., pd_to_inv_dsg_mode: _Optional[int] = ..., dcdc_chg_req_cur: _Optional[float] = ..., llc_recv_cms_chg_req_vol: _Optional[float] = ..., inv_to_llc_ac_pow_lim: _Optional[float] = ..., plug_in_info_12v_vol: _Optional[float] = ..., plug_in_info_12v_amp: _Optional[float] = ..., llc_bat_vol: _Optional[float] = ..., llc_bat_cur: _Optional[float] = ..., llc_bus_vol: _Optional[float] = ..., pd_skt_ocp1: _Optional[float] = ..., pd_skt_ocp2: _Optional[float] = ..., pd_skt_ocp3: _Optional[float] = ..., pd_skt_ocp4: _Optional[float] = ..., pd_skt_ocp5: _Optional[float] = ...) -> None: ...
 
-class cmdFunc50_cmdId30_Report(_message.Message):
+class DP3BMSDetailedReport(_message.Message):
     __slots__ = ("bms_flt_state", "bms_pro_state", "bms_alm_state", "bms_bal_state", "unknown5", "unknown6", "bms_batt_vol", "bms_batt_amp", "bms_max_cell_temp_dup", "unknown10", "bms_design_cap_mah_dup", "bms_remain_cap_mah", "bms_full_cap_mah", "unknown14", "bms_batt_soh_percent_int", "max_cell_vol_mv", "min_cell_vol_mv", "max_cell_temp_c", "min_cell_temp_c", "max_mos_temp_c", "min_mos_temp_c", "unknown22", "unknown23", "bms_design_cap_mah", "bms_batt_soc_percent_float1", "unknown26", "bms_chg_rem_time_min", "bms_dsg_rem_time_min", "unknown29", "unknown30", "max_mos_temp_c_dup", "cell_vol_array_size", "cell_vol_mv", "cell_temp_array_size", "cell_temp_c", "bms_firm_ver", "bms_heart_ver", "ecloud_ocv", "bms_sn", "unknown40", "unknown41", "bms_batt_soc_percent_float2", "unknown43", "bms_batt_soc_percent_float3", "unknown45", "unknown46", "bms_chg_dsg_state", "unknown48", "unknown49", "unknown50", "unknown51", "unknown52", "unknown53", "bms_batt_soh_percent_float", "unknown55", "mos_temp_c", "unknown57", "unknown58", "unknown61", "unknown62", "unknown63", "unknown64", "unknown67", "unknown68", "unknown69", "bms_err_code_flags", "unknown71", "bat_volt_mv_array", "unknown73", "unknown74", "unknown75", "unknown76", "unknown77", "unknown78", "unknown79", "unknown80", "pack_sn", "unknown82")
     BMS_FLT_STATE_FIELD_NUMBER: _ClassVar[int]
     BMS_PRO_STATE_FIELD_NUMBER: _ClassVar[int]
@@ -422,7 +479,7 @@ class cmdFunc50_cmdId30_Report(_message.Message):
     unknown82: int
     def __init__(self, bms_flt_state: _Optional[int] = ..., bms_pro_state: _Optional[int] = ..., bms_alm_state: _Optional[int] = ..., bms_bal_state: _Optional[int] = ..., unknown5: _Optional[int] = ..., unknown6: _Optional[int] = ..., bms_batt_vol: _Optional[int] = ..., bms_batt_amp: _Optional[int] = ..., bms_max_cell_temp_dup: _Optional[int] = ..., unknown10: _Optional[int] = ..., bms_design_cap_mah_dup: _Optional[int] = ..., bms_remain_cap_mah: _Optional[int] = ..., bms_full_cap_mah: _Optional[int] = ..., unknown14: _Optional[int] = ..., bms_batt_soh_percent_int: _Optional[int] = ..., max_cell_vol_mv: _Optional[int] = ..., min_cell_vol_mv: _Optional[int] = ..., max_cell_temp_c: _Optional[int] = ..., min_cell_temp_c: _Optional[int] = ..., max_mos_temp_c: _Optional[int] = ..., min_mos_temp_c: _Optional[int] = ..., unknown22: _Optional[int] = ..., unknown23: _Optional[int] = ..., bms_design_cap_mah: _Optional[int] = ..., bms_batt_soc_percent_float1: _Optional[float] = ..., unknown26: _Optional[int] = ..., bms_chg_rem_time_min: _Optional[int] = ..., bms_dsg_rem_time_min: _Optional[int] = ..., unknown29: _Optional[int] = ..., unknown30: _Optional[int] = ..., max_mos_temp_c_dup: _Optional[int] = ..., cell_vol_array_size: _Optional[int] = ..., cell_vol_mv: _Optional[_Iterable[int]] = ..., cell_temp_array_size: _Optional[int] = ..., cell_temp_c: _Optional[_Iterable[int]] = ..., bms_firm_ver: _Optional[str] = ..., bms_heart_ver: _Optional[int] = ..., ecloud_ocv: _Optional[int] = ..., bms_sn: _Optional[str] = ..., unknown40: _Optional[int] = ..., unknown41: _Optional[int] = ..., bms_batt_soc_percent_float2: _Optional[float] = ..., unknown43: _Optional[float] = ..., bms_batt_soc_percent_float3: _Optional[float] = ..., unknown45: _Optional[int] = ..., unknown46: _Optional[int] = ..., bms_chg_dsg_state: _Optional[int] = ..., unknown48: _Optional[int] = ..., unknown49: _Optional[int] = ..., unknown50: _Optional[int] = ..., unknown51: _Optional[int] = ..., unknown52: _Optional[float] = ..., unknown53: _Optional[float] = ..., bms_batt_soh_percent_float: _Optional[float] = ..., unknown55: _Optional[int] = ..., mos_temp_c: _Optional[_Iterable[int]] = ..., unknown57: _Optional[int] = ..., unknown58: _Optional[_Iterable[int]] = ..., unknown61: _Optional[int] = ..., unknown62: _Optional[_Iterable[int]] = ..., unknown63: _Optional[int] = ..., unknown64: _Optional[int] = ..., unknown67: _Optional[int] = ..., unknown68: _Optional[int] = ..., unknown69: _Optional[int] = ..., bms_err_code_flags: _Optional[_Iterable[int]] = ..., unknown71: _Optional[int] = ..., bat_volt_mv_array: _Optional[_Iterable[int]] = ..., unknown73: _Optional[int] = ..., unknown74: _Optional[int] = ..., unknown75: _Optional[int] = ..., unknown76: _Optional[int] = ..., unknown77: _Optional[int] = ..., unknown78: _Optional[int] = ..., unknown79: _Optional[int] = ..., unknown80: _Optional[int] = ..., pack_sn: _Optional[str] = ..., unknown82: _Optional[int] = ...) -> None: ...
 
-class TimeTaskParamDetail(_message.Message):
+class DP3TimeTaskParamDetail(_message.Message):
     __slots__ = ("type", "val")
     TYPE_FIELD_NUMBER: _ClassVar[int]
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -430,7 +487,7 @@ class TimeTaskParamDetail(_message.Message):
     val: float
     def __init__(self, type: _Optional[_Union[TIME_TASK_DETAIL_TYPE, str]] = ..., val: _Optional[float] = ...) -> None: ...
 
-class TimeTaskItemV2(_message.Message):
+class DP3TimeTaskItemV2(_message.Message):
     __slots__ = ("task_index", "is_cfg", "is_enable", "conflict_flag", "time_mode", "time_param", "time_table", "task_type", "task_param", "task_param_detail")
     TASK_INDEX_FIELD_NUMBER: _ClassVar[int]
     IS_CFG_FIELD_NUMBER: _ClassVar[int]
@@ -451,10 +508,10 @@ class TimeTaskItemV2(_message.Message):
     time_table: int
     task_type: TIME_TASK_TYPE
     task_param: int
-    task_param_detail: _containers.RepeatedCompositeFieldContainer[TimeTaskParamDetail]
-    def __init__(self, task_index: _Optional[int] = ..., is_cfg: bool = ..., is_enable: bool = ..., conflict_flag: _Optional[int] = ..., time_mode: _Optional[_Union[TIME_TASK_MODE, str]] = ..., time_param: _Optional[int] = ..., time_table: _Optional[int] = ..., task_type: _Optional[_Union[TIME_TASK_TYPE, str]] = ..., task_param: _Optional[int] = ..., task_param_detail: _Optional[_Iterable[_Union[TimeTaskParamDetail, _Mapping]]] = ...) -> None: ...
+    task_param_detail: _containers.RepeatedCompositeFieldContainer[DP3TimeTaskParamDetail]
+    def __init__(self, task_index: _Optional[int] = ..., is_cfg: _Optional[bool] = ..., is_enable: _Optional[bool] = ..., conflict_flag: _Optional[int] = ..., time_mode: _Optional[_Union[TIME_TASK_MODE, str]] = ..., time_param: _Optional[int] = ..., time_table: _Optional[int] = ..., task_type: _Optional[_Union[TIME_TASK_TYPE, str]] = ..., task_param: _Optional[int] = ..., task_param_detail: _Optional[_Iterable[_Union[DP3TimeTaskParamDetail, _Mapping]]] = ...) -> None: ...
 
-class DisplayPropertyUpload(_message.Message):
+class DP3DisplayPropertyUpload(_message.Message):
     __slots__ = ("errcode", "pow_in_sum_w", "pow_out_sum_w", "lcd_light", "energy_backup_state", "energy_backup_en", "energy_backup_start_soc", "pow_get_qcusb1", "pow_get_qcusb2", "pow_get_typec1", "pow_get_typec2", "flow_info_qcusb1", "flow_info_qcusb2", "flow_info_typec1", "flow_info_typec2", "dev_standby_time", "screen_off_time", "ac_standby_time", "dc_standby_time", "ac_always_on_mini_soc", "xboost_en", "pcs_fan_level", "flow_info_pv_h", "flow_info_pv_l", "flow_info_12v", "flow_info_24v", "pow_get_pv_h", "pow_get_pv_l", "pow_get_12v", "pow_get_24v", "plug_in_info_pv_h_flag", "plug_in_info_pv_h_type", "plug_in_info_pv_l_flag", "plug_in_info_pv_l_type", "flow_info_ac2dc", "flow_info_dc2ac", "flow_info_ac_in", "flow_info_ac_hv_out", "flow_info_ac_lv_out", "flow_info_5p8_in", "flow_info_5p8_out", "pow_get_llc", "pow_get_ac", "pow_get_ac_in", "pow_get_ac_hv_out", "pow_get_ac_lv_out", "pow_get_ac_lv_tt30_out", "pow_get_5p8", "plug_in_info_ac_in_flag", "plug_in_info_ac_in_feq", "plug_in_info_5p8_flag", "plug_in_info_5p8_type", "plug_in_info_5p8_detail", "current_time_task_v2_item", "utc_timezone", "utc_timezone_id", "utc_set_mode", "bms_err_code", "output_power_off_memory", "flow_info_bms_dsg", "flow_info_bms_chg", "flow_info_4p8_1_in", "flow_info_4p8_1_out", "flow_info_4p8_2_in", "flow_info_4p8_2_out", "pow_get_bms", "pow_get_4p8_1", "pow_get_4p8_2", "plug_in_info_4p8_1_in_flag", "plug_in_info_4p8_1_type", "plug_in_info_4p8_1_detail", "plug_in_info_4p8_2_in_flag", "plug_in_info_4p8_2_type", "plug_in_info_4p8_2_detail", "plug_in_info_pv_l_charger_flag", "plug_in_info_pv_h_charger_flag", "plug_in_info_pv_l_dc_amp_max", "plug_in_info_pv_h_dc_amp_max", "fast_charge_switch", "plug_in_info_4p8_1_dsg_chg_type", "plug_in_info_4p8_1_resv", "plug_in_info_4p8_1_sn", "plug_in_info_4p8_1_firm_ver", "plug_in_info_4p8_2_dsg_chg_type", "plug_in_info_4p8_2_resv", "plug_in_info_4p8_2_sn", "plug_in_info_4p8_2_firm_ver", "plug_in_info_5p8_dsg_chg", "plug_in_info_5p8_resv", "plug_in_info_5p8_sn", "plug_in_info_5p8_firm_ver", "en_beep", "llc_GFCI_flag", "plug_in_info_ac_charger_flag", "plug_in_info_5p8_charger_flag", "plug_in_info_5p8_run_state", "plug_in_info_4p8_1_charger_flag", "plug_in_info_4p8_1_run_state", "plug_in_info_4p8_2_charger_flag", "plug_in_info_4p8_2_run_state", "plug_in_info_ac_in_chg_pow_max", "plug_in_info_5p8_chg_pow_max", "ac_out_freq", "dev_sleep_state", "pd_err_code", "llc_err_code", "mppt_err_code", "plug_in_info_5p8_err_code", "plug_in_info_4p8_1_err_code", "plug_in_info_4p8_2_err_code", "pcs_fan_err_flag", "llc_hv_lv_flag", "llc_inv_err_code", "plug_in_info_pv_h_chg_vol_max", "plug_in_info_pv_l_chg_vol_max", "plug_in_info_pv_l_chg_amp_max", "plug_in_info_pv_h_chg_amp_max", "plug_in_info_5p8_dsg_pow_max", "plug_in_info_ac_out_dsg_pow_max", "bms_batt_soc", "bms_batt_soh", "bms_design_cap", "bms_dsg_rem_time", "bms_chg_rem_time", "bms_min_cell_temp", "bms_max_cell_temp", "bms_min_mos_temp", "bms_max_mos_temp", "cms_batt_soc", "cms_batt_soh", "cms_dsg_rem_time", "cms_chg_rem_time", "cms_max_chg_soc", "cms_min_dsg_soc", "cms_oil_on_soc", "cms_oil_off_soc", "cms_oil_self_start", "cms_bms_run_state", "bms_chg_dsg_state", "cms_chg_dsg_state", "ac_hv_always_on", "ac_lv_always_on", "time_task_conflict_flag", "time_task_change_cnt", "ble_standby_time", "generator_pv_hybrid_mode_open", "generator_pv_hybrid_mode_soc_max", "generator_care_mode_open", "generator_care_mode_start_time", "ac_energy_saving_open", "multi_bp_chg_dsg_mode", "plug_in_info_5p8_chg_hal_pow_max", "plug_in_info_ac_in_chg_hal_pow_max")
     ERRCODE_FIELD_NUMBER: _ClassVar[int]
     POW_IN_SUM_W_FIELD_NUMBER: _ClassVar[int]
@@ -662,7 +719,7 @@ class DisplayPropertyUpload(_message.Message):
     plug_in_info_5p8_flag: int
     plug_in_info_5p8_type: int
     plug_in_info_5p8_detail: int
-    current_time_task_v2_item: TimeTaskItemV2
+    current_time_task_v2_item: DP3TimeTaskItemV2
     utc_timezone: int
     utc_timezone_id: str
     utc_set_mode: int
@@ -689,15 +746,15 @@ class DisplayPropertyUpload(_message.Message):
     plug_in_info_pv_h_dc_amp_max: int
     fast_charge_switch: int
     plug_in_info_4p8_1_dsg_chg_type: int
-    plug_in_info_4p8_1_resv: ResvInfo
+    plug_in_info_4p8_1_resv: DP3ResvInfo
     plug_in_info_4p8_1_sn: str
     plug_in_info_4p8_1_firm_ver: int
     plug_in_info_4p8_2_dsg_chg_type: int
-    plug_in_info_4p8_2_resv: ResvInfo
+    plug_in_info_4p8_2_resv: DP3ResvInfo
     plug_in_info_4p8_2_sn: str
     plug_in_info_4p8_2_firm_ver: int
     plug_in_info_5p8_dsg_chg: int
-    plug_in_info_5p8_resv: ResvInfo
+    plug_in_info_5p8_resv: DP3ResvInfo
     plug_in_info_5p8_sn: str
     plug_in_info_5p8_firm_ver: int
     en_beep: int
@@ -762,15 +819,15 @@ class DisplayPropertyUpload(_message.Message):
     multi_bp_chg_dsg_mode: int
     plug_in_info_5p8_chg_hal_pow_max: int
     plug_in_info_ac_in_chg_hal_pow_max: int
-    def __init__(self, errcode: _Optional[int] = ..., pow_in_sum_w: _Optional[float] = ..., pow_out_sum_w: _Optional[float] = ..., lcd_light: _Optional[int] = ..., energy_backup_state: _Optional[int] = ..., energy_backup_en: _Optional[int] = ..., energy_backup_start_soc: _Optional[int] = ..., pow_get_qcusb1: _Optional[float] = ..., pow_get_qcusb2: _Optional[float] = ..., pow_get_typec1: _Optional[float] = ..., pow_get_typec2: _Optional[float] = ..., flow_info_qcusb1: _Optional[int] = ..., flow_info_qcusb2: _Optional[int] = ..., flow_info_typec1: _Optional[int] = ..., flow_info_typec2: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., ac_standby_time: _Optional[int] = ..., dc_standby_time: _Optional[int] = ..., ac_always_on_mini_soc: _Optional[int] = ..., xboost_en: _Optional[int] = ..., pcs_fan_level: _Optional[int] = ..., flow_info_pv_h: _Optional[int] = ..., flow_info_pv_l: _Optional[int] = ..., flow_info_12v: _Optional[int] = ..., flow_info_24v: _Optional[int] = ..., pow_get_pv_h: _Optional[float] = ..., pow_get_pv_l: _Optional[float] = ..., pow_get_12v: _Optional[float] = ..., pow_get_24v: _Optional[float] = ..., plug_in_info_pv_h_flag: _Optional[int] = ..., plug_in_info_pv_h_type: _Optional[int] = ..., plug_in_info_pv_l_flag: _Optional[int] = ..., plug_in_info_pv_l_type: _Optional[int] = ..., flow_info_ac2dc: _Optional[int] = ..., flow_info_dc2ac: _Optional[int] = ..., flow_info_ac_in: _Optional[int] = ..., flow_info_ac_hv_out: _Optional[int] = ..., flow_info_ac_lv_out: _Optional[int] = ..., flow_info_5p8_in: _Optional[int] = ..., flow_info_5p8_out: _Optional[int] = ..., pow_get_llc: _Optional[float] = ..., pow_get_ac: _Optional[float] = ..., pow_get_ac_in: _Optional[float] = ..., pow_get_ac_hv_out: _Optional[float] = ..., pow_get_ac_lv_out: _Optional[float] = ..., pow_get_ac_lv_tt30_out: _Optional[float] = ..., pow_get_5p8: _Optional[float] = ..., plug_in_info_ac_in_flag: _Optional[int] = ..., plug_in_info_ac_in_feq: _Optional[int] = ..., plug_in_info_5p8_flag: _Optional[int] = ..., plug_in_info_5p8_type: _Optional[int] = ..., plug_in_info_5p8_detail: _Optional[int] = ..., current_time_task_v2_item: _Optional[_Union[TimeTaskItemV2, _Mapping]] = ..., utc_timezone: _Optional[int] = ..., utc_timezone_id: _Optional[str] = ..., utc_set_mode: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., output_power_off_memory: _Optional[int] = ..., flow_info_bms_dsg: _Optional[int] = ..., flow_info_bms_chg: _Optional[int] = ..., flow_info_4p8_1_in: _Optional[int] = ..., flow_info_4p8_1_out: _Optional[int] = ..., flow_info_4p8_2_in: _Optional[int] = ..., flow_info_4p8_2_out: _Optional[int] = ..., pow_get_bms: _Optional[float] = ..., pow_get_4p8_1: _Optional[float] = ..., pow_get_4p8_2: _Optional[float] = ..., plug_in_info_4p8_1_in_flag: _Optional[int] = ..., plug_in_info_4p8_1_type: _Optional[int] = ..., plug_in_info_4p8_1_detail: _Optional[int] = ..., plug_in_info_4p8_2_in_flag: _Optional[int] = ..., plug_in_info_4p8_2_type: _Optional[int] = ..., plug_in_info_4p8_2_detail: _Optional[int] = ..., plug_in_info_pv_l_charger_flag: _Optional[int] = ..., plug_in_info_pv_h_charger_flag: _Optional[int] = ..., plug_in_info_pv_l_dc_amp_max: _Optional[int] = ..., plug_in_info_pv_h_dc_amp_max: _Optional[int] = ..., fast_charge_switch: _Optional[int] = ..., plug_in_info_4p8_1_dsg_chg_type: _Optional[int] = ..., plug_in_info_4p8_1_resv: _Optional[_Union[ResvInfo, _Mapping]] = ..., plug_in_info_4p8_1_sn: _Optional[str] = ..., plug_in_info_4p8_1_firm_ver: _Optional[int] = ..., plug_in_info_4p8_2_dsg_chg_type: _Optional[int] = ..., plug_in_info_4p8_2_resv: _Optional[_Union[ResvInfo, _Mapping]] = ..., plug_in_info_4p8_2_sn: _Optional[str] = ..., plug_in_info_4p8_2_firm_ver: _Optional[int] = ..., plug_in_info_5p8_dsg_chg: _Optional[int] = ..., plug_in_info_5p8_resv: _Optional[_Union[ResvInfo, _Mapping]] = ..., plug_in_info_5p8_sn: _Optional[str] = ..., plug_in_info_5p8_firm_ver: _Optional[int] = ..., en_beep: _Optional[int] = ..., llc_GFCI_flag: _Optional[int] = ..., plug_in_info_ac_charger_flag: _Optional[int] = ..., plug_in_info_5p8_charger_flag: _Optional[int] = ..., plug_in_info_5p8_run_state: _Optional[int] = ..., plug_in_info_4p8_1_charger_flag: _Optional[int] = ..., plug_in_info_4p8_1_run_state: _Optional[int] = ..., plug_in_info_4p8_2_charger_flag: _Optional[int] = ..., plug_in_info_4p8_2_run_state: _Optional[int] = ..., plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., plug_in_info_5p8_chg_pow_max: _Optional[int] = ..., ac_out_freq: _Optional[int] = ..., dev_sleep_state: _Optional[int] = ..., pd_err_code: _Optional[int] = ..., llc_err_code: _Optional[int] = ..., mppt_err_code: _Optional[int] = ..., plug_in_info_5p8_err_code: _Optional[int] = ..., plug_in_info_4p8_1_err_code: _Optional[int] = ..., plug_in_info_4p8_2_err_code: _Optional[int] = ..., pcs_fan_err_flag: _Optional[int] = ..., llc_hv_lv_flag: _Optional[int] = ..., llc_inv_err_code: _Optional[int] = ..., plug_in_info_pv_h_chg_vol_max: _Optional[int] = ..., plug_in_info_pv_l_chg_vol_max: _Optional[int] = ..., plug_in_info_pv_l_chg_amp_max: _Optional[int] = ..., plug_in_info_pv_h_chg_amp_max: _Optional[int] = ..., plug_in_info_5p8_dsg_pow_max: _Optional[int] = ..., plug_in_info_ac_out_dsg_pow_max: _Optional[int] = ..., bms_batt_soc: _Optional[float] = ..., bms_batt_soh: _Optional[float] = ..., bms_design_cap: _Optional[int] = ..., bms_dsg_rem_time: _Optional[int] = ..., bms_chg_rem_time: _Optional[int] = ..., bms_min_cell_temp: _Optional[int] = ..., bms_max_cell_temp: _Optional[int] = ..., bms_min_mos_temp: _Optional[int] = ..., bms_max_mos_temp: _Optional[int] = ..., cms_batt_soc: _Optional[float] = ..., cms_batt_soh: _Optional[float] = ..., cms_dsg_rem_time: _Optional[int] = ..., cms_chg_rem_time: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cms_oil_on_soc: _Optional[int] = ..., cms_oil_off_soc: _Optional[int] = ..., cms_oil_self_start: _Optional[int] = ..., cms_bms_run_state: _Optional[int] = ..., bms_chg_dsg_state: _Optional[int] = ..., cms_chg_dsg_state: _Optional[int] = ..., ac_hv_always_on: _Optional[int] = ..., ac_lv_always_on: _Optional[int] = ..., time_task_conflict_flag: _Optional[int] = ..., time_task_change_cnt: _Optional[int] = ..., ble_standby_time: _Optional[int] = ..., generator_pv_hybrid_mode_open: _Optional[int] = ..., generator_pv_hybrid_mode_soc_max: _Optional[int] = ..., generator_care_mode_open: _Optional[int] = ..., generator_care_mode_start_time: _Optional[int] = ..., ac_energy_saving_open: _Optional[int] = ..., multi_bp_chg_dsg_mode: _Optional[int] = ..., plug_in_info_5p8_chg_hal_pow_max: _Optional[int] = ..., plug_in_info_ac_in_chg_hal_pow_max: _Optional[int] = ...) -> None: ...
+    def __init__(self, errcode: _Optional[int] = ..., pow_in_sum_w: _Optional[float] = ..., pow_out_sum_w: _Optional[float] = ..., lcd_light: _Optional[int] = ..., energy_backup_state: _Optional[int] = ..., energy_backup_en: _Optional[int] = ..., energy_backup_start_soc: _Optional[int] = ..., pow_get_qcusb1: _Optional[float] = ..., pow_get_qcusb2: _Optional[float] = ..., pow_get_typec1: _Optional[float] = ..., pow_get_typec2: _Optional[float] = ..., flow_info_qcusb1: _Optional[int] = ..., flow_info_qcusb2: _Optional[int] = ..., flow_info_typec1: _Optional[int] = ..., flow_info_typec2: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., ac_standby_time: _Optional[int] = ..., dc_standby_time: _Optional[int] = ..., ac_always_on_mini_soc: _Optional[int] = ..., xboost_en: _Optional[int] = ..., pcs_fan_level: _Optional[int] = ..., flow_info_pv_h: _Optional[int] = ..., flow_info_pv_l: _Optional[int] = ..., flow_info_12v: _Optional[int] = ..., flow_info_24v: _Optional[int] = ..., pow_get_pv_h: _Optional[float] = ..., pow_get_pv_l: _Optional[float] = ..., pow_get_12v: _Optional[float] = ..., pow_get_24v: _Optional[float] = ..., plug_in_info_pv_h_flag: _Optional[int] = ..., plug_in_info_pv_h_type: _Optional[int] = ..., plug_in_info_pv_l_flag: _Optional[int] = ..., plug_in_info_pv_l_type: _Optional[int] = ..., flow_info_ac2dc: _Optional[int] = ..., flow_info_dc2ac: _Optional[int] = ..., flow_info_ac_in: _Optional[int] = ..., flow_info_ac_hv_out: _Optional[int] = ..., flow_info_ac_lv_out: _Optional[int] = ..., flow_info_5p8_in: _Optional[int] = ..., flow_info_5p8_out: _Optional[int] = ..., pow_get_llc: _Optional[float] = ..., pow_get_ac: _Optional[float] = ..., pow_get_ac_in: _Optional[float] = ..., pow_get_ac_hv_out: _Optional[float] = ..., pow_get_ac_lv_out: _Optional[float] = ..., pow_get_ac_lv_tt30_out: _Optional[float] = ..., pow_get_5p8: _Optional[float] = ..., plug_in_info_ac_in_flag: _Optional[int] = ..., plug_in_info_ac_in_feq: _Optional[int] = ..., plug_in_info_5p8_flag: _Optional[int] = ..., plug_in_info_5p8_type: _Optional[int] = ..., plug_in_info_5p8_detail: _Optional[int] = ..., current_time_task_v2_item: _Optional[_Union[DP3TimeTaskItemV2, _Mapping]] = ..., utc_timezone: _Optional[int] = ..., utc_timezone_id: _Optional[str] = ..., utc_set_mode: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., output_power_off_memory: _Optional[int] = ..., flow_info_bms_dsg: _Optional[int] = ..., flow_info_bms_chg: _Optional[int] = ..., flow_info_4p8_1_in: _Optional[int] = ..., flow_info_4p8_1_out: _Optional[int] = ..., flow_info_4p8_2_in: _Optional[int] = ..., flow_info_4p8_2_out: _Optional[int] = ..., pow_get_bms: _Optional[float] = ..., pow_get_4p8_1: _Optional[float] = ..., pow_get_4p8_2: _Optional[float] = ..., plug_in_info_4p8_1_in_flag: _Optional[int] = ..., plug_in_info_4p8_1_type: _Optional[int] = ..., plug_in_info_4p8_1_detail: _Optional[int] = ..., plug_in_info_4p8_2_in_flag: _Optional[int] = ..., plug_in_info_4p8_2_type: _Optional[int] = ..., plug_in_info_4p8_2_detail: _Optional[int] = ..., plug_in_info_pv_l_charger_flag: _Optional[int] = ..., plug_in_info_pv_h_charger_flag: _Optional[int] = ..., plug_in_info_pv_l_dc_amp_max: _Optional[int] = ..., plug_in_info_pv_h_dc_amp_max: _Optional[int] = ..., fast_charge_switch: _Optional[int] = ..., plug_in_info_4p8_1_dsg_chg_type: _Optional[int] = ..., plug_in_info_4p8_1_resv: _Optional[_Union[DP3ResvInfo, _Mapping]] = ..., plug_in_info_4p8_1_sn: _Optional[str] = ..., plug_in_info_4p8_1_firm_ver: _Optional[int] = ..., plug_in_info_4p8_2_dsg_chg_type: _Optional[int] = ..., plug_in_info_4p8_2_resv: _Optional[_Union[DP3ResvInfo, _Mapping]] = ..., plug_in_info_4p8_2_sn: _Optional[str] = ..., plug_in_info_4p8_2_firm_ver: _Optional[int] = ..., plug_in_info_5p8_dsg_chg: _Optional[int] = ..., plug_in_info_5p8_resv: _Optional[_Union[DP3ResvInfo, _Mapping]] = ..., plug_in_info_5p8_sn: _Optional[str] = ..., plug_in_info_5p8_firm_ver: _Optional[int] = ..., en_beep: _Optional[int] = ..., llc_GFCI_flag: _Optional[int] = ..., plug_in_info_ac_charger_flag: _Optional[int] = ..., plug_in_info_5p8_charger_flag: _Optional[int] = ..., plug_in_info_5p8_run_state: _Optional[int] = ..., plug_in_info_4p8_1_charger_flag: _Optional[int] = ..., plug_in_info_4p8_1_run_state: _Optional[int] = ..., plug_in_info_4p8_2_charger_flag: _Optional[int] = ..., plug_in_info_4p8_2_run_state: _Optional[int] = ..., plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., plug_in_info_5p8_chg_pow_max: _Optional[int] = ..., ac_out_freq: _Optional[int] = ..., dev_sleep_state: _Optional[int] = ..., pd_err_code: _Optional[int] = ..., llc_err_code: _Optional[int] = ..., mppt_err_code: _Optional[int] = ..., plug_in_info_5p8_err_code: _Optional[int] = ..., plug_in_info_4p8_1_err_code: _Optional[int] = ..., plug_in_info_4p8_2_err_code: _Optional[int] = ..., pcs_fan_err_flag: _Optional[int] = ..., llc_hv_lv_flag: _Optional[int] = ..., llc_inv_err_code: _Optional[int] = ..., plug_in_info_pv_h_chg_vol_max: _Optional[int] = ..., plug_in_info_pv_l_chg_vol_max: _Optional[int] = ..., plug_in_info_pv_l_chg_amp_max: _Optional[int] = ..., plug_in_info_pv_h_chg_amp_max: _Optional[int] = ..., plug_in_info_5p8_dsg_pow_max: _Optional[int] = ..., plug_in_info_ac_out_dsg_pow_max: _Optional[int] = ..., bms_batt_soc: _Optional[float] = ..., bms_batt_soh: _Optional[float] = ..., bms_design_cap: _Optional[int] = ..., bms_dsg_rem_time: _Optional[int] = ..., bms_chg_rem_time: _Optional[int] = ..., bms_min_cell_temp: _Optional[int] = ..., bms_max_cell_temp: _Optional[int] = ..., bms_min_mos_temp: _Optional[int] = ..., bms_max_mos_temp: _Optional[int] = ..., cms_batt_soc: _Optional[float] = ..., cms_batt_soh: _Optional[float] = ..., cms_dsg_rem_time: _Optional[int] = ..., cms_chg_rem_time: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cms_oil_on_soc: _Optional[int] = ..., cms_oil_off_soc: _Optional[int] = ..., cms_oil_self_start: _Optional[int] = ..., cms_bms_run_state: _Optional[int] = ..., bms_chg_dsg_state: _Optional[int] = ..., cms_chg_dsg_state: _Optional[int] = ..., ac_hv_always_on: _Optional[int] = ..., ac_lv_always_on: _Optional[int] = ..., time_task_conflict_flag: _Optional[int] = ..., time_task_change_cnt: _Optional[int] = ..., ble_standby_time: _Optional[int] = ..., generator_pv_hybrid_mode_open: _Optional[int] = ..., generator_pv_hybrid_mode_soc_max: _Optional[int] = ..., generator_care_mode_open: _Optional[int] = ..., generator_care_mode_start_time: _Optional[int] = ..., ac_energy_saving_open: _Optional[int] = ..., multi_bp_chg_dsg_mode: _Optional[int] = ..., plug_in_info_5p8_chg_hal_pow_max: _Optional[int] = ..., plug_in_info_ac_in_chg_hal_pow_max: _Optional[int] = ...) -> None: ...
 
-class ResvInfo(_message.Message):
+class DP3ResvInfo(_message.Message):
     __slots__ = ("resv_info",)
     RESV_INFO_FIELD_NUMBER: _ClassVar[int]
     resv_info: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, resv_info: _Optional[_Iterable[int]] = ...) -> None: ...
 
-class struct32_2_1(_message.Message):
+class DP3CMSStatus1(_message.Message):
     __slots__ = ("cms_status_misc1", "cms_status_misc2", "cms_status_misc3", "cms_batt_vol_mv", "cms_chg_req_amp", "cms_status_misc4", "cms_max_chg_soc", "cms_min_dsg_soc", "ac_out_freq", "cms_status_misc5", "cms_status_misc6", "cms_chg_rem_time", "cms_dsg_rem_time", "cms_chg_dsg_state", "cms_batt_soc", "bms_is_conn_state", "cms_status_misc7", "cms_status_misc8", "cms_status_misc9", "cms_status_misc10", "cms_status_misc11", "cms_status_misc12", "cms_oil_off_soc")
     CMS_STATUS_MISC1_FIELD_NUMBER: _ClassVar[int]
     CMS_STATUS_MISC2_FIELD_NUMBER: _ClassVar[int]
@@ -820,7 +877,7 @@ class struct32_2_1(_message.Message):
     cms_oil_off_soc: int
     def __init__(self, cms_status_misc1: _Optional[int] = ..., cms_status_misc2: _Optional[int] = ..., cms_status_misc3: _Optional[int] = ..., cms_batt_vol_mv: _Optional[int] = ..., cms_chg_req_amp: _Optional[int] = ..., cms_status_misc4: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., ac_out_freq: _Optional[int] = ..., cms_status_misc5: _Optional[int] = ..., cms_status_misc6: _Optional[int] = ..., cms_chg_rem_time: _Optional[int] = ..., cms_dsg_rem_time: _Optional[int] = ..., cms_chg_dsg_state: _Optional[int] = ..., cms_batt_soc: _Optional[float] = ..., bms_is_conn_state: _Optional[_Iterable[int]] = ..., cms_status_misc7: _Optional[int] = ..., cms_status_misc8: _Optional[int] = ..., cms_status_misc9: _Optional[int] = ..., cms_status_misc10: _Optional[int] = ..., cms_status_misc11: _Optional[int] = ..., cms_status_misc12: _Optional[int] = ..., cms_oil_off_soc: _Optional[int] = ...) -> None: ...
 
-class struct32_2_2(_message.Message):
+class DP3CMSStatus2(_message.Message):
     __slots__ = ("cms_status_misc13", "cms_status_misc14", "cms_status_misc15", "cms_status_misc16", "cms_status_misc17")
     CMS_STATUS_MISC13_FIELD_NUMBER: _ClassVar[int]
     CMS_STATUS_MISC14_FIELD_NUMBER: _ClassVar[int]
@@ -834,15 +891,15 @@ class struct32_2_2(_message.Message):
     cms_status_misc17: int
     def __init__(self, cms_status_misc13: _Optional[int] = ..., cms_status_misc14: _Optional[int] = ..., cms_status_misc15: _Optional[int] = ..., cms_status_misc16: _Optional[int] = ..., cms_status_misc17: _Optional[int] = ...) -> None: ...
 
-class cmdFunc32_cmdId2_Report(_message.Message):
+class DP3CMSHeartBeatReport(_message.Message):
     __slots__ = ("msg32_2_1", "msg32_2_2")
     MSG32_2_1_FIELD_NUMBER: _ClassVar[int]
     MSG32_2_2_FIELD_NUMBER: _ClassVar[int]
-    msg32_2_1: struct32_2_1
-    msg32_2_2: struct32_2_2
-    def __init__(self, msg32_2_1: _Optional[_Union[struct32_2_1, _Mapping]] = ..., msg32_2_2: _Optional[_Union[struct32_2_2, _Mapping]] = ...) -> None: ...
+    msg32_2_1: DP3CMSStatus1
+    msg32_2_2: DP3CMSStatus2
+    def __init__(self, msg32_2_1: _Optional[_Union[DP3CMSStatus1, _Mapping]] = ..., msg32_2_2: _Optional[_Union[DP3CMSStatus2, _Mapping]] = ...) -> None: ...
 
-class cmdFunc254_cmdId22_Report(_message.Message):
+class DP3RuntimePropertyReport(_message.Message):
     __slots__ = ("report_timestamp", "unknown2_f22", "unknown5_f22")
     REPORT_TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN2_F22_FIELD_NUMBER: _ClassVar[int]
@@ -852,7 +909,7 @@ class cmdFunc254_cmdId22_Report(_message.Message):
     unknown5_f22: int
     def __init__(self, report_timestamp: _Optional[int] = ..., unknown2_f22: _Optional[float] = ..., unknown5_f22: _Optional[int] = ...) -> None: ...
 
-class cmdFunc254_cmdId23_Report(_message.Message):
+class DP3DisplayPropertyReport(_message.Message):
     __slots__ = ("report_timestamp", "unknown2_f23", "unknown5_f23")
     REPORT_TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN2_F23_FIELD_NUMBER: _ClassVar[int]
@@ -862,7 +919,7 @@ class cmdFunc254_cmdId23_Report(_message.Message):
     unknown5_f23: int
     def __init__(self, report_timestamp: _Optional[int] = ..., unknown2_f23: _Optional[float] = ..., unknown5_f23: _Optional[int] = ...) -> None: ...
 
-class set_dp3(_message.Message):
+class DP3SetCommand(_message.Message):
     __slots__ = ("cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
     CFGPOWEROFF_FIELD_NUMBER: _ClassVar[int]
     ENBEEP_FIELD_NUMBER: _ClassVar[int]
@@ -916,7 +973,7 @@ class set_dp3(_message.Message):
     unknown167: int
     def __init__(self, cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
 
-class setReply_dp3(_message.Message):
+class DP3SetReply(_message.Message):
     __slots__ = ("actionId", "configOk", "cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
     ACTIONID_FIELD_NUMBER: _ClassVar[int]
     CONFIGOK_FIELD_NUMBER: _ClassVar[int]
@@ -972,9 +1029,9 @@ class setReply_dp3(_message.Message):
     multiBpChgDsgMode: int
     lowDischargeLimitCmd: int
     unknown167: int
-    def __init__(self, actionId: _Optional[int] = ..., configOk: bool = ..., cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
+    def __init__(self, actionId: _Optional[int] = ..., configOk: _Optional[bool] = ..., cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
 
-class setValue(_message.Message):
+class DP3SetValue(_message.Message):
     __slots__ = ("value", "value2")
     VALUE_FIELD_NUMBER: _ClassVar[int]
     VALUE2_FIELD_NUMBER: _ClassVar[int]
@@ -982,25 +1039,25 @@ class setValue(_message.Message):
     value2: int
     def __init__(self, value: _Optional[int] = ..., value2: _Optional[int] = ...) -> None: ...
 
-class setMessage(_message.Message):
+class DP3SetMessage(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    header: _ecopacket_pb2.Header
-    def __init__(self, header: _Optional[_Union[_ecopacket_pb2.Header, _Mapping]] = ...) -> None: ...
+    header: DP3Header
+    def __init__(self, header: _Optional[_Union[DP3Header, _Mapping]] = ...) -> None: ...
 
-class HeaderMessage(_message.Message):
+class DP3HeaderMessage(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    header: _containers.RepeatedCompositeFieldContainer[_ecopacket_pb2.Header]
-    def __init__(self, header: _Optional[_Iterable[_Union[_ecopacket_pb2.Header, _Mapping]]] = ...) -> None: ...
+    header: _containers.RepeatedCompositeFieldContainer[DP3Header]
+    def __init__(self, header: _Optional[_Iterable[_Union[DP3Header, _Mapping]]] = ...) -> None: ...
 
-class Send_Header_Msg(_message.Message):
+class DP3SendHeaderMsgLegacy(_message.Message):
     __slots__ = ("msg",)
     MSG_FIELD_NUMBER: _ClassVar[int]
-    msg: _ecopacket_pb2.Header
-    def __init__(self, msg: _Optional[_Union[_ecopacket_pb2.Header, _Mapping]] = ...) -> None: ...
+    msg: DP3Header
+    def __init__(self, msg: _Optional[_Union[DP3Header, _Mapping]] = ...) -> None: ...
 
-class BMSHeartBeatReport(_message.Message):
+class DP3BMSHeartBeatReport(_message.Message):
     __slots__ = ("num", "type", "cell_id", "err_code", "sys_ver", "soc", "vol", "amp", "temp", "open_bms_flag", "design_cap", "remain_cap", "full_cap", "cycles", "soh", "max_cell_vol", "min_cell_vol", "max_cell_temp", "min_cell_temp", "max_mos_temp", "min_mos_temp", "bms_fault", "bq_sys_stat_reg", "tag_chg_amp", "f32_show_soc", "input_watts", "output_watts", "remain_time", "mos_state", "balance_state", "max_vol_diff", "cell_series_num", "cell_vol", "cell_ntc_num", "cell_temp", "hw_ver", "bms_heartbeat_ver", "ecloud_ocv", "bms_sn", "product_type", "product_detail", "act_soc", "diff_soc", "target_soc", "sys_loader_ver", "sys_state", "chg_dsg_state", "all_err_code", "all_bms_fault", "accu_chg_cap", "accu_dsg_cap", "real_soh", "calendar_soh", "cycle_soh", "mos_ntc_num", "mos_temp", "env_ntc_num", "env_temp", "heatfilm_ntc_num", "heatfilm_temp", "cur_sensor_ntc_num", "cur_sensor_temp", "max_env_temp", "min_env_temp", "max_heatfilm_temp", "min_heatfilm_temp", "max_cur_sensor_temp", "min_cur_sensor_temp", "balance_cmd", "remain_balance_time", "afe_sys_status", "mcu_pin_in_status", "mcu_pin_out_status", "bms_alarm_state1", "bms_alarm_state2", "bms_protect_state1", "bms_protect_state2", "bms_fault_state", "accu_chg_energy", "accu_dsg_energy", "pack_sn", "water_in_flag")
     NUM_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]

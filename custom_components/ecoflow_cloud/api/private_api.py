@@ -18,7 +18,10 @@ _LOGGER = logging.getLogger(__name__)
 
 @runtime_checkable
 class PrivateAPIMessageProtocol(Protocol):
-    def private_api_to_mqtt_payload(self) -> PayloadType:
+    def to_mqtt_payload(self) -> PayloadType:
+        raise NotImplementedError()
+
+    def to_dict(self) -> dict:
         raise NotImplementedError()
 
 
@@ -170,7 +173,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         if isinstance(command, PrivateAPIMessageProtocol):
             self.mqtt_client.publish(
                 self.devices[device_sn].device_info.get_topic,
-                command.private_api_to_mqtt_payload(),
+                command.to_mqtt_payload(),
             )
         else:
             super().send_get_message(device_sn, command)
@@ -182,7 +185,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             self.devices[device_sn].data.update_to_target_state(mqtt_state)
             self.mqtt_client.publish(
                 self.devices[device_sn].device_info.set_topic,
-                command.private_api_to_mqtt_payload(),
+                command.to_mqtt_payload(),
             )
         else:
             super().send_set_message(device_sn, mqtt_state, command)

@@ -66,13 +66,13 @@
 - Status
 
 *Switches*
-- Feed-in Control (`20_1.feedProtect` -> `{"from": "HomeAssistant", "id": "999922808", "version": "1.0", "sn": "SN", "cmdCode": "PRIVATE_API_POWERSTREAM_SET_FEED_PROTECT", "params": {"value": "VALUE"}}`)
+- Feed-in Control (`20_1.feedProtect` -> `{"PowerStreamSendHeaderMsg": {"msg": [{"pdata": {"PowerStreamSetValue": {"value": 6666}}, "src": 32, "dest": 53, "d_src": 1, "d_dest": 1, "check_type": 3, "cmd_func": 20, "cmd_id": 143, "data_len": 3, "need_ack": 1, "version": 19, "payload_ver": 1, "from_": "HomeAssistant", "device_sn": "SN"}]}}`)
 
 *Sliders (numbers)*
-- Max Charge Level (`20_1.upperLimit` -> `{"from": "HomeAssistant", "id": "999919404", "version": "1.0", "sn": "SN", "cmdCode": "WN511_SET_BAT_UPPER_PACK", "params": {"upperLimit": "VALUE"}}` [50 - 100])
-- Min Discharge Level (`20_1.lowerLimit` -> `{"from": "HomeAssistant", "id": "999962534", "version": "1.0", "sn": "SN", "cmdCode": "WN511_SET_BAT_LOWER_PACK", "params": {"lowerLimit": "VALUE"}}` [0 - 30])
+- Max Charge Level (`20_1.upperLimit` -> `{"PowerStreamSendHeaderMsg": {"msg": [{"pdata": {"PowerStreamBatUpperPack": {"upper_limit": 6666}}, "src": 32, "dest": 53, "d_src": 1, "d_dest": 1, "check_type": 3, "cmd_func": 20, "cmd_id": 133, "data_len": 3, "need_ack": 1, "version": 19, "payload_ver": 1, "from_": "HomeAssistant", "device_sn": "SN"}]}}` [50 - 100])
+- Min Discharge Level (`20_1.lowerLimit` -> `{"PowerStreamSendHeaderMsg": {"msg": [{"pdata": {"PowerStreamBatLowerPack": {"lower_limit": 6666}}, "src": 32, "dest": 53, "d_src": 1, "d_dest": 1, "check_type": 3, "cmd_func": 20, "cmd_id": 132, "data_len": 3, "need_ack": 1, "version": 19, "payload_ver": 1, "from_": "HomeAssistant", "device_sn": "SN"}]}}` [0 - 30])
 
 *Selects*
-- Power supply mode (`20_1.supplyPriority` -> `{"from": "HomeAssistant", "id": "999976630", "version": "1.0", "sn": "SN", "cmdCode": "WN511_SET_SUPPLY_PRIORITY_PACK", "params": {"supplyPriority": "VALUE"}}` [Prioritize power supply (0), Prioritize power storage (1)])
+- Power supply mode (`20_1.supplyPriority` -> `{"PowerStreamSendHeaderMsg": {"msg": [{"pdata": {"PowerStreamSupplyPriorityPack": {"supply_priority": 6666}}, "src": 32, "dest": 53, "d_src": 1, "d_dest": 1, "check_type": 3, "cmd_func": 20, "cmd_id": 130, "data_len": 3, "need_ack": 1, "version": 19, "payload_ver": 1, "from_": "HomeAssistant", "device_sn": "SN"}]}}` [Prioritize power supply (0), Prioritize power storage (1)])
 
 
