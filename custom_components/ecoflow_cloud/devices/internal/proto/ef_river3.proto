@@ -2,7 +2,39 @@ syntax = "proto3";
 
 // EcoFlow River 3 Protocol Buffer Definitions
 
-import "ecopacket.proto";
+message River3Header
+{
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src= 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+    optional int32 time_snap = 18;
+    optional int32 is_rw_cmd = 19;
+    optional int32 is_queue = 20;
+    optional int32 ack_type= 21;
+    optional string code = 22;
+    optional string from = 23;
+    optional string module_sn = 24;
+    optional string device_sn = 25;
+}
+
+message River3SendHeaderMsg
+{
+    repeated River3Header msg = 1;
+}
+
 
 // Display Property Upload - cmdFunc=254, cmdId=21
 message River3DisplayPropertyUpload {
@@ -404,5 +436,6 @@ message River3DisplayStatisticsRecordList {
 
 // Header Message Wrapper
 message River3HeaderMessage {
-    repeated Header header = 1;
+    repeated River3Header header = 1;
 }
+

@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+message SmartMeterRuntimePropertyUpload {
+   optional int32 display_property_full_upload_period = 293;
+   optional int32 display_property_incremental_upload_period = 294;
+   optional int32 runtime_property_full_upload_period = 295;
+   optional int32 runtime_property_incremental_upload_period = 296;
+} 
+
+message SmartMeterDisplayPropertyUpload {
+  optional int32 utc_timezone = 133;
+  optional string utc_timezone_id = 134;
+  optional uint32 utc_set_mode = 135; //bool
+  optional float totalPower = 515;
+  
+  optional float unknown618 = 618;
+  optional uint32 unknown619 = 619; //bool?
+  
+  repeated string unknown627 = 627;
+  repeated string unknown728 = 728;
+
+  optional uint32 unknown729 = 729;
+  optional uint32 unknown732 = 732;
+  optional uint32 unknown733 = 733;
+  optional uint32 unknown762 = 762;
+  optional uint32 unknown763 = 763;
+  optional uint32 unknown764 = 764;
+
+  optional float voltageL3 = 771;
+  optional float powerL3 = 772;
+  optional SmartMeterEnergyArray energy = 773;
+  optional float currentL1 = 784; // ??
+  optional float voltageL1 = 956;
+  optional float voltageL2 = 957;
+  optional float currentL3 = 958; // ??
+  optional float currentL2 = 959; // ??
+  optional float powerL1 = 962;
+  optional float powerL2 = 963;
+  //optional uint32 unknown = 984;
+}
+
+message SmartMeterEnergyArray {
+  optional float energyL1daily = 1; //Nettoverbrauch L1
+  optional float energyL2daily = 2; //Nettoverbrauch L2
+  optional float energyL3daily = 3; //Nettoverbrauch L3
+  optional float lifeTimeEnergyConsumption = 4; // Lebenszeit Verbrauch
+  optional float lifeTimeEnergyDelivery = 6; // Lebenszeit Einspeisung
+  optional float netEnergyConsumption = 7; // Nettoverbrauch
+}
+
+message SmartMeterSetMessage {
+    repeated SmartMeterSetHeader msg = 1;
+}
+
+message SmartMeterSetValue {
+    optional int32 value = 1;
+	optional int32 value2 = 2;
+}
+
+message SmartMeterSetHeader {
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src = 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+    optional int32 time_snap = 18;
+    optional int32 is_rw_cmd = 19;
+    optional int32 is_queue = 20;
+    optional int32 ack_type = 21;
+    optional string code = 22;
+    optional string from_ = 23;
+    optional string module_sn = 24;
+    optional string device_sn = 25;
+}
+
+message SmartMeterSentDisplayPropertyUpload {
+    SmartMeterSetHeader3 header = 1;
+}
+
+message SmartMeterSentRuntimePropertyUpload {
+    SmartMeterSetHeader4 header = 1;
+} 
+
+ message SmartMeterSetHeader4 {
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src = 4;
+    optional int32 d_dest = 5;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+}
+
+ message SmartMeterSetHeader3 {
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src = 4;
+    optional int32 d_dest = 5;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+}

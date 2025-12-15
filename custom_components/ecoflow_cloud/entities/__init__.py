@@ -70,29 +70,22 @@ class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
         self._attr_entity_category = category
         return self
 
-    def with_device_class(
-        self, device_class: str
-    ) -> EcoFlowAbstractEntity:
+    def with_device_class(self, device_class: str) -> EcoFlowAbstractEntity:
         self._attr_device_class = device_class
         return self
 
-    def with_icon(
-        self, icon: str
-    ) -> EcoFlowAbstractEntity:
+    def with_icon(self, icon: str) -> EcoFlowAbstractEntity:
         self._attr_icon = icon
         return self
 
-    def with_state_class(
-        self, state_class: str
-    ) -> EcoFlowAbstractEntity:
+    def with_state_class(self, state_class: str) -> EcoFlowAbstractEntity:
         self._attr_state_class = state_class
         return self
 
-    def with_unit_of_measurement(
-        self, unit: str
-    ) -> EcoFlowAbstractEntity:
+    def with_unit_of_measurement(self, unit: str) -> EcoFlowAbstractEntity:
         self._attr_native_unit_of_measurement = unit
         return self
+
 
 class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def __init__(
@@ -103,7 +96,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         title: str,
         enabled: bool = True,
         auto_enable: bool = False,
-        diagnostic: Optional[bool] = None
+        diagnostic: Optional[bool] = None,
     ):
         super().__init__(client, device, title, mqtt_key)
 
@@ -119,7 +112,9 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         self.__attributes_mapping: dict[str, str] = {}
         self.__attrs = OrderedDict[str, Any]()
         if diagnostic is not None:
-            self._attr_entity_category = EntityCategory.DIAGNOSTIC if diagnostic else None
+            self._attr_entity_category = (
+                EntityCategory.DIAGNOSTIC if diagnostic else None
+            )
 
     def attr(self, mqtt_key: str, title: str, default: Any) -> EcoFlowDictEntity:
         self.__attributes_mapping[mqtt_key] = title

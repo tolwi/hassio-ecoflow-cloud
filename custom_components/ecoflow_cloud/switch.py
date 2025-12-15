@@ -46,7 +46,9 @@ class EnabledEntity(BaseSwitchEntity[int]):
 
     def _update_value(self, val: Any) -> bool:
         _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
-        self._attr_is_on = self._enable_value == val if self._enable_value is not None else bool(val)
+        self._attr_is_on = (
+            self._enable_value == val if self._enable_value is not None else bool(val)
+        )
         return True
 
     def turn_on(self, **kwargs: Any) -> None:
@@ -58,6 +60,7 @@ class EnabledEntity(BaseSwitchEntity[int]):
         if self._command:
             value = self._disable_value if self._disable_value is not None else 0
             self.send_set_message(value, self.command_dict(value))
+
 
 class BitMaskEnableEntity(EnabledEntity):
     """
@@ -181,7 +184,17 @@ class BeeperEntity(EnabledEntity):
         enableValue: Any = 0,
         disableValue: Any = 1,
     ):
-        super().__init__(client, device, mqtt_key, title, command, enabled, auto_enable, enableValue, disableValue)
+        super().__init__(
+            client,
+            device,
+            mqtt_key,
+            title,
+            command,
+            enabled,
+            auto_enable,
+            enableValue,
+            disableValue,
+        )
 
     @property
     def icon(self) -> str | None:
