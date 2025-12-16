@@ -5,18 +5,18 @@ import struct
 from datetime import timedelta
 from typing import Any, Mapping, OrderedDict, override
 
-from homeassistant.components.binary_sensor import ( # pyright: ignore[reportMissingImports]
+from homeassistant.components.binary_sensor import (  # pyright: ignore[reportMissingImports]
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
-from homeassistant.components.sensor import ( # pyright: ignore[reportMissingImports]
+from homeassistant.components.sensor import (  # pyright: ignore[reportMissingImports]
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.components.integration.sensor import IntegrationSensor # pyright: ignore[reportMissingImports]
-from homeassistant.config_entries import ConfigEntry # pyright: ignore[reportMissingImports]
-from homeassistant.const import ( # pyright: ignore[reportMissingImports]
+from homeassistant.components.integration.sensor import IntegrationSensor  # pyright: ignore[reportMissingImports]
+from homeassistant.config_entries import ConfigEntry  # pyright: ignore[reportMissingImports]
+from homeassistant.const import (  # pyright: ignore[reportMissingImports]
     PERCENTAGE,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -28,11 +28,11 @@ from homeassistant.const import ( # pyright: ignore[reportMissingImports]
     UnitOfTemperature,
     UnitOfTime,
 )
-from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback # pyright: ignore[reportMissingImports]
-from homeassistant.helpers.entity import EntityCategory # pyright: ignore[reportMissingImports]
-from homeassistant.helpers.entity_platform import AddEntitiesCallback # pyright: ignore[reportMissingImports]
-from homeassistant.helpers.event import async_track_state_change_event # pyright: ignore[reportMissingImports]
-from homeassistant.util import dt # pyright: ignore[reportMissingImports]
+from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback  # pyright: ignore[reportMissingImports]
+from homeassistant.helpers.entity import EntityCategory  # pyright: ignore[reportMissingImports]
+from homeassistant.helpers.entity_platform import AddEntitiesCallback  # pyright: ignore[reportMissingImports]
+from homeassistant.helpers.event import async_track_state_change_event  # pyright: ignore[reportMissingImports]
+from homeassistant.util import dt  # pyright: ignore[reportMissingImports]
 
 from . import (
     ATTR_MQTT_CONNECTED,
@@ -70,16 +70,35 @@ async def async_setup_entry(
         async_add_entities([s.energy_sensor() for s in integral_sensors])
 
         # Add power difference sensors for new HA Energy panel "now" tab
-        total_in_power = next(filter(lambda s: isinstance(s, InWattsSensorEntity) and s.title() == const.TOTAL_IN_POWER, sensors), None)
-        total_out_power = next(filter(lambda s: isinstance(s, OutWattsSensorEntity) and s.title() == const.TOTAL_OUT_POWER, sensors), None)
+        total_in_power = next(
+            filter(
+                lambda s: isinstance(s, InWattsSensorEntity)
+                and s.title() == const.TOTAL_IN_POWER,
+                sensors,
+            ),
+            None,
+        )
+        total_out_power = next(
+            filter(
+                lambda s: isinstance(s, OutWattsSensorEntity)
+                and s.title() == const.TOTAL_OUT_POWER,
+                sensors,
+            ),
+            None,
+        )
         if total_in_power and total_out_power:
-            async_add_entities([WattsDifferenceSensorEntity(
-                client,
-                device,
-                const.POWER_DIFFERENCE,
-                total_in_power,
-                total_out_power,
-            )])
+            async_add_entities(
+                [
+                    WattsDifferenceSensorEntity(
+                        client,
+                        device,
+                        const.POWER_DIFFERENCE,
+                        total_in_power,
+                        total_out_power,
+                    )
+                ]
+            )
+
 
 class MiscBinarySensorEntity(BinarySensorEntity, EcoFlowDictEntity):
     def _update_value(self, val: Any) -> bool:
@@ -274,9 +293,24 @@ class WattsSensorEntity(BaseSensorEntity):
     _attr_suggested_display_precision = 0
 
     def __init__(
-        self, client, device, mqtt_key, title, enabled=True, auto_enable=False, diagnostic=None
+        self,
+        client,
+        device,
+        mqtt_key,
+        title,
+        enabled=True,
+        auto_enable=False,
+        diagnostic=None,
     ):
-        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic if diagnostic is not None else EntityCategory.DIAGNOSTIC)
+        super().__init__(
+            client,
+            device,
+            mqtt_key,
+            title,
+            enabled,
+            auto_enable,
+            diagnostic if diagnostic is not None else EntityCategory.DIAGNOSTIC,
+        )
         self._energy_enabled = False
         self._energy_enabled_default = True
 
@@ -462,7 +496,7 @@ class _OnlineStatus(enum.Enum):
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    offline_barrier_sec: int = 120  # 2 minutes
+    offline_barrier_sec: int = 300  # 5 minutes
 
     def __init__(
         self,
@@ -634,6 +668,7 @@ class ReconnectStatusSensorEntity(StatusSensorEntity):
         else:
             return super()._actualize_status()
 
+
 class IntegralEnergySensorEntity(IntegrationSensor):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -654,7 +689,10 @@ class IntegralEnergySensorEntity(IntegrationSensor):
             max_sub_interval=timedelta(seconds=60),
         )
         self.device_info = base.device_info
-        self._attr_entity_registry_enabled_default = enabled_default and base.enabled_default
+        self._attr_entity_registry_enabled_default = (
+            enabled_default and base.enabled_default
+        )
+
 
 class SolarPowerSensorEntity(WattsSensorEntity):
     _attr_entity_category = None
@@ -671,9 +709,11 @@ class SystemPowerSensorEntity(WattsSensorEntity):
     _attr_entity_category = None
     _attr_suggested_display_precision = 1
 
+
 # Code based on HA's native MinMaxSensor helper sensor for combining multiple sensors with math operations
 class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     """Sensor to calculate power consumed as output minus input power for Energy panel."""
+
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_device_class = SensorDeviceClass.POWER
     _attr_native_unit_of_measurement = UnitOfPower.WATT
@@ -688,7 +728,9 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         input: InWattsSensorEntity,
         output: OutWattsSensorEntity,
     ):
-        super().__init__(client, device, title, re.sub(r'[^a-zA-Z0-9-]', '_', title.lower()))
+        super().__init__(
+            client, device, title, re.sub(r"[^a-zA-Z0-9-]", "_", title.lower())
+        )
 
         self._output_sensor = output
         self._input_sensor = input
@@ -697,10 +739,15 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     async def async_added_to_hass(self) -> None:
         """Handle added to Hass."""
-        source_entity_ids = [self._input_sensor.entity_id, self._output_sensor.entity_id]
+        source_entity_ids = [
+            self._input_sensor.entity_id,
+            self._output_sensor.entity_id,
+        ]
         self.async_on_remove(
             async_track_state_change_event(
-                self.hass, source_entity_ids, self._async_difference_sensor_state_listener
+                self.hass,
+                source_entity_ids,
+                self._async_difference_sensor_state_listener,
             )
         )
 
@@ -710,7 +757,9 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
             state_event: Event[EventStateChangedData] = Event(
                 "", {"entity_id": entity_id, "new_state": state, "old_state": None}
             )
-            self._async_difference_sensor_state_listener(state_event, update_state=False)
+            self._async_difference_sensor_state_listener(
+                state_event, update_state=False
+            )
 
         self._calc_difference()
 
@@ -767,4 +816,7 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         ):
             self._difference = None
             return
-        self._difference = self._states[self._output_sensor.entity_id] - self._states[self._input_sensor.entity_id]
+        self._difference = (
+            self._states[self._output_sensor.entity_id]
+            - self._states[self._input_sensor.entity_id]
+        )
