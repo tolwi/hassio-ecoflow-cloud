@@ -24,7 +24,7 @@
 - AC HV Output Power (`pow_get_ac_hv_out`)
 - AC LV Output Power (`pow_get_ac_lv_out`)
 - AC In Volts (`plug_in_info_ac_in_vol`)
-- AC Input Current (`plug_in_info_ac_in_amp`)
+- AC In Current (`plug_in_info_ac_in_amp`)
 - 12V DC Output Power (`pow_get_12v`)
 - 24V DC Output Power (`pow_get_24v`)
 - 12V DC Output Voltage (`pow_get_12v_vol`)
