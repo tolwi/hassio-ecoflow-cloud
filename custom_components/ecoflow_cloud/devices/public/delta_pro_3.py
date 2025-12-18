@@ -5,35 +5,162 @@ from ...entities import (
     BaseSensorEntity,
     BaseSwitchEntity,
 )
-from ...number import ChargingPowerEntity
+from ...number import (
+    ChargingPowerEntity,
+    MaxBatteryLevelEntity,
+    MinBatteryLevelEntity,
+)
+from ...select import DictSelectEntity, TimeoutDictSelectEntity
 from ...sensor import (
+    # AmpSensorEntity,
     CapacitySensorEntity,
+    # CyclesSensorEntity,
+    # InAmpSensorEntity,
+    # InVoltSensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
+    # OutVoltSensorEntity,
     OutWattsSensorEntity,
+    QuotaStatusSensorEntity,
+    RemainSensorEntity,
+    TempSensorEntity,
+    # VoltSensorEntity,
 )
+from ...switch import BeeperEntity, EnabledEntity
 from .. import BaseDevice, const
 
 
 class DeltaPro3(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
         return [
-            LevelSensorEntity(
-                client, self, "bmsBattSoc", const.MAIN_BATTERY_LEVEL
-            ).attr("bmsDesignCap", const.ATTR_DESIGN_CAPACITY, 0),
-            CapacitySensorEntity(
-                client, self, "bmsDesignCap", const.MAIN_DESIGN_CAPACITY, False
-            ),
+            LevelSensorEntity(client, self, "bmsBattSoc", const.MAIN_BATTERY_LEVEL),
+            # .attr("bmsDesignCap", const.ATTR_DESIGN_CAPACITY, 0)
+            # .attr("bmsFullCapMah", const.ATTR_FULL_CAPACITY, 0)
+            # .attr("bmsRemainCapMah", const.ATTR_REMAIN_CAPACITY, 0),
+            CapacitySensorEntity(client, self, "bmsDesignCap", const.MAIN_DESIGN_CAPACITY, False),
+            # CapacitySensorEntity(client, self, "bmsFullCapMah", const.MAIN_FULL_CAPACITY, False),
+            # CapacitySensorEntity(client, self, "bmsRemainCapMah", const.MAIN_REMAIN_CAPACITY, False),
+            LevelSensorEntity(client, self, "cmsChgDsgState", "Charging/Discharging State", False),
+            LevelSensorEntity(client, self, "cmsBmsRunState", "BMS Run State", False),
             LevelSensorEntity(client, self, "cmsBattSoc", const.COMBINED_BATTERY_LEVEL),
-            InWattsSensorEntity(client, self, "powInSumW", const.TOTAL_IN_POWER)
-                .with_energy(),
-            OutWattsSensorEntity(client, self, "powOutSumW", const.TOTAL_OUT_POWER)
-                .with_energy(),
+            # LevelSensorEntity(client, self, "bmsBattSoh", const.SOH),
+            # CyclesSensorEntity(client, self, "bmsCycles", const.CYCLES),
+            # VoltSensorEntity(client, self, "bmsBattVol", const.BATTERY_VOLT, False)
+            # .attr("bmsMinCellVol", const.ATTR_MIN_CELL_VOLT, 0)
+            # .attr("bmsMaxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
+            # VoltSensorEntity(client, self, "bmsMinCellVol", const.MIN_CELL_VOLT, False),
+            # VoltSensorEntity(client, self, "bmsMaxCellVol", const.MAX_CELL_VOLT, False),
+            # AmpSensorEntity(client, self, "bmsBattAmp", const.MAIN_BATTERY_CURRENT, False),
+            TempSensorEntity(client, self, "bmsMaxCellTemp", const.MAX_CELL_TEMP, False),
+            TempSensorEntity(client, self, "bmsMinCellTemp", const.MIN_CELL_TEMP, False),
+            # TempSensorEntity(client, self, "bmsMaxMosTemp", const.BATTERY_TEMP)
+            # .attr("bmsMinCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
+            # .attr("bmsMaxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+            RemainSensorEntity(client, self, "bmsChgRemTime", const.CHARGE_REMAINING_TIME),
+            RemainSensorEntity(client, self, "bmsDsgRemTime", const.DISCHARGE_REMAINING_TIME),
+            RemainSensorEntity(client, self, "cmsChgRemTime", "Total Charging Time"),
+            RemainSensorEntity(client, self, "cmsDsgRemTime", "Total Discharging Time"),
+            InWattsSensorEntity(client, self, "powInSumW", const.TOTAL_IN_POWER).with_energy(),
+            OutWattsSensorEntity(client, self, "powOutSumW", const.TOTAL_OUT_POWER).with_energy(),
             InWattsSensorEntity(client, self, "powGetAcIn", const.AC_IN_POWER),
+            OutWattsSensorEntity(client, self, "powGetAcHvOut", "Real-time grid power"),
+            OutWattsSensorEntity(client, self, "powGetAc", const.AC_OUT_POWER),
+            OutWattsSensorEntity(client, self, "powGet12v", "12V DC Output Power"),
+            OutWattsSensorEntity(client, self, "powGet24v", "24V DC Output Power"),
+            OutWattsSensorEntity(client, self, "powGetAcLvOut", "Real-time low-voltage AC output power"),
+            OutWattsSensorEntity(
+                client, self, "powGetAcLvTt30Out", "Real-time power of the low-voltage AC output port"
+            ),
+            # OutVoltSensorEntity(client, self, "powGet12vVol", "12V DC Output Voltage"),
+            # OutVoltSensorEntity(client, self, "powGet24vVol", "24V DC Output Voltage"),
+            InWattsSensorEntity(client, self, "powGetPvH", "Solar High Voltage Input Power"),
+            InWattsSensorEntity(client, self, "powGetPvL", "Solar Low Voltage Input Power"),
+            # InVoltSensorEntity(client, self, "powGetPvHVol", "Solar HV Input Voltage"),
+            # InVoltSensorEntity(client, self, "powGetPvLVol", "Solar LV Input Voltage"),
+            # InAmpSensorEntity(client, self, "powGetPvHAmp", "Solar HV Input Current"),
+            # InAmpSensorEntity(client, self, "powGetPvLAmp", "Solar LV Input Current"),
+            OutWattsSensorEntity(client, self, "powGetQcusb1", const.USB_QC_1_OUT_POWER),
+            OutWattsSensorEntity(client, self, "powGetQcusb2", const.USB_QC_2_OUT_POWER),
+            OutWattsSensorEntity(client, self, "powGetTypec1", const.TYPEC_1_OUT_POWER),
+            OutWattsSensorEntity(client, self, "powGetTypec2", const.TYPEC_2_OUT_POWER),
+            OutWattsSensorEntity(client, self, "powGet5p8", "5P8 Power I/O Port Power"),
+            OutWattsSensorEntity(client, self, "powGet4p81", "4P8 Extra Battery Port 1 Power", False, True),
+            OutWattsSensorEntity(client, self, "powGet4p82", "4P8 Extra Battery Port 2 Power", False, True),
+            # OutWattsSensorEntity(client, self, "acOutFreq", "AC Output Frequency"),
+            LevelSensorEntity(client, self, "plugInInfoAcInFeq", "AC Input Frequency"),
+            QuotaStatusSensorEntity(client, self),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
         return [
+            MaxBatteryLevelEntity(
+                client,
+                self,
+                "cmsMaxChgSoc",
+                const.MAX_CHARGE_LEVEL,
+                50,
+                100,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgMaxChgSoc": value},
+                },
+            ),
+            MinBatteryLevelEntity(
+                client,
+                self,
+                "cmsMinDsgSoc",
+                const.MIN_DISCHARGE_LEVEL,
+                0,
+                30,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgMinDsgSoc": value},
+                },
+            ),
+            MaxBatteryLevelEntity(
+                client,
+                self,
+                "cmsOilOnSoc",
+                "Smart Generator Start SOC",
+                0,
+                100,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgCmsOilOnSoc": value},
+                },
+            ),
+            MinBatteryLevelEntity(
+                client,
+                self,
+                "cmsOilOffSoc",
+                "Smart Generator Stop SOC",
+                0,
+                100,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgCmsOilOffSoc": value},
+                },
+            ),
             ChargingPowerEntity(
                 client,
                 self,
@@ -54,7 +181,225 @@ class DeltaPro3(BaseDevice):
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
-        return []
+        return [
+            BeeperEntity(
+                client,
+                self,
+                "enBeep",
+                const.BEEPER,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgBeepEn": value},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "cfgHvAcOutOpen",
+                "AC HV Output Enabled",
+                lambda value, params=None: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgHvAcOutOpen": value},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "cfgLvAcOutOpen",
+                "AC LV Output Enabled",
+                lambda value, params=None: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgLvAcOutOpen": value},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "cfgDc12vOutOpen",
+                "12V DC Output Enabled",
+                lambda value, params=None: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgDc12vOutOpen": value},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "cfgDc24vOutOpen",
+                "24V DC Output Enabled",
+                lambda value, params=None: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgDc24vOutOpen": value},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "xboostEn",
+                const.XBOOST_ENABLED,
+                lambda value, params=None: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgXboostEn": value},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "acEnergySavingOpen",
+                "AC Energy Saving Enabled",
+                lambda value, params=None: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgAcEnergySavingOpen": value},
+                },
+            ),
+            EnabledEntity(
+                client,
+                self,
+                "cmsOilSelfStart",
+                "Smart Generator Auto Start/Stop",
+                lambda value, params=None: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgCmsOilSelfStart": value},
+                },
+            ),
+        ]
 
     def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
-        return []
+        return [
+            TimeoutDictSelectEntity(
+                client,
+                self,
+                "screenOffTime",
+                const.SCREEN_TIMEOUT,
+                const.SCREEN_TIMEOUT_OPTIONS,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgScreenOffTime": value},
+                },
+            ),
+            TimeoutDictSelectEntity(
+                client,
+                self,
+                "acStandbyTime",
+                const.AC_TIMEOUT,
+                const.AC_TIMEOUT_OPTIONS,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgAcStandbyTime": value},
+                },
+            ),
+            TimeoutDictSelectEntity(
+                client,
+                self,
+                "dcStandbyTime",
+                "DC Timeout",
+                const.UNIT_TIMEOUT_OPTIONS_LIMITED,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgDcStandbyTime": value},
+                },
+            ),
+            TimeoutDictSelectEntity(
+                client,
+                self,
+                "bleStandbyTime",
+                "Bluetooth Timeout",
+                const.UNIT_TIMEOUT_OPTIONS_LIMITED,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgBleStandbyTime": value},
+                },
+            ),
+            TimeoutDictSelectEntity(
+                client,
+                self,
+                "devStandbyTime",
+                "Device Timeout",
+                const.UNIT_TIMEOUT_OPTIONS_LIMITED,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgDevStandbyTime": value},
+                },
+            ),
+            DictSelectEntity(
+                client,
+                self,
+                "plugInInfoAcOutType",
+                "AC Output Type",
+                {"HV+LV": 0, "HV Only": 1, "LV Only": 2},
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "cmdFunc": 254,
+                    "dest": 2,
+                    "params": {"cfgPlugInInfoAcOutType": int(value)},
+                },
+            ),
+        ]
