@@ -1,10 +1,12 @@
 import logging
 from typing import Final
 
+import datetime
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.event import async_track_time_interval
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 from .device_data import DeviceData, DeviceOptions
@@ -53,7 +55,7 @@ OPTS_DIAGNOSTIC_MODE: Final = "diagnostic_mode"
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
 
-DEFAULT_REFRESH_PERIOD_SEC: Final = 5
+DEFAULT_REFRESH_PERIOD_SEC: Final = 60
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
@@ -207,6 +209,33 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # Must load all device data before configuring devices because the data
     # is used for entity setup.
     await api_client.quota_all(None)
+
+    # Periodically poll the API to refresh quotas/status.
+    # Use the smallest configured device refresh period (defaults to 60s).
+    try:
+        min_refresh = min(d.options.refresh_period for d in devices_list.values())
+    except ValueError:
+        # No devices present; fall back to default
+        min_refresh = DEFAULT_REFRESH_PERIOD_SEC
+
+    async def _periodic_poll(_now):
+        try:
+            _LOGGER.info("Periodic EcoFlow quota refresh starting")
+            await api_client.quota_all(None)
+            _LOGGER.info("Periodic EcoFlow quota refresh completed")
+        except Exception as ex:  # noqa: BLE001
+            _LOGGER.debug("Periodic quota refresh failed: %s", ex)
+
+        # Nudge coordinators to propagate any changes promptly
+        for device in list(api_client.devices.values()):
+            coordinator = getattr(device, "coordinator", None)
+            if coordinator is not None:
+                await coordinator.async_request_refresh()
+
+    unsubscribe = async_track_time_interval(
+        hass, _periodic_poll, datetime.timedelta(seconds=max(min_refresh, 5))
+    )
+    entry.async_on_unload(unsubscribe)
 
     # Forward entry setup to the platforms to set up the entities
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)

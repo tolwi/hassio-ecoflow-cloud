@@ -2,6 +2,7 @@ from ...sensor import StatusSensorEntity
 from custom_components.ecoflow_cloud.sensor import _OnlineStatus
 from homeassistant.components.sensor import SensorStateClass  # pyright: ignore[reportMissingImports]
 from homeassistant.util import dt
+from datetime import datetime, timezone as _timezone
 from .data_bridge import to_plain
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import const, BaseDevice
@@ -25,11 +26,14 @@ HIST_CODE_ELECTRICITY_CONS = "BK621-App-HOME-LOAD-ENERGY-FLOW-consumption-prop_a
 HIST_CODE_GRID = "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-MASTER_DATA"
 HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
 
+def _utcnow() -> datetime:
+    return datetime.now(_timezone.utc)
+
 class _HistoricalDataStatus(StatusSensorEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice):
         super().__init__(client, device, "Status", "status.historical")
         self.offline_barrier_sec = 60
-        self._last_fetch = dt.utcnow().replace(year=2000, month=1, day=1, hour=0)
+        self._last_fetch = _utcnow().replace(year=2000, month=1, day=1, hour=0)
 
     def _resolve_main_sn(self) -> str:
         # Helper to resolve the main device SN for historical queries.
@@ -48,8 +52,9 @@ class _HistoricalDataStatus(StatusSensorEntity):
         # history units/values are present before other sensors render.
         try:
             self.hass.async_create_background_task(self._fetch_and_update(), "initial historical data fetch")
-        except Exception:
-            pass
+        except Exception as e:
+            from logging import getLogger
+            getLogger(__name__).error("Failed initial historical data fetch: %s", e, exc_info=True)
         # Initialize status and attributes immediately so UI doesn't show Unknown
         try:
             self._online = _OnlineStatus.ASSUME_OFFLINE
@@ -61,7 +66,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
     async def _fetch_and_update(self):
         # Prepare day range in UTC for day/hour level metrics
-        now = dt.utcnow()
+        now = _utcnow()
         begin_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
         end_day = now.replace(hour=23, minute=59, second=59, microsecond=0)
         fmt = "%Y-%m-%d %H:%M:%S"
@@ -162,7 +167,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
             # Environmental Impact (Cumulative)
             try:
-                begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_all = await self._client.historical_data(
                     sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
                 )
@@ -192,7 +197,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
             # Solar Energy Savings (Cumulative)
             try:
-                begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_sav_all = await self._client.historical_data(
                     sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
                 )
@@ -224,7 +229,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
             # Solar-Generated Energy (Cumulative)
             try:
-                begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_all = await self._client.historical_data(
                     sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
                 )
@@ -248,7 +253,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
             # Electricity Consumption (Cumulative)
             try:
-                begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_ec_all = await self._client.historical_data(
                     sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
                 )
@@ -276,7 +281,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
 
             # Grid Import (Cumulative) / Export (Cumulative)
             try:
-                begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_grid_all = await self._client.historical_data(
                     sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
                 )
@@ -300,15 +305,14 @@ class _HistoricalDataStatus(StatusSensorEntity):
             if items:
                 chg_td, dsg_td = _sum_battery(items)
                 params["history.batteryCharge"] = chg_td
-                params["history.batteryCharge.beginTime"] = begin_day.strftime(fmt)
                 params["history.batteryCharge.endTime"] = end_day.strftime(fmt)
                 params["history.batteryDischarge"] = dsg_td
                 params["history.batteryDischarge.beginTime"] = begin_day.strftime(fmt)
                 params["history.batteryDischarge.endTime"] = end_day.strftime(fmt)
 
-            # Battery Charge/Battery Discharge (Culminative)
+            # Battery Charge/Battery Discharge (Cumulative)
             try:
-                begin_all = dt.utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
                 resp_batt_all = await self._client.historical_data(
                     sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
                 )
@@ -323,11 +327,10 @@ class _HistoricalDataStatus(StatusSensorEntity):
                     params["history.batteryDischargeCumulative.endTime"] = end_day.strftime(fmt)
             except Exception:
                 pass
-        except Exception as e:
-            # Log but do not break entity updates
-            from logging import getLogger
-
-            getLogger(__name__).error("Failed to fetch historical data: %s", e, exc_info=True)
+except Exception as e:
+    # Log but do not break entity updates
+    from logging import getLogger
+    getLogger(__name__).error("Failed to fetch historical data: %s", e, exc_info=True)
 
         if params:
             params["history.mainSn"] = sn
@@ -338,9 +341,9 @@ class _HistoricalDataStatus(StatusSensorEntity):
     def _actualize_status(self) -> bool:
         changed = False
         # Periodic refresh of historical aggregates
-        elapsed = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._last_fetch)
+        elapsed = dt.as_timestamp(_utcnow()) - dt.as_timestamp(self._last_fetch)
         if elapsed > self.offline_barrier_sec:
-            self._last_fetch = dt.utcnow()
+            self._last_fetch = _utcnow()
             self.hass.async_create_background_task(self._fetch_and_update(), "fetch historical data")
             changed = True
 
@@ -364,7 +367,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             except Exception:
                 last_rx = self._device.data.params_time
 
-            recency = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(last_rx)
+            recency = dt.as_timestamp(_utcnow()) - dt.as_timestamp(last_rx)
             if recency < self.offline_barrier_sec:
                 self._online = _OnlineStatus.ONLINE
                 new_state = "online"
@@ -679,7 +682,7 @@ class StreamAC(BaseDevice):
             .attr("history.energyIndependenceToday.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Energy Independence (Year)
-            BaseSensorEntity(client, self, "history.energyIndependenceYear", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_YEARLY)
+            BaseSensorEntity(client, self, "history.energyIndependenceYear", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_YEAR)
             .with_unit_of_measurement("%")
             .with_icon("mdi:shield-check")
             .with_state_class(SensorStateClass.MEASUREMENT)
@@ -697,12 +700,11 @@ class StreamAC(BaseDevice):
             # Environmental Impact (Cumulative)
             BaseSensorEntity(client, self, "history.environmentalImpactCumulative", const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE)
             .with_unit_of_measurement("g")
-            .with_icon("mdi:leaf")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.environmentalImpactCumulative.beginTime", "Begin Time", "")
             .attr("history.environmentalImpactCumulative.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
-            # Solar-Generated Energy (Today)
+            # Solar Energy Savings (Today)
             BaseSensorEntity(client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY)
             .with_unit_of_measurement("€")
             .with_icon("mdi:cash")
@@ -711,7 +713,7 @@ class StreamAC(BaseDevice):
             .attr("history.solarEnergySavingsToday.endTime", "End Time", "")
             .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
             .attr("history.mainSn", "Main Device SN", ""),
-            # Solar-Generated Energy (Cumulative)
+            # Solar Energy Savings (Cumulative)
             BaseSensorEntity(client, self, "history.solarEnergySavingsCumulative", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE)
             .with_unit_of_measurement("€")
             .with_icon("mdi:cash")
@@ -758,7 +760,9 @@ class StreamAC(BaseDevice):
             .with_icon("mdi:transmission-tower-import")
             .attr("history.gridImport.beginTime", "Begin Time", "")
             .attr("history.gridImport.endTime", "End Time", "")
-            .attr("history.mainSn", "Main Device SN", ""),
+            .with_icon("mdi:transmission-tower-export")
+            .with_state_class(SensorStateClass.MEASUREMENT)
+            .with_state_class(SensorStateClass.MEASUREMENT)
             # Grid Export (Today)
             EnergySensorEntity(client, self, "history.gridExport", const.STREAM_HISTORY_GRID_EXPORT_TODAY)
             .with_unit_of_measurement("Wh")
@@ -779,7 +783,8 @@ class StreamAC(BaseDevice):
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:transmission-tower-export")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
-            .attr("history.gridExportCumulative.beginTime", "Begin Time", "")
+            .with_icon("mdi:battery-arrow-up")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.gridExportCumulative.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Battery Charge (Today)
@@ -793,6 +798,7 @@ class StreamAC(BaseDevice):
             EnergySensorEntity(client, self, "history.batteryChargeCumulative", const.STREAM_HISTORY_BATTERY_CHARGE_CUMULATIVE)
             .with_unit_of_measurement("Wh")
             .with_icon("mdi:battery-arrow-up")
+            .with_icon("mdi:battery-arrow-down")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.batteryChargeCumulative.beginTime", "Begin Time", "")
             .attr("history.batteryChargeCumulative.endTime", "End Time", "")

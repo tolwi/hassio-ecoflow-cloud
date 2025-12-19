@@ -145,8 +145,7 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         # self.async_on_remove(d.dispose)
 
     def _handle_coordinator_update(self) -> None:
-        if self.coordinator.data.changed:
-            self._updated(self.coordinator.data.data_holder.params)
+        self._updated(self.coordinator.data.data_holder.params)
 
     def _updated(self, data: dict[str, Any]):
         # update attributes
