@@ -497,7 +497,7 @@
 - AC HV Output Power
 - AC LV Output Power
 - AC In Volts
-- AC Input Current
+- AC In Current
 - 12V DC Output Power
 - 24V DC Output Power
 - 12V DC Output Voltage
@@ -2180,23 +2180,66 @@
 
 </p></details>
 
-<details><summary> Delta Pro 3 (API) <i>(sensors: 6, switches: 0, sliders: 1, selects: 0)</i> </summary>
+<details><summary> Delta Pro 3 (API) <i>(sensors: 31, switches: 8, sliders: 5, selects: 6)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
 - Main Design Capacity  _(disabled)_
+- Charging/Discharging State  _(disabled)_
+- BMS Run State  _(disabled)_
 - Battery Level
+- Max Cell Temperature  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Charge Remaining Time
+- Discharge Remaining Time
+- Total Charging Time
+- Total Discharging Time
 - Total In Power (energy:  _[Device Name]_ Total In  Energy)
 - Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
 - AC In Power
+- Real-time grid power
+- AC Out Power
+- 12V DC Output Power
+- 24V DC Output Power
+- Real-time low-voltage AC output power
+- Real-time power of the low-voltage AC output port
+- Solar High Voltage Input Power
+- Solar Low Voltage Input Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Type-C (1) Out Power
+- Type-C (2) Out Power
+- 5P8 Power I/O Port Power
+- 4P8 Extra Battery Port 1 Power  _(auto)_
+- 4P8 Extra Battery Port 2 Power  _(auto)_
+- AC Input Frequency
+- Status
 
 *Switches*
+- Beeper 
+- AC HV Output Enabled 
+- AC LV Output Enabled 
+- 12V DC Output Enabled 
+- 24V DC Output Enabled 
+- X-Boost Enabled 
+- AC Energy Saving Enabled 
+- Smart Generator Auto Start/Stop 
 
 *Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- Smart Generator Start SOC 
+- Smart Generator Stop SOC 
 - AC Charging Power 
 
 *Selects*
+- Screen Timeout 
+- AC Timeout 
+- DC Timeout 
+- Bluetooth Timeout 
+- Device Timeout 
+- AC Output Type 
 
 </p></details>
 

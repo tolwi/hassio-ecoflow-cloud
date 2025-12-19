@@ -143,7 +143,7 @@ class Delta2Max(BaseDevice):
             CyclesSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.cycles", const.SLAVE_N_CYCLES % 2, False, True),
             LevelSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.soh", const.SLAVE_N_SOH % 2, False, True),
             InWattsSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.inputWatts", const.SLAVE_N_IN_POWER % 2, False, True),
-            OutWattsSensorEntity(client, self, "bms_slave_bmsaSlaveStatus_2.outputWatts", const.SLAVE_N_OUT_POWER % 2, False, True),
+            OutWattsSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.outputWatts", const.SLAVE_N_OUT_POWER % 2, False, True),
             LevelSensorEntity(client, self, "bms_slave_bmsSlaveStatus_2.f32ShowSoc", const.SLAVE_N_BATTERY_LEVEL_SOC % 2, False, True),
 
                        

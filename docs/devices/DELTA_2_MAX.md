@@ -77,7 +77,7 @@
 - Slave 2 Cycles (`bms_slave_bmsSlaveStatus_2.cycles`)   _(auto)_
 - Slave 2 State of Health (`bms_slave_bmsSlaveStatus_2.soh`)   _(auto)_
 - Slave 2 In Power (`bms_slave_bmsSlaveStatus_2.inputWatts`)   _(auto)_
-- Slave 2 Out Power (`bms_slave_bmsaSlaveStatus_2.outputWatts`)   _(auto)_
+- Slave 2 Out Power (`bms_slave_bmsSlaveStatus_2.outputWatts`)   _(auto)_
 - Slave 2 Battery level SOC (`bms_slave_bmsSlaveStatus_2.f32ShowSoc`)   _(auto)_
 - Status
 - Status (Scheduled)
