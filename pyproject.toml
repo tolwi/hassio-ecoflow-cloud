@@ -1,0 +1,9 @@
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.mypy]
+allow_untyped_calls = true
+exclude = [
+    "ecoflow_cloud/config_flow.py",
+]

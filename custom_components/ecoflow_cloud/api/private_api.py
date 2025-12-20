@@ -2,33 +2,19 @@ import base64
 import hashlib
 import logging
 from time import time
-from typing import Any, Protocol, runtime_checkable
 
 import aiohttp
 from homeassistant.util import uuid
-from paho.mqtt.client import PayloadType
 
 from ..device_data import DeviceData
 from ..devices import DiagnosticDevice, EcoflowDeviceInfo
 from . import EcoflowApiClient, EcoflowException
-from .message import Message
 
 _LOGGER = logging.getLogger(__name__)
 
 
-@runtime_checkable
-class PrivateAPIMessageProtocol(Protocol):
-    def to_mqtt_payload(self) -> PayloadType:
-        raise NotImplementedError()
-
-    def to_dict(self) -> dict:
-        raise NotImplementedError()
-
-
 class EcoflowPrivateApiClient(EcoflowApiClient):
-    def __init__(
-        self, api_domain: str, ecoflow_username: str, ecoflow_password: str, group: str
-    ):
+    def __init__(self, api_domain: str, ecoflow_username: str, ecoflow_password: str, group: str):
         super().__init__()
         self.api_domain = api_domain
         self.ecoflow_password = ecoflow_password
@@ -59,9 +45,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
                 self.user_id = response["data"]["user"]["userId"]
                 self.user_name = response["data"]["user"].get("name", "<no user name>")
             except KeyError as key:
-                raise EcoflowException(
-                    f"Failed to extract key {key} from response: {response}"
-                )
+                raise EcoflowException(f"Failed to extract key {key} from response: {response}")
 
             _LOGGER.info(f"Successfully logged in: {self.user_name}")
 
@@ -70,9 +54,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             self._accept_mqqt_certification(response)
 
             # Should be ANDROID_..str.._user_id !!!
-            self.mqtt_info.client_id = (
-                f"ANDROID_{str(uuid.random_uuid_hex()).upper()}_{self.user_id}"
-            )
+            self.mqtt_info.client_id = f"ANDROID_{str(uuid.random_uuid_hex()).upper()}_{self.user_id}"
 
     # Failed to connect to MQTT: not authorised
     def gen_client_id(self):
@@ -82,15 +64,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         pub = verify_info[:32]
         priv = verify_info[32:]
         k = priv + base + str(millis)
-        res = (
-            base
-            + "_"
-            + pub
-            + "_"
-            + str(millis)
-            + "_"
-            + hashlib.md5(k.encode("utf-8")).hexdigest()
-        )
+        res = base + "_" + pub + "_" + str(millis) + "_" + hashlib.md5(k.encode("utf-8")).hexdigest()
         return res
 
     async def fetch_all_available_devices(self):
@@ -103,17 +77,13 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             target_devices = [(device_sn, self.devices[device_sn])]
 
         for sn, device in target_devices:
-            self.send_get_message(sn, device.private_api_get_quota())
+            self.send_get_message(sn, device.get_quota_message())
 
     def configure_device(self, device_data: DeviceData):
         if device_data.parent is not None:
-            info = self.__create_device_info(
-                device_data.parent.sn, device_data.name, device_data.parent.device_type
-            )
+            info = self.__create_device_info(device_data.parent.sn, device_data.name, device_data.parent.device_type)
         else:
-            info = self.__create_device_info(
-                device_data.sn, device_data.name, device_data.device_type
-            )
+            info = self.__create_device_info(device_data.sn, device_data.name, device_data.device_type)
 
         from ..devices.registry import devices
 
@@ -146,9 +116,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             get_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get_reply",
         )
 
-    async def __call_api(
-        self, endpoint: str, params: dict[str:any] | None = None
-    ) -> dict:
+    async def __call_api(self, endpoint: str, params: dict[str:any] | None = None) -> dict:
         async with aiohttp.ClientSession() as session:
             headers = {
                 "lang": "en_US",
@@ -168,24 +136,3 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             )
             _LOGGER.info(f"Request: {endpoint} {req_params}: got {resp}")
             return await self._get_json_response(resp)
-
-    def send_get_message(self, device_sn: str, command: dict | Message):
-        if isinstance(command, PrivateAPIMessageProtocol):
-            self.mqtt_client.publish(
-                self.devices[device_sn].device_info.get_topic,
-                command.to_mqtt_payload(),
-            )
-        else:
-            super().send_get_message(device_sn, command)
-
-    def send_set_message(
-        self, device_sn: str, mqtt_state: dict[str, Any], command: dict | Message
-    ):
-        if isinstance(command, PrivateAPIMessageProtocol):
-            self.devices[device_sn].data.update_to_target_state(mqtt_state)
-            self.mqtt_client.publish(
-                self.devices[device_sn].device_info.set_topic,
-                command.to_mqtt_payload(),
-            )
-        else:
-            super().send_set_message(device_sn, mqtt_state, command)

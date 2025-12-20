@@ -1,10 +1,13 @@
-from google.protobuf.json_format import MessageToDict
-from custom_components.ecoflow_cloud.devices.internal import flatten_dict
-from custom_components.ecoflow_cloud.api.private_api import PrivateAPIMessageProtocol
-from custom_components.ecoflow_cloud.api.message import JSONMessage
+import enum
 import logging
-from typing import Any, cast, override
+from typing import Any, NamedTuple, cast, override
 
+from google.protobuf.json_format import MessageToDict
+from google.protobuf.message import Message as ProtoMessageRaw
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
 
 # from homeassistant.components.sensor import SensorEntity  # pyright: ignore[reportMissingImports]
 # from homeassistant.components.switch import SwitchEntity  # pyright: ignore[reportMissingImports]
@@ -12,32 +15,20 @@ from typing import Any, cast, override
 # from homeassistant.components.select import SelectEntity  # pyright: ignore[reportMissingImports]
 from homeassistant.util import dt
 
-from ...api import EcoflowApiClient
-from ...api.message import JSONDict
-from ...devices import const, BaseDevice
-from ...entities import (
-    BaseSensorEntity,
-    BaseNumberEntity,
-    BaseSwitchEntity,
-    BaseSelectEntity,
-)
-from ...sensor import (
-    MiscSensorEntity,
-    VoltSensorEntity,
-    WattsSensorEntity,
-    InAmpSensorEntity,
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.api.message import JSONDict, Message, PrivateAPIMessageProtocol
+from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.devices.internal import flatten_dict
+from custom_components.ecoflow_cloud.devices.internal.proto import AddressId, ef_smartmeter_pb2
+from custom_components.ecoflow_cloud.sensor import (
     EnergySensorEntity,
+    InAmpSensorEntity,
+    MiscSensorEntity,
     QuotaStatusSensorEntity,
     StatusSensorEntity,
+    VoltSensorEntity,
+    WattsSensorEntity,
 )
-
-
-from ..internal.proto import AddressId
-
-import enum
-from typing import NamedTuple
-from ..internal.proto import ef_smartmeter_pb2
-from google.protobuf.message import Message as ProtoMessageRaw
 
 
 class CommandFuncAndId(NamedTuple):
@@ -73,13 +64,11 @@ _LOGGER = logging.getLogger(__name__)
 class SmartMeterCommandMessage(PrivateAPIMessageProtocol):
     """Message wrapper for SmartMeter protobuf commands."""
 
-    def __init__(
-        self, device_sn: str, command: CommandFuncAndId, payload: ProtoMessageRaw | None
-    ):
+    def __init__(self, device_sn: str, command: CommandFuncAndId, payload: ProtoMessageRaw | None):
         self._packet = ef_smartmeter_pb2.SmartMeterSetMessage()
         self._payload = payload
         message = self._packet.msg.add()
-        message.seq = JSONMessage.gen_seq()
+        message.seq = Message.gen_seq()
         message.device_sn = device_sn
         message.from_ = "HomeAssistant"
 
@@ -119,38 +108,10 @@ class SmartMeterCommandMessage(PrivateAPIMessageProtocol):
         return {type(self._packet).__name__: result}
 
 
-class SmartMeter(BaseDevice):
+class SmartMeter(BaseInternalDevice):
     @override
-    def private_api_extract_quota_message(self, message: JSONDict) -> dict[str, Any]:
-        if "cmdFunc" in message and "cmdId" in message:
-            command_desc = CommandFuncAndId(
-                func=message["cmdFunc"], id=message["cmdId"]
-            )
-
-            try:
-                command = Command(command_desc)
-            except ValueError:
-                pass
-            if command in [
-                Command.DISPLAY_PROPERTY_UPLOAD,
-                Command.RUNTIME_PROPERTY_UPLOAD,
-            ]:
-                return {"params": message["params"], "time": dt.utcnow()}
-        raise ValueError("not a quota message")
-
-    @override
-    def private_api_get_quota(self) -> SmartMeterCommandMessage:
-        return SmartMeterCommandMessage(
-            device_sn=self.device_info.sn,
-            command=Command.HEARTBEAT,
-            payload=None,
-        )
-
-    @override
-    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
-        timezoneEntity = MiscSensorEntity(
-            client, self, "254_21.utcTimezone", const.UTC_TIMEZONE, False
-        )
+    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+        timezoneEntity = MiscSensorEntity(client, self, "254_21.utcTimezone", const.UTC_TIMEZONE, False)
         timezoneEntity.attr("254_21.utcTimezoneId", const.UTC_TIMEZONE_ID, "Unknown")
         return [
             WattsSensorEntity(
@@ -331,16 +292,6 @@ class SmartMeter(BaseDevice):
             self._status_sensor(client),
         ]
 
-    def update_data(self, raw_data: bytes, data_type: str) -> bool:
-        if data_type not in [
-            self.device_info.data_topic,
-            self.device_info.set_reply_topic,
-            self.device_info.get_reply_topic,
-            self.device_info.status_topic,
-        ]:
-            super().update_data(raw_data, data_type)
-        return True
-
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         res: dict[str, Any] = {"params": {}}
@@ -361,10 +312,7 @@ class SmartMeter(BaseDevice):
                     message.pdata.hex(),
                 )
 
-                if (
-                    message.HasField("device_sn")
-                    and message.device_sn != self.device_data.sn
-                ):
+                if message.HasField("device_sn") and message.device_sn != self.device_data.sn:
                     _LOGGER.info(
                         "Ignoring EcoPacket for SN %s on topic for SN %s",
                         message.device_sn,
@@ -388,26 +336,20 @@ class SmartMeter(BaseDevice):
                     payload = get_expected_payload_type(command)()
                     try:
                         if message.enc_type == 1:
-                            message.pdata = bytes(
-                                [byte ^ (message.seq % 256) for byte in message.pdata]
-                            )
+                            message.pdata = bytes([byte ^ (message.seq % 256) for byte in message.pdata])
 
                         _ = payload.ParseFromString(message.pdata)
                         params.update(
                             (f"{command.func}_{command.id}.{key}", value)
                             for key, value in cast(
                                 JSONDict,
-                                flatten_dict(
-                                    MessageToDict(
-                                        payload, preserving_proto_field_name=False
-                                    )
-                                ),
+                                flatten_dict(MessageToDict(payload, preserving_proto_field_name=False)),
                             ).items()
                         )
                     except Exception:
                         pass
 
-                # Add cmd information to allow extraction in private_api_extract_quota_message
+                # Add cmd information to allow extraction in extract_quota_data
                 res["cmdFunc"] = command_desc.func
                 res["cmdId"] = command_desc.id
                 res["timestamp"] = dt.utcnow()
@@ -416,13 +358,40 @@ class SmartMeter(BaseDevice):
             _LOGGER.info(raw_data.hex())
         return res
 
-    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
+    # @override
+    # def _prepare_data_get_reply_topic(self, raw_data: bytes) -> PreparedData:
+    #     data = self._prepare_data(raw_data)
+    #     if "cmdFunc" in data and "cmdId" in data:
+    #         command_desc = CommandFuncAndId(func=data["cmdFunc"], id=data["cmdId"])
+
+    #         try:
+    #             command = Command(command_desc)
+    #         except ValueError:
+    #             pass
+
+    #         # ???
+    #         if command in [
+    #             Command.DISPLAY_PROPERTY_UPLOAD,
+    #             Command.RUNTIME_PROPERTY_UPLOAD,
+    #         ]:
+    #             return PreparedData(None, data, {"proto": raw_data.hex()})
+    #     return PreparedData(None, None, {"proto": raw_data.hex()})
+
+    @override
+    def get_quota_message(self) -> SmartMeterCommandMessage:
+        return SmartMeterCommandMessage(
+            device_sn=self.device_info.sn,
+            command=Command.HEARTBEAT,
+            payload=None,
+        )
+
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return []
 
-    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return []
 
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:

@@ -9,8 +9,8 @@ python = "3.13"
 description = "Lint code"
 dir = "custom_components"
 run = """
-# pyright .
 ruff check .
+mypy .
 """
 
 [tasks.protoc]

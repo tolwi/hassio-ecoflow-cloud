@@ -1,16 +1,15 @@
 from typing import Any, Callable
 
-from ...api import EcoflowApiClient
-from ...device_data import DeviceData
-from ...entities import (
-    BaseNumberEntity,
-    BaseSelectEntity,
-    BaseSensorEntity,
-    BaseSwitchEntity,
-)
-from ...number import AcChargingPowerInAmpereEntity
-from ...sensor import (
-    MilliampSensorEntity,
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
+
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.device_data import DeviceData
+from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo, const
+from custom_components.ecoflow_cloud.number import AcChargingPowerInAmpereEntity
+from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
     ChargingStateSensorEntity,
     CyclesSensorEntity,
@@ -21,6 +20,7 @@ from ...sensor import (
     InWattsSensorEntity,
     InWattsSolarSensorEntity,
     LevelSensorEntity,
+    MilliampSensorEntity,
     MilliVoltSensorEntity,
     MiscSensorEntity,
     OutMilliampSensorEntity,
@@ -29,8 +29,7 @@ from ...sensor import (
     RemainSensorEntity,
     TempSensorEntity,
 )
-from ...switch import BitMaskEnableEntity, EnabledEntity
-from .. import BaseDevice, EcoflowDeviceInfo, const
+from custom_components.ecoflow_cloud.switch import BitMaskEnableEntity, EnabledEntity
 
 
 class PowerKit(BaseDevice):
@@ -85,7 +84,7 @@ class PowerKit(BaseDevice):
     def flat_json(self):
         return False
 
-    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         params = self.data.params
 
         if self.device_data.device_type.startswith("bp"):
@@ -109,7 +108,7 @@ class PowerKit(BaseDevice):
 
     def batterieSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
-    ) -> list[BaseSensorEntity]:
+    ) -> list[SensorEntity]:
         # entityKey = mainKey + "."
         return [
             MilliampSensorEntity(
@@ -179,7 +178,7 @@ class PowerKit(BaseDevice):
 
     def bmsSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
-    ) -> list[BaseSensorEntity]:
+    ) -> list[SensorEntity]:
         # entityKey = mainKey + "."
         return [
             LevelSensorEntity(client, self, "realSoc", const.MAIN_BATTERY_LEVEL),
@@ -230,7 +229,7 @@ class PowerKit(BaseDevice):
 
     def mpptSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
-    ) -> list[BaseSensorEntity]:
+    ) -> list[SensorEntity]:
         # entityKey = mainKey + "."
         return [
             # MPPT
@@ -331,7 +330,7 @@ class PowerKit(BaseDevice):
 
     def powerHubDCOutSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
-    ) -> list[BaseSensorEntity]:
+    ) -> list[SensorEntity]:
         # entityKey = mainKey + "."
         return [
             # Power Hub DC Out
@@ -365,7 +364,7 @@ class PowerKit(BaseDevice):
 
     def powerHubDCInSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
-    ) -> list[BaseSensorEntity]:
+    ) -> list[SensorEntity]:
         # entityKey = mainKey + "."
         return [
             # Power Hub DC In
@@ -485,7 +484,7 @@ class PowerKit(BaseDevice):
 
     def powerHubACOutSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
-    ) -> list[BaseSensorEntity]:
+    ) -> list[SensorEntity]:
         # entityKey = mainKey + "."
         return [
             # Power Hub AC Out
@@ -543,7 +542,7 @@ class PowerKit(BaseDevice):
 
     def distributerDCOutSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
-    ) -> list[BaseSensorEntity]:
+    ) -> list[SensorEntity]:
         # entityKey = mainKey + "."
         return [
             # Distributer DC Out
@@ -653,7 +652,7 @@ class PowerKit(BaseDevice):
 
     def distributerACOutSensors(
         self, client: EcoflowApiClient, mainKey: str, params: dict[str, Any]
-    ) -> list[BaseSensorEntity]:
+    ) -> list[SensorEntity]:
         # entityKey = mainKey + "."
         return [
             # Distributer AC Out
@@ -724,7 +723,7 @@ class PowerKit(BaseDevice):
             MiscSensorEntity(client, self, "acChSta", "AC Charge State", True),  # 0
         ]
 
-    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         if self.device_data.device_type == "iclow":
             return [
                 AcChargingPowerInAmpereEntity(
@@ -747,7 +746,7 @@ class PowerKit(BaseDevice):
             ]
         return []
 
-    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         if self.device_data.device_type == "lddc":
             return [
                 BitMaskEnableEntity(
@@ -888,5 +887,5 @@ class PowerKit(BaseDevice):
             ]
         return []
 
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []

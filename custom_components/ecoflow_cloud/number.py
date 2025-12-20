@@ -13,9 +13,7 @@ from .devices import BaseDevice
 from .entities import BaseNumberEntity
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
-):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
     for sn, device in client.devices.items():
         async_add_entities(device.numbers(client))
@@ -83,9 +81,9 @@ class AcChargingPowerInAmpereEntity(ValueUpdateEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val))
 
-    async def async_set_native_value(self, value: int):
+    async def async_set_native_value(self, value: float):
         if self._command:
-            self.send_set_message(value, self.command_dict(value))
+            self.send_set_message(int(value), self.command_dict(int(value)))
 
 
 class MinMaxLevelEntity(ValueUpdateEntity):
@@ -101,9 +99,7 @@ class MinMaxLevelEntity(ValueUpdateEntity):
         | Callable[[int, dict[str, Any]], dict[str, Any] | Message]
         | None,
     ):
-        super().__init__(
-            client, device, mqtt_key, title, min_value, max_value, command, True, False
-        )
+        super().__init__(client, device, mqtt_key, title, min_value, max_value, command, True, False)
 
 
 class BrightnessLevelEntity(MinMaxLevelEntity):

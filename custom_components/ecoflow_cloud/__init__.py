@@ -1,3 +1,4 @@
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
 import logging
 from typing import Final
 
@@ -67,15 +68,9 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                 CONF_DEVICE_NAME: device_info[CONF_DEVICE_NAME],
                 CONF_DEVICE_TYPE: device_info[CONF_DEVICE_TYPE],
                 "options": {
-                    OPTS_REFRESH_PERIOD_SEC: config_entry.options[CONF_DEVICE_LIST][sn][
-                        OPTS_REFRESH_PERIOD_SEC
-                    ],
-                    OPTS_POWER_STEP: config_entry.options[CONF_DEVICE_LIST][sn][
-                        OPTS_POWER_STEP
-                    ],
-                    OPTS_DIAGNOSTIC_MODE: config_entry.options[CONF_DEVICE_LIST][sn][
-                        OPTS_DIAGNOSTIC_MODE
-                    ],
+                    OPTS_REFRESH_PERIOD_SEC: config_entry.options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC],
+                    OPTS_POWER_STEP: config_entry.options[CONF_DEVICE_LIST][sn][OPTS_POWER_STEP],
+                    OPTS_DIAGNOSTIC_MODE: config_entry.options[CONF_DEVICE_LIST][sn][OPTS_DIAGNOSTIC_MODE],
                 },
             }
 
@@ -100,9 +95,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         else:
             new_data[CONF_API_HOST] = "api.ecoflow.com"
 
-        updated = hass.config_entries.async_update_entry(
-            config_entry, version=8, data=new_data
-        )
+        updated = hass.config_entries.async_update_entry(config_entry, version=8, data=new_data)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
     if config_entry.version == 8:
@@ -113,23 +106,17 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
         for sn, device_info in new_data[CONF_DEVICE_LIST].items():
             if "name" in device_info:
-                new_data[CONF_DEVICE_LIST][sn][CONF_DEVICE_NAME] = new_data[
-                    CONF_DEVICE_LIST
-                ][sn].pop("name")
+                new_data[CONF_DEVICE_LIST][sn][CONF_DEVICE_NAME] = new_data[CONF_DEVICE_LIST][sn].pop("name")
                 new_data[CONF_DEVICE_LIST][sn].pop("sn", None)
 
-            new_options[CONF_DEVICE_LIST][sn] = new_data[CONF_DEVICE_LIST][sn].pop(
-                "options"
-            )
+            new_options[CONF_DEVICE_LIST][sn] = new_data[CONF_DEVICE_LIST][sn].pop("options")
 
             if "refresh_period" in new_options[CONF_DEVICE_LIST][sn]:
-                new_options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC] = (
-                    new_options[CONF_DEVICE_LIST][sn].pop("refresh_period")
+                new_options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC] = new_options[CONF_DEVICE_LIST][sn].pop(
+                    "refresh_period"
                 )
 
-        updated = hass.config_entries.async_update_entry(
-            config_entry, version=9, data=new_data, options=new_options
-        )
+        updated = hass.config_entries.async_update_entry(config_entry, version=9, data=new_data, options=new_options)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
     return updated
@@ -165,11 +152,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.info("Setup entry %s (data = %s)", str(entry), str(entry.data))
     if ECOFLOW_DOMAIN not in hass.data:
         hass.data[ECOFLOW_DOMAIN] = {}
-
     if CONF_USERNAME in entry.data and CONF_PASSWORD in entry.data:
         from .api.private_api import EcoflowPrivateApiClient
 
-        api_client = EcoflowPrivateApiClient(
+        api_client: EcoflowApiClient = EcoflowPrivateApiClient(
             entry.data[CONF_API_HOST],
             entry.data[CONF_USERNAME],
             entry.data[CONF_PASSWORD],
@@ -179,7 +165,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     elif CONF_ACCESS_KEY in entry.data and CONF_SECRET_KEY in entry.data:
         from .api.public_api import EcoflowPublicApiClient
 
-        api_client = EcoflowPublicApiClient(
+        api_client: EcoflowApiClient = EcoflowPublicApiClient(
             entry.data[CONF_API_HOST],
             entry.data[CONF_ACCESS_KEY],
             entry.data[CONF_SECRET_KEY],

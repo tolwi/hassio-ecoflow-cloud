@@ -31,9 +31,7 @@ class EcoflowMQTTClient:
 
         # self.__client._connect_timeout = 15.0
         self.__client.setup()
-        self.__client.username_pw_set(
-            self.__mqtt_info.username, self.__mqtt_info.password
-        )
+        self.__client.username_pw_set(self.__mqtt_info.username, self.__mqtt_info.password)
         self.__client.tls_set(certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED)
         self.__client.tls_insecure_set(False)
         self.__client.on_connect = self._on_connect
@@ -52,9 +50,7 @@ class EcoflowMQTTClient:
 
     def reconnect(self) -> bool:
         try:
-            _LOGGER.info(
-                f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}"
-            )
+            _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
             self.__client.loop_stop(True)
             self.__client.reconnect()
             self.__client.loop_start()
@@ -94,13 +90,9 @@ class EcoflowMQTTClient:
         try:
             for sn, device in self.__devices.items():
                 if device.update_data(message.payload, message.topic):
-                    _LOGGER.debug(
-                        f"Message for {sn} and Topic {message.topic} : {message.payload}"
-                    )
+                    _LOGGER.debug(f"Message for {sn} and Topic {message.topic} : {message.payload}")
         except UnicodeDecodeError as error:
-            _LOGGER.error(
-                f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one."
-            )
+            _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
 
     def stop(self):
         self.__client.unsubscribe(self.__target_topics())
@@ -110,30 +102,16 @@ class EcoflowMQTTClient:
     def __log_with_reason(self, action: str, client, userdata, rc):
         import paho.mqtt.client as mqtt_client
 
-        _LOGGER.error(
-            f"MQTT {action}: {mqtt_client.error_string(rc)} ({self.__mqtt_info.client_id}) - {userdata}"
-        )
+        _LOGGER.error(f"MQTT {action}: {mqtt_client.error_string(rc)} ({self.__mqtt_info.client_id}) - {userdata}")
 
     def publish(self, topic: str, message: PayloadType) -> None:
         try:
             info = self.__client.publish(topic, message, 1)
-            _LOGGER.debug(
-                "Sending "
-                + str(message)
-                + " :"
-                + str(info)
-                + "("
-                + str(info.is_published())
-                + ")"
-            )
+            _LOGGER.debug("Sending " + str(message) + " :" + str(info) + "(" + str(info.is_published()) + ")")
         except RuntimeError as error:
-            _LOGGER.error(
-                error, "Error on topic " + topic + " and message " + str(message)
-            )
+            _LOGGER.error(error, "Error on topic " + topic + " and message " + str(message))
         except Exception as error:
-            _LOGGER.debug(
-                error, "Error on topic " + topic + " and message " + str(message)
-            )
+            _LOGGER.debug(error, "Error on topic " + topic + " and message " + str(message))
 
     def __target_topics(self) -> list[str]:
         topics = []
