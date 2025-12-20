@@ -108,6 +108,32 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 raw = await self.call_api("/device/quota/all", {"sn": sn})
                 if "data" in raw:
                     self.devices[sn].data.update_data({"params": raw["data"]})
+                    # Ensure the device coordinator refreshes so entities re-evaluate promptly
+                    try:
+                        dev = self.devices.get(sn)
+                        if dev is not None and getattr(dev, "coordinator", None) is not None:
+                            await dev.coordinator.async_request_refresh()
+                    except Exception as exc:
+                        _LOGGER.debug("Failed to request coordinator refresh for %s: %s", sn, exc)
+                    # After quota update, also trigger historical fetch for Stream AC devices
+                    try:
+                        dev = self.devices.get(sn)
+                        if dev is not None:
+                            # Schedule background historical fetch for StreamAC-derived devices
+                            if dev.__class__.__name__ == "StreamAC":
+                                try:
+                                    import asyncio
+                                    from custom_components.ecoflow_cloud.devices.public.stream_ac import (
+                                        fetch_historical_for_device,
+                                    )
+
+                                    asyncio.create_task(
+                                        fetch_historical_for_device(self, dev)
+                                    )
+                                except Exception as e:
+                                    _LOGGER.debug("Failed to schedule historical fetch for %s: %s", sn, e)
+                    except Exception:
+                        pass
             except Exception as exception:
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Error retrieving %s", sn)
@@ -123,6 +149,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 "code": code,
             },
         }
+        _LOGGER.info(
+            "API HIST /device/quota/data sn=%s begin=%s end=%s code=%s",
+            device_sn,
+            begin_time,
+            end_time,
+            code,
+        )
         return await self.post_api("/device/quota/data", body)
 
     async def call_api(self, endpoint: str, params: dict[str, str] = None) -> dict:

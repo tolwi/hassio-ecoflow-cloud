@@ -14,6 +14,9 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 from ..api import EcoflowApiClient
 from ..api.message import JSONDict, JSONMessage, Message
@@ -79,6 +82,12 @@ class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataH
     async def _async_update_data(self) -> EcoflowBroadcastDataHolder:
         received_time = self.holder.last_received_time()
         changed = self.__last_broadcast < received_time
+        _LOGGER.debug(
+            "Coordinator update check: last_broadcast=%s received_time=%s changed=%s",
+            self.__last_broadcast,
+            received_time,
+            changed,
+        )
         self.__last_broadcast = received_time
         return EcoflowBroadcastDataHolder(self.holder, changed)
 

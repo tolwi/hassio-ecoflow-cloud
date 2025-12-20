@@ -18,6 +18,9 @@ from ..devices import (
     BaseDevice,
     EcoflowDeviceUpdateCoordinator,
 )
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
@@ -145,20 +148,34 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
         # self.async_on_remove(d.dispose)
 
     def _handle_coordinator_update(self) -> None:
+        try:
+            changed = getattr(self.coordinator.data, "changed", None)
+        except Exception:
+            changed = None
+        _LOGGER.debug(
+            "Entity %s _handle_coordinator_update called (coordinator.changed=%s)",
+            self._attr_unique_id,
+            changed,
+        )
         self._updated(self.coordinator.data.data_holder.params)
 
     def _updated(self, data: dict[str, Any]):
         # update attributes
+        attr_changed = False
         for key, title in self.__attributes_mapping.items():
             key_expr = jp.parse(self._adopt_json_key(key))
             attr_values = key_expr.find(data)
             if len(attr_values) == 1:
-                self.__attrs[title] = attr_values[0].value
+                if self.__attrs.get(title) != attr_values[0].value:
+                    self.__attrs[title] = attr_values[0].value
+                    attr_changed = True
             elif len(attr_values) > 1 and self._multiple_value_sum:
                 total = attr_values[0].value
                 for v in attr_values[1:]:
                     total += v.value
-                self.__attrs[title] = total
+                if self.__attrs.get(title) != total:
+                    self.__attrs[title] = total
+                    attr_changed = True
 
         # update value
         values = self._mqtt_key_expr.find(data)
@@ -172,7 +189,17 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
             if len(values) > 1 and self._multiple_value_sum:
                 for v in values[1:]:
                     total += v.value
+            value_changed = False
             if self._update_value(total):
+                value_changed = True
+                _LOGGER.debug(
+                    "Entity %s value changed to %s (mqtt_key=%s)",
+                    self._attr_unique_id,
+                    total,
+                    self.__mqtt_key,
+                )
+
+            if value_changed or attr_changed:
                 self.schedule_update_ha_state()
 
     @property
