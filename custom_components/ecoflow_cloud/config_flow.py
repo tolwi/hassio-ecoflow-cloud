@@ -31,10 +31,12 @@ from . import (
     CONF_USERNAME,
     CONFIG_VERSION,
     DEFAULT_REFRESH_PERIOD_SEC,
+    DEFAULT_HISTORY_PERIOD_SEC,
     ECOFLOW_DOMAIN,
     OPTS_DIAGNOSTIC_MODE,
     OPTS_POWER_STEP,
     OPTS_REFRESH_PERIOD_SEC,
+    OPTS_HISTORY_PERIOD_SEC,
     DeviceData,
     DeviceOptions,
     extract_devices,
@@ -301,6 +303,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
             OPTS_POWER_STEP: device.default_charging_power_step(),
             OPTS_DIAGNOSTIC_MODE: False,
+            OPTS_HISTORY_PERIOD_SEC: DEFAULT_HISTORY_PERIOD_SEC,
         }
 
         return await self.update_or_create()
@@ -462,6 +465,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_REFRESH_PERIOD_SEC: DEFAULT_REFRESH_PERIOD_SEC,
             OPTS_POWER_STEP: device.default_charging_power_step(),
             OPTS_DIAGNOSTIC_MODE: ("Diagnostic".lower() == user_input[CONF_DEVICE_TYPE].lower()),
+            OPTS_HISTORY_PERIOD_SEC: DEFAULT_HISTORY_PERIOD_SEC,
         }
 
         return await self.update_or_create()
@@ -517,6 +521,10 @@ class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
                             default=device_options.refresh_period,
                         ): int,
                         vol.Required(
+                            OPTS_HISTORY_PERIOD_SEC,
+                            default=getattr(device_options, 'historical_period', DEFAULT_HISTORY_PERIOD_SEC),
+                        ): int,
+                        vol.Required(
                             OPTS_DIAGNOSTIC_MODE, default=device_options.diagnostic_mode
                         ): bool,
                     }
@@ -527,6 +535,7 @@ class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
         new_options[CONF_DEVICE_LIST][self.selected_device.sn] = {
             OPTS_POWER_STEP: user_input[OPTS_POWER_STEP],
             OPTS_REFRESH_PERIOD_SEC: user_input[OPTS_REFRESH_PERIOD_SEC],
+            OPTS_HISTORY_PERIOD_SEC: user_input.get(OPTS_HISTORY_PERIOD_SEC, DEFAULT_HISTORY_PERIOD_SEC),
             OPTS_DIAGNOSTIC_MODE: user_input[OPTS_DIAGNOSTIC_MODE],
         }
 

@@ -327,7 +327,11 @@ async def fetch_historical_for_device(client: EcoflowApiClient, device: BaseDevi
 class _HistoricalDataStatus(StatusSensorEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice):
         super().__init__(client, device, "Status", "status.historical")
-        self.offline_barrier_sec = 60
+        # Use per-device historical fetch period when available (seconds)
+        try:
+            self.offline_barrier_sec = int(getattr(self._device.device_data, "historical_period", 900))
+        except Exception:
+            self.offline_barrier_sec = 900
         self._last_fetch = _utcnow().replace(year=2000, month=1, day=1, hour=0)
 
     def _resolve_main_sn(self) -> str:
