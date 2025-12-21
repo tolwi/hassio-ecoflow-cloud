@@ -39,8 +39,6 @@ from . import (
     ATTR_MQTT_CONNECTED,
     ATTR_QUOTA_REQUESTS,
     ATTR_STATUS_DATA_LAST_UPDATE,
-    ATTR_STATUS_PHASE,
-    ATTR_STATUS_RECONNECTS,
     ATTR_STATUS_SN,
     ECOFLOW_DOMAIN,
 )
@@ -477,7 +475,8 @@ class _OnlineStatus(enum.Enum):
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    offline_barrier_sec: int = 300  # 5 minutes
+    assume_offline_period_sec: int = 300  # 5 minutes
+    force_offline_period_sec: int = assume_offline_period_sec * 3
 
     def __init__(
         self,
@@ -491,8 +490,6 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
         self._online = _OnlineStatus.UNKNOWN
         self._last_update = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
-        self._skip_count = 0
-        self._offline_skip_count = int(self.offline_barrier_sec / self.coordinator.update_interval.seconds)
         self._attrs = OrderedDict[str, Any]()
         self._attrs[ATTR_STATUS_SN] = self._device.device_info.sn
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = None
@@ -503,11 +500,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         update_time = self.coordinator.data.data_holder.last_received_time()
         if self._last_update < update_time:
             self._last_update = max(update_time, self._last_update)
-            self._skip_count = 0
             self._actualize_attributes()
             changed = True
-        else:
-            self._skip_count += 1
 
         changed = self._actualize_status() or changed
 
@@ -517,31 +511,40 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
 
     def _actualize_status(self) -> bool:
         changed = False
-        if self._skip_count == 0:
-            online = self.coordinator.data.data_holder.online
-            if not online and self._online != _OnlineStatus.OFFLINE:
-                self._online = _OnlineStatus.OFFLINE
-                self._attr_native_value = "offline"
-                self._actualize_attributes()
-                changed = True
-            elif online and self._online != _OnlineStatus.ONLINE:
-                self._online = _OnlineStatus.ONLINE
-                self._attr_native_value = "online"
-                self._actualize_attributes()
-                changed = True
-        elif (
-            self._online not in {_OnlineStatus.OFFLINE, _OnlineStatus.ASSUME_OFFLINE}
-            and self._skip_count >= self._offline_skip_count
-        ):
-            self._online = _OnlineStatus.ASSUME_OFFLINE
-            self._attr_native_value = "assume_offline"
+        time_since_update = (dt.utcnow() - self._last_update).total_seconds()
+        is_fresh = time_since_update < self.assume_offline_period_sec
+        # some device does not produce explicit offline status to data_holder.online
+        # so need to consider forcing online = False after some attempts while ASSUME_OFFLINE
+        is_disconnected = time_since_update > self.force_offline_period_sec
+        online_data = self.coordinator.data.data_holder.online
+
+        target_status = self._online
+        target_value = self._attr_native_value
+
+        if not online_data:
+            target_status = _OnlineStatus.OFFLINE
+            target_value = "offline"
+        elif is_disconnected:
+            target_status = _OnlineStatus.OFFLINE
+            target_value = "offline"
+        elif not is_fresh:
+            target_status = _OnlineStatus.ASSUME_OFFLINE
+            target_value = "assume_offline"
+        else:
+            target_status = _OnlineStatus.ONLINE
+            target_value = "online"
+
+        if self._online != target_status:
+            self._online = target_status
+            self._attr_native_value = target_value
             self._actualize_attributes()
             changed = True
+
         return changed
 
     def _actualize_attributes(self):
         if self._online in {_OnlineStatus.OFFLINE, _OnlineStatus.ONLINE}:
-            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = f"< {self.offline_barrier_sec} sec"
+            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = f"< {self.assume_offline_period_sec} sec"
         else:
             self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._last_update
 
@@ -564,37 +567,41 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
     ):
         super().__init__(client, device, title, key)
         self._attrs[ATTR_QUOTA_REQUESTS] = 0
+        self._last_quota_req = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
 
+    @override
     def _actualize_status(self) -> bool:
         changed = False
-        if self._online != _OnlineStatus.ASSUME_OFFLINE and self._skip_count >= self._offline_skip_count * 2:
-            self._online = _OnlineStatus.ASSUME_OFFLINE
-            self._attr_native_value = "assume_offline"
-            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
-            changed = True
-        elif self._online != _OnlineStatus.ASSUME_OFFLINE and self._skip_count >= self._offline_skip_count:
-            self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
-            self._attrs[ATTR_QUOTA_REQUESTS] = self._attrs[ATTR_QUOTA_REQUESTS] + 1
-            changed = True
-        elif self._online != _OnlineStatus.ONLINE and self._skip_count == 0:
-            self._online = _OnlineStatus.ONLINE
-            self._attr_native_value = "online"
-            self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
-            changed = True
+
+        # 1. Update status via parent using time-based logic
+        status_changed = super()._actualize_status()
+        changed = changed or status_changed
+
+        # 2. Handle Quota Requests (only if silent / assume offline)
+        if self._online == _OnlineStatus.ASSUME_OFFLINE:
+            time_since_req = (dt.utcnow() - self._last_quota_req).total_seconds()
+            if time_since_req >= self.assume_offline_period_sec:
+                self.hass.async_create_background_task(
+                    self._client.quota_all(self._device.device_info.sn), f"get quota {self._device.device_info.sn}"
+                )
+                self._last_quota_req = dt.utcnow()
+                self._attrs[ATTR_QUOTA_REQUESTS] += 1
+                changed = True
+
         return changed
 
 
 class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int = 3600):
         super().__init__(client, device, "Status (Scheduled)", "status.scheduled")
-        self.offline_barrier_sec: int = reload_delay
+        self.assume_offline_period_sec: int = reload_delay
         self._quota_last_update = dt.utcnow()
 
     def _actualize_status(self) -> bool:
         changed = super()._actualize_status()
         quota_diff = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._quota_last_update)
         # if delay passed, reload quota
-        if quota_diff > (self.offline_barrier_sec):
+        if quota_diff > (self.assume_offline_period_sec):
             self._attr_native_value = "updating"
             self._quota_last_update = dt.utcnow()
             self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
@@ -606,27 +613,6 @@ class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
                 changed = True
             self._attr_native_value = "online"
         return changed
-
-
-class ReconnectStatusSensorEntity(StatusSensorEntity):
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-
-    CONNECT_PHASES = [3, 5, 7]
-
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice):
-        super().__init__(client, device)
-        self._attrs[ATTR_STATUS_PHASE] = 0
-        self._attrs[ATTR_STATUS_RECONNECTS] = 0
-
-    def _actualize_status(self) -> bool:
-        time_to_reconnect = self._skip_count in self.CONNECT_PHASES
-
-        if self._online == _OnlineStatus.ONLINE and time_to_reconnect:
-            self._attrs[ATTR_STATUS_RECONNECTS] = self._attrs[ATTR_STATUS_RECONNECTS] + 1
-            self._client.mqtt_client.reconnect()
-            return True
-        else:
-            return super()._actualize_status()
 
 
 class IntegralEnergySensorEntity(IntegrationSensor):
