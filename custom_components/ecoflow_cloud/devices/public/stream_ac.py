@@ -1,5 +1,5 @@
 from ...sensor import StatusSensorEntity
-from custom_components.ecoflow_cloud.sensor import _OnlineStatus
+from ...sensor import _OnlineStatus
 from homeassistant.components.sensor import SensorStateClass  # pyright: ignore[reportMissingImports]
 import logging
 from homeassistant.util import dt
