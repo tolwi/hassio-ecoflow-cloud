@@ -143,7 +143,12 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                                 last = getattr(dev, "_last_historical_fetch", 0)
                                 if now - float(last) >= float(hist_period):
                                     # schedule and record last fetch time
-                                    asyncio.create_task(fetch_historical_for_device(self, dev))
+                                    if not hasattr(self, "_background_tasks"):
+                                        self._background_tasks = []
+                                    task = asyncio.create_task(
+                                        fetch_historical_for_device(self, dev)
+                                    )
+                                    self._background_tasks.append(task)
                                     try:
                                         setattr(dev, "_last_historical_fetch", now)
                                     except Exception:
