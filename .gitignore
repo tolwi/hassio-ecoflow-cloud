@@ -6,6 +6,5 @@ venv
 .vscode/settings.json
 .coverage
 requirements.test.txt
-requirements.txt
 setup.cfg
 tests
