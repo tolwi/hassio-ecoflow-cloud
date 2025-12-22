@@ -64,7 +64,7 @@ _LOGGER = logging.getLogger(__name__)
 class SmartMeterCommandMessage(PrivateAPIMessageProtocol):
     """Message wrapper for SmartMeter protobuf commands."""
 
-    def __init__(self, device_sn: str, command: CommandFuncAndId, payload: ProtoMessageRaw | None):
+    def __init__(self, device_sn: str, command: Command, payload: ProtoMessageRaw | None):
         self._packet = ef_smartmeter_pb2.SmartMeterSetMessage()
         self._payload = payload
         message = self._packet.msg.add()
@@ -100,7 +100,10 @@ class SmartMeterCommandMessage(PrivateAPIMessageProtocol):
 
     @override
     def to_dict(self) -> dict:
-        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
+        if self._payload is None:
+            payload_dict = {}
+        else:
+            payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
 
         result = MessageToDict(self._packet, preserving_proto_field_name=True)
         result["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}

@@ -287,7 +287,7 @@ class WattsSensorEntity(BaseSensorEntity):
             title,
             enabled,
             auto_enable,
-            diagnostic if diagnostic is not None else EntityCategory.DIAGNOSTIC,
+            diagnostic,
         )
         self._energy_enabled = False
         self._energy_enabled_default = True

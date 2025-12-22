@@ -2,6 +2,7 @@ import base64
 import hashlib
 import logging
 from time import time
+from typing import Any
 
 import aiohttp
 from homeassistant.util import uuid
@@ -72,11 +73,11 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
     async def quota_all(self, device_sn: str | None):
         if not device_sn:
-            target_devices = self.devices.items()
+            target_devices = self.devices
         else:
-            target_devices = [(device_sn, self.devices[device_sn])]
+            target_devices = {device_sn: self.devices[device_sn]}
 
-        for sn, device in target_devices:
+        for sn, device in target_devices.items():
             self.send_get_message(sn, device.get_quota_message())
 
     def configure_device(self, device_data: DeviceData):
@@ -89,7 +90,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
 
         if device_data.device_type in devices:
             device = devices[device_data.device_type](info, device_data)
-        elif device_data.parent.device_type in devices:
+        elif device_data.parent is not None and device_data.parent.device_type in devices:
             # this can be problematic if a parent chain is recursive (so a parent has a parent again)
             # the current data structure alows this, but it is not supported here.
             device = devices[device_data.parent.device_type](info, device_data)
@@ -116,7 +117,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             get_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get_reply",
         )
 
-    async def __call_api(self, endpoint: str, params: dict[str:any] | None = None) -> dict:
+    async def __call_api(self, endpoint: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         async with aiohttp.ClientSession() as session:
             headers = {
                 "lang": "en_US",

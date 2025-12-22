@@ -49,7 +49,7 @@ class EcoflowDeviceInfo:
             self.set_reply_topic,
             self.status_topic,
         ]
-        return list(filter(lambda v: v is not None, topics))
+        return [t for t in topics if t is not None]
 
 
 @dataclasses.dataclass
@@ -85,7 +85,7 @@ class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataH
 class BaseDevice(ABC):
     def __init__(self, device_info: EcoflowDeviceInfo, device_data: DeviceData):
         super().__init__()
-        self.coordinator: EcoflowDeviceUpdateCoordinator | None = None
+        self.coordinator: EcoflowDeviceUpdateCoordinator
         self.device_info: EcoflowDeviceInfo = device_info
         self.power_step: int = device_data.options.power_step
         self.device_data: DeviceData = device_data

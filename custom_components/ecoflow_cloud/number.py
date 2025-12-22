@@ -1,7 +1,7 @@
+from homeassistant.components.number.const import NumberDeviceClass
 from typing import Any, Callable
 
 from homeassistant.components.number import NumberMode
-from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, UnitOfPower, UnitOfTemperature
 from homeassistant.core import HomeAssistant
@@ -32,7 +32,7 @@ class ValueUpdateEntity(BaseNumberEntity):
 class ChargingPowerEntity(ValueUpdateEntity):
     _attr_icon = "mdi:transmission-tower-import"
     _attr_native_unit_of_measurement = UnitOfPower.WATT
-    _attr_device_class = SensorDeviceClass.POWER
+    _attr_device_class = NumberDeviceClass.POWER
 
     def __init__(
         self,

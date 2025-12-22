@@ -291,12 +291,9 @@ class StreamAC(BaseInternalDevice):
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
 
-    def _prepare_data_get_topic(self, raw_data) -> dict[str, Any]:
-        return super()._prepare_data(raw_data)
-
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
-        raw = {"params": {}}
+        raw: dict[str, Any] = {"params": {}}
         from .proto import stream_ac_pb2 as stream_ac
         from .proto import stream_ac_pb2 as stream_ac2
 

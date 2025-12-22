@@ -102,7 +102,7 @@ class PowerStreamCommandMessage(PrivateAPIMessageProtocol):
     def __init__(
         self,
         device_sn: str,
-        command: CommandFuncAndId,
+        command: Command,
         payload: ProtoMessageRaw | None,
     ):
         self._packet = powerstream.PowerStreamSendHeaderMsg()
@@ -139,7 +139,10 @@ class PowerStreamCommandMessage(PrivateAPIMessageProtocol):
 
     @override
     def to_dict(self) -> dict:
-        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
+        if self._payload is None:
+            payload_dict = {}
+        else:
+            payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
 
         result = MessageToDict(self._packet, preserving_proto_field_name=True)
         result["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}
@@ -350,19 +353,19 @@ class PowerStream(BaseInternalDevice):
 
                 params = cast(JSONDict, res.setdefault("params", {}))
                 if command in {Command.INVERTER_HEARTBEAT}:
-                    payload = get_expected_payload_type(command)()
-                    _ = payload.ParseFromString(message.pdata)
+                    payload_inverter_heartbeat = powerstream.PowerStreamInverterHeartbeat()
+                    _ = payload_inverter_heartbeat.ParseFromString(message.pdata)
                     params.update(
                         (f"{command.func}_{command.id}.{key}", value)
                         for key, value in cast(
                             JSONDict,
-                            MessageToDict(payload, preserving_proto_field_name=False),
+                            MessageToDict(payload_inverter_heartbeat, preserving_proto_field_name=False),
                         ).items()
                     )
                 elif command in {Command.PLATFORM_WATTH}:
-                    payload = get_expected_payload_type(command)()
-                    _ = payload.ParseFromString(message.pdata)
-                    for watth_item in payload.watth_item:
+                    payload_energy_total = powerstream.PowerStreamBatchEnergyTotalReport()
+                    _ = payload_energy_total.ParseFromString(message.pdata)
+                    for watth_item in payload_energy_total.watth_item:
                         try:
                             watth_type_name = to_lower_camel_case(WatthType(watth_item.watth_type).name)
                         except ValueError:

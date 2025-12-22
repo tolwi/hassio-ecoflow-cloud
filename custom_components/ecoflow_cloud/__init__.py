@@ -1,3 +1,4 @@
+from typing import Any
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 import logging
 from typing import Final
@@ -62,7 +63,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     if config_entry.version in (5, 6):
         new_data = dict(config_entry.data)
         new_options = dict(config_entry.options)
-        new_devices = dict[str, DeviceData]()
+        new_devices = dict[str, Any]()
         for sn, device_info in config_entry.data[CONF_DEVICE_LIST].items():
             new_devices[sn] = {
                 CONF_DEVICE_NAME: device_info[CONF_DEVICE_NAME],
@@ -150,12 +151,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         return False
 
     _LOGGER.info("Setup entry %s (data = %s)", str(entry), str(entry.data))
+    api_client: EcoflowApiClient
     if ECOFLOW_DOMAIN not in hass.data:
         hass.data[ECOFLOW_DOMAIN] = {}
     if CONF_USERNAME in entry.data and CONF_PASSWORD in entry.data:
         from .api.private_api import EcoflowPrivateApiClient
 
-        api_client: EcoflowApiClient = EcoflowPrivateApiClient(
+        api_client = EcoflowPrivateApiClient(
             entry.data[CONF_API_HOST],
             entry.data[CONF_USERNAME],
             entry.data[CONF_PASSWORD],
@@ -165,7 +167,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     elif CONF_ACCESS_KEY in entry.data and CONF_SECRET_KEY in entry.data:
         from .api.public_api import EcoflowPublicApiClient
 
-        api_client: EcoflowApiClient = EcoflowPublicApiClient(
+        api_client = EcoflowPublicApiClient(
             entry.data[CONF_API_HOST],
             entry.data[CONF_ACCESS_KEY],
             entry.data[CONF_SECRET_KEY],

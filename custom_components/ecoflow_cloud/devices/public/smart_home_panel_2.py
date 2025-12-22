@@ -298,7 +298,7 @@ class SmartHomePanel2(BaseDevice):
             ),
         ]
 
-    def _switchesBatteryEnabled(self, client: EcoflowApiClient, index: int, enabled: bool) -> SelectEntity:
+    def _switchesBatteryEnabled(self, client: EcoflowApiClient, index: int, enabled: bool) -> SwitchEntity:
         return (
             EnabledEntity(
                 client,

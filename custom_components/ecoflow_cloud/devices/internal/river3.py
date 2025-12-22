@@ -11,7 +11,6 @@ import time
 from typing import Any, override
 
 from google.protobuf.json_format import MessageToDict
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass  # pyright: ignore[reportMissingImports]
 from homeassistant.helpers.entity import EntityCategory  # pyright: ignore[reportMissingImports]
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
@@ -166,7 +165,6 @@ class River3ChargingStateSensorEntity(BaseSensorEntity):
 
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:battery-charging"
-    _attr_device_class = BinarySensorDeviceClass.BATTERY_CHARGING
 
     def _update_value(self, val: Any) -> bool:
         if val == 0:
@@ -514,30 +512,30 @@ class River3(BaseInternalDevice):
 
         try:
             if cmd_func == 254 and cmd_id == 21:
-                msg = ef_river3_pb2.River3DisplayPropertyUpload()
-                msg.ParseFromString(pdata)
-                result = self._protobuf_to_dict(msg)
+                msg_display_upload = ef_river3_pb2.River3DisplayPropertyUpload()
+                msg_display_upload.ParseFromString(pdata)
+                result = self._protobuf_to_dict(msg_display_upload)
                 return self._extract_statistics(result)
 
             elif cmd_func == 254 and cmd_id == 22:
-                msg = ef_river3_pb2.River3RuntimePropertyUpload()
-                msg.ParseFromString(pdata)
-                return self._protobuf_to_dict(msg)
+                msg_runtime_upload = ef_river3_pb2.River3RuntimePropertyUpload()
+                msg_runtime_upload.ParseFromString(pdata)
+                return self._protobuf_to_dict(msg_runtime_upload)
 
             elif cmd_func == 254 and cmd_id == 17:
                 try:
-                    msg = ef_river3_pb2.River3SetCommand()
-                    msg.ParseFromString(pdata)
-                    return self._protobuf_to_dict(msg)
+                    msg_set_command = ef_river3_pb2.River3SetCommand()
+                    msg_set_command.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg_set_command)
                 except Exception as e:
                     _LOGGER.debug("Failed to decode as River3SetCommand: %s", e)
                     return {}
 
             elif cmd_func == 254 and cmd_id == 18:
                 try:
-                    msg = ef_river3_pb2.River3SetReply()
-                    msg.ParseFromString(pdata)
-                    result = self._protobuf_to_dict(msg)
+                    msg_set_reply = ef_river3_pb2.River3SetReply()
+                    msg_set_reply.ParseFromString(pdata)
+                    result = self._protobuf_to_dict(msg_set_reply)
                     return result if result.get("config_ok", False) else {}
                 except Exception as e:
                     _LOGGER.debug(f"Failed to decode as setReply_dp3: {e}")
@@ -545,27 +543,27 @@ class River3(BaseInternalDevice):
 
             elif cmd_func == 32 and cmd_id == 2:
                 try:
-                    msg = ef_river3_pb2.River3CMSHeartBeatReport()
-                    msg.ParseFromString(pdata)
-                    return self._protobuf_to_dict(msg)
+                    msg_cms_heartbeat = ef_river3_pb2.River3CMSHeartBeatReport()
+                    msg_cms_heartbeat.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg_cms_heartbeat)
                 except Exception as e:
                     _LOGGER.debug(f"Failed to decode as cmdFunc32_cmdId2_Report: {e}")
                     return {}
 
             elif self._is_bms_heartbeat(cmd_func, cmd_id):
                 try:
-                    msg = ef_river3_pb2.River3BMSHeartBeatReport()
-                    msg.ParseFromString(pdata)
-                    return self._protobuf_to_dict(msg)
+                    msg_bms_heartbeat = ef_river3_pb2.River3BMSHeartBeatReport()
+                    msg_bms_heartbeat.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg_bms_heartbeat)
                 except Exception as e:
                     _LOGGER.debug(f"Failed to decode as BMSHeartBeatReport (cmdFunc={cmd_func}, cmdId={cmd_id}): {e}")
                     return {}
 
             # Unknown message type - try BMSHeartBeatReport as fallback
             try:
-                msg = ef_river3_pb2.River3BMSHeartBeatReport()
-                msg.ParseFromString(pdata)
-                result = self._protobuf_to_dict(msg)
+                msg_bms_heartbeat = ef_river3_pb2.River3BMSHeartBeatReport()
+                msg_bms_heartbeat.ParseFromString(pdata)
+                result = self._protobuf_to_dict(msg_bms_heartbeat)
                 if "cycles" in result or "accu_chg_energy" in result or "accu_dsg_energy" in result:
                     return result
             except Exception as e:
@@ -582,7 +580,7 @@ class River3(BaseInternalDevice):
 
     def _flatten_dict(self, d: dict, parent_key: str = "", sep: str = "_") -> dict:
         """Flatten nested dict with underscore separator."""
-        items = []
+        items: list[tuple[str, Any]] = []
         for k, v in d.items():
             new_key = f"{parent_key}{sep}{k}" if parent_key else k
             if isinstance(v, dict):
@@ -633,7 +631,7 @@ class River3(BaseInternalDevice):
 
     def _manual_protobuf_to_dict(self, protobuf_obj: Any) -> dict[str, Any]:
         """Convert protobuf object to dict manually (fallback)."""
-        result = {}
+        result: dict[str, Any] = {}
         for field, value in protobuf_obj.ListFields():
             if field.label == field.LABEL_REPEATED:
                 result[field.name] = list(value)

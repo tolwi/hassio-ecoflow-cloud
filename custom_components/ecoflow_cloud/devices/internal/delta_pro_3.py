@@ -496,22 +496,22 @@ class DeltaPro3(BaseInternalDevice):
 
             if cmd_func == 254 and cmd_id == 21:
                 # DisplayPropertyUpload
-                msg = dp3.DP3DisplayPropertyUpload()
-                msg.ParseFromString(pdata)
-                return self._protobuf_to_dict(msg)
+                msg_display_upload = dp3.DP3DisplayPropertyUpload()
+                msg_display_upload.ParseFromString(pdata)
+                return self._protobuf_to_dict(msg_display_upload)
 
             elif cmd_func == 32 and cmd_id == 2:
                 # cmdFunc32_cmdId2_Report (CMSHeartBeatReport)
-                msg = dp3.DP3CMSHeartBeatReport()
-                msg.ParseFromString(pdata)
-                return self._protobuf_to_dict(msg)
+                msg_report = dp3.DP3CMSHeartBeatReport()
+                msg_report.ParseFromString(pdata)
+                return self._protobuf_to_dict(msg_report)
 
             elif cmd_func == 254 and cmd_id == 22:
                 # RuntimePropertyUpload - frequently updated runtime properties
                 try:
-                    msg = dp3.DP3RuntimePropertyUpload()
-                    msg.ParseFromString(pdata)
-                    return self._protobuf_to_dict(msg)
+                    msg_runtime_upload = dp3.DP3RuntimePropertyUpload()
+                    msg_runtime_upload.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg_runtime_upload)
                 except AttributeError:
                     # RuntimePropertyUpload class not found, use generic handling
                     _LOGGER.debug("RuntimePropertyUpload class not found, using generic handling")
@@ -537,9 +537,9 @@ class DeltaPro3(BaseInternalDevice):
             elif cmd_func == 254 and cmd_id == 23:
                 # cmdFunc254_cmdId23_Report - report with timestamp
                 try:
-                    msg = dp3.DP3DisplayPropertyReport()
-                    msg.ParseFromString(pdata)
-                    return self._protobuf_to_dict(msg)
+                    msg_display_report = dp3.DP3DisplayPropertyReport()
+                    msg_display_report.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg_display_report)
                 except AttributeError:
                     # cmdFunc254_cmdId23_Report class not found, use generic handling
                     _LOGGER.debug("cmdFunc254_cmdId23_Report class not found, using generic handling")
@@ -568,10 +568,10 @@ class DeltaPro3(BaseInternalDevice):
             elif self._is_bms_heartbeat(cmd_func, cmd_id):
                 # BMSHeartBeatReport - contains cycles, input_watts, output_watts, accu_chg_energy, accu_dsg_energy
                 try:
-                    msg = dp3.DP3BMSHeartBeatReport()
-                    msg.ParseFromString(pdata)
+                    msg_bms_heartbeat = dp3.DP3BMSHeartBeatReport()
+                    msg_bms_heartbeat.ParseFromString(pdata)
                     _LOGGER.info(f"Successfully decoded BMSHeartBeatReport: cmdFunc={cmd_func}, cmdId={cmd_id}")
-                    return self._protobuf_to_dict(msg)
+                    return self._protobuf_to_dict(msg_bms_heartbeat)
                 except Exception as e:
                     _LOGGER.debug(f"Failed to decode as BMSHeartBeatReport (cmdFunc={cmd_func}, cmdId={cmd_id}): {e}")
                     # Fall through to unknown message type
@@ -581,9 +581,9 @@ class DeltaPro3(BaseInternalDevice):
 
             # Try to decode as BMSHeartBeatReport since that's a common case
             try:
-                msg = dp3.DP3BMSHeartBeatReport()
-                msg.ParseFromString(pdata)
-                result = self._protobuf_to_dict(msg)
+                msg_bms_heartbeat = dp3.DP3BMSHeartBeatReport()
+                msg_bms_heartbeat.ParseFromString(pdata)
+                result = self._protobuf_to_dict(msg_bms_heartbeat)
                 # Check if we got meaningful data (cycles or energy fields)
                 if "cycles" in result or "accu_chg_energy" in result or "accu_dsg_energy" in result:
                     _LOGGER.warning(
@@ -605,7 +605,7 @@ class DeltaPro3(BaseInternalDevice):
         return (cmd_func, cmd_id) in BMS_HEARTBEAT_COMMANDS
 
     def _flatten_dict(self, d: dict, parent_key: str = "", sep: str = "_") -> dict[str, Any]:
-        items = []
+        items: list[tuple[str, Any]] = []
         for k, v in d.items():
             new_key = f"{parent_key}{sep}{k}" if parent_key else k
             if isinstance(v, dict):

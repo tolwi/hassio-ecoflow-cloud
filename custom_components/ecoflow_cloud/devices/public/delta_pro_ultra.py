@@ -248,7 +248,7 @@ class DeltaProUltra(BaseDevice):
                 res["params"][f"hs_yj751_pd_appshow_addr.showFlag.{x + 1}"] = (documentation_bit_order >> x) & 1
         return res
 
-    def to_plain_nested_addr_prefix(self, raw_data: dict[str, any]) -> dict[str, any]:
+    def to_plain_nested_addr_prefix(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         if "typeCode" in raw_data:
             prefix = data_bridge.status_to_plain.get(raw_data["typeCode"], "unknown_" + raw_data["typeCode"])
         elif "addr" in raw_data:
@@ -259,19 +259,19 @@ class DeltaProUltra(BaseDevice):
             # Used for quota/all responses
             return raw_data
 
-        new_params = {}
+        new_params: dict[str, Any] = {}
         if "params" in raw_data:
             self.nested_to_top_level(new_params, prefix, raw_data["params"])
         if "param" in raw_data:
             self.nested_to_top_level(new_params, prefix, raw_data["param"])
 
-        result = {"params": new_params}
+        result: dict[str, Any] = {"params": new_params}
         for k, v in raw_data.items():
             if k != "param" and k != "params":
                 result[k] = v
         return result
 
-    def nested_to_top_level(self, dest, k, v):
+    def nested_to_top_level(self, dest: dict[str, Any], k: str, v: Any):
         """Converts each nested dict/list value to a top-level key of
         the prefix followed by dot notation path to the value.
         ex.

@@ -8,7 +8,6 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.components.sensor.const import SensorStateClass
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -72,11 +71,11 @@ class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
         self._attr_icon = icon
         return self
 
-    def with_state_class(self, state_class: SensorStateClass) -> Self:
+    def with_state_class(self, state_class: str | None) -> Self:
         self._attr_state_class = state_class
         return self
 
-    def with_unit_of_measurement(self, unit: str) -> Self:
+    def with_unit_of_measurement(self, unit: str | None) -> Self:
         self._attr_native_unit_of_measurement = unit
         return self
 
@@ -210,14 +209,14 @@ class EcoFlowBaseCommandEntity[_CommandArg](EcoFlowDictEntity):
         if self._command:
             p_count = len(inspect.signature(self._command).parameters)
             if p_count == 1:
-                command = cast(Callable[[_CommandArg], dict[str, Any] | Message], self._command)
-                return command(value)
+                command_1 = cast(Callable[[_CommandArg], dict[str, Any] | Message], self._command)
+                return command_1(value)
             elif p_count == 2:
-                command = cast(
+                command_2 = cast(
                     Callable[[_CommandArg, dict[str, Any]], dict[str, Any] | Message],
                     self._command,
                 )
-                return command(value, self._device.data.params)
+                return command_2(value, self._device.data.params)
             raise ValueError("Incompatible command signature")
         raise ValueError("Command not found")
 

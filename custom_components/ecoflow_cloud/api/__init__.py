@@ -26,9 +26,11 @@ class EcoflowMqttInfo:
 
 class EcoflowApiClient(ABC):
     def __init__(self):
+        from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient
+
         self.mqtt_info: EcoflowMqttInfo
         self.devices: dict[str, Any] = {}
-        self.mqtt_client = None
+        self.mqtt_client: EcoflowMQTTClient
 
     @abstractmethod
     async def login(self):
@@ -65,7 +67,7 @@ class EcoflowApiClient(ABC):
 
         _LOGGER.info(f"Successfully extracted account: {self.mqtt_info.username}")
 
-    async def _get_json_response(self, resp: ClientResponse):
+    async def _get_json_response(self, resp: ClientResponse) -> dict[str, Any]:
         if resp.status != 200:
             raise EcoflowException(f"Got HTTP status code {resp.status}: {resp.reason}")
 
