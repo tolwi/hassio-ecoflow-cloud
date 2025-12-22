@@ -25,10 +25,4 @@
 - mpptPv2.vol (`96_1.mpptHeartBeat[0].mpptPv[1].vol`)
 - Status
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 

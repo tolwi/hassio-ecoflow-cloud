@@ -1,20 +1,34 @@
-from ...sensor import StatusSensorEntity
-from .data_bridge import to_plain
+from typing import Any
+
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
+
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.devices import const, BaseDevice
-from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, \
-    BaseSelectEntity
-from custom_components.ecoflow_cloud.sensor import WattsSensorEntity,LevelSensorEntity,CapacitySensorEntity, \
-    InWattsSensorEntity,OutWattsSensorEntity, RemainSensorEntity, MilliVoltSensorEntity, TempSensorEntity, \
-    CyclesSensorEntity, EnergySensorEntity, CumulativeCapacitySensorEntity, VoltSensorEntity
-from ...switch import EnabledEntity
-from ...number import (
-    BatteryBackupLevel
+from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
+from custom_components.ecoflow_cloud.number import BatteryBackupLevel
+from custom_components.ecoflow_cloud.sensor import (
+    CapacitySensorEntity,
+    CumulativeCapacitySensorEntity,
+    CyclesSensorEntity,
+    EnergySensorEntity,
+    InWattsSensorEntity,
+    LevelSensorEntity,
+    MilliVoltSensorEntity,
+    OutWattsSensorEntity,
+    RemainSensorEntity,
+    StatusSensorEntity,
+    TempSensorEntity,
+    VoltSensorEntity,
+    WattsSensorEntity,
 )
+from custom_components.ecoflow_cloud.switch import EnabledEntity
+
 
 class StreamAC(BaseDevice):
-
-    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             # "accuChgCap": 198511,
             CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False),
@@ -83,7 +97,7 @@ class StreamAC(BaseDevice):
             # "cycles": 1,
             CyclesSensorEntity(client, self, "cycles", const.CYCLES),
             # "designCap": 100000,
-            CapacitySensorEntity(client, self, "designCap", const.STREAM_DESIGN_CAPACITY,False),
+            CapacitySensorEntity(client, self, "designCap", const.STREAM_DESIGN_CAPACITY, False),
             # "devCtrlStatus": 1,
             # "devSleepState": 0,
             # "diffSoc": 0.2050476,
@@ -199,7 +213,7 @@ class StreamAC(BaseDevice):
             # "relay3Onoff": true,
             # "relay4Onoff": true,
             # "remainCap": 46317,
-            CapacitySensorEntity(client, self, "remainCap", const.STREAM_REMAIN_CAPACITY,False),
+            CapacitySensorEntity(client, self, "remainCap", const.STREAM_REMAIN_CAPACITY, False),
             # "remainTime": 88,
             RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME),
             # "runtimePropertyFullUploadPeriod": 120000,
@@ -262,10 +276,10 @@ class StreamAC(BaseDevice):
             .attr("minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
-
         ]
+
     # moduleWifiRssi
-    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
             BatteryBackupLevel(
                 client,
@@ -292,7 +306,7 @@ class StreamAC(BaseDevice):
             ),
         ]
 
-    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return [
             EnabledEntity(
                 client,
@@ -343,8 +357,8 @@ class StreamAC(BaseDevice):
                     "dirSrc": 1,
                     "dest": 2,
                     "needAck": True,
-                "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen":value}},
-                    },
+                    "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen": value}},
+                },
                 enableValue=True,
                 disableValue=False,
             ),
@@ -361,8 +375,8 @@ class StreamAC(BaseDevice):
                     "dirSrc": 1,
                     "dest": 2,
                     "needAck": True,
-                    "params": {"cfgEnergyStrategyOperateMode": {"operateIntelligentScheduleModeOpen":value}},
-                    },
+                    "params": {"cfgEnergyStrategyOperateMode": {"operateIntelligentScheduleModeOpen": value}},
+                },
                 enableValue=True,
                 disableValue=False,
             ),
@@ -386,15 +400,13 @@ class StreamAC(BaseDevice):
             ),
         ]
 
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
 
-    def _prepare_data(self, raw_data) -> dict[str, any]:
+    def _prepare_data(self, raw_data) -> dict[str, Any]:
         res = super()._prepare_data(raw_data)
         res = to_plain(res)
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
         return StatusSensorEntity(client, self)
-
-

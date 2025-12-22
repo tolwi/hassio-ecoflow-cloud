@@ -3,7 +3,7 @@ from typing import Type
 
 from custom_components.ecoflow_cloud.devices import BaseDevice, DiagnosticDevice
 
-from .internal import (
+from custom_components.ecoflow_cloud.devices.internal import (
     delta2 as internal_delta2,
     delta2_max as internal_delta2_max,
     delta3 as internal_delta3,
@@ -24,7 +24,7 @@ from .internal import (
     stream_ac as internal_stream_ac,
     wave2 as internal_wave2,
 )
-from .public import (
+from custom_components.ecoflow_cloud.devices.public import (
     delta2 as public_delta2,
     delta2_max as public_delta2_max,
     delta3 as public_delta3,
@@ -74,9 +74,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
     }
 )
 
-device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
-    str, Type[BaseDevice]
-](
+device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]](
     {
         "DELTA Max": public_delta_max.DeltaMax,
         "DELTA Pro": public_delta_pro.DeltaPro,
@@ -96,7 +94,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[
         "Stream AC": public_stream_ac.StreamAC,
         "Stream PRO": public_stream_ac.StreamAC,
         "Stream Ultra": public_stream_ac.StreamAC,
-        "Stream Microinverter" : public_stream_microinverter.StreamMicroinveter,
+        "Stream Microinverter": public_stream_microinverter.StreamMicroinveter,
         "Smart Home Panel": public_smart_home_panel.SmartHomePanel,
         "Smart Home Panel 2": public_smart_home_panel_2.SmartHomePanel2,
         "Power Ocean": public_powerocean.PowerOcean,

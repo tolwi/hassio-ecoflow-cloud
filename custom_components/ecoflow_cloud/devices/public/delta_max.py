@@ -1,12 +1,12 @@
-from ...api import EcoflowApiClient
-from ...sensor import StatusSensorEntity
-from ..internal.delta_max import DeltaMax as InternalDeltaMax
-from .data_bridge import to_plain
+from typing import Any
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.sensor import StatusSensorEntity
+from custom_components.ecoflow_cloud.devices.internal.delta_max import DeltaMax as InternalDeltaMax
+from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
 
 
 class DeltaMax(InternalDeltaMax):
-
-    def _prepare_data(self, raw_data) -> dict[str, any]:
+    def _prepare_data(self, raw_data) -> dict[str, Any]:
         res = super()._prepare_data(raw_data)
         res = to_plain(res)
         return res

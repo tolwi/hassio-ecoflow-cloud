@@ -26,6 +26,4 @@
 *Sliders (numbers)*
 - Max Charge Level (`inv.maxChargeSoc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 0, "maxChgSoc": "VALUE"}}` [30 - 100])
 
-*Selects*
-
 

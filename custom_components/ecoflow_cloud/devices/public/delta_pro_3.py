@@ -1,17 +1,17 @@
-from ...api import EcoflowApiClient
-from ...entities import (
-    BaseNumberEntity,
-    BaseSelectEntity,
-    BaseSensorEntity,
-    BaseSwitchEntity,
-)
-from ...number import (
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
+
+from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.number import (
     ChargingPowerEntity,
     MaxBatteryLevelEntity,
     MinBatteryLevelEntity,
 )
-from ...select import DictSelectEntity, TimeoutDictSelectEntity
-from ...sensor import (
+from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
+from custom_components.ecoflow_cloud.sensor import (
     # AmpSensorEntity,
     CapacitySensorEntity,
     # CyclesSensorEntity,
@@ -26,12 +26,11 @@ from ...sensor import (
     TempSensorEntity,
     # VoltSensorEntity,
 )
-from ...switch import BeeperEntity, EnabledEntity
-from .. import BaseDevice, const
+from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
 class DeltaPro3(BaseDevice):
-    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             LevelSensorEntity(client, self, "bmsBattSoc", const.MAIN_BATTERY_LEVEL),
             # .attr("bmsDesignCap", const.ATTR_DESIGN_CAPACITY, 0)
@@ -91,7 +90,7 @@ class DeltaPro3(BaseDevice):
             QuotaStatusSensorEntity(client, self),
         ]
 
-    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
             MaxBatteryLevelEntity(
                 client,
@@ -180,7 +179,7 @@ class DeltaPro3(BaseDevice):
             ),
         ]
 
-    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return [
             BeeperEntity(
                 client,
@@ -304,7 +303,7 @@ class DeltaPro3(BaseDevice):
             ),
         ]
 
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return [
             TimeoutDictSelectEntity(
                 client,

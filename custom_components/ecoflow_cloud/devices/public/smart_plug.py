@@ -1,19 +1,21 @@
+from typing import Any
+
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 
-from ...api import EcoflowApiClient
-from ...number import BrightnessLevelEntity
-from ...sensor import (
-    MilliampSensorEntity,
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
+from custom_components.ecoflow_cloud.number import BrightnessLevelEntity
+from custom_components.ecoflow_cloud.sensor import (
     DeciwattsSensorEntity,
+    MilliampSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
 )
-from ...switch import EnabledEntity
-from .. import BaseDevice, const
-from .data_bridge import to_plain
+from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 
 class SmartPlug(BaseDevice):
@@ -21,9 +23,7 @@ class SmartPlug(BaseDevice):
         return [
             TempSensorEntity(client, self, "2_1.temp", const.TEMPERATURE),
             VoltSensorEntity(client, self, "2_1.volt", const.VOLT),
-            MilliampSensorEntity(client, self, "2_1.current", const.CURRENT).attr(
-                "2_1.maxCur", const.MAX_CURRENT, 0
-            ),
+            MilliampSensorEntity(client, self, "2_1.current", const.CURRENT).attr("2_1.maxCur", const.MAX_CURRENT, 0),
             DeciwattsSensorEntity(client, self, "2_1.watts", const.POWER),
         ]
 
@@ -62,7 +62,7 @@ class SmartPlug(BaseDevice):
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
 
-    def _prepare_data(self, raw_data) -> dict[str, any]:
+    def _prepare_data(self, raw_data) -> dict[str, Any]:
         res = super()._prepare_data(raw_data)
         res = to_plain(res)
 

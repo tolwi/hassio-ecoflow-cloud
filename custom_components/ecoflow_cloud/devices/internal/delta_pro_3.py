@@ -1,16 +1,15 @@
-from custom_components.ecoflow_cloud.sensor import MilliampSensorEntity
 import logging
 from typing import Any, override
 
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.switch import SwitchEntity
+
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.internal.proto import (
     ef_dp3_iobroker_pb2 as dp3,
-)
-from custom_components.ecoflow_cloud.entities import (
-    BaseNumberEntity,
-    BaseSelectEntity,
-    BaseSwitchEntity,
 )
 from custom_components.ecoflow_cloud.number import (
     ChargingPowerEntity,
@@ -66,7 +65,7 @@ BMS_HEARTBEAT_COMMANDS: set[tuple[int, int]] = {
 }
 
 
-class DeltaPro3(BaseDevice):
+class DeltaPro3(BaseInternalDevice):
     @override
     def sensors(self, client: EcoflowApiClient) -> list[Any]:
         return [
@@ -141,7 +140,7 @@ class DeltaPro3(BaseDevice):
         ]
 
     @override
-    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
             # Battery Management
             MaxBatteryLevelEntity(
@@ -187,7 +186,7 @@ class DeltaPro3(BaseDevice):
         ]
 
     @override
-    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return [
             # Audio Control
             BeeperEntity(
@@ -286,7 +285,7 @@ class DeltaPro3(BaseDevice):
         ]
 
     @override
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return [
             # Screen Timeout
             TimeoutDictSelectEntity(
@@ -497,22 +496,22 @@ class DeltaPro3(BaseDevice):
 
             if cmd_func == 254 and cmd_id == 21:
                 # DisplayPropertyUpload
-                msg = dp3.DP3DisplayPropertyUpload()
-                msg.ParseFromString(pdata)
-                return self._protobuf_to_dict(msg)
+                msg_display_upload = dp3.DP3DisplayPropertyUpload()
+                msg_display_upload.ParseFromString(pdata)
+                return self._protobuf_to_dict(msg_display_upload)
 
             elif cmd_func == 32 and cmd_id == 2:
                 # cmdFunc32_cmdId2_Report (CMSHeartBeatReport)
-                msg = dp3.DP3CMSHeartBeatReport()
-                msg.ParseFromString(pdata)
-                return self._protobuf_to_dict(msg)
+                msg_report = dp3.DP3CMSHeartBeatReport()
+                msg_report.ParseFromString(pdata)
+                return self._protobuf_to_dict(msg_report)
 
             elif cmd_func == 254 and cmd_id == 22:
                 # RuntimePropertyUpload - frequently updated runtime properties
                 try:
-                    msg = dp3.DP3RuntimePropertyUpload()
-                    msg.ParseFromString(pdata)
-                    return self._protobuf_to_dict(msg)
+                    msg_runtime_upload = dp3.DP3RuntimePropertyUpload()
+                    msg_runtime_upload.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg_runtime_upload)
                 except AttributeError:
                     # RuntimePropertyUpload class not found, use generic handling
                     _LOGGER.debug("RuntimePropertyUpload class not found, using generic handling")
@@ -538,9 +537,9 @@ class DeltaPro3(BaseDevice):
             elif cmd_func == 254 and cmd_id == 23:
                 # cmdFunc254_cmdId23_Report - report with timestamp
                 try:
-                    msg = dp3.DP3DisplayPropertyReport()
-                    msg.ParseFromString(pdata)
-                    return self._protobuf_to_dict(msg)
+                    msg_display_report = dp3.DP3DisplayPropertyReport()
+                    msg_display_report.ParseFromString(pdata)
+                    return self._protobuf_to_dict(msg_display_report)
                 except AttributeError:
                     # cmdFunc254_cmdId23_Report class not found, use generic handling
                     _LOGGER.debug("cmdFunc254_cmdId23_Report class not found, using generic handling")
@@ -569,10 +568,10 @@ class DeltaPro3(BaseDevice):
             elif self._is_bms_heartbeat(cmd_func, cmd_id):
                 # BMSHeartBeatReport - contains cycles, input_watts, output_watts, accu_chg_energy, accu_dsg_energy
                 try:
-                    msg = dp3.DP3BMSHeartBeatReport()
-                    msg.ParseFromString(pdata)
+                    msg_bms_heartbeat = dp3.DP3BMSHeartBeatReport()
+                    msg_bms_heartbeat.ParseFromString(pdata)
                     _LOGGER.info(f"Successfully decoded BMSHeartBeatReport: cmdFunc={cmd_func}, cmdId={cmd_id}")
-                    return self._protobuf_to_dict(msg)
+                    return self._protobuf_to_dict(msg_bms_heartbeat)
                 except Exception as e:
                     _LOGGER.debug(f"Failed to decode as BMSHeartBeatReport (cmdFunc={cmd_func}, cmdId={cmd_id}): {e}")
                     # Fall through to unknown message type
@@ -582,9 +581,9 @@ class DeltaPro3(BaseDevice):
 
             # Try to decode as BMSHeartBeatReport since that's a common case
             try:
-                msg = dp3.DP3BMSHeartBeatReport()
-                msg.ParseFromString(pdata)
-                result = self._protobuf_to_dict(msg)
+                msg_bms_heartbeat = dp3.DP3BMSHeartBeatReport()
+                msg_bms_heartbeat.ParseFromString(pdata)
+                result = self._protobuf_to_dict(msg_bms_heartbeat)
                 # Check if we got meaningful data (cycles or energy fields)
                 if "cycles" in result or "accu_chg_energy" in result or "accu_dsg_energy" in result:
                     _LOGGER.warning(
@@ -605,8 +604,8 @@ class DeltaPro3(BaseDevice):
         """Return True if the pair maps to a BMSHeartBeatReport message."""
         return (cmd_func, cmd_id) in BMS_HEARTBEAT_COMMANDS
 
-    def _flatten_dict(self, d: dict, parent_key: str = "", sep: str = "_") -> dict:
-        items = []
+    def _flatten_dict(self, d: dict, parent_key: str = "", sep: str = "_") -> dict[str, Any]:
+        items: list[tuple[str, Any]] = []
         for k, v in d.items():
             new_key = f"{parent_key}{sep}{k}" if parent_key else k
             if isinstance(v, dict):
@@ -629,7 +628,7 @@ class DeltaPro3(BaseDevice):
 
     def _manual_protobuf_to_dict(self, protobuf_obj: Any) -> dict[str, Any]:
         """Convert protobuf object to dict manually."""
-        result = {}
+        result: dict[str, Any] = {}
         for field, value in protobuf_obj.ListFields():
             if field.label == field.LABEL_REPEATED:
                 result[field.name] = list(value)
@@ -660,23 +659,11 @@ class DeltaPro3(BaseDevice):
         return result
 
     @override
-    def update_data(self, raw_data, data_type: str) -> bool:
-        """Decode protobuf only for data_topic; otherwise use BaseDevice JSON path."""
-        if data_type == self.device_info.data_topic:
-            raw = self._prepare_data(raw_data)
-            self.data.update_data(raw)
-        elif data_type == self.device_info.set_topic:
-            raw = BaseDevice._prepare_data(self, raw_data)
-            self.data.add_set_message(raw)
-        elif data_type == self.device_info.set_reply_topic:
-            raw = BaseDevice._prepare_data(self, raw_data)
-            self.data.add_set_reply_message(raw)
-        elif data_type == self.device_info.get_topic:
-            raw = BaseDevice._prepare_data(self, raw_data)
-            self.data.add_get_message(raw)
-        elif data_type == self.device_info.get_reply_topic:
-            raw = BaseDevice._prepare_data(self, raw_data)
-            self.data.add_get_reply_message(raw)
-        else:
-            return False
-        return True
+    def _prepare_data_data_topic(self, raw_data: bytes) -> PreparedData:
+        data = self._prepare_data(raw_data)
+        return PreparedData(None, data, {"proto": raw_data.hex()})
+
+    @override
+    def _prepare_data_set_reply_topic(self, raw_data: bytes) -> PreparedData:
+        # do not expect any params here
+        return PreparedData(None, None, self._prepare_data(raw_data))

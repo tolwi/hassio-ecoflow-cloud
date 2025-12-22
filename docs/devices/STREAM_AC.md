@@ -41,10 +41,4 @@
 - Battery Temperature (`temp`)   _(disabled)_
 - Battery Volts (`vol`)   _(disabled)_
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 

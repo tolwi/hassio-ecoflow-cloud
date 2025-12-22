@@ -71,6 +71,4 @@
 - AC Charging Power (`hs_yj751_pd_app_set_info_addr.chgC20SetWatts` -> `{"sn": "SN", "cmdCode": "YJ751_PD_AC_CHG_SET", "params": {"chgC20Watts": "VALUE"}}` [600 - 1800])
 - Power I/O Port Charging Power (`hs_yj751_pd_app_set_info_addr.chg5p8SetWatts` -> `{"sn": "SN", "cmdCode": "YJ751_PD_AC_CHG_SET", "params": {"chg5p8Watts": "VALUE"}}` [600 - 7200])
 
-*Selects*
-
 

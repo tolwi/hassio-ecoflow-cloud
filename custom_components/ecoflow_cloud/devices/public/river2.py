@@ -1,11 +1,13 @@
-from .data_bridge import to_plain
-from ..internal.river2 import River2 as InternalRiver2
-from ...api import EcoflowApiClient
-from ...sensor import StatusSensorEntity
+from typing import Any
+
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices.internal.river2 import River2 as InternalRiver2
+from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
+from custom_components.ecoflow_cloud.sensor import StatusSensorEntity
 
 
 class River2(InternalRiver2):
-    def _prepare_data(self, raw_data) -> dict[str, any]:
+    def _prepare_data(self, raw_data) -> dict[str, Any]:
         res = super()._prepare_data(raw_data)
         res = to_plain(res)
         return res

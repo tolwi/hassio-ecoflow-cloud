@@ -1,29 +1,29 @@
-from ...api import EcoflowApiClient
-from ...entities import (
-    BaseNumberEntity,
-    BaseSelectEntity,
-    BaseSensorEntity,
-    BaseSwitchEntity,
-)
-from ...number import (
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
+
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.number import (
     ChargingPowerEntity,
     MaxBatteryLevelEntity,
     MaxGenStopLevelEntity,
     MinBatteryLevelEntity,
     MinGenStartLevelEntity,
 )
-from ...select import DictSelectEntity, TimeoutDictSelectEntity
-from ...sensor import (
-    MilliampSensorEntity,
+from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
+from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
     CyclesSensorEntity,
-    InMilliampSolarSensorEntity,
     InEnergySensorEntity,
+    InMilliampSolarSensorEntity,
     InMilliVoltSensorEntity,
     InVoltSolarSensorEntity,
     InWattsSensorEntity,
     InWattsSolarSensorEntity,
     LevelSensorEntity,
+    MilliampSensorEntity,
     MilliVoltSensorEntity,
     OutEnergySensorEntity,
     OutMilliVoltSensorEntity,
@@ -35,12 +35,11 @@ from ...sensor import (
     TempSensorEntity,
     WattsSensorEntity,
 )
-from ...switch import BeeperEntity, EnabledEntity
-from .. import BaseDevice, const
+from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 
 class DeltaPro(BaseDevice):
-    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             LevelSensorEntity(client, self, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL)
             .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
@@ -56,19 +55,11 @@ class DeltaPro(BaseDevice):
             .attr("bmsMaster.designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
-            CapacitySensorEntity(
-                client, self, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False
-            ),
-            CapacitySensorEntity(
-                client, self, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False
-            ),
-            CapacitySensorEntity(
-                client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False
-            ),
+            CapacitySensorEntity(client, self, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, self, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
             LevelSensorEntity(client, self, "bmsMaster.soh", const.SOH),
-            LevelSensorEntity(
-                client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL
-            ),
+            LevelSensorEntity(client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             LevelSensorEntity(
                 client,
                 self,
@@ -76,79 +67,45 @@ class DeltaPro(BaseDevice):
                 const.COMBINED_BATTERY_LEVEL_F32,
                 False,
             ),
-            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER)
-                .with_energy(),
-            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER)
-                .with_energy(),
+            InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
+            OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER).with_energy(),
             MilliampSensorEntity(client, self, "bmsMaster.amp", const.MAIN_BATTERY_CURRENT),
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER),
             OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER),
             InMilliVoltSensorEntity(client, self, "inv.acInVol", const.AC_IN_VOLT),
             OutMilliVoltSensorEntity(client, self, "inv.invOutVol", const.AC_OUT_VOLT),
-            InWattsSolarSensorEntity(
-                client, self, "mppt.inWatts", const.SOLAR_IN_POWER
-            ),
+            InWattsSolarSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER),
             InVoltSolarSensorEntity(client, self, "mppt.inVol", const.SOLAR_IN_VOLTAGE),
             InMilliampSolarSensorEntity(client, self, "mppt.inAmp", const.SOLAR_IN_CURRENT),
             OutWattsDcSensorEntity(client, self, "mppt.outWatts", const.DC_OUT_POWER),
             OutVoltDcSensorEntity(client, self, "mppt.outVol", const.DC_OUT_VOLTAGE),
-            OutWattsSensorEntity(
-                client, self, "mppt.carOutWatts", const.DC_CAR_OUT_POWER
-            ),
-            OutWattsSensorEntity(
-                client, self, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER
-            ),
-            OutWattsSensorEntity(
-                client, self, "pd.typec1Watts", const.TYPEC_1_OUT_POWER
-            ),
-            OutWattsSensorEntity(
-                client, self, "pd.typec2Watts", const.TYPEC_2_OUT_POWER
-            ),
+            OutWattsSensorEntity(client, self, "mppt.carOutWatts", const.DC_CAR_OUT_POWER),
+            OutWattsSensorEntity(client, self, "mppt.dcdc12vWatts", const.DC_ANDERSON_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.typec1Watts", const.TYPEC_1_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.typec2Watts", const.TYPEC_2_OUT_POWER),
             OutWattsSensorEntity(client, self, "pd.usb1Watts", const.USB_1_OUT_POWER),
             OutWattsSensorEntity(client, self, "pd.usb2Watts", const.USB_2_OUT_POWER),
-            OutWattsSensorEntity(
-                client, self, "pd.qcUsb1Watts", const.USB_QC_1_OUT_POWER
-            ),
-            OutWattsSensorEntity(
-                client, self, "pd.qcUsb2Watts", const.USB_QC_2_OUT_POWER
-            ),
-            RemainSensorEntity(
-                client, self, "ems.chgRemainTime", const.CHARGE_REMAINING_TIME
-            ),
-            RemainSensorEntity(
-                client, self, "ems.dsgRemainTime", const.DISCHARGE_REMAINING_TIME
-            ),
+            OutWattsSensorEntity(client, self, "pd.qcUsb1Watts", const.USB_QC_1_OUT_POWER),
+            OutWattsSensorEntity(client, self, "pd.qcUsb2Watts", const.USB_QC_2_OUT_POWER),
+            RemainSensorEntity(client, self, "ems.chgRemainTime", const.CHARGE_REMAINING_TIME),
+            RemainSensorEntity(client, self, "ems.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
             CyclesSensorEntity(client, self, "bmsMaster.cycles", const.CYCLES),
             TempSensorEntity(client, self, "bmsMaster.temp", const.BATTERY_TEMP)
             .attr("bmsMaster.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
             .attr("bmsMaster.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
-            TempSensorEntity(
-                client, self, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False
-            ),
-            TempSensorEntity(
-                client, self, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False
-            ),
-            MilliVoltSensorEntity(
-                client, self, "bmsMaster.vol", const.BATTERY_VOLT, False
-            )
+            TempSensorEntity(client, self, "bmsMaster.minCellTemp", const.MIN_CELL_TEMP, False),
+            TempSensorEntity(client, self, "bmsMaster.maxCellTemp", const.MAX_CELL_TEMP, False),
+            MilliVoltSensorEntity(client, self, "bmsMaster.vol", const.BATTERY_VOLT, False)
             .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
-            MilliVoltSensorEntity(
-                client, self, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False
-            ),
-            MilliVoltSensorEntity(
-                client, self, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False
-            ),
+            MilliVoltSensorEntity(client, self, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, self, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
             # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
             InEnergySensorEntity(client, self, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
             InEnergySensorEntity(client, self, "pd.chgPowerAc", const.CHARGE_AC_ENERGY),
             InEnergySensorEntity(client, self, "pd.chgPowerDc", const.CHARGE_DC_ENERGY),
-            OutEnergySensorEntity(
-                client, self, "pd.dsgPowerAc", const.DISCHARGE_AC_ENERGY
-            ),
-            OutEnergySensorEntity(
-                client, self, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY
-            ),
+            OutEnergySensorEntity(client, self, "pd.dsgPowerAc", const.DISCHARGE_AC_ENERGY),
+            OutEnergySensorEntity(client, self, "pd.dsgPowerDc", const.DISCHARGE_DC_ENERGY),
             # Optional Slave Batteries
             LevelSensorEntity(
                 client,
@@ -264,9 +221,7 @@ class DeltaPro(BaseDevice):
                 False,
             ),
             LevelSensorEntity(client, self, "bmsSlave2.soh", const.SLAVE_N_SOH % 2),
-            MilliVoltSensorEntity(
-                client, self, "bmsSlave1.vol", const.SLAVE_N_BATTERY_VOLT % 1, False
-            ),
+            MilliVoltSensorEntity(client, self, "bmsSlave1.vol", const.SLAVE_N_BATTERY_VOLT % 1, False),
             MilliVoltSensorEntity(
                 client,
                 self,
@@ -281,12 +236,8 @@ class DeltaPro(BaseDevice):
                 const.SLAVE_N_MAX_CELL_VOLT % 1,
                 False,
             ),
-            MilliampSensorEntity(
-                client, self, "bmsSlave1.amp", const.SLAVE_N_BATTERY_CURRENT % 1, False
-            ),
-            MilliVoltSensorEntity(
-                client, self, "bmsSlave2.vol", const.SLAVE_N_BATTERY_VOLT % 2, False
-            ),
+            MilliampSensorEntity(client, self, "bmsSlave1.amp", const.SLAVE_N_BATTERY_CURRENT % 1, False),
+            MilliVoltSensorEntity(client, self, "bmsSlave2.vol", const.SLAVE_N_BATTERY_VOLT % 2, False),
             MilliVoltSensorEntity(
                 client,
                 self,
@@ -301,9 +252,7 @@ class DeltaPro(BaseDevice):
                 const.SLAVE_N_MAX_CELL_VOLT % 2,
                 False,
             ),
-            MilliampSensorEntity(
-                client, self, "bmsSlave2.amp", const.SLAVE_N_BATTERY_CURRENT % 2, False
-            ),
+            MilliampSensorEntity(client, self, "bmsSlave2.amp", const.SLAVE_N_BATTERY_CURRENT % 2, False),
             TempSensorEntity(
                 client,
                 self,
@@ -330,16 +279,12 @@ class DeltaPro(BaseDevice):
                 False,
                 True,
             ),
-            CyclesSensorEntity(
-                client, self, "bmsSlave1.cycles", const.SLAVE_N_CYCLES % 1, False
-            ),
-            CyclesSensorEntity(
-                client, self, "bmsSlave2.cycles", const.SLAVE_N_CYCLES % 2, False
-            ),
+            CyclesSensorEntity(client, self, "bmsSlave1.cycles", const.SLAVE_N_CYCLES % 1, False),
+            CyclesSensorEntity(client, self, "bmsSlave2.cycles", const.SLAVE_N_CYCLES % 2, False),
             QuotaStatusSensorEntity(client, self),
         ]
 
-    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
             MaxBatteryLevelEntity(
                 client,
@@ -422,7 +367,7 @@ class DeltaPro(BaseDevice):
             ),
         ]
 
-    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return [
             BeeperEntity(
                 client,
@@ -493,7 +438,7 @@ class DeltaPro(BaseDevice):
             ),
         ]
 
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return [
             DictSelectEntity(
                 client,

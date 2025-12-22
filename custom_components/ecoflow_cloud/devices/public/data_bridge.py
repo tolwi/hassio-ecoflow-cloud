@@ -1,3 +1,4 @@
+from typing import Any
 import logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -17,17 +18,15 @@ plain_to_status: dict[str, str] = {
 status_to_plain = dict((v, k) for (k, v) in plain_to_status.items())
 
 
-def to_plain(raw_data: dict[str, any]) -> dict[str, any]:
+def to_plain(raw_data: dict[str, Any]) -> dict[str, Any]:
     new_params = {}
     prefix = ""
     if "typeCode" in raw_data:
-        prefix1 = status_to_plain.get(
-            raw_data["typeCode"], "unknown_" + raw_data["typeCode"]
-        )
+        prefix1 = status_to_plain.get(raw_data["typeCode"], "unknown_" + raw_data["typeCode"])
         prefix += f"{prefix1}."
     elif "cmdFunc" in raw_data and "cmdId" in raw_data:
         prefix += f"{raw_data['cmdFunc']}_{raw_data['cmdId']}."
-    else :
+    else:
         prefix += ""
 
     if "param" in raw_data:

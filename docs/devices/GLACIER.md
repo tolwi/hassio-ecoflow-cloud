@@ -19,7 +19,6 @@
 - Battery Volts (`bms_bmsStatus.vol`)   _(disabled)_
 - Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
-- Battery Present (`pd.batFlag`)
 - XT60 State (`pd.xt60InState`)
 - Fan Level (`bms_emsStatus.fanLvl`)
 - Ambient Temperature (`pd.ambientTmp`)
@@ -27,13 +26,16 @@
 - Water Temperature (`pd.tempWater`)
 - Left Temperature (`pd.tmpL`)
 - Right Temperature (`pd.tmpR`)
-- Dual Zone Mode (`pd.flagTwoZone`)
 - Ice Time Remain (`pd.iceTm`)
 - Ice Percentage (`pd.icePercent`)
 - Ice Make Mode (`pd.iceMkMode`)
+- Status
+
+*Binary sensors*
+- Battery Present (`pd.batFlag`)
+- Dual Zone Mode (`pd.flagTwoZone`)
 - Ice Alert (`pd.iceAlert`)
 - Ice Water Level OK (`pd.waterLine`)
-- Status
 
 *Switches*
 - Beeper (`pd.beepEn` -> `{"moduleType": 1, "operateType": "beepEn", "params": {"flag": "VALUE"}}`)
@@ -44,7 +46,5 @@
 - Left Set Temperature (`pd.tmpLSet` -> `{"moduleType": 1, "operateType": "temp", "params": {"tmpM": 0, "tmpL": "VALUE", "tmpR": 0}}` [-25 - 10])
 - Combined Set Temperature (`pd.tmpMSet` -> `{"moduleType": 1, "operateType": "temp", "params": {"tmpM": "VALUE", "tmpL": 0, "tmpR": 0}}` [-25 - 10])
 - Right Set Temperature (`pd.tmpRSet` -> `{"moduleType": 1, "operateType": "temp", "params": {"tmpM": 0, "tmpL": 0, "tmpR": "VALUE"}}` [-25 - 10])
-
-*Selects*
 
 
