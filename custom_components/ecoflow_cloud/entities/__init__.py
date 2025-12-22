@@ -150,13 +150,20 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def _handle_coordinator_update(self) -> None:
         try:
             changed = getattr(self.coordinator.data, "changed", None)
-        except Exception:
+        except Exception as exc:
+            _LOGGER.exception(
+                "Failed to read 'changed' attribute from coordinator data for entity %s",
+                self._attr_unique_id,
+            )
             changed = None
         _LOGGER.debug(
             "Entity %s _handle_coordinator_update called (coordinator.changed=%s)",
             self._attr_unique_id,
             changed,
         )
+        if changed is False:
+            return
+
         self._updated(self.coordinator.data.data_holder.params)
 
     def _updated(self, data: dict[str, Any]):
