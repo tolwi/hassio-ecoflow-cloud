@@ -14,10 +14,4 @@
 - Grid Frequency (`gridConnectionFreq`)
 - Status
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 

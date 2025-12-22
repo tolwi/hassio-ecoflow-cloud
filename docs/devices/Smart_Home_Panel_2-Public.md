@@ -6,9 +6,7 @@
 - AC Out Power (`'wattInfo.allHallWatt'`) (energy:  _[Device Name]_ AC Out  Energy)
 - Battery Level (`'backupIncreInfo.backupBatPer'`)
 - Discharge Remaining Time (`'backupInfo.backupDischargeTime'`)
-- Power Grid (`'pd303_mc.masterIncreInfo.gridSta'`)
 - Power Grid Voltage (`'pd303_mc.masterIncreInfo.gridVol'`)   _(disabled)_
-- In Storm Mode (`'pd303_mc.inStormMode'`)
 - Relay 1 Operation Count (`'pd303_mc.masterIncreInfo.masterRly1Cnt'`)   _(disabled)_
 - Relay 2 Operation Count (`'pd303_mc.masterIncreInfo.masterRly2Cnt'`)   _(disabled)_
 - Relay 3 Operation Count (`'pd303_mc.masterIncreInfo.masterRly3Cnt'`)   _(disabled)_
@@ -31,6 +29,10 @@
 - Breaker10 Power (`'loadInfo.hall1Watt'[9]`) (energy:  _[Device Name]_ Breaker10  Energy)
 - Breaker11 Power (`'loadInfo.hall1Watt'[10]`) (energy:  _[Device Name]_ Breaker11  Energy)
 - Breaker12 Power (`'loadInfo.hall1Watt'[11]`) (energy:  _[Device Name]_ Breaker12  Energy)
+
+*Binary sensors*
+- Power Grid (`'pd303_mc.masterIncreInfo.gridSta'`)
+- In Storm Mode (`'pd303_mc.inStormMode'`)
 
 *Switches*
 - EPS Mode (`epsModeInfo` -> `{"sn": "SN", "cmdCode": "PD303_APP_SET", "params": {"epsModeInfo": false, "smartBackupMode": 0}}`)

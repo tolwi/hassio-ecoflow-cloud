@@ -29,8 +29,6 @@
 - PV input power (`power.mpptPwr `)
 - Status
 
-*Switches*
-
 *Sliders (numbers)*
 - Set Temperature (`pd.setTemp` -> `{"moduleType": 1, "operateType": "setTemp", "sn": "SN", "params": {"setTemp": "VALUE"}}` [0 - 40])
 

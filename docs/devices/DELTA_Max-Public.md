@@ -88,6 +88,4 @@
 - Generator Auto Stop Level (`ems.maxCloseOilEbSoc` -> `{"moduleType": 2, "operateType": "TCP", "params": {"id": 53, "closeOilSoc": "VALUE"}}` [50 - 100])
 - AC Charging Power (`inv.cfgSlowChgWatts` -> `{"moduleType": 0, "operateType": "TCP", "params": {"slowChgPower": "VALUE", "id": 69}}` [100 - 2000])
 
-*Selects*
-
 
