@@ -332,14 +332,18 @@ class SmartMeter(BaseDevice):
         ]
 
     def update_data(self, raw_data: bytes, data_type: str) -> bool:
-        if data_type not in [
+        # Process protobuf data for Smart Meter topics
+        if data_type in [
             self.device_info.data_topic,
             self.device_info.set_reply_topic,
             self.device_info.get_reply_topic,
             self.device_info.status_topic,
         ]:
-            super().update_data(raw_data, data_type)
-        return True
+            raw = self._prepare_data(raw_data)
+            self.data.update_data(raw)
+            return True
+        # For other topics, use the base class implementation
+        return super().update_data(raw_data, data_type)
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
