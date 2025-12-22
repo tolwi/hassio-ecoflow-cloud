@@ -341,6 +341,26 @@ class EnergySensorEntity(BaseSensorEntity):
             return False
 
 
+class KiloWattHourEnergySensorEntity(EnergySensorEntity):
+    """Energy sensor that reports values in kWh while source provides Wh.
+
+    The integration source provides integer values in Wh. This sensor converts
+    the incoming Wh value to kWh (float) for Home Assistant's Energy dashboard
+    compatibility and stores the native value in kWh.
+    """
+    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+
+    def _update_value(self, val: Any) -> bool:
+        try:
+            wh = float(val)
+        except Exception:
+            return False
+        kwh = wh / 1000.0
+        if kwh > 0:
+            return super(EnergySensorEntity, self)._update_value(kwh)
+        return False
+
+
 class CapacitySensorEntity(BaseSensorEntity):
     _attr_native_unit_of_measurement = "mAh"
     _attr_state_class = SensorStateClass.MEASUREMENT
