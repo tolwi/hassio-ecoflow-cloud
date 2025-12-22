@@ -14,7 +14,6 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
-import logging
 
 _LOGGER = logging.getLogger(__name__)
 
