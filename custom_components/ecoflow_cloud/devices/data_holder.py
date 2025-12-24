@@ -5,6 +5,7 @@ from typing import Any, TypeVar
 
 import jsonpath_ng.ext as jp
 from homeassistant.util import dt
+from datetime import datetime, timezone as _timezone
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,18 +43,18 @@ class EcoflowDataHolder:
 
         self.__collect_raw = collect_raw
         self.set_params = BoundFifoList[dict[str, Any]]()
-        self.set_params_time = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self.set_params_time = datetime.now(_timezone.utc).replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
 
         self.set = BoundFifoList[dict[str, Any]]()
         self.set_reply = BoundFifoList[dict[str, Any]]()
-        self.set_reply_time = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self.set_reply_time = datetime.now(_timezone.utc).replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
 
         self.get = BoundFifoList[dict[str, Any]]()
         self.get_reply = BoundFifoList[dict[str, Any]]()
-        self.get_reply_time = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self.get_reply_time = datetime.now(_timezone.utc).replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
 
         self.set_status = BoundFifoList[dict[str, Any]]()
-        self.set_status_time = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self.set_status_time = datetime.now(_timezone.utc).replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
 
     def last_received_time(self):
         return max(
@@ -66,30 +67,30 @@ class EcoflowDataHolder:
 
     def add_set_message(self, data: PreparedData):
         self.__accept_prepared_data(data, self.set.append)
-        self.set_time = dt.utcnow()
+        self.set_time = datetime.now(_timezone.utc)
 
     def add_set_reply_message(self, data: PreparedData):
         self.__accept_prepared_data(data, self.set_reply.append)
-        self.set_reply_time = dt.utcnow()
+        self.set_reply_time = datetime.now(_timezone.utc)
 
     def add_get_message(self, data: PreparedData):
         self.__accept_prepared_data(data, self.get.append)
-        self.get_time = dt.utcnow()
+        self.get_time = datetime.now(_timezone.utc)
 
     def add_get_reply_message(self, data: PreparedData):
         self.__accept_prepared_data(data, self.get_reply.append)
-        self.get_reply_time = dt.utcnow()
+        self.get_reply_time = datetime.now(_timezone.utc)
 
     def update_to_target_state(self, target_state: dict[str, Any]):
         # key can be xpath!
         for key, value in target_state.items():
             jp.parse(key).update(self.params, value)
 
-        self.set_params_time = dt.utcnow()
+        self.set_params_time = datetime.now(_timezone.utc)
 
     def add_status(self, data: PreparedData):
         self.__accept_prepared_data(data, self.set_status.append)
-        self.set_status_time = dt.utcnow()
+        self.set_status_time = datetime.now(_timezone.utc)
 
     def add_data(self, data: PreparedData):
         if data.params is not None and self.module_sn is not None:
