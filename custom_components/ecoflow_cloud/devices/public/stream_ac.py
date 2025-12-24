@@ -338,6 +338,9 @@ async def fetch_historical_for_device(client: EcoflowApiClient, device: BaseDevi
         try:
             # Update params directly to bypass moduleSn filter in add_data
             device.data.params.update(params)
+            # Update set_params_time so coordinator detects the change
+            from datetime import datetime, timezone as tz
+            device.data.set_params_time = datetime.now(tz.utc)
         except Exception:
             pass
 
