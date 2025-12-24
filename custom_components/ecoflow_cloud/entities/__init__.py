@@ -141,17 +141,13 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
     def _handle_coordinator_update(self) -> None:
         try:
             changed = getattr(self.coordinator.data, "changed", None)
-        except Exception as exc:
+        except Exception:
             _LOGGER.exception(
                 "Failed to read 'changed' attribute from coordinator data for entity %s",
                 self._attr_unique_id,
             )
             changed = None
-        _LOGGER.debug(
-            "Entity %s _handle_coordinator_update called (coordinator.changed=%s)",
-            self._attr_unique_id,
-            changed,
-        )
+
         if changed:
             self._updated(self.coordinator.data.data_holder.params)
         elif not self.coordinator.data.data_holder.online:  # Device is offline
