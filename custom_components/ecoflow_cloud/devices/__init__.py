@@ -16,8 +16,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 
-_LOGGER = logging.getLogger(__name__)
-
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import JSONDict, JSONMessage, Message
 from custom_components.ecoflow_cloud.device_data import DeviceData
