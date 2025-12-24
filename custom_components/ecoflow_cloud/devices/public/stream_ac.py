@@ -336,7 +336,8 @@ async def fetch_historical_for_device(client: EcoflowApiClient, device: BaseDevi
     if params:
         params["history.mainSn"] = sn
         try:
-            device.data.update_data({"params": params})
+            # Update params directly to bypass moduleSn filter in add_data
+            device.data.params.update(params)
         except Exception:
             pass
 
