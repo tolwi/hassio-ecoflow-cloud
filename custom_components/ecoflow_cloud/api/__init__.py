@@ -26,9 +26,11 @@ class EcoflowMqttInfo:
 
 class EcoflowApiClient(ABC):
     def __init__(self):
+        from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient
+
         self.mqtt_info: EcoflowMqttInfo
         self.devices: dict[str, Any] = {}
-        self.mqtt_client = None
+        self.mqtt_client: EcoflowMQTTClient
 
     @abstractmethod
     async def login(self):
@@ -59,15 +61,13 @@ class EcoflowApiClient(ABC):
             mqtt_port = int(resp_json["data"]["port"])
             mqtt_username = resp_json["data"]["certificateAccount"]
             mqtt_password = resp_json["data"]["certificatePassword"]
-            self.mqtt_info = EcoflowMqttInfo(
-                mqtt_url, mqtt_port, mqtt_username, mqtt_password
-            )
+            self.mqtt_info = EcoflowMqttInfo(mqtt_url, mqtt_port, mqtt_username, mqtt_password)
         except KeyError as key:
             raise EcoflowException(f"Failed to extract key {key} from {resp_json}")
 
         _LOGGER.info(f"Successfully extracted account: {self.mqtt_info.username}")
 
-    async def _get_json_response(self, resp: ClientResponse):
+    async def _get_json_response(self, resp: ClientResponse) -> dict[str, Any]:
         if resp.status != 200:
             raise EcoflowException(f"Got HTTP status code {resp.status}: {resp.reason}")
 
@@ -77,9 +77,7 @@ class EcoflowApiClient(ABC):
         except KeyError as key:
             raise EcoflowException(f"Failed to extract key {key} from {resp}")
         except Exception as error:
-            raise EcoflowException(
-                f"Failed to parse response: {resp.text} Error: {error}"
-            )
+            raise EcoflowException(f"Failed to parse response: {resp.text} Error: {error}")
 
         if response_message.lower() != "success":
             raise EcoflowException(f"{response_message}")
@@ -90,20 +88,14 @@ class EcoflowApiClient(ABC):
         if isinstance(command, dict):
             command = JSONMessage(command)
 
-        self.mqtt_client.publish(
-            self.devices[device_sn].device_info.get_topic, command.to_mqtt_payload()
-        )
+        self.mqtt_client.publish(self.devices[device_sn].device_info.get_topic, command.to_mqtt_payload())
 
-    def send_set_message(
-        self, device_sn: str, mqtt_state: dict[str, Any], command: dict | Message
-    ):
+    def send_set_message(self, device_sn: str, mqtt_state: dict[str, Any], command: dict | Message):
         if isinstance(command, dict):
             command = JSONMessage(command)
 
         self.devices[device_sn].data.update_to_target_state(mqtt_state)
-        self.mqtt_client.publish(
-            self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload()
-        )
+        self.mqtt_client.publish(self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload())
 
     def start(self):
         from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient

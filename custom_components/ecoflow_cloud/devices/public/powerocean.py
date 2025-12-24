@@ -1,17 +1,17 @@
+from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
 import base64
 import logging
 from typing import Any
 
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import UnitOfEnergy
 
-from ...api import EcoflowApiClient
-from ...entities import (
-    BaseNumberEntity,
-    BaseSelectEntity,
-    BaseSensorEntity,
-    BaseSwitchEntity,
-)
-from ...sensor import (
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import BaseDevice
+from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
     CyclesSensorEntity,
     EnergySensorEntity,
@@ -25,21 +25,10 @@ from ...sensor import (
     VoltSensorEntity,
     WattsSensorEntity,
 )
-from .. import BaseDevice
-from .data_bridge import to_plain
 
 
 class ScaledEnergySensorEntity(EnergySensorEntity):
-    def __init__(
-        self,
-        client,
-        device,
-        mqtt_key,
-        title,
-        scale: float,
-        enabled: bool = True,
-        auto_enable: bool = False
-    ):
+    def __init__(self, client, device, mqtt_key, title, scale: float, enabled: bool = True, auto_enable: bool = False):
         super().__init__(client, device, mqtt_key, title, enabled, auto_enable)
         self._scale = scale
         self._attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
@@ -52,6 +41,7 @@ class ScaledEnergySensorEntity(EnergySensorEntity):
         if scaled < 0:
             return False
         return super()._update_value(scaled)
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,48 +63,28 @@ class PowerOcean(BaseDevice):
     def flat_json(self):
         return True
 
-    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
-        sensors: list[BaseSensorEntity] = [
+    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+        sensors: list[SensorEntity] = [
             LevelSensorEntity(client, self, "96_8.bpSoc", "bpSoc"),
             VoltSensorEntity(client, self, "96_1.pcsAPhase.vol", "pcsAPhase.vol"),
             AmpSensorEntity(client, self, "96_1.pcsAPhase.amp", "pcsAPhase.amp"),
-            WattsSensorEntity(
-                client, self, "96_1.pcsAPhase.actPwr", "pcsAPhase.actPwr"
-            ),
-            WattsSensorEntity(
-                client, self, "96_1.pcsAPhase.reactPwr", "pcsAPhase.reactPwr"
-            ),
-            WattsSensorEntity(
-                client, self, "96_1.pcsAPhase.apparentPwr", "pcsAPhase.apparentPwr"
-            ),
+            WattsSensorEntity(client, self, "96_1.pcsAPhase.actPwr", "pcsAPhase.actPwr"),
+            WattsSensorEntity(client, self, "96_1.pcsAPhase.reactPwr", "pcsAPhase.reactPwr"),
+            WattsSensorEntity(client, self, "96_1.pcsAPhase.apparentPwr", "pcsAPhase.apparentPwr"),
             VoltSensorEntity(client, self, "96_1.pcsBPhase.vol", "pcsBPhase.vol"),
             AmpSensorEntity(client, self, "96_1.pcsBPhase.amp", "pcsBPhase.amp"),
-            WattsSensorEntity(
-                client, self, "96_1.pcsBPhase.actPwr", "pcsBPhase.actPwr"
-            ),
-            WattsSensorEntity(
-                client, self, "96_1.pcsBPhase.reactPwr", "pcsBPhase.reactPwr"
-            ),
-            WattsSensorEntity(
-                client, self, "96_1.pcsBPhase.apparentPwr", "pcsBPhase.apparentPwr"
-            ),
+            WattsSensorEntity(client, self, "96_1.pcsBPhase.actPwr", "pcsBPhase.actPwr"),
+            WattsSensorEntity(client, self, "96_1.pcsBPhase.reactPwr", "pcsBPhase.reactPwr"),
+            WattsSensorEntity(client, self, "96_1.pcsBPhase.apparentPwr", "pcsBPhase.apparentPwr"),
             VoltSensorEntity(client, self, "96_1.pcsCPhase.vol", "pcsCPhase.vol"),
             AmpSensorEntity(client, self, "96_1.pcsCPhase.amp", "pcsCPhase.amp"),
-            WattsSensorEntity(
-                client, self, "96_1.pcsCPhase.actPwr", "pcsCPhase.actPwr"
-            ),
-            WattsSensorEntity(
-                client, self, "96_1.pcsCPhase.reactPwr", "pcsCPhase.reactPwr"
-            ),
-            WattsSensorEntity(
-                client, self, "96_1.pcsCPhase.apparentPwr", "pcsCPhase.apparentPwr"
-            ),
+            WattsSensorEntity(client, self, "96_1.pcsCPhase.actPwr", "pcsCPhase.actPwr"),
+            WattsSensorEntity(client, self, "96_1.pcsCPhase.reactPwr", "pcsCPhase.reactPwr"),
+            WattsSensorEntity(client, self, "96_1.pcsCPhase.apparentPwr", "pcsCPhase.apparentPwr"),
         ]
 
         mppt_prefix, string_count = self._determine_mppt_metadata()
-        _LOGGER.debug(
-            "Configuring %s MPPT strings for prefix %s", string_count, mppt_prefix
-        )
+        _LOGGER.debug("Configuring %s MPPT strings for prefix %s", string_count, mppt_prefix)
         for index in range(string_count):
             sensors.extend(self._create_mppt_string_sensors(client, mppt_prefix, index))
 
@@ -175,9 +145,7 @@ class PowerOcean(BaseDevice):
                 return min(max_index, MAX_BATTERY_MODULES)
         return 0
 
-    def _create_mppt_string_sensors(
-        self, client: EcoflowApiClient, prefix: str, index: int
-    ) -> list[BaseSensorEntity]:
+    def _create_mppt_string_sensors(self, client: EcoflowApiClient, prefix: str, index: int) -> list[SensorEntity]:
         name_prefix = f"mpptPv{index + 1}"
         base_path = f"{prefix}.mpptHeartBeat[{MPPT_HEARTBEAT_INDEX}].mpptPv[{index}]"
         return [
@@ -186,9 +154,7 @@ class PowerOcean(BaseDevice):
             VoltSensorEntity(client, self, f"{base_path}.vol", f"{name_prefix}.vol"),
         ]
 
-    def _create_battery_sensors(
-        self, client: EcoflowApiClient, index: int
-    ) -> list[BaseSensorEntity]:
+    def _create_battery_sensors(self, client: EcoflowApiClient, index: int) -> list[SensorEntity]:
         prefix = f"bp{index}"
 
         return [
@@ -197,53 +163,23 @@ class PowerOcean(BaseDevice):
             WattsSensorEntity(client, self, f"{prefix}.bpPwr", f"{prefix}Pwr"),
             AmpSensorEntity(client, self, f"{prefix}.bpAmp", f"{prefix}Amp"),
             VoltSensorEntity(client, self, f"{prefix}.bpVol", f"{prefix}Vol"),
-            MilliVoltSensorEntity(
-                client, self, f"{prefix}.bpCellMaxVol", f"{prefix}CellMaxVol"
-            ),
-            MilliVoltSensorEntity(
-                client, self, f"{prefix}.bpCellMinVol", f"{prefix}CellMinVol"
-            ),
+            MilliVoltSensorEntity(client, self, f"{prefix}.bpCellMaxVol", f"{prefix}CellMaxVol"),
+            MilliVoltSensorEntity(client, self, f"{prefix}.bpCellMinVol", f"{prefix}CellMinVol"),
             VoltSensorEntity(client, self, f"{prefix}.bpBusVol", f"{prefix}BusVol"),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpHvMosTemp", f"{prefix}HvMosTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpLvMosTemp", f"{prefix}LvMosTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpEnvTemp", f"{prefix}EnvTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpHtsTemp", f"{prefix}HtsTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpBusPosTemp", f"{prefix}BusPosTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpBusNegTemp", f"{prefix}BusNegTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpPtcTemp", f"{prefix}PtcTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpPtcTemp2", f"{prefix}PtcTemp2"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpMaxCellTemp", f"{prefix}MaxCellTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpMinCellTemp", f"{prefix}MinCellTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpMaxMosTemp", f"{prefix}MaxMosTemp"
-            ),
-            TempSensorEntity(
-                client, self, f"{prefix}.bpMinMosTemp", f"{prefix}MinMosTemp"
-            ),
+            TempSensorEntity(client, self, f"{prefix}.bpHvMosTemp", f"{prefix}HvMosTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpLvMosTemp", f"{prefix}LvMosTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpEnvTemp", f"{prefix}EnvTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpHtsTemp", f"{prefix}HtsTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpBusPosTemp", f"{prefix}BusPosTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpBusNegTemp", f"{prefix}BusNegTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpPtcTemp", f"{prefix}PtcTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpPtcTemp2", f"{prefix}PtcTemp2"),
+            TempSensorEntity(client, self, f"{prefix}.bpMaxCellTemp", f"{prefix}MaxCellTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpMinCellTemp", f"{prefix}MinCellTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpMaxMosTemp", f"{prefix}MaxMosTemp"),
+            TempSensorEntity(client, self, f"{prefix}.bpMinMosTemp", f"{prefix}MinMosTemp"),
             CyclesSensorEntity(client, self, f"{prefix}.bpCycles", f"{prefix}Cycles"),
-            EnergySensorEntity(
-                client, self, f"{prefix}.bpRemainWatth", f"{prefix}RemainWatth"
-            ),
+            EnergySensorEntity(client, self, f"{prefix}.bpRemainWatth", f"{prefix}RemainWatth"),
             ScaledEnergySensorEntity(
                 client,
                 self,
@@ -265,16 +201,16 @@ class PowerOcean(BaseDevice):
             MiscSensorEntity(client, self, f"{prefix}.bpRunSta", f"{prefix}RunSta"),
         ]
 
-    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return []
 
-    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return []
 
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
 
-    def _prepare_data(self, raw_data) -> dict[str, "Any"]:
+    def _prepare_data(self, raw_data) -> dict[str, Any]:
         self._update_mppt_metadata(raw_data)
         res = super()._prepare_data(raw_data)
         _LOGGER.debug("Processing payload: %s", raw_data)
@@ -291,9 +227,7 @@ class PowerOcean(BaseDevice):
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
         return StatusSensorEntity(client, self)
 
-    def _flatten_param_branch(
-        self, prefix: str, value: Any, target: dict[str, Any]
-    ) -> None:
+    def _flatten_param_branch(self, prefix: str, value: Any, target: dict[str, Any]) -> None:
         if isinstance(value, dict):
             for child_key, child_value in value.items():
                 next_key = f"{prefix}.{child_key}"
@@ -399,6 +333,4 @@ class PowerOcean(BaseDevice):
                 max_strings = max(max_strings, len(pv_list))
 
         if max_strings:
-            self._mppt_string_count = min(
-                max(self._mppt_string_count, max_strings), MAX_MPPT_STRINGS
-            )
+            self._mppt_string_count = min(max(self._mppt_string_count, max_strings), MAX_MPPT_STRINGS)

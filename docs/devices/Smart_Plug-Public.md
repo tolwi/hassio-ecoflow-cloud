@@ -12,6 +12,4 @@
 *Sliders (numbers)*
 - Brightness (`2_1.brightness` -> `{"sn": "SN", "cmdCode": "WN511_SOCKET_SET_BRIGHTNESS_PACK", "params": {"brightness": "VALUE"}}` [0 - 1023])
 
-*Selects*
-
 

@@ -53,6 +53,4 @@
 *Sliders (numbers)*
 - Backup Reserve Level (`backupReverseSoc` -> `{"sn": "SN", "cmdId": 17, "cmdFunc": 254, "dirDest": 1, "dirSrc": 1, "dest": 2, "needAck": true, "params": {"cfgBackupReverseSoc": "VALUE"}}` [3 - 95])
 
-*Selects*
-
 

@@ -39,10 +39,6 @@
 *Switches*
 - Main DC Output (`not_existing` -> `{"id": 123456789, "version": "1.0", "moduleSn": "SN", "moduleType": 15362, "operateType": "dischgParaSet", "params": {"swSta": 0}}`)
 
-*Sliders (numbers)*
-
-*Selects*
-
 ### bbcout
 
 *Sensors*
@@ -52,12 +48,6 @@
 - DC 1 Out Battery Current (`l1Curr`)   _(disabled)_
 - DC 2 Out Battery Current (`l2Curr`)   _(disabled)_
 - DC Out Battery Voltage (`batVol`)   _(disabled)_
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 ### iclow
 
@@ -88,8 +78,6 @@
 *Sliders (numbers)*
 - AC Charging Power (`NotExisting` -> `{"id": 123456789, "version": "1.0", "sn": "SN", "moduleSn": "SN", "moduleType": 15365, "operateType": "dischgIcParaSet", "params": {"acCurrMaxSet": "VALUE"}}` [0 - 16])
 
-*Selects*
-
 ### bpxxx
 
 *Sensors*
@@ -105,12 +93,6 @@
 - remaining time battery (SN) (`remainTime`)
 - maximum cell voltage battery (SN) (`maxCellVol`)
 - discharing power battery (SN) (`outWatts`)
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 ### kitscc
 
@@ -142,12 +124,6 @@
 - Solar (3) Temperature (`hs2Temp`)
 - Solar Total Charge Current (`chgEnergy`)   _(disabled)_
 - Solar Energy for Day (`dayEnergy`)   _(disabled)_
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 ### lddc
 
@@ -192,10 +168,6 @@
 - DC Switch 5 (`dcChRelay` -> `{"id": 123456789, "version": "1.0", "moduleSn": "SN", "moduleType": 15362, "operateType": "chSwitch", "params": {"bitsSwSta": "VALUE"}}`)
 - DC Switch 6 (`dcChRelay` -> `{"id": 123456789, "version": "1.0", "moduleSn": "SN", "moduleType": 15362, "operateType": "chSwitch", "params": {"bitsSwSta": "VALUE"}}`)
 
-*Sliders (numbers)*
-
-*Selects*
-
 ### ichigh
 
 *Sensors*
@@ -220,10 +192,6 @@
 *Switches*
 - Prioretize grid (`passByModeEn` -> `{"id": 123456789, "version": "1.0", "moduleSn": "SN", "moduleType": 15365, "operateType": "dsgIcParaSet", "params": {"dsgLowPwrEn": 255, "pfcDsgModeEn": 255, "passByCurrMax": 255, "passByModeEn": 2}}`)
 
-*Sliders (numbers)*
-
-*Selects*
-
 ### ldac
 
 *Sensors*
@@ -245,11 +213,5 @@
 - Distributer AC Temperature 1 (`acTemp1`)
 - Distributer AC Temperature 2 (`acTemp2`)
 - AC Charge State (`acChSta`)
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 

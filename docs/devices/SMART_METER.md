@@ -20,10 +20,4 @@
 - Timezone (`254_21.utcTimezone`)   _(disabled)_
 - Status
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 

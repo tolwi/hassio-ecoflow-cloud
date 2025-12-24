@@ -1,3 +1,10 @@
+from typing import Any
+
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
+
 from ...sensor import StatusSensorEntity
 from ...sensor import _OnlineStatus
 from homeassistant.components.sensor import SensorStateClass  # pyright: ignore[reportMissingImports]
@@ -6,6 +13,23 @@ from homeassistant.util import dt
 from datetime import datetime, timezone as _timezone
 from .data_bridge import to_plain
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
+from custom_components.ecoflow_cloud.number import BatteryBackupLevel
+from custom_components.ecoflow_cloud.sensor import (
+    CapacitySensorEntity,
+    CumulativeCapacitySensorEntity,
+    CyclesSensorEntity,
+    EnergySensorEntity,
+    InWattsSensorEntity,
+    LevelSensorEntity,
+    MilliVoltSensorEntity,
+    OutWattsSensorEntity,
+    RemainSensorEntity,
+    StatusSensorEntity,
+    TempSensorEntity,
+    VoltSensorEntity,
+    WattsSensorEntity,
 from custom_components.ecoflow_cloud.devices import const, BaseDevice
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity, BaseNumberEntity, BaseSwitchEntity, \
     BaseSelectEntity
@@ -16,6 +40,7 @@ from ...switch import EnabledEntity
 from ...number import (
     BatteryBackupLevel
 )
+from custom_components.ecoflow_cloud.switch import EnabledEntity
 from custom_components.ecoflow_cloud import ATTR_STATUS_DATA_LAST_UPDATE
 
 # Historical metric codes as per API docs
@@ -459,8 +484,7 @@ class _HistoricalDataStatus(StatusSensorEntity):
             pass
 
 class StreamAC(BaseDevice):
-
-    def sensors(self, client: EcoflowApiClient) -> list[BaseSensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             # "accuChgCap": 198511,
             CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False).with_icon("mdi:battery-arrow-up"),
@@ -858,7 +882,7 @@ class StreamAC(BaseDevice):
             _HistoricalDataStatus(client, self),
         ]
     # moduleWifiRssi
-    def numbers(self, client: EcoflowApiClient) -> list[BaseNumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
             BatteryBackupLevel(
                 client,
@@ -885,7 +909,7 @@ class StreamAC(BaseDevice):
             ),
         ]
 
-    def switches(self, client: EcoflowApiClient) -> list[BaseSwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return [
             EnabledEntity(
                 client,
@@ -936,8 +960,8 @@ class StreamAC(BaseDevice):
                     "dirSrc": 1,
                     "dest": 2,
                     "needAck": True,
-                "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen":value}},
-                    },
+                    "params": {"cfgEnergyStrategyOperateMode": {"operateSelfPoweredOpen": value}},
+                },
                 enableValue=True,
                 disableValue=False,
             ),
@@ -954,8 +978,8 @@ class StreamAC(BaseDevice):
                     "dirSrc": 1,
                     "dest": 2,
                     "needAck": True,
-                    "params": {"cfgEnergyStrategyOperateMode": {"operateIntelligentScheduleModeOpen":value}},
-                    },
+                    "params": {"cfgEnergyStrategyOperateMode": {"operateIntelligentScheduleModeOpen": value}},
+                },
                 enableValue=True,
                 disableValue=False,
             ),
@@ -979,10 +1003,10 @@ class StreamAC(BaseDevice):
             ),
         ]
 
-    def selects(self, client: EcoflowApiClient) -> list[BaseSelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
 
-    def _prepare_data(self, raw_data) -> dict[str, any]:
+    def _prepare_data(self, raw_data) -> dict[str, Any]:
         res = super()._prepare_data(raw_data)
         res = to_plain(res)
         return res

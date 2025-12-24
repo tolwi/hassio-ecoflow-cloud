@@ -1,0 +1,31 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install ruff mypy
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint with ruff
+        run: ruff check custom_components
+
+      - name: Type check with mypy
+        run: mypy custom_components

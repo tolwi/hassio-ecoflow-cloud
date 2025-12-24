@@ -687,7 +687,7 @@
 
 </p></details>
 
-<details><summary> RIVER_MINI <i>(sensors: 17, switches: 2, sliders: 1, selects: 0)</i> </summary>
+<details><summary> RIVER_MINI <i>(sensors: 17, switches: 2, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -715,8 +715,6 @@
 
 *Sliders (numbers)*
 - Max Charge Level 
-
-*Selects*
 
 </p></details>
 
@@ -783,7 +781,7 @@
 
 </p></details>
 
-<details><summary> DELTA_MAX <i>(sensors: 70, switches: 7, sliders: 5, selects: 0)</i> </summary>
+<details><summary> DELTA_MAX <i>(sensors: 70, switches: 7, sliders: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -873,8 +871,6 @@
 - Generator Auto Start Level 
 - Generator Auto Stop Level 
 - AC Charging Power 
-
-*Selects*
 
 </p></details>
 
@@ -1067,7 +1063,7 @@
 
 </p></details>
 
-<details><summary> GLACIER <i>(sensors: 33, switches: 3, sliders: 3, selects: 0)</i> </summary>
+<details><summary> GLACIER <i>(sensors: 29, binary_sensors: 4, switches: 3, sliders: 3)</i> </summary>
 <p>
 
 *Sensors*
@@ -1089,7 +1085,6 @@
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
-- Battery Present
 - XT60 State
 - Fan Level
 - Ambient Temperature
@@ -1097,13 +1092,16 @@
 - Water Temperature
 - Left Temperature
 - Right Temperature
-- Dual Zone Mode
 - Ice Time Remain
 - Ice Percentage
 - Ice Make Mode
+- Status
+
+*Binary sensors*
+- Battery Present
+- Dual Zone Mode
 - Ice Alert
 - Ice Water Level OK
-- Status
 
 *Switches*
 - Beeper 
@@ -1115,11 +1113,9 @@
 - Combined Set Temperature 
 - Right Set Temperature 
 
-*Selects*
-
 </p></details>
 
-<details><summary> WAVE_2 <i>(sensors: 27, switches: 0, sliders: 1, selects: 4)</i> </summary>
+<details><summary> WAVE_2 <i>(sensors: 27, sliders: 1, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -1151,8 +1147,6 @@
 - PV input power
 - Status
 
-*Switches*
-
 *Sliders (numbers)*
 - Set Temperature 
 
@@ -1164,7 +1158,7 @@
 
 </p></details>
 
-<details><summary> SMART_METER <i>(sensors: 18, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> SMART_METER <i>(sensors: 18)</i> </summary>
 <p>
 
 *Sensors*
@@ -1187,15 +1181,9 @@
 - Timezone  _(disabled)_
 - Status
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 </p></details>
 
-<details><summary> STREAM_AC <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> STREAM_AC <i>(sensors: 39)</i> </summary>
 <p>
 
 *Sensors*
@@ -1239,15 +1227,9 @@
 - Battery Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 </p></details>
 
-<details><summary> STREAM_PRO <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> STREAM_PRO <i>(sensors: 39)</i> </summary>
 <p>
 
 *Sensors*
@@ -1291,15 +1273,9 @@
 - Battery Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 </p></details>
 
-<details><summary> STREAM_ULTRA <i>(sensors: 39, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> STREAM_ULTRA <i>(sensors: 39)</i> </summary>
 <p>
 
 *Sensors*
@@ -1342,17 +1318,11 @@
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 </p></details>
 
 ### Devices available with public_api
-<details><summary> DELTA Max (API) <i>(sensors: 70, switches: 7, sliders: 5, selects: 0)</i> </summary>
+<details><summary> DELTA Max (API) <i>(sensors: 70, switches: 7, sliders: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -1442,8 +1412,6 @@
 - Generator Auto Start Level 
 - Generator Auto Stop Level 
 - AC Charging Power 
-
-*Selects*
 
 </p></details>
 
@@ -1547,7 +1515,7 @@
 
 </p></details>
 
-<details><summary> DELTA Pro Ultra (API) <i>(sensors: 58, switches: 3, sliders: 4, selects: 0)</i> </summary>
+<details><summary> DELTA Pro Ultra (API) <i>(sensors: 58, switches: 3, sliders: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -1620,8 +1588,6 @@
 - Max Charge Level 
 - AC Charging Power 
 - Power I/O Port Charging Power 
-
-*Selects*
 
 </p></details>
 
@@ -2040,7 +2006,7 @@
 
 </p></details>
 
-<details><summary> Smart Plug (API) <i>(sensors: 4, switches: 1, sliders: 1, selects: 0)</i> </summary>
+<details><summary> Smart Plug (API) <i>(sensors: 4, switches: 1, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2055,11 +2021,9 @@
 *Sliders (numbers)*
 - Brightness 
 
-*Selects*
-
 </p></details>
 
-<details><summary> PowerStream (API) <i>(sensors: 58, switches: 0, sliders: 4, selects: 1)</i> </summary>
+<details><summary> PowerStream (API) <i>(sensors: 58, sliders: 4, selects: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2122,8 +2086,6 @@
 - Heartbeat Frequency  _(disabled)_
 - Status
 
-*Switches*
-
 *Sliders (numbers)*
 - Min Discharge Level 
 - Max Charge Level 
@@ -2135,7 +2097,7 @@
 
 </p></details>
 
-<details><summary> WAVE 2 (API) <i>(sensors: 27, switches: 0, sliders: 1, selects: 4)</i> </summary>
+<details><summary> WAVE 2 (API) <i>(sensors: 27, sliders: 1, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -2166,8 +2128,6 @@
 - AC input power
 - PV input power
 - Status
-
-*Switches*
 
 *Sliders (numbers)*
 - Set Temperature 
@@ -2243,7 +2203,7 @@
 
 </p></details>
 
-<details><summary> Power Kits (API) <i>(sensors: 161, switches: 10, sliders: 1, selects: 0)</i> </summary>
+<details><summary> Power Kits (API) <i>(sensors: 161, switches: 10, sliders: 1)</i> </summary>
 <p>
 
 ### bbcin
@@ -2285,10 +2245,6 @@
 *Switches*
 - Main DC Output 
 
-*Sliders (numbers)*
-
-*Selects*
-
 ### bbcout
 
 *Sensors*
@@ -2298,12 +2254,6 @@
 - DC 1 Out Battery Current  _(disabled)_
 - DC 2 Out Battery Current  _(disabled)_
 - DC Out Battery Voltage  _(disabled)_
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 ### iclow
 
@@ -2334,8 +2284,6 @@
 *Sliders (numbers)*
 - AC Charging Power 
 
-*Selects*
-
 ### bpxxx
 
 *Sensors*
@@ -2351,12 +2299,6 @@
 - remaining time battery (SN)
 - maximum cell voltage battery (SN)
 - discharing power battery (SN)
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 ### kitscc
 
@@ -2388,12 +2330,6 @@
 - Solar (3) Temperature
 - Solar Total Charge Current  _(disabled)_
 - Solar Energy for Day  _(disabled)_
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 ### lddc
 
@@ -2438,10 +2374,6 @@
 - DC Switch 5 
 - DC Switch 6 
 
-*Sliders (numbers)*
-
-*Selects*
-
 ### ichigh
 
 *Sensors*
@@ -2466,10 +2398,6 @@
 *Switches*
 - Prioretize grid 
 
-*Sliders (numbers)*
-
-*Selects*
-
 ### ldac
 
 *Sensors*
@@ -2492,15 +2420,9 @@
 - Distributer AC Temperature 2
 - AC Charge State
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 </p></details>
 
-<details><summary> Smart Meter (API) <i>(sensors: 28, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Smart Meter (API) <i>(sensors: 23, binary_sensors: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -2514,9 +2436,6 @@
 - Power Grid (L1) Volts  _(disabled)_
 - Power Grid (L2) Volts  _(disabled)_
 - Power Grid (L3) Volts  _(disabled)_
-- Flag L1  _(disabled)_
-- Flag L2  _(disabled)_
-- Flag L3  _(disabled)_
 - L1 Lifetime net usage  _(disabled)_
 - L2 Lifetime net usage  _(disabled)_
 - L3 Lifetime net usage  _(disabled)_
@@ -2529,19 +2448,18 @@
 - Country code  _(disabled)_
 - Town code  _(disabled)_
 - System group id  _(disabled)_
-- Factory mode enabled  _(disabled)_
-- Debug mode enabled  _(disabled)_
 - Status
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
+*Binary sensors*
+- Flag L1  _(disabled)_
+- Flag L2  _(disabled)_
+- Flag L3  _(disabled)_
+- Factory mode enabled  _(disabled)_
+- Debug mode enabled  _(disabled)_
 
 </p></details>
 
-<details><summary> Stream AC (API) <i>(sensors: 41, switches: 5, sliders: 1, selects: 0)</i> </summary>
+<details><summary> Stream AC (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2597,11 +2515,9 @@
 *Sliders (numbers)*
 - Backup Reserve Level 
 
-*Selects*
-
 </p></details>
 
-<details><summary> Stream PRO (API) <i>(sensors: 41, switches: 5, sliders: 1, selects: 0)</i> </summary>
+<details><summary> Stream PRO (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2657,11 +2573,9 @@
 *Sliders (numbers)*
 - Backup Reserve Level 
 
-*Selects*
-
 </p></details>
 
-<details><summary> Stream Ultra (API) <i>(sensors: 41, switches: 5, sliders: 1, selects: 0)</i> </summary>
+<details><summary> Stream Ultra (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2717,11 +2631,9 @@
 *Sliders (numbers)*
 - Backup Reserve Level 
 
-*Selects*
-
 </p></details>
 
-<details><summary> Stream Microinverter (API) <i>(sensors: 12, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Stream Microinverter (API) <i>(sensors: 12)</i> </summary>
 <p>
 
 *Sensors*
@@ -2738,19 +2650,12 @@
 - Grid Frequency
 - Status
 
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
-
 </p></details>
 
-<details><summary> Smart Home Panel (API) <i>(sensors: 8, switches: 2, sliders: 2, selects: 0)</i> </summary>
+<details><summary> Smart Home Panel (API) <i>(sensors: 7, binary_sensors: 1, switches: 2, sliders: 2)</i> </summary>
 <p>
 
 *Sensors*
-- Power Grid
 - Battery Level
 - Remaining Time
 - Main Battery Temperature
@@ -2758,6 +2663,9 @@
 - Main Battery Output Power (energy:  _[Device Name]_ Main Battery Output  Energy)
 - Power Grid Today
 - Battery Today
+
+*Binary sensors*
+- Power Grid
 
 *Switches*
 - EPS Mode 
@@ -2767,11 +2675,9 @@
 - Min Discharge Level 
 - Max Charge Level 
 
-*Selects*
-
 </p></details>
 
-<details><summary> Smart Home Panel 2 (API) <i>(sensors: 30, switches: 20, sliders: 5, selects: 2)</i> </summary>
+<details><summary> Smart Home Panel 2 (API) <i>(sensors: 28, binary_sensors: 2, switches: 20, sliders: 5, selects: 2)</i> </summary>
 <p>
 
 *Sensors*
@@ -2780,9 +2686,7 @@
 - AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
 - Battery Level
 - Discharge Remaining Time
-- Power Grid
 - Power Grid Voltage  _(disabled)_
-- In Storm Mode
 - Relay 1 Operation Count  _(disabled)_
 - Relay 2 Operation Count  _(disabled)_
 - Relay 3 Operation Count  _(disabled)_
@@ -2805,6 +2709,10 @@
 - Breaker10 Power (energy:  _[Device Name]_ Breaker10  Energy)
 - Breaker11 Power (energy:  _[Device Name]_ Breaker11  Energy)
 - Breaker12 Power (energy:  _[Device Name]_ Breaker12  Energy)
+
+*Binary sensors*
+- Power Grid
+- In Storm Mode
 
 *Switches*
 - EPS Mode 
@@ -2841,7 +2749,7 @@
 
 </p></details>
 
-<details><summary> Power Ocean (API) <i>(sensors: 23, switches: 0, sliders: 0, selects: 0)</i> </summary>
+<details><summary> Power Ocean (API) <i>(sensors: 23)</i> </summary>
 <p>
 
 *Sensors*
@@ -2868,12 +2776,6 @@
 - mpptPv2.amp
 - mpptPv2.vol
 - Status
-
-*Switches*
-
-*Sliders (numbers)*
-
-*Selects*
 
 </p></details>
 

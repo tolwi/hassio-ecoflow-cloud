@@ -1,7 +1,7 @@
+from homeassistant.components.number.const import NumberDeviceClass
 from typing import Any, Callable
 
 from homeassistant.components.number import NumberMode
-from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, UnitOfPower, UnitOfTemperature
 from homeassistant.core import HomeAssistant
@@ -13,9 +13,7 @@ from .devices import BaseDevice
 from .entities import BaseNumberEntity
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
-):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
     for sn, device in client.devices.items():
         async_add_entities(device.numbers(client))
@@ -34,7 +32,7 @@ class ValueUpdateEntity(BaseNumberEntity):
 class ChargingPowerEntity(ValueUpdateEntity):
     _attr_icon = "mdi:transmission-tower-import"
     _attr_native_unit_of_measurement = UnitOfPower.WATT
-    _attr_device_class = SensorDeviceClass.POWER
+    _attr_device_class = NumberDeviceClass.POWER
 
     def __init__(
         self,
@@ -83,9 +81,9 @@ class AcChargingPowerInAmpereEntity(ValueUpdateEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(val))
 
-    async def async_set_native_value(self, value: int):
+    async def async_set_native_value(self, value: float):
         if self._command:
-            self.send_set_message(value, self.command_dict(value))
+            self.send_set_message(int(value), self.command_dict(int(value)))
 
 
 class MinMaxLevelEntity(ValueUpdateEntity):
@@ -101,9 +99,7 @@ class MinMaxLevelEntity(ValueUpdateEntity):
         | Callable[[int, dict[str, Any]], dict[str, Any] | Message]
         | None,
     ):
-        super().__init__(
-            client, device, mqtt_key, title, min_value, max_value, command, True, False
-        )
+        super().__init__(client, device, mqtt_key, title, min_value, max_value, command, True, False)
 
 
 class BrightnessLevelEntity(MinMaxLevelEntity):

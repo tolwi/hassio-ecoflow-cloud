@@ -1,3 +1,5 @@
+from typing import Any
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
 import logging
 from typing import Final
 
@@ -65,21 +67,15 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     if config_entry.version in (5, 6):
         new_data = dict(config_entry.data)
         new_options = dict(config_entry.options)
-        new_devices = dict[str, DeviceData]()
+        new_devices = dict[str, Any]()
         for sn, device_info in config_entry.data[CONF_DEVICE_LIST].items():
             new_devices[sn] = {
                 CONF_DEVICE_NAME: device_info[CONF_DEVICE_NAME],
                 CONF_DEVICE_TYPE: device_info[CONF_DEVICE_TYPE],
                 "options": {
-                    OPTS_REFRESH_PERIOD_SEC: config_entry.options[CONF_DEVICE_LIST][sn][
-                        OPTS_REFRESH_PERIOD_SEC
-                    ],
-                    OPTS_POWER_STEP: config_entry.options[CONF_DEVICE_LIST][sn][
-                        OPTS_POWER_STEP
-                    ],
-                    OPTS_DIAGNOSTIC_MODE: config_entry.options[CONF_DEVICE_LIST][sn][
-                        OPTS_DIAGNOSTIC_MODE
-                    ],
+                    OPTS_REFRESH_PERIOD_SEC: config_entry.options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC],
+                    OPTS_POWER_STEP: config_entry.options[CONF_DEVICE_LIST][sn][OPTS_POWER_STEP],
+                    OPTS_DIAGNOSTIC_MODE: config_entry.options[CONF_DEVICE_LIST][sn][OPTS_DIAGNOSTIC_MODE],
                 },
             }
 
@@ -104,9 +100,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         else:
             new_data[CONF_API_HOST] = "api.ecoflow.com"
 
-        updated = hass.config_entries.async_update_entry(
-            config_entry, version=8, data=new_data
-        )
+        updated = hass.config_entries.async_update_entry(config_entry, version=8, data=new_data)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
     if config_entry.version == 8:
@@ -117,23 +111,17 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
         for sn, device_info in new_data[CONF_DEVICE_LIST].items():
             if "name" in device_info:
-                new_data[CONF_DEVICE_LIST][sn][CONF_DEVICE_NAME] = new_data[
-                    CONF_DEVICE_LIST
-                ][sn].pop("name")
+                new_data[CONF_DEVICE_LIST][sn][CONF_DEVICE_NAME] = new_data[CONF_DEVICE_LIST][sn].pop("name")
                 new_data[CONF_DEVICE_LIST][sn].pop("sn", None)
 
-            new_options[CONF_DEVICE_LIST][sn] = new_data[CONF_DEVICE_LIST][sn].pop(
-                "options"
-            )
+            new_options[CONF_DEVICE_LIST][sn] = new_data[CONF_DEVICE_LIST][sn].pop("options")
 
             if "refresh_period" in new_options[CONF_DEVICE_LIST][sn]:
-                new_options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC] = (
-                    new_options[CONF_DEVICE_LIST][sn].pop("refresh_period")
+                new_options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC] = new_options[CONF_DEVICE_LIST][sn].pop(
+                    "refresh_period"
                 )
 
-        updated = hass.config_entries.async_update_entry(
-            config_entry, version=9, data=new_data, options=new_options
-        )
+        updated = hass.config_entries.async_update_entry(config_entry, version=9, data=new_data, options=new_options)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
     return updated
@@ -176,9 +164,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         return False
 
     _LOGGER.info("Setup entry %s (data = %s)", str(entry), str(entry.data))
+    api_client: EcoflowApiClient
     if ECOFLOW_DOMAIN not in hass.data:
         hass.data[ECOFLOW_DOMAIN] = {}
-
     if CONF_USERNAME in entry.data and CONF_PASSWORD in entry.data:
         from .api.private_api import EcoflowPrivateApiClient
 
