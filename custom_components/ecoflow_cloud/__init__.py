@@ -190,6 +190,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     for sn, device_data in devices_list.items():
         device = api_client.configure_device(device_data)
         device.configure(hass)
+        # Configure device-specific coordinators (e.g., historical data for StreamAC)
+        if hasattr(device, "configure_history"):
+            device.configure_history(hass, api_client)
 
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
@@ -219,6 +222,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             coordinator = getattr(device, "coordinator", None)
             if coordinator is not None:
                 await coordinator.async_request_refresh()
+            # Also refresh history coordinator for devices that have one
+            history_coordinator = getattr(device, "history_coordinator", None)
+            if history_coordinator is not None:
+                await history_coordinator.async_request_refresh()
 
     unsubscribe = async_track_time_interval(
         hass, _periodic_poll, datetime.timedelta(seconds=max(min_refresh, 5))

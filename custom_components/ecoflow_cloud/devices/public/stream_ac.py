@@ -390,13 +390,14 @@ class _HistoricalDataStatus(StatusSensorEntity):
         return self._device.device_info.sn
 
     async def async_added_to_hass(self) -> None:
-        # Kick off an immediate fetch when the entity is added so
-        # history units/values are present before other sensors render.
+        # Kick off an immediate fetch when the entity is added by requesting
+        # the history coordinator to refresh
         try:
-            self.hass.async_create_background_task(self._fetch_and_update(), "initial historical data fetch")
+            device = self._device
+            if hasattr(device, "history_coordinator") and device.history_coordinator is not None:
+                await device.history_coordinator.async_request_refresh()
         except Exception as e:
-            from logging import getLogger
-            getLogger(__name__).error("Failed initial historical data fetch: %s", e, exc_info=True)
+            _LOGGER.error("Failed initial historical data fetch: %s", e, exc_info=True)
         # Initialize status and attributes immediately so UI doesn't show Unknown
         try:
             self._online = _OnlineStatus.ASSUME_OFFLINE
@@ -406,25 +407,17 @@ class _HistoricalDataStatus(StatusSensorEntity):
         except Exception:
             pass
 
-    async def _fetch_and_update(self):
-        # Delegate to shared module function to allow external triggers
-        try:
-            await fetch_historical_for_device(self._client, self._device)
-        finally:
-            # update last fetch timestamp so elapsed checks remain correct
-            try:
-                self._last_fetch = _utcnow()
-            except Exception:
-                pass
-
     def _actualize_status(self) -> bool:
         changed = False
-        # Periodic refresh of historical aggregates
-        elapsed = dt.as_timestamp(_utcnow()) - dt.as_timestamp(self._last_fetch)
-        if elapsed > self.offline_barrier_sec:
-            self._last_fetch = _utcnow()
-            self.hass.async_create_background_task(self._fetch_and_update(), "fetch historical data")
-            changed = True
+        # The history coordinator handles periodic refresh, we just check for new data
+        try:
+            device = self._device
+            if hasattr(device, "history_coordinator") and device.history_coordinator is not None:
+                if device.history_coordinator.data:
+                    self._last_fetch = _utcnow()
+                    changed = True
+        except Exception:
+            pass
 
         # Determine online state: prefer explicit status; otherwise fall back to data recency and MQTT connectivity
         try:
@@ -486,22 +479,21 @@ class _HistoricalDataStatus(StatusSensorEntity):
             # Do not break status updates on attribute build errors
             pass
 
-    def _merge_history_attrs(self):
-        # Helper to merge current params into attributes without waiting for coordinator tick
-        try:
-            hist: dict[str, object] = {}
-            for k, v in self._device.data.params.items():
-                if isinstance(k, str) and k.startswith("history."):
-                    hist[k.split("history.", 1)[1]] = v
-            if hist:
-                self._attrs["historical"] = to_plain(hist)
-                self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time
-                # Push immediate HA state update to reflect attribute changes
-                self.schedule_update_ha_state()
-        except Exception:
-            pass
-
 class StreamAC(BaseDevice):
+    """StreamAC device with historical data support."""
+
+    # Device-specific history coordinator
+    history_coordinator: StreamACHistoryUpdateCoordinator | None = None
+
+    def configure_history(self, hass: HomeAssistant, client: EcoflowApiClient) -> None:
+        """Configure the historical data update coordinator for this device."""
+        self.history_coordinator = StreamACHistoryUpdateCoordinator(
+            hass,
+            client,
+            self,
+            DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
+        )
+
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             # "accuChgCap": 198511,

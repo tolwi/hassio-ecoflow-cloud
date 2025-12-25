@@ -100,48 +100,6 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                             await dev.coordinator.async_request_refresh()
                     except Exception as exc:
                         _LOGGER.debug("Failed to request coordinator refresh for %s: %s", sn, exc)
-                    # After quota update, trigger historical fetch for StreamAC devices
-                    try:
-                        dev = self.devices.get(sn)
-                        if dev is not None and dev.__class__.__name__ == "StreamAC":
-                            try:
-                                import asyncio
-                                from custom_components.ecoflow_cloud.devices.public.stream_ac import (
-                                    fetch_historical_for_device,
-                                )
-
-                                # Determine device-specific historical period (seconds)
-                                hist_period = getattr(
-                                    getattr(dev, "device_data", None),
-                                    "historical_period",
-                                    None,
-                                )
-                                if hist_period is None:
-                                    try:
-                                        from .. import DEFAULT_HISTORY_PERIOD_SEC
-
-                                        hist_period = DEFAULT_HISTORY_PERIOD_SEC
-                                    except Exception:
-                                        hist_period = 900
-
-                                now = time.time()
-                                last = getattr(dev, "_last_historical_fetch", 0)
-                                if now - float(last) >= float(hist_period):
-                                    # schedule and record last fetch time
-                                    if not hasattr(self, "_background_tasks"):
-                                        self._background_tasks = []
-                                    task = asyncio.create_task(
-                                        fetch_historical_for_device(self, dev)
-                                    )
-                                    self._background_tasks.append(task)
-                                    try:
-                                        setattr(dev, "_last_historical_fetch", now)
-                                    except Exception:
-                                        pass
-                            except Exception as e:
-                                _LOGGER.debug("Failed to schedule historical fetch for %s: %s", sn, e)
-                    except Exception:
-                        pass
             except Exception as exception:
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Error retrieving %s", sn)
