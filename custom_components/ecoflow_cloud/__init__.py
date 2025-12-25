@@ -56,10 +56,8 @@ CONF_PARENT_SN: Final = "parent_sn"
 OPTS_DIAGNOSTIC_MODE: Final = "diagnostic_mode"
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
-OPTS_HISTORY_PERIOD_SEC: Final = "historical_period_sec"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 60
-DEFAULT_HISTORY_PERIOD_SEC: Final = 900
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
@@ -142,15 +140,6 @@ def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
             None,
             None,
         )
-
-    # Attach optional per-device historical fetch period (seconds) to each DeviceData
-    for sn, data in entry.data[CONF_DEVICE_LIST].items():
-        try:
-            hist = entry.options[CONF_DEVICE_LIST][sn].get(OPTS_HISTORY_PERIOD_SEC, DEFAULT_HISTORY_PERIOD_SEC)
-        except Exception:
-            hist = DEFAULT_HISTORY_PERIOD_SEC
-        # attach dynamically to DeviceData for minimal changes elsewhere
-        setattr(result[sn], "historical_period", hist)
 
     for sn, data in entry.data[CONF_DEVICE_LIST].items():
         if CONF_PARENT_SN in data:
