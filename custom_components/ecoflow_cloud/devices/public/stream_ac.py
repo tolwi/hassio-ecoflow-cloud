@@ -1,8 +1,10 @@
 from typing import Any
 import logging
-from datetime import datetime, timezone as _timezone
+from datetime import datetime, timedelta, timezone as _timezone
 
+from homeassistant.core import HomeAssistant
 from homeassistant.util import dt
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
@@ -43,315 +45,336 @@ HIST_CODE_ELECTRICITY_CONS = "BK621-App-HOME-LOAD-ENERGY-FLOW-consumption-prop_a
 HIST_CODE_GRID = "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-MASTER_DATA"
 HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
 
+# Device-specific constant for historical data refresh period (seconds)
+DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC = 900
+
 def _utcnow() -> datetime:
     return datetime.now(_timezone.utc)
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def fetch_historical_for_device(client: EcoflowApiClient, device: BaseDevice):
-    """Fetch historical metrics for a device and store them into device.data.params.
+class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Coordinator to fetch historical data for StreamAC devices."""
 
-    This mirror of the entity logic allows the public API to trigger history
-    fetches when quota data is refreshed.
-    """
-    now = _utcnow()
-    begin_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    end_day = now.replace(hour=23, minute=59, second=59, microsecond=0)
-    fmt = "%Y-%m-%d %H:%M:%S"
-    sn = None
-    try:
-        # try to resolve master SN if client exposes it
-        main_sn = getattr(client, "main_sn", None)
-        if isinstance(main_sn, str) and main_sn:
-            sn = main_sn
-    except Exception:
-        pass
-    if sn is None:
-        sn = device.device_info.sn
-
-    params: dict[str, float | int] = {}
-
-    _LOGGER.debug(
-        "fetch_historical_for_device: starting historical fetch for sn=%s begin=%s end=%s",
-        sn,
-        begin_day.strftime(fmt),
-        end_day.strftime(fmt),
-    )
-
-    def _sum_grid(items: list[dict]) -> tuple[float, float]:
-        imp = 0.0
-        exp = 0.0
-        for it in items:
-            try:
-                val = float(it.get("indexValue", 0))
-            except Exception:
-                val = 0.0
-            extra = str(it.get("extra", ""))
-            if extra == "1":
-                imp += val
-            elif extra == "2":
-                exp += val
-        return imp, exp
-
-    def _first_value_and_unit(items: list[dict]) -> tuple[float, str | None]:
-        if not items:
-            return 0.0, None
-        it0 = items[0]
-        try:
-            val = float(it0.get("indexValue", 0))
-        except Exception:
-            val = 0.0
-        u = it0.get("unit")
-        unit = u if isinstance(u, str) and u else None
-        return val, unit
-
-    def _first_value(items: list[dict]) -> float:
-        val, _ = _first_value_and_unit(items)
-        return val
-
-    def _sum_values(items: list[dict]) -> float:
-        total = 0.0
-        for it in items:
-            try:
-                total += float(it.get("indexValue", 0))
-            except Exception:
-                pass
-        return total
-
-    def _sum_battery(items: list[dict]) -> tuple[float, float]:
-        chg = 0.0
-        dsg = 0.0
-        for it in items:
-            try:
-                val = float(it.get("indexValue", 0))
-            except Exception:
-                val = 0.0
-            extra = str(it.get("extra", ""))
-            if extra == "2":
-                chg += val
-            elif extra == "1":
-                dsg += val
-        return chg, dsg
-
-    try:
-        # Keep parity with the entity implementation: request the same set of codes
-        resp_td = await client.historical_data(
-            sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: EcoflowApiClient,
+        device: "StreamAC",
+        update_interval_seconds: int = DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
+    ) -> None:
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"StreamAC History ({device.device_info.sn})",
+            update_interval=timedelta(seconds=update_interval_seconds),
         )
-        items_td = resp_td.get("data", {}).get("data", [])
-        if items_td:
-            params["history.energyIndependenceToday"] = _first_value(items_td)
-            params["history.energyIndependenceToday.beginTime"] = begin_day.strftime(fmt)
-            params["history.energyIndependenceToday.endTime"] = end_day.strftime(fmt)
+        self._client = client
+        self._device = device
 
-        begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-        end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
-        resp_y = await client.historical_data(
-            sn, begin_year.strftime(fmt), end_year.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
-        )
-        items_y = resp_y.get("data", {}).get("data", [])
-        if items_y:
-            params["history.energyIndependenceYear"] = _first_value(items_y)
-            params["history.energyIndependenceYear.beginTime"] = begin_year.strftime(fmt)
-            params["history.energyIndependenceYear.endTime"] = end_year.strftime(fmt)
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Fetch historical data from the API."""
+        return await self._fetch_historical_data()
 
-        resp = await client.historical_data(
-            sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
-        )
-        items = resp.get("data", {}).get("data", [])
-        if items:
-            params["history.environmentalImpactToday"] = _first_value(items)
-            params["history.environmentalImpactToday.beginTime"] = begin_day.strftime(fmt)
-            params["history.environmentalImpactToday.endTime"] = end_day.strftime(fmt)
+    async def _fetch_historical_data(self) -> dict[str, Any]:
+        """Fetch historical metrics and return them as a dict."""
+        now = _utcnow()
+        begin_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_day = now.replace(hour=23, minute=59, second=59, microsecond=0)
+        fmt = "%Y-%m-%d %H:%M:%S"
+        sn = self._device.device_info.sn
 
-        try:
-            begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
-            resp_all = await client.historical_data(
-                sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
-            )
-            all_items = resp_all.get("data", {}).get("data", [])
-            if all_items:
-                params["history.environmentalImpactCumulative"] = _sum_values(all_items)
-                params["history.environmentalImpactCumulative.beginTime"] = begin_all.strftime(fmt)
-                params["history.environmentalImpactCumulative.endTime"] = end_day.strftime(fmt)
-        except Exception:
-            pass
-
-        try:
-            resp_sav_today = await client.historical_data(
-                sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL,
-            )
-            items_sav_today = resp_sav_today.get("data", {}).get("data", [])
-            if items_sav_today:
-                val_td, unit_td = _first_value_and_unit(items_sav_today)
-                params["history.solarEnergySavingsToday"] = val_td
-                params["history.solarEnergySavingsToday.beginTime"] = begin_day.strftime(fmt)
-                params["history.solarEnergySavingsToday.endTime"] = end_day.strftime(fmt)
-                if unit_td:
-                    params["history.solarEnergySavingsUnit"] = unit_td
-        except Exception:
-            pass
-
-        try:
-            begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
-            resp_sav_all = await client.historical_data(
-                sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
-            )
-            items_sav_all = resp_sav_all.get("data", {}).get("data", [])
-            if items_sav_all:
-                total_sav = _sum_values(items_sav_all)
-                unit = None
-                for it in items_sav_all:
-                    u = it.get("unit")
-                    if isinstance(u, str) and u:
-                        unit = u
-                params["history.solarEnergySavingsCumulative"] = total_sav
-                params["history.solarEnergySavingsCumulative.beginTime"] = begin_all.strftime(fmt)
-                params["history.solarEnergySavingsCumulative.endTime"] = end_day.strftime(fmt)
-                if unit:
-                    params["history.solarEnergySavingsUnit"] = unit
-        except Exception:
-            pass
-
-        resp = await client.historical_data(
-            sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
-        )
-        items = resp.get("data", {}).get("data", [])
-        if items:
-            params["history.solarGeneratedToday"] = _first_value(items)
-            params["history.solarGeneratedToday.beginTime"] = begin_day.strftime(fmt)
-            params["history.solarGeneratedToday.endTime"] = end_day.strftime(fmt)
-
-        try:
-            begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
-            resp_all = await client.historical_data(
-                sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
-            )
-            all_items = resp_all.get("data", {}).get("data", [])
-            if all_items:
-                params["history.solarGeneratedCumulative"] = _sum_values(all_items)
-                params["history.solarGeneratedCumulative.beginTime"] = begin_all.strftime(fmt)
-                params["history.solarGeneratedCumulative.endTime"] = end_day.strftime(fmt)
-        except Exception:
-            pass
-
-        resp = await client.historical_data(
-            sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
-        )
-        items = resp.get("data", {}).get("data", [])
-        if items:
-            params["history.electricityConsumptionToday"] = _first_value(items)
-            params["history.electricityConsumptionToday.beginTime"] = begin_day.strftime(fmt)
-            params["history.electricityConsumptionToday.endTime"] = end_day.strftime(fmt)
-
-        try:
-            begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
-            resp_ec_all = await client.historical_data(
-                sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
-            )
-            items_ec_all = resp_ec_all.get("data", {}).get("data", [])
-            if items_ec_all:
-                params["history.electricityConsumptionCumulative"] = _sum_values(items_ec_all)
-                params["history.electricityConsumptionCumulative.beginTime"] = begin_all.strftime(fmt)
-                params["history.electricityConsumptionCumulative.endTime"] = end_day.strftime(fmt)
-        except Exception:
-            pass
+        params: dict[str, Any] = {}
 
         _LOGGER.debug(
-            "fetch_historical_for_device: requesting GRID today for sn=%s begin=%s end=%s",
+            "StreamACHistoryUpdateCoordinator: fetching historical data for sn=%s",
             sn,
-            begin_day.strftime(fmt),
-            end_day.strftime(fmt),
         )
-        resp = await client.historical_data(
-            sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
-        )
-        items = resp.get("data", {}).get("data", [])
-        if items:
-            imp_td, exp_td = _sum_grid(items)
-            params["history.gridImport"] = imp_td
-            params["history.gridImport.beginTime"] = begin_day.strftime(fmt)
-            params["history.gridImport.endTime"] = end_day.strftime(fmt)
-            params["history.gridExport"] = exp_td
-            params["history.gridExport.beginTime"] = begin_day.strftime(fmt)
-            params["history.gridExport.endTime"] = end_day.strftime(fmt)
+
+        def _sum_grid(items: list[dict]) -> tuple[float, float]:
+            imp = 0.0
+            exp = 0.0
+            for it in items:
+                try:
+                    val = float(it.get("indexValue", 0))
+                except Exception:
+                    val = 0.0
+                extra = str(it.get("extra", ""))
+                if extra == "1":
+                    imp += val
+                elif extra == "2":
+                    exp += val
+            return imp, exp
+
+        def _first_value_and_unit(items: list[dict]) -> tuple[float, str | None]:
+            if not items:
+                return 0.0, None
+            it0 = items[0]
+            try:
+                val = float(it0.get("indexValue", 0))
+            except Exception:
+                val = 0.0
+            u = it0.get("unit")
+            unit = u if isinstance(u, str) and u else None
+            return val, unit
+
+        def _first_value(items: list[dict]) -> float:
+            val, _ = _first_value_and_unit(items)
+            return val
+
+        def _sum_values(items: list[dict]) -> float:
+            total = 0.0
+            for it in items:
+                try:
+                    total += float(it.get("indexValue", 0))
+                except Exception:
+                    pass
+            return total
+
+        def _sum_battery(items: list[dict]) -> tuple[float, float]:
+            chg = 0.0
+            dsg = 0.0
+            for it in items:
+                try:
+                    val = float(it.get("indexValue", 0))
+                except Exception:
+                    val = 0.0
+                extra = str(it.get("extra", ""))
+                if extra == "2":
+                    chg += val
+                elif extra == "1":
+                    dsg += val
+            return chg, dsg
+
+        async def _call_historical_api(begin: str, end: str, code: str) -> dict:
+            """Call the historical data API endpoint."""
+            body = {
+                "sn": sn,
+                "params": {
+                    "beginTime": begin,
+                    "endTime": end,
+                    "code": code,
+                },
+            }
+            # Use the generic post_api method from the client
+            return await self._client.post_api("/device/quota/data", body)
 
         try:
-            begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
-            _LOGGER.debug(
-                "fetch_historical_for_device: requesting GRID cumulative for sn=%s begin=%s end=%s",
-                sn,
-                begin_all.strftime(fmt),
-                end_day.strftime(fmt),
+            # Energy Independence - Today
+            resp_td = await _call_historical_api(
+                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
             )
-            resp_grid_all = await client.historical_data(
-                sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
+            items_td = resp_td.get("data", {}).get("data", [])
+            if items_td:
+                params["history.energyIndependenceToday"] = _first_value(items_td)
+                params["history.energyIndependenceToday.beginTime"] = begin_day.strftime(fmt)
+                params["history.energyIndependenceToday.endTime"] = end_day.strftime(fmt)
+
+            # Energy Independence - Year
+            begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
+            resp_y = await _call_historical_api(
+                begin_year.strftime(fmt), end_year.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
             )
-            items_grid_all = resp_grid_all.get("data", {}).get("data", [])
-            if items_grid_all:
-                imp_all, exp_all = _sum_grid(items_grid_all)
-                params["history.gridImportCumulative"] = imp_all
-                params["history.gridImportCumulative.beginTime"] = begin_all.strftime(fmt)
-                params["history.gridImportCumulative.endTime"] = end_day.strftime(fmt)
-                params["history.gridExportCumulative"] = exp_all
-                params["history.gridExportCumulative.beginTime"] = begin_all.strftime(fmt)
-                params["history.gridExportCumulative.endTime"] = end_day.strftime(fmt)
-        except Exception:
-            pass
+            items_y = resp_y.get("data", {}).get("data", [])
+            if items_y:
+                params["history.energyIndependenceYear"] = _first_value(items_y)
+                params["history.energyIndependenceYear.beginTime"] = begin_year.strftime(fmt)
+                params["history.energyIndependenceYear.endTime"] = end_year.strftime(fmt)
 
-        resp = await client.historical_data(
-            sn, begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
-        )
-        items = resp.get("data", {}).get("data", [])
-        if items:
-            chg_td, dsg_td = _sum_battery(items)
-            params["history.batteryCharge"] = chg_td
-            params["history.batteryCharge.endTime"] = end_day.strftime(fmt)
-            params["history.batteryDischarge"] = dsg_td
-            params["history.batteryDischarge.beginTime"] = begin_day.strftime(fmt)
-            params["history.batteryDischarge.endTime"] = end_day.strftime(fmt)
-
-        try:
-            begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
-            resp_batt_all = await client.historical_data(
-                sn, begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
+            # Environmental Impact - Today
+            resp = await _call_historical_api(
+                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
             )
-            items_batt_all = resp_batt_all.get("data", {}).get("data", [])
-            if items_batt_all:
-                total_charge, total_discharge = _sum_battery(items_batt_all)
-                params["history.batteryChargeCumulative"] = total_charge
-                params["history.batteryChargeCumulative.beginTime"] = begin_all.strftime(fmt)
-                params["history.batteryChargeCumulative.endTime"] = end_day.strftime(fmt)
-                params["history.batteryDischargeCumulative"] = total_discharge
-                params["history.batteryDischargeCumulative.beginTime"] = begin_all.strftime(fmt)
-                params["history.batteryDischargeCumulative.endTime"] = end_day.strftime(fmt)
-        except Exception:
-            pass
-    except Exception as e:
-        from logging import getLogger
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                params["history.environmentalImpactToday"] = _first_value(items)
+                params["history.environmentalImpactToday.beginTime"] = begin_day.strftime(fmt)
+                params["history.environmentalImpactToday.endTime"] = end_day.strftime(fmt)
 
-        getLogger(__name__).error("Failed to fetch historical data: %s", e, exc_info=True)
+            # Environmental Impact - Cumulative
+            try:
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_all = await _call_historical_api(
+                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
+                )
+                all_items = resp_all.get("data", {}).get("data", [])
+                if all_items:
+                    params["history.environmentalImpactCumulative"] = _sum_values(all_items)
+                    params["history.environmentalImpactCumulative.beginTime"] = begin_all.strftime(fmt)
+                    params["history.environmentalImpactCumulative.endTime"] = end_day.strftime(fmt)
+            except Exception:
+                pass
 
-    if params:
-        params["history.mainSn"] = sn
-        try:
-            # Update params directly to bypass moduleSn filter in add_data
-            device.data.params.update(params)
-            # Update set_params_time so coordinator detects the change
-            from datetime import datetime, timezone as tz
-            device.data.set_params_time = datetime.now(tz.utc)
-        except Exception:
-            pass
+            # Solar Energy Savings - Today
+            try:
+                resp_sav_today = await _call_historical_api(
+                    begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL,
+                )
+                items_sav_today = resp_sav_today.get("data", {}).get("data", [])
+                if items_sav_today:
+                    val_td, unit_td = _first_value_and_unit(items_sav_today)
+                    params["history.solarEnergySavingsToday"] = val_td
+                    params["history.solarEnergySavingsToday.beginTime"] = begin_day.strftime(fmt)
+                    params["history.solarEnergySavingsToday.endTime"] = end_day.strftime(fmt)
+                    if unit_td:
+                        params["history.solarEnergySavingsUnit"] = unit_td
+            except Exception:
+                pass
+
+            # Solar Energy Savings - Cumulative
+            try:
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_sav_all = await _call_historical_api(
+                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
+                )
+                items_sav_all = resp_sav_all.get("data", {}).get("data", [])
+                if items_sav_all:
+                    total_sav = _sum_values(items_sav_all)
+                    unit = None
+                    for it in items_sav_all:
+                        u = it.get("unit")
+                        if isinstance(u, str) and u:
+                            unit = u
+                    params["history.solarEnergySavingsCumulative"] = total_sav
+                    params["history.solarEnergySavingsCumulative.beginTime"] = begin_all.strftime(fmt)
+                    params["history.solarEnergySavingsCumulative.endTime"] = end_day.strftime(fmt)
+                    if unit:
+                        params["history.solarEnergySavingsUnit"] = unit
+            except Exception:
+                pass
+
+            # Solar Generated - Today
+            resp = await _call_historical_api(
+                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                params["history.solarGeneratedToday"] = _first_value(items)
+                params["history.solarGeneratedToday.beginTime"] = begin_day.strftime(fmt)
+                params["history.solarGeneratedToday.endTime"] = end_day.strftime(fmt)
+
+            # Solar Generated - Cumulative
+            try:
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_all = await _call_historical_api(
+                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
+                )
+                all_items = resp_all.get("data", {}).get("data", [])
+                if all_items:
+                    params["history.solarGeneratedCumulative"] = _sum_values(all_items)
+                    params["history.solarGeneratedCumulative.beginTime"] = begin_all.strftime(fmt)
+                    params["history.solarGeneratedCumulative.endTime"] = end_day.strftime(fmt)
+            except Exception:
+                pass
+
+            # Electricity Consumption - Today
+            resp = await _call_historical_api(
+                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                params["history.electricityConsumptionToday"] = _first_value(items)
+                params["history.electricityConsumptionToday.beginTime"] = begin_day.strftime(fmt)
+                params["history.electricityConsumptionToday.endTime"] = end_day.strftime(fmt)
+
+            # Electricity Consumption - Cumulative
+            try:
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_ec_all = await _call_historical_api(
+                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
+                )
+                items_ec_all = resp_ec_all.get("data", {}).get("data", [])
+                if items_ec_all:
+                    params["history.electricityConsumptionCumulative"] = _sum_values(items_ec_all)
+                    params["history.electricityConsumptionCumulative.beginTime"] = begin_all.strftime(fmt)
+                    params["history.electricityConsumptionCumulative.endTime"] = end_day.strftime(fmt)
+            except Exception:
+                pass
+
+            # Grid Import/Export - Today
+            resp = await _call_historical_api(
+                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                imp_td, exp_td = _sum_grid(items)
+                params["history.gridImport"] = imp_td
+                params["history.gridImport.beginTime"] = begin_day.strftime(fmt)
+                params["history.gridImport.endTime"] = end_day.strftime(fmt)
+                params["history.gridExport"] = exp_td
+                params["history.gridExport.beginTime"] = begin_day.strftime(fmt)
+                params["history.gridExport.endTime"] = end_day.strftime(fmt)
+
+            # Grid Import/Export - Cumulative
+            try:
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_grid_all = await _call_historical_api(
+                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
+                )
+                items_grid_all = resp_grid_all.get("data", {}).get("data", [])
+                if items_grid_all:
+                    imp_all, exp_all = _sum_grid(items_grid_all)
+                    params["history.gridImportCumulative"] = imp_all
+                    params["history.gridImportCumulative.beginTime"] = begin_all.strftime(fmt)
+                    params["history.gridImportCumulative.endTime"] = end_day.strftime(fmt)
+                    params["history.gridExportCumulative"] = exp_all
+                    params["history.gridExportCumulative.beginTime"] = begin_all.strftime(fmt)
+                    params["history.gridExportCumulative.endTime"] = end_day.strftime(fmt)
+            except Exception:
+                pass
+
+            # Battery Charge/Discharge - Today
+            resp = await _call_historical_api(
+                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
+            )
+            items = resp.get("data", {}).get("data", [])
+            if items:
+                chg_td, dsg_td = _sum_battery(items)
+                params["history.batteryCharge"] = chg_td
+                params["history.batteryCharge.beginTime"] = begin_day.strftime(fmt)
+                params["history.batteryCharge.endTime"] = end_day.strftime(fmt)
+                params["history.batteryDischarge"] = dsg_td
+                params["history.batteryDischarge.beginTime"] = begin_day.strftime(fmt)
+                params["history.batteryDischarge.endTime"] = end_day.strftime(fmt)
+
+            # Battery Charge/Discharge - Cumulative
+            try:
+                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                resp_batt_all = await _call_historical_api(
+                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
+                )
+                items_batt_all = resp_batt_all.get("data", {}).get("data", [])
+                if items_batt_all:
+                    total_charge, total_discharge = _sum_battery(items_batt_all)
+                    params["history.batteryChargeCumulative"] = total_charge
+                    params["history.batteryChargeCumulative.beginTime"] = begin_all.strftime(fmt)
+                    params["history.batteryChargeCumulative.endTime"] = end_day.strftime(fmt)
+                    params["history.batteryDischargeCumulative"] = total_discharge
+                    params["history.batteryDischargeCumulative.beginTime"] = begin_all.strftime(fmt)
+                    params["history.batteryDischargeCumulative.endTime"] = end_day.strftime(fmt)
+            except Exception:
+                pass
+
+        except Exception as e:
+            _LOGGER.error("Failed to fetch historical data: %s", e, exc_info=True)
+
+        if params:
+            params["history.mainSn"] = sn
+            # Update device params directly so entities can read them
+            try:
+                self._device.data.params.update(params)
+                self._device.data.set_params_time = _utcnow()
+            except Exception:
+                pass
+
+        return params
 
 class _HistoricalDataStatus(StatusSensorEntity):
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice):
+    def __init__(self, client: EcoflowApiClient, device: "StreamAC"):
         super().__init__(client, device, "Status", "status.historical")
-        # Use per-device historical fetch period when available (seconds)
-        try:
-            self.offline_barrier_sec = int(getattr(self._device.device_data, "historical_period", 900))
-        except Exception:
-            self.offline_barrier_sec = 900
+        self.offline_barrier_sec = DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC
         self._last_fetch = _utcnow().replace(year=2000, month=1, day=1, hour=0)
 
     def _resolve_main_sn(self) -> str:
