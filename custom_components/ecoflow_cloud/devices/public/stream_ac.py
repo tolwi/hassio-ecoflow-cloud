@@ -364,7 +364,11 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         if params:
             params["history.mainSn"] = sn
-            # Update device params directly so entities can read them
+            # Set last_history_check for each historical entity
+            last_check = self.last_check.isoformat() if self.last_check else None
+            for k in list(params.keys()):
+                if k.startswith("history.") and not k.endswith("beginTime") and not k.endswith("endTime") and not k.endswith("mainSn") and not k.endswith("Unit"):
+                    params[f"{k}.last_history_check"] = last_check
             try:
                 self._device.data.params.update(params)
                 self._device.data.set_params_time = _utcnow()
@@ -468,18 +472,15 @@ class _HistoricalDataStatus(StatusSensorEntity):
     def _actualize_attributes(self):
         # Keep base status attributes up to date
         super()._actualize_attributes()
-        # Pull any history.* entries from device params into a grouped 'historical' attribute
         try:
             hist: dict[str, object] = {}
             for k, v in self._device.data.params.items():
                 if isinstance(k, str) and k.startswith("history."):
                     hist[k.split("history.", 1)[1]] = v
             if hist:
-                # Flatten to plain types if needed and refresh last update timestamp
                 self._attrs["historical"] = to_plain(hist)
                 self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time
         except Exception:
-            # Do not break status updates on attribute build errors
             pass
 
 class StreamAC(BaseDevice):
@@ -784,6 +785,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.MEASUREMENT)
             .attr("history.energyIndependenceToday.beginTime", "Begin Time", "")
             .attr("history.energyIndependenceToday.endTime", "End Time", "")
+            .attr("history.energyIndependenceToday.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Energy Independence (Year)
             BaseSensorEntity(client, self, "history.energyIndependenceYear", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_YEAR)
@@ -792,6 +794,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.MEASUREMENT)
             .attr("history.energyIndependenceYear.beginTime", "Begin Time", "")
             .attr("history.energyIndependenceYear.endTime", "End Time", "")
+            .attr("history.energyIndependenceYear.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Environmental Impact (Today)
             BaseSensorEntity(client, self, "history.environmentalImpactToday", const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_TODAY)
@@ -800,6 +803,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.environmentalImpactToday.beginTime", "Begin Time", "")
             .attr("history.environmentalImpactToday.endTime", "End Time", "")
+            .attr("history.environmentalImpactToday.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Environmental Impact (Cumulative)
             BaseSensorEntity(client, self, "history.environmentalImpactCumulative", const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE)
@@ -808,6 +812,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.environmentalImpactCumulative.beginTime", "Begin Time", "")
             .attr("history.environmentalImpactCumulative.endTime", "End Time", "")
+            .attr("history.environmentalImpactCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Solar Energy Savings (Today)
             BaseSensorEntity(client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY)
@@ -816,6 +821,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarEnergySavingsToday.beginTime", "Begin Time", "")
             .attr("history.solarEnergySavingsToday.endTime", "End Time", "")
+            .attr("history.solarEnergySavingsToday.last_history_check", "Last Checked", "")
             .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Solar Energy Savings (Cumulative)
@@ -825,6 +831,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarEnergySavingsCumulative.beginTime", "Begin Time", "")
             .attr("history.solarEnergySavingsCumulative.endTime", "End Time", "")
+            .attr("history.solarEnergySavingsCumulative.last_history_check", "Last Checked", "")
             .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Solar-Generated Energy (Today)
@@ -834,6 +841,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarGeneratedToday.beginTime", "Begin Time", "")
             .attr("history.solarGeneratedToday.endTime", "End Time", "")
+            .attr("history.solarGeneratedToday.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Solar-Generated Energy (Cumulative)
             KiloWattHourEnergySensorEntity(client, self, "history.solarGeneratedCumulative", const.STREAM_HISTORY_SOLAR_GENERATED_CUMULATIVE)
@@ -842,6 +850,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarGeneratedCumulative.beginTime", "Begin Time", "")
             .attr("history.solarGeneratedCumulative.endTime", "End Time", "")
+            .attr("history.solarGeneratedCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Electricity Consumption (Today)
             KiloWattHourEnergySensorEntity(client, self, "history.electricityConsumptionToday", const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_TODAY)
@@ -850,6 +859,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.electricityConsumptionToday.beginTime", "Begin Time", "")
             .attr("history.electricityConsumptionToday.endTime", "End Time", "")
+            .attr("history.electricityConsumptionToday.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Electricity Consumption (Cumulative)
             KiloWattHourEnergySensorEntity(client, self, "history.electricityConsumptionCumulative", const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_CUMULATIVE)
@@ -858,6 +868,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.electricityConsumptionCumulative.beginTime", "Begin Time", "")
             .attr("history.electricityConsumptionCumulative.endTime", "End Time", "")
+            .attr("history.electricityConsumptionCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Grid Import (Today)
             KiloWattHourEnergySensorEntity(client, self, "history.gridImport", const.STREAM_HISTORY_GRID_IMPORT_TODAY)
@@ -866,6 +877,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.gridImport.beginTime", "Begin Time", "")
             .attr("history.gridImport.endTime", "End Time", "")
+            .attr("history.gridImport.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Grid Import (Cumulative)
             KiloWattHourEnergySensorEntity(client, self, "history.gridImportCumulative", const.STREAM_HISTORY_GRID_IMPORT_CUMULATIVE)
@@ -874,6 +886,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.gridImportCumulative.beginTime", "Begin Time", "")
             .attr("history.gridImportCumulative.endTime", "End Time", "")
+            .attr("history.gridImportCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Grid Export (Today)
             KiloWattHourEnergySensorEntity(client, self, "history.gridExport", const.STREAM_HISTORY_GRID_EXPORT_TODAY)
@@ -882,6 +895,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.gridExport.beginTime", "Begin Time", "")
             .attr("history.gridExport.endTime", "End Time", "")
+            .attr("history.gridExport.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Grid Export (Cumulative)
             KiloWattHourEnergySensorEntity(client, self, "history.gridExportCumulative", const.STREAM_HISTORY_GRID_EXPORT_CUMULATIVE)
@@ -890,6 +904,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.gridExportCumulative.beginTime", "Begin Time", "")
             .attr("history.gridExportCumulative.endTime", "End Time", "")
+            .attr("history.gridExportCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Battery Charge (Today)
             KiloWattHourEnergySensorEntity(client, self, "history.batteryCharge", const.STREAM_HISTORY_BATTERY_CHARGE_TODAY)
@@ -898,6 +913,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.batteryCharge.beginTime", "Begin Time", "")
             .attr("history.batteryCharge.endTime", "End Time", "")
+            .attr("history.batteryCharge.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Battery Charge (Cumulative)
             KiloWattHourEnergySensorEntity(client, self, "history.batteryChargeCumulative", const.STREAM_HISTORY_BATTERY_CHARGE_CUMULATIVE)
@@ -906,6 +922,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.batteryChargeCumulative.beginTime", "Begin Time", "")
             .attr("history.batteryChargeCumulative.endTime", "End Time", "")
+            .attr("history.batteryChargeCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Battery Discharge (Today)
             KiloWattHourEnergySensorEntity(client, self, "history.batteryDischarge", const.STREAM_HISTORY_BATTERY_DISCHARGE_TODAY)
@@ -914,6 +931,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.batteryDischarge.beginTime", "Begin Time", "")
             .attr("history.batteryDischarge.endTime", "End Time", "")
+            .attr("history.batteryDischarge.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Battery Discharge (Cumulative)
             KiloWattHourEnergySensorEntity(client, self, "history.batteryDischargeCumulative", const.STREAM_HISTORY_BATTERY_DISCHARGE_CUMULATIVE)
@@ -922,6 +940,7 @@ class StreamAC(BaseDevice):
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.batteryDischargeCumulative.beginTime", "Begin Time", "")
             .attr("history.batteryDischargeCumulative.endTime", "End Time", "")
+            .attr("history.batteryDischargeCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
         ]
     # moduleWifiRssi
