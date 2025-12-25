@@ -72,9 +72,11 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         self._client = client
         self._device = device
+        self.last_check: datetime | None = None
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch historical data from the API."""
+        self.last_check = _utcnow()
         return await self._fetch_historical_data()
 
     async def _fetch_historical_data(self) -> dict[str, Any]:
@@ -366,8 +368,9 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 self._device.data.params.update(params)
                 self._device.data.set_params_time = _utcnow()
-            except Exception:
-                pass
+                _LOGGER.debug("Updated device params for sn=%s: %s", sn, str(self._device.data.params))
+            except Exception as exc:
+                _LOGGER.error("Failed to update device params for sn=%s: %s", sn, exc, exc_info=True)
 
         return params
 
@@ -486,15 +489,46 @@ class StreamAC(BaseDevice):
     history_coordinator: StreamACHistoryUpdateCoordinator | None = None
 
     def configure_history(self, hass: HomeAssistant, client: EcoflowApiClient) -> None:
-        """Configure the historical data update coordinator for this device."""
+        """Configure the historical data update coordinator for this device and trigger an immediate refresh."""
         self.history_coordinator = StreamACHistoryUpdateCoordinator(
             hass,
             client,
             self,
             DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
         )
+        try:
+            import asyncio
+            if asyncio.get_event_loop().is_running():
+                asyncio.create_task(self.history_coordinator.async_request_refresh())
+                # Also trigger the main device coordinator to update entities after history fetch
+                if hasattr(self, "coordinator") and self.coordinator is not None:
+                    asyncio.create_task(self.coordinator.async_request_refresh())
+            else:
+                loop = asyncio.get_event_loop()
+                loop.call_soon_threadsafe(
+                    lambda: asyncio.create_task(self.history_coordinator.async_request_refresh())
+                )
+                if hasattr(self, "coordinator") and self.coordinator is not None:
+                    loop.call_soon_threadsafe(
+                        lambda: asyncio.create_task(self.coordinator.async_request_refresh())
+                    )
+        except Exception:
+            pass
 
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+        # Ensure the history coordinator is refreshed at least once so historical sensors work without a status entity
+        if hasattr(self, "history_coordinator") and self.history_coordinator is not None:
+            try:
+                import asyncio
+                if asyncio.get_event_loop().is_running():
+                    asyncio.create_task(self.history_coordinator.async_request_refresh())
+                else:
+                    # For sync context, schedule for later
+                    asyncio.get_event_loop().call_soon_threadsafe(
+                        lambda: asyncio.create_task(self.history_coordinator.async_request_refresh())
+                    )
+            except Exception:
+                pass
         return [
             # "accuChgCap": 198511,
             CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False).with_icon("mdi:battery-arrow-up"),
@@ -889,7 +923,6 @@ class StreamAC(BaseDevice):
             .attr("history.batteryDischargeCumulative.beginTime", "Begin Time", "")
             .attr("history.batteryDischargeCumulative.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
-            _HistoricalDataStatus(client, self),
         ]
     # moduleWifiRssi
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:

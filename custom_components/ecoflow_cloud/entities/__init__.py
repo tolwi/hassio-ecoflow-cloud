@@ -203,7 +203,12 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
-        return self.__attrs
+        attrs = dict(self.__attrs) if self.__attrs else {}
+        # Add last history check if available
+        coordinator = getattr(self, "coordinator", None)
+        if coordinator and hasattr(coordinator, "last_check") and coordinator.last_check:
+            attrs["last_history_check"] = coordinator.last_check.isoformat()
+        return attrs
 
     def _update_value(self, val: Any) -> bool:
         return False
