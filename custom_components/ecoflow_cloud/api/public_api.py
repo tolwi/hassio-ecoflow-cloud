@@ -32,13 +32,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         self.timestamp = str(int(time.time() * 1000))
 
     async def login(self):
-        _LOGGER.debug("API: Requesting IoT MQTT credentials (/certification)")
+        _LOGGER.info("API: Requesting IoT MQTT credentials (/certification)")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
         self.mqtt_info.client_id = f"Hassio-{self.mqtt_info.username}-{self.group.replace(' ', '-')}"
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
-        _LOGGER.debug("API: Requesting all devices (/device/list)")
+        _LOGGER.info("API: Requesting all devices (/device/list)")
         response = await self.call_api("/device/list")
         result = list()
         for device in response["data"]:
