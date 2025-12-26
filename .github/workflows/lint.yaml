@@ -20,9 +20,7 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: |
-          pip install ruff mypy
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        run: pip install -r requirements.txt
 
       - name: Lint with ruff
         run: ruff check custom_components
