@@ -619,8 +619,8 @@ class Delta3(BaseInternalDevice):
             header_msg = delta3_pb2.Delta3SendHeaderMsg()
             header_msg.ParseFromString(raw_data)
 
-            if header_msg.header:
-                header = header_msg.header[0]
+            if header_msg.msg:
+                header = header_msg.msg[0]
                 pdata = getattr(header, "pdata", b"")
                 if pdata:
                     try:
