@@ -46,7 +46,7 @@ HIST_CODE_GRID = "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-M
 HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
 
 # Device-specific constant for historical data refresh period (seconds)
-DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC = 900
+DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC = 900  # 15 minutes
 
 def _utcnow() -> datetime:
     return datetime.now(_timezone.utc)
@@ -497,39 +497,20 @@ class StreamAC(BaseDevice):
             self,
             DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
         )
+        # Trigger an immediate refresh so historical entities load on startup
         try:
             import asyncio
             if asyncio.get_event_loop().is_running():
                 asyncio.create_task(self.history_coordinator.async_request_refresh())
-                # Also trigger the main device coordinator to update entities after history fetch
-                if hasattr(self, "coordinator") and self.coordinator is not None:
-                    asyncio.create_task(self.coordinator.async_request_refresh())
             else:
                 loop = asyncio.get_event_loop()
                 loop.call_soon_threadsafe(
                     lambda: asyncio.create_task(self.history_coordinator.async_request_refresh())
                 )
-                if hasattr(self, "coordinator") and self.coordinator is not None:
-                    loop.call_soon_threadsafe(
-                        lambda: asyncio.create_task(self.coordinator.async_request_refresh())
-                    )
         except Exception:
             pass
 
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
-        # Ensure the history coordinator is refreshed at least once so historical sensors work without a status entity
-        if hasattr(self, "history_coordinator") and self.history_coordinator is not None:
-            try:
-                import asyncio
-                if asyncio.get_event_loop().is_running():
-                    asyncio.create_task(self.history_coordinator.async_request_refresh())
-                else:
-                    # For sync context, schedule for later
-                    asyncio.get_event_loop().call_soon_threadsafe(
-                        lambda: asyncio.create_task(self.history_coordinator.async_request_refresh())
-                    )
-            except Exception:
-                pass
         return [
             # "accuChgCap": 198511,
             CumulativeCapacitySensorEntity(client, self, "accuChgCap", const.ACCU_CHARGE_CAP, False).with_icon("mdi:battery-arrow-up"),

@@ -197,40 +197,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
 
+
     # Must load all device data before configuring devices because the data
     # is used for entity setup.
     await api_client.quota_all(None)
-
-    # Periodically poll the API to refresh quotas/status.
-    # Use the smallest configured device refresh period (defaults to 60s).
-    try:
-        min_refresh = min(d.options.refresh_period for d in devices_list.values())
-    except ValueError:
-        # No devices present; fall back to default
-        min_refresh = DEFAULT_REFRESH_PERIOD_SEC
-
-    async def _periodic_poll(_now):
-        try:
-            _LOGGER.info("Periodic EcoFlow quota refresh starting")
-            await api_client.quota_all(None)
-            _LOGGER.info("Periodic EcoFlow quota refresh completed")
-        except Exception as ex:  # noqa: BLE001
-            _LOGGER.debug("Periodic quota refresh failed: %s", ex)
-
-        # Nudge coordinators to propagate any changes promptly
-        for device in list(api_client.devices.values()):
-            coordinator = getattr(device, "coordinator", None)
-            if coordinator is not None:
-                await coordinator.async_request_refresh()
-            # Also refresh history coordinator for devices that have one
-            history_coordinator = getattr(device, "history_coordinator", None)
-            if history_coordinator is not None:
-                await history_coordinator.async_request_refresh()
-
-    unsubscribe = async_track_time_interval(
-        hass, _periodic_poll, datetime.timedelta(seconds=max(min_refresh, 5))
-    )
-    entry.async_on_unload(unsubscribe)
 
     # Forward entry setup to the platforms to set up the entities
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)

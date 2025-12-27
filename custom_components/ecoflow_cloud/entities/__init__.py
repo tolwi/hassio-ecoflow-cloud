@@ -148,15 +148,20 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
             )
             changed = None
 
-        if changed:
+        # Only process an update when the coordinator explicitly reports a change,
+        # or when the "changed" flag is unavailable/None. This avoids unnecessary
+        # computation on every coordinator tick while preserving existing behavior
+        # for coordinators that do not provide a "changed" attribute.
+        if changed is False:
+            return
+
+        if changed or changed is None:
             self._updated(self.coordinator.data.data_holder.params)
         elif not self.coordinator.data.data_holder.online:  # Device is offline
             # Reset sensors that should reset to default values
             if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
                 self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
                 self._updated(self.coordinator.data.data_holder.params)
-
-        self._updated(self.coordinator.data.data_holder.params)
 
     def _updated(self, data: dict[str, Any]):
         # update attributes

@@ -197,12 +197,7 @@ class StreamAC(BaseInternalDevice):
             # "powGetSysLoadFromBp": 0.0,
             WattsSensorEntity(client, self, "powGetSysLoadFromBp", const.STREAM_GET_SYS_LOAD_FROM_BP),
             # "powGetSysLoadFromGrid": 0.0,
-            WattsSensorEntity(
-                client,
-                self,
-                "powGetSysLoadFromGrid",
-                const.STREAM_GET_SYS_LOAD_FROM_GRID,
-            ),
+            WattsSensorEntity(client, self, "powGetSysLoadFromGrid", const.STREAM_GET_SYS_LOAD_FROM_GRID),
             # "powGetSysLoadFromPv": 0.0,
             WattsSensorEntity(client, self, "powGetSysLoadFromPv", const.STREAM_GET_SYS_LOAD_FROM_PV),
             # "powSysAcInMax": 4462,
