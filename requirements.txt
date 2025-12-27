@@ -2,3 +2,7 @@ homeassistant>=2024.5.5
 paho_mqtt==2.1.0
 protobuf==6.32.0
 jsonpath-ng>=1.7.0
+
+ruff>=0.14.10
+mypy>=1.19.1
+types-protobuf==6.32.1.20251210
