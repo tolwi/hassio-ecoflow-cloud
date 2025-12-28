@@ -45,8 +45,12 @@ HIST_CODE_ELECTRICITY_CONS = "BK621-App-HOME-LOAD-ENERGY-FLOW-consumption-prop_a
 HIST_CODE_GRID = "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-MASTER_DATA"
 HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
 
+
 # Historical data refresh period (seconds)
 DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC = 900  # 15 minutes
+
+# Magic date for EcoFlow business start (used for cumulative queries)
+ECOFLOW_BUSINESS_START = datetime(2017, 5, 1, 0, 0, 0, tzinfo=_timezone.utc)
 
 def _utcnow() -> datetime:
     return datetime.now(_timezone.utc)
@@ -195,7 +199,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Environmental Impact - Cumulative
             try:
-                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = ECOFLOW_BUSINESS_START
                 resp_all = await _call_historical_api(
                     begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
                 )
@@ -225,7 +229,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Solar Energy Savings - Cumulative
             try:
-                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = ECOFLOW_BUSINESS_START
                 resp_sav_all = await _call_historical_api(
                     begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
                 )
@@ -257,7 +261,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Solar Generated - Cumulative
             try:
-                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = ECOFLOW_BUSINESS_START
                 resp_all = await _call_historical_api(
                     begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
                 )
@@ -281,7 +285,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Electricity Consumption - Cumulative
             try:
-                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = ECOFLOW_BUSINESS_START
                 resp_ec_all = await _call_historical_api(
                     begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
                 )
@@ -309,7 +313,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Grid Import/Export - Cumulative
             try:
-                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = ECOFLOW_BUSINESS_START
                 resp_grid_all = await _call_historical_api(
                     begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
                 )
@@ -391,18 +395,31 @@ class StreamAC(BaseDevice):
             self,
             DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
         )
-        # Trigger an immediate refresh so historical entities load on startup
+        # Track background tasks for cleanup
+        if not hasattr(self, "_background_tasks"):
+            self._background_tasks = set()
+        import asyncio
+        def _task_done_callback(t: "asyncio.Task") -> None:
+            try:
+                t.result()
+            except Exception as exc:
+                _LOGGER.debug("Background historical fetch task failed: %s", exc)
+            finally:
+                self._background_tasks.discard(t)
         try:
-            import asyncio
             if asyncio.get_event_loop().is_running():
-                asyncio.create_task(self.history_coordinator.async_request_refresh())
+                task = asyncio.create_task(self.history_coordinator.async_request_refresh())
+                self._background_tasks.add(task)
+                task.add_done_callback(_task_done_callback)
             else:
                 loop = asyncio.get_event_loop()
-                loop.call_soon_threadsafe(
-                    lambda: asyncio.create_task(self.history_coordinator.async_request_refresh())
-                )
-        except Exception:
-            pass
+                def schedule():
+                    task = asyncio.create_task(self.history_coordinator.async_request_refresh())
+                    self._background_tasks.add(task)
+                    task.add_done_callback(_task_done_callback)
+                loop.call_soon_threadsafe(schedule)
+        except Exception as exc:
+            _LOGGER.debug("Failed to schedule initial historical refresh: %s", exc)
 
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
@@ -749,7 +766,7 @@ class StreamAC(BaseDevice):
             KiloWattHourEnergySensorEntity(client, self, "history.gridImport", const.STREAM_HISTORY_GRID_IMPORT_TODAY)
             .with_unit_of_measurement("kWh")
             .with_icon("mdi:transmission-tower-import")
-            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .with_state_class(SensorStateClass.MEASUREMENT)
             .attr("history.gridImport.beginTime", "Begin Time", "")
             .attr("history.gridImport.endTime", "End Time", "")
             .attr("history.gridImport.last_history_check", "Last Checked", "")
@@ -767,7 +784,7 @@ class StreamAC(BaseDevice):
             KiloWattHourEnergySensorEntity(client, self, "history.gridExport", const.STREAM_HISTORY_GRID_EXPORT_TODAY)
             .with_unit_of_measurement("kWh")
             .with_icon("mdi:transmission-tower-export")
-            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .with_state_class(SensorStateClass.MEASUREMENT)
             .attr("history.gridExport.beginTime", "Begin Time", "")
             .attr("history.gridExport.endTime", "End Time", "")
             .attr("history.gridExport.last_history_check", "Last Checked", "")

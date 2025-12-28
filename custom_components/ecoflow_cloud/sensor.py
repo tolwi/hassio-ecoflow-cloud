@@ -334,7 +334,7 @@ class KiloWattHourEnergySensorEntity(EnergySensorEntity):
         except Exception:
             return False
         kwh = wh / 1000.0
-        if kwh > 0:
+        if kwh >= 0:
             return super(EnergySensorEntity, self)._update_value(kwh)
         return False
 
