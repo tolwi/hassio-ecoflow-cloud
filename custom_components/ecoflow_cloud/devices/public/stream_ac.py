@@ -1,13 +1,11 @@
 
 import asyncio
-from typing import Any
 import logging
 from datetime import datetime, timedelta, timezone as _timezone
+from typing import Any
 
 from homeassistant.core import HomeAssistant
-from homeassistant.util import dt
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
@@ -347,7 +345,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Battery Charge/Discharge - Cumulative
             try:
-                begin_all = _utcnow().replace(year=2017, month=5, day=1, hour=0, minute=0, second=0, microsecond=0)
+                begin_all = ECOFLOW_BUSINESS_START
                 resp_batt_all = await _call_historical_api(
                     begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
                 )
