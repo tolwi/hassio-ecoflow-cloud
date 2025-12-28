@@ -36,7 +36,7 @@ from custom_components.ecoflow_cloud.entities import BaseSensorEntity
 from custom_components.ecoflow_cloud import ATTR_STATUS_DATA_LAST_UPDATE
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
-# Historical metric codes as per API docs
+# Historical metric codes
 HIST_CODE_ENERGY_INDEPENDENCE = "BK621-App-HOME-INDEPENDENCE-PERCENT-FLOW-indep-progress_bar-NOTDISTINGUISH-MASTER_DATA"
 HIST_CODE_ENV_IMPACT = "BK621-App-HOME-CO2-WEIGHT-FLOW-impact-progress_arc-NOTDISTINGUISH-MASTER_DATA"
 HIST_CODE_SAVINGS_TOTAL = "BK621-App-HOME-SAVING-CURRENCY-FLOW-earnings-progress_arc-NOTDISTINGUISH-MASTER_DATA"
@@ -45,14 +45,13 @@ HIST_CODE_ELECTRICITY_CONS = "BK621-App-HOME-LOAD-ENERGY-FLOW-consumption-prop_a
 HIST_CODE_GRID = "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-MASTER_DATA"
 HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
 
-# Device-specific constant for historical data refresh period (seconds)
+# Historical data refresh period (seconds)
 DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC = 900  # 15 minutes
 
 def _utcnow() -> datetime:
     return datetime.now(_timezone.utc)
 
 _LOGGER = logging.getLogger(__name__)
-
 
 class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Coordinator to fetch historical data for StreamAC devices."""
@@ -159,7 +158,6 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "code": code,
                 },
             }
-            # Use the generic post_api method from the client
             return await self._client.post_api("/device/quota/data", body)
 
         try:
@@ -378,110 +376,6 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         return params
 
-class _HistoricalDataStatus(StatusSensorEntity):
-    def __init__(self, client: EcoflowApiClient, device: "StreamAC"):
-        super().__init__(client, device, "Status", "status.historical")
-        self.offline_barrier_sec = DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC
-        self._last_fetch = _utcnow().replace(year=2000, month=1, day=1, hour=0)
-
-    def _resolve_main_sn(self) -> str:
-        # Helper to resolve the main device SN for historical queries.
-        # Fallback to current device SN when system-level main SN is unavailable.
-        try:
-            # If the client exposes a main/master SN, prefer it.
-            main_sn = getattr(self._client, "main_sn", None)
-            if isinstance(main_sn, str) and main_sn:
-                return main_sn
-        except Exception:
-            pass
-        return self._device.device_info.sn
-
-    async def async_added_to_hass(self) -> None:
-        # Kick off an immediate fetch when the entity is added by requesting
-        # the history coordinator to refresh
-        try:
-            device = self._device
-            if hasattr(device, "history_coordinator") and device.history_coordinator is not None:
-                await device.history_coordinator.async_request_refresh()
-        except Exception as e:
-            _LOGGER.error("Failed initial historical data fetch: %s", e, exc_info=True)
-        # Initialize status and attributes immediately so UI doesn't show Unknown
-        try:
-            self._online = _OnlineStatus.ASSUME_OFFLINE
-            self._attr_native_value = "assume_offline"
-            self._actualize_attributes()
-            self.schedule_update_ha_state()
-        except Exception:
-            pass
-
-    def _actualize_status(self) -> bool:
-        changed = False
-        # The history coordinator handles periodic refresh, we just check for new data
-        try:
-            device = self._device
-            if hasattr(device, "history_coordinator") and device.history_coordinator is not None:
-                if device.history_coordinator.data:
-                    self._last_fetch = _utcnow()
-                    changed = True
-        except Exception:
-            pass
-
-        # Determine online state: prefer explicit status; otherwise fall back to data recency and MQTT connectivity
-        try:
-            status_val = self.coordinator.data.data_holder.status.get("status")
-        except Exception:
-            status_val = None
-
-        new_state = None
-        if status_val == 0:
-            self._online = _OnlineStatus.OFFLINE
-            new_state = "offline"
-        elif status_val == 1:
-            self._online = _OnlineStatus.ONLINE
-            new_state = "online"
-        else:
-            # Use latest received time across status/params as heartbeat
-            try:
-                last_rx = self.coordinator.data.data_holder.last_received_time()
-            except Exception:
-                last_rx = self._device.data.params_time
-
-            recency = dt.as_timestamp(_utcnow()) - dt.as_timestamp(last_rx)
-            if recency < self.offline_barrier_sec:
-                self._online = _OnlineStatus.ONLINE
-                new_state = "online"
-            else:
-                # If MQTT is connected, prefer assume_online unless proven offline
-                try:
-                    if self._client.mqtt_client and self._client.mqtt_client.is_connected():
-                        self._online = _OnlineStatus.ONLINE
-                        new_state = "online"
-                    else:
-                        self._online = _OnlineStatus.ASSUME_OFFLINE
-                        new_state = "assume_offline"
-                except Exception:
-                    self._online = _OnlineStatus.ASSUME_OFFLINE
-                    new_state = "assume_offline"
-
-        if new_state and new_state != self._attr_native_value:
-            self._attr_native_value = new_state
-            self._actualize_attributes()
-            changed = True
-        return changed
-
-    def _actualize_attributes(self):
-        # Keep base status attributes up to date
-        super()._actualize_attributes()
-        try:
-            hist: dict[str, object] = {}
-            for k, v in self._device.data.params.items():
-                if isinstance(k, str) and k.startswith("history."):
-                    hist[k.split("history.", 1)[1]] = v
-            if hist:
-                self._attrs["historical"] = to_plain(hist)
-                self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._device.data.params_time
-        except Exception:
-            pass
 
 class StreamAC(BaseDevice):
     """StreamAC device with historical data support."""

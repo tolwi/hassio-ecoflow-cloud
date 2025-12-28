@@ -148,10 +148,6 @@ class EcoFlowDictEntity(EcoFlowAbstractEntity):
             )
             changed = None
 
-        # Only process an update when the coordinator explicitly reports a change,
-        # or when the "changed" flag is unavailable/None. This avoids unnecessary
-        # computation on every coordinator tick while preserving existing behavior
-        # for coordinators that do not provide a "changed" attribute.
         if changed is False:
             return
 

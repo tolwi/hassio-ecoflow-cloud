@@ -57,7 +57,7 @@ OPTS_DIAGNOSTIC_MODE: Final = "diagnostic_mode"
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
 
-DEFAULT_REFRESH_PERIOD_SEC: Final = 60
+DEFAULT_REFRESH_PERIOD_SEC: Final = 5
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
@@ -196,7 +196,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
-
 
     # Must load all device data before configuring devices because the data
     # is used for entity setup.
