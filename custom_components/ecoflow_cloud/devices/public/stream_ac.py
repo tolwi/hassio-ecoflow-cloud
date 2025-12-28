@@ -1,3 +1,5 @@
+
+import asyncio
 from typing import Any
 import logging
 from datetime import datetime, timedelta, timezone as _timezone
@@ -398,7 +400,6 @@ class StreamAC(BaseDevice):
         # Track background tasks for cleanup
         if not hasattr(self, "_background_tasks"):
             self._background_tasks = set()
-        import asyncio
         def _task_done_callback(t: "asyncio.Task") -> None:
             try:
                 t.result()
