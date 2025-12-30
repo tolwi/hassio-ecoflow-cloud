@@ -717,8 +717,9 @@ class StreamAC(BaseDevice):
             .attr("history.environmentalImpactCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Solar Energy Savings (Today)
-            BaseSensorEntity(client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY)
-            .with_unit_of_measurement("€")
+            type("DynamicCurrencySensorEntity", (BaseSensorEntity,), {
+                "native_unit_of_measurement": property(lambda self: self._device.data.params.get("history.solarEnergySavingsUnit", "€"))
+            })(client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY)
             .with_icon("mdi:cash")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarEnergySavingsToday.beginTime", "Begin Time", "")
@@ -727,8 +728,9 @@ class StreamAC(BaseDevice):
             .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Solar Energy Savings (Cumulative)
-            BaseSensorEntity(client, self, "history.solarEnergySavingsCumulative", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE)
-            .with_unit_of_measurement("€")
+            type("DynamicCurrencySensorEntity", (BaseSensorEntity,), {
+                "native_unit_of_measurement": property(lambda self: self._device.data.params.get("history.solarEnergySavingsUnit", "€"))
+            })(client, self, "history.solarEnergySavingsCumulative", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE)
             .with_icon("mdi:cash")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarEnergySavingsCumulative.beginTime", "Begin Time", "")
