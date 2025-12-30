@@ -385,6 +385,16 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 class StreamAC(BaseDevice):
     """StreamAC device with historical data support."""
 
+    async def async_cleanup(self):
+        """Cancel all background tasks (historical refresh) on device unload."""
+        tasks = getattr(self, "_background_tasks", None)
+        if tasks:
+            for task in list(tasks):
+                if not task.done():
+                    task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+            tasks.clear()
+
     # Device-specific history coordinator
     history_coordinator: StreamACHistoryUpdateCoordinator | None = None
 
