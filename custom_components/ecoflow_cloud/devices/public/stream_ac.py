@@ -163,7 +163,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "code": code,
                 },
             }
-            return await self._client.post_api("/device/quota/data", body)
+            # type: ignore[attr-defined] for mypy, since only EcoflowPublicApiClient implements post_api
+            return await self._client.post_api("/device/quota/data", body)  # type: ignore[attr-defined]
 
         try:
             # Energy Independence - Today
@@ -384,7 +385,7 @@ class StreamAC(BaseDevice):
         )
         # Track background tasks for cleanup
         if not hasattr(self, "_background_tasks"):
-            self._background_tasks = set()
+            self._background_tasks: set[asyncio.Task[Any]] = set()
 
         def _task_done_callback(t: "asyncio.Task") -> None:
             try:
@@ -395,19 +396,21 @@ class StreamAC(BaseDevice):
                 self._background_tasks.discard(t)
 
         try:
-            if asyncio.get_event_loop().is_running():
-                task = asyncio.create_task(self.history_coordinator.async_request_refresh())
-                self._background_tasks.add(task)
-                task.add_done_callback(_task_done_callback)
-            else:
-                loop = asyncio.get_event_loop()
-
-                def schedule():
+            if self.history_coordinator is not None:
+                if asyncio.get_event_loop().is_running():
                     task = asyncio.create_task(self.history_coordinator.async_request_refresh())
                     self._background_tasks.add(task)
                     task.add_done_callback(_task_done_callback)
+                else:
+                    loop = asyncio.get_event_loop()
 
-                loop.call_soon_threadsafe(schedule)
+                    def schedule():
+                        if self.history_coordinator is not None:
+                            task = asyncio.create_task(self.history_coordinator.async_request_refresh())
+                            self._background_tasks.add(task)
+                            task.add_done_callback(_task_done_callback)
+
+                    loop.call_soon_threadsafe(schedule)
         except Exception as exc:
             _LOGGER.debug("Failed to schedule initial historical refresh: %s", exc)
 
