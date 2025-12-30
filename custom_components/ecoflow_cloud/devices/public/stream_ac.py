@@ -21,7 +21,6 @@ from custom_components.ecoflow_cloud.sensor import (
     CyclesSensorEntity,
     EnergySensorEntity,
     KiloWattHourEnergySensorEntity,
-    _OnlineStatus,
     InWattsSensorEntity,
     LevelSensorEntity,
     MilliVoltSensorEntity,
@@ -33,7 +32,6 @@ from custom_components.ecoflow_cloud.sensor import (
     WattsSensorEntity,
 )
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity
-from custom_components.ecoflow_cloud import ATTR_STATUS_DATA_LAST_UPDATE
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 # Historical metric codes
