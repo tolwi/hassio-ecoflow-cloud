@@ -1,4 +1,3 @@
-
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone as _timezone
@@ -50,10 +49,13 @@ DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC = 900  # 15 minutes
 # Magic date for EcoFlow business start (used for cumulative queries)
 ECOFLOW_BUSINESS_START = datetime(2017, 5, 1, 0, 0, 0, tzinfo=_timezone.utc)
 
+
 def _utcnow() -> datetime:
     return datetime.now(_timezone.utc)
 
+
 _LOGGER = logging.getLogger(__name__)
+
 
 class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Coordinator to fetch historical data for StreamAC devices."""
@@ -165,9 +167,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         try:
             # Energy Independence - Today
-            resp_td = await _call_historical_api(
-                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
-            )
+            resp_td = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE)
             items_td = resp_td.get("data", {}).get("data", [])
             if items_td:
                 params["history.energyIndependenceToday"] = _first_value(items_td)
@@ -177,9 +177,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Energy Independence - Year
             begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
             end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
-            resp_y = await _call_historical_api(
-                begin_year.strftime(fmt), end_year.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE
-            )
+            resp_y = await _call_historical_api(begin_year.strftime(fmt), end_year.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE)
             items_y = resp_y.get("data", {}).get("data", [])
             if items_y:
                 params["history.energyIndependenceYear"] = _first_value(items_y)
@@ -187,9 +185,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 params["history.energyIndependenceYear.endTime"] = end_year.strftime(fmt)
 
             # Environmental Impact - Today
-            resp = await _call_historical_api(
-                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
-            )
+            resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT)
             items = resp.get("data", {}).get("data", [])
             if items:
                 params["history.environmentalImpactToday"] = _first_value(items)
@@ -199,9 +195,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Environmental Impact - Cumulative
             try:
                 begin_all = ECOFLOW_BUSINESS_START
-                resp_all = await _call_historical_api(
-                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT
-                )
+                resp_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT)
                 all_items = resp_all.get("data", {}).get("data", [])
                 if all_items:
                     params["history.environmentalImpactCumulative"] = _sum_values(all_items)
@@ -213,7 +207,9 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Solar Energy Savings - Today
             try:
                 resp_sav_today = await _call_historical_api(
-                    begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL,
+                    begin_day.strftime(fmt),
+                    end_day.strftime(fmt),
+                    HIST_CODE_SAVINGS_TOTAL,
                 )
                 items_sav_today = resp_sav_today.get("data", {}).get("data", [])
                 if items_sav_today:
@@ -229,9 +225,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Solar Energy Savings - Cumulative
             try:
                 begin_all = ECOFLOW_BUSINESS_START
-                resp_sav_all = await _call_historical_api(
-                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL
-                )
+                resp_sav_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL)
                 items_sav_all = resp_sav_all.get("data", {}).get("data", [])
                 if items_sav_all:
                     total_sav = _sum_values(items_sav_all)
@@ -249,9 +243,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 _LOGGER.debug("Failed to fetch cumulative solar energy savings: %s", exc)
 
             # Solar Generated - Today
-            resp = await _call_historical_api(
-                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
-            )
+            resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED)
             items = resp.get("data", {}).get("data", [])
             if items:
                 params["history.solarGeneratedToday"] = _first_value(items)
@@ -261,9 +253,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Solar Generated - Cumulative
             try:
                 begin_all = ECOFLOW_BUSINESS_START
-                resp_all = await _call_historical_api(
-                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED
-                )
+                resp_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED)
                 all_items = resp_all.get("data", {}).get("data", [])
                 if all_items:
                     params["history.solarGeneratedCumulative"] = _sum_values(all_items)
@@ -273,9 +263,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 _LOGGER.debug("Failed to fetch cumulative solar generated energy: %s", exc)
 
             # Electricity Consumption - Today
-            resp = await _call_historical_api(
-                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
-            )
+            resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS)
             items = resp.get("data", {}).get("data", [])
             if items:
                 params["history.electricityConsumptionToday"] = _first_value(items)
@@ -285,9 +273,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Electricity Consumption - Cumulative
             try:
                 begin_all = ECOFLOW_BUSINESS_START
-                resp_ec_all = await _call_historical_api(
-                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS
-                )
+                resp_ec_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS)
                 items_ec_all = resp_ec_all.get("data", {}).get("data", [])
                 if items_ec_all:
                     params["history.electricityConsumptionCumulative"] = _sum_values(items_ec_all)
@@ -297,9 +283,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 _LOGGER.debug("Failed to fetch cumulative electricity consumption: %s", exc)
 
             # Grid Import/Export - Today
-            resp = await _call_historical_api(
-                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
-            )
+            resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID)
             items = resp.get("data", {}).get("data", [])
             if items:
                 imp_td, exp_td = _sum_grid(items)
@@ -313,9 +297,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Grid Import/Export - Cumulative
             try:
                 begin_all = ECOFLOW_BUSINESS_START
-                resp_grid_all = await _call_historical_api(
-                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID
-                )
+                resp_grid_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID)
                 items_grid_all = resp_grid_all.get("data", {}).get("data", [])
                 if items_grid_all:
                     imp_all, exp_all = _sum_grid(items_grid_all)
@@ -329,9 +311,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 _LOGGER.debug("Failed to fetch cumulative grid import/export: %s", exc)
 
             # Battery Charge/Discharge - Today
-            resp = await _call_historical_api(
-                begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
-            )
+            resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY)
             items = resp.get("data", {}).get("data", [])
             if items:
                 chg_td, dsg_td = _sum_battery(items)
@@ -345,9 +325,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Battery Charge/Discharge - Cumulative
             try:
                 begin_all = ECOFLOW_BUSINESS_START
-                resp_batt_all = await _call_historical_api(
-                    begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY
-                )
+                resp_batt_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY)
                 items_batt_all = resp_batt_all.get("data", {}).get("data", [])
                 if items_batt_all:
                     total_charge, total_discharge = _sum_battery(items_batt_all)
@@ -407,6 +385,7 @@ class StreamAC(BaseDevice):
         # Track background tasks for cleanup
         if not hasattr(self, "_background_tasks"):
             self._background_tasks = set()
+
         def _task_done_callback(t: "asyncio.Task") -> None:
             try:
                 t.result()
@@ -414,6 +393,7 @@ class StreamAC(BaseDevice):
                 _LOGGER.debug("Background historical fetch task failed: %s", exc)
             finally:
                 self._background_tasks.discard(t)
+
         try:
             if asyncio.get_event_loop().is_running():
                 task = asyncio.create_task(self.history_coordinator.async_request_refresh())
@@ -421,10 +401,12 @@ class StreamAC(BaseDevice):
                 task.add_done_callback(_task_done_callback)
             else:
                 loop = asyncio.get_event_loop()
+
                 def schedule():
                     task = asyncio.create_task(self.history_coordinator.async_request_refresh())
                     self._background_tasks.add(task)
                     task.add_done_callback(_task_done_callback)
+
                 loop.call_soon_threadsafe(schedule)
         except Exception as exc:
             _LOGGER.debug("Failed to schedule initial historical refresh: %s", exc)
@@ -622,10 +604,7 @@ class StreamAC(BaseDevice):
             # "seriesConnectDeviceId": 1,
             # "seriesConnectDeviceStatus": "MASTER",
             # "soc": 46,
-            LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY)
-            .attr("designCap", const.ATTR_DESIGN_CAPACITY, 0)
-            .attr("fullCap", const.ATTR_FULL_CAPACITY, 0)
-            .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY).attr("designCap", const.ATTR_DESIGN_CAPACITY, 0).attr("fullCap", const.ATTR_FULL_CAPACITY, 0).attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             # "socketMeasurePower": 0.0,
             # "soh": 100,
             LevelSensorEntity(client, self, "soh", const.SOH).with_icon("mdi:battery-heart"),
@@ -642,9 +621,7 @@ class StreamAC(BaseDevice):
             # "tagChgAmp": 50000,
             # "targetSoc": 46.314102,
             # "temp": 35,
-            TempSensorEntity(client, self, "temp", const.BATTERY_TEMP)
-            .attr("minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
-            .attr("maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
+            TempSensorEntity(client, self, "temp", const.BATTERY_TEMP).attr("minCellTemp", const.ATTR_MIN_CELL_TEMP, 0).attr("maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
             # "v1p0.bmsModel": 1,
             # "v1p0.bmsWarningState": 0,
             # "v1p0.chgAmp": 90000,
@@ -673,9 +650,7 @@ class StreamAC(BaseDevice):
             # "v1p3.emsHeartbeatVer": 259,
             # "v1p3.sysChgDsgState": 2,
             # "vol": 20161,
-            MilliVoltSensorEntity(client, self, "vol", const.BATTERY_VOLT, False)
-            .attr("minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
-            .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
+            MilliVoltSensorEntity(client, self, "vol", const.BATTERY_VOLT, False).attr("minCellVol", const.ATTR_MIN_CELL_VOLT, 0).attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
             # Historical data sensors (HTTP)
             # Energy Independence (Today)
@@ -715,9 +690,9 @@ class StreamAC(BaseDevice):
             .attr("history.environmentalImpactCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Solar Energy Savings (Today)
-            type("DynamicCurrencySensorEntity", (BaseSensorEntity,), {
-                "native_unit_of_measurement": property(lambda self: self._device.data.params.get("history.solarEnergySavingsUnit", "€"))
-            })(client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY)
+            type("DynamicCurrencySensorEntity", (BaseSensorEntity,), {"native_unit_of_measurement": property(lambda self: self._device.data.params.get("history.solarEnergySavingsUnit", "€"))})(
+                client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY
+            )
             .with_icon("mdi:cash")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarEnergySavingsToday.beginTime", "Begin Time", "")
@@ -726,9 +701,9 @@ class StreamAC(BaseDevice):
             .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
             .attr("history.mainSn", "Main Device SN", ""),
             # Solar Energy Savings (Cumulative)
-            type("DynamicCurrencySensorEntity", (BaseSensorEntity,), {
-                "native_unit_of_measurement": property(lambda self: self._device.data.params.get("history.solarEnergySavingsUnit", "€"))
-            })(client, self, "history.solarEnergySavingsCumulative", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE)
+            type("DynamicCurrencySensorEntity", (BaseSensorEntity,), {"native_unit_of_measurement": property(lambda self: self._device.data.params.get("history.solarEnergySavingsUnit", "€"))})(
+                client, self, "history.solarEnergySavingsCumulative", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE
+            )
             .with_icon("mdi:cash")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarEnergySavingsCumulative.beginTime", "Begin Time", "")
@@ -845,6 +820,7 @@ class StreamAC(BaseDevice):
             .attr("history.batteryDischargeCumulative.last_history_check", "Last Checked", "")
             .attr("history.mainSn", "Main Device SN", ""),
         ]
+
     # moduleWifiRssi
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [

@@ -115,9 +115,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             new_options[CONF_DEVICE_LIST][sn] = new_data[CONF_DEVICE_LIST][sn].pop("options")
 
             if "refresh_period" in new_options[CONF_DEVICE_LIST][sn]:
-                new_options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC] = new_options[CONF_DEVICE_LIST][sn].pop(
-                    "refresh_period"
-                )
+                new_options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC] = new_options[CONF_DEVICE_LIST][sn].pop("refresh_period")
 
         updated = hass.config_entries.async_update_entry(config_entry, version=9, data=new_data, options=new_options)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)

@@ -326,6 +326,7 @@ class KiloWattHourEnergySensorEntity(EnergySensorEntity):
     the incoming Wh value to kWh (float) for Home Assistant's Energy dashboard
     compatibility and stores the native value in kWh.
     """
+
     _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
 
     def _update_value(self, val: Any) -> bool:
@@ -602,9 +603,7 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
         if self._online == _OnlineStatus.ASSUME_OFFLINE:
             time_since_req = (dt.utcnow() - self._last_quota_req).total_seconds()
             if time_since_req >= self.assume_offline_period_sec:
-                self.hass.async_create_background_task(
-                    self._client.quota_all(self._device.device_info.sn), f"get quota {self._device.device_info.sn}"
-                )
+                self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), f"get quota {self._device.device_info.sn}")
                 self._last_quota_req = dt.utcnow()
                 self._attrs[ATTR_QUOTA_REQUESTS] += 1
                 changed = True
@@ -717,9 +716,7 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         # Replay current state of source entities
         for entity_id in source_entity_ids:
             state = self.hass.states.get(entity_id)
-            state_event: Event[EventStateChangedData] = Event(
-                "", {"entity_id": entity_id, "new_state": state, "old_state": None}
-            )
+            state_event: Event[EventStateChangedData] = Event("", {"entity_id": entity_id, "new_state": state, "old_state": None})
             self._async_difference_sensor_state_listener(state_event, update_state=False)
 
         self._calc_difference()
@@ -731,9 +728,7 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
         return value
 
     @callback
-    def _async_difference_sensor_state_listener(
-        self, event: Event[EventStateChangedData], update_state: bool = True
-    ) -> None:
+    def _async_difference_sensor_state_listener(self, event: Event[EventStateChangedData], update_state: bool = True) -> None:
         """Handle the sensor state changes."""
         new_state = event.data["new_state"]
         entity = event.data["entity_id"]
@@ -769,12 +764,7 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
     @callback
     def _calc_difference(self) -> None:
         """Calculate the difference."""
-        if (
-            self._states.get(self._input_sensor.entity_id) is STATE_UNKNOWN
-            or self._states.get(self._output_sensor.entity_id) is STATE_UNKNOWN
-        ):
+        if self._states.get(self._input_sensor.entity_id) is STATE_UNKNOWN or self._states.get(self._output_sensor.entity_id) is STATE_UNKNOWN:
             self._difference = None
             return
-        self._difference = float(self._states[self._output_sensor.entity_id]) - float(
-            self._states[self._input_sensor.entity_id]
-        )
+        self._difference = float(self._states[self._output_sensor.entity_id]) - float(self._states[self._input_sensor.entity_id])

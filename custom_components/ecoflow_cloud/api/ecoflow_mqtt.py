@@ -43,9 +43,7 @@ class EcoflowMQTTClient:
         self.__client.on_message = self._on_message
         self.__client.on_socket_close = self._on_socket_close
 
-        _LOGGER.info(
-            f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}"
-        )
+        _LOGGER.info(f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}")
         self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, keepalive=15)
         self.__client.loop_start()
 
@@ -68,9 +66,7 @@ class EcoflowMQTTClient:
         _LOGGER.error(f"Unexpected MQTT Socket disconnection : {str(sock)}")
 
     @callback
-    def _on_connect(
-        self, client: Client, userdata: Any, flags: ConnectFlags, rc: ReasonCode, properties: Properties | None = None
-    ):
+    def _on_connect(self, client: Client, userdata: Any, flags: ConnectFlags, rc: ReasonCode, properties: Properties | None = None):
         if rc == 0:
             self.connected = True
             target_topics = [(topic, 1) for topic in self.__target_topics()]

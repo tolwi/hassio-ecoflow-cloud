@@ -104,9 +104,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Error retrieving %s", sn)
 
-    async def historical_data(
-        self, device_sn: str, begin_time: str, end_time: str, code: str
-    ) -> dict:
+    async def historical_data(self, device_sn: str, begin_time: str, end_time: str, code: str) -> dict:
         body = {
             "sn": device_sn,
             "params": {
@@ -196,9 +194,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             _LOGGER.debug("API POST %s complete: status=%s", str(endpoint), resp.status)
             return json_resp
 
-    def __create_device_info(
-        self, device_sn: str, device_name: str, device_type: str, status: int = -1
-    ) -> EcoflowDeviceInfo:
+    def __create_device_info(self, device_sn: str, device_name: str, device_type: str, status: int = -1) -> EcoflowDeviceInfo:
         return EcoflowDeviceInfo(
             public_api=True,
             sn=device_sn,
