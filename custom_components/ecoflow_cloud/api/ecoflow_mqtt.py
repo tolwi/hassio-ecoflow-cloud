@@ -80,7 +80,7 @@ class EcoflowMQTTClient:
         self,
         client: Client,
         userdata: Any,
-        disconnect_flags_or_rc: DisconnectFlags | int | ReasonCode = None,
+        disconnect_flags_or_rc: None | DisconnectFlags | int | ReasonCode = None,
         reason_code: ReasonCode | None = None,
         properties: Properties | None = None,
     ) -> None:

@@ -163,7 +163,6 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "code": code,
                 },
             }
-            # type: ignore[attr-defined] for mypy, since only EcoflowPublicApiClient implements post_api
             return await self._client.post_api("/device/quota/data", body)  # type: ignore[attr-defined]
 
         try:
