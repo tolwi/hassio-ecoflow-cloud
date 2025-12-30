@@ -331,7 +331,8 @@ class KiloWattHourEnergySensorEntity(EnergySensorEntity):
     def _update_value(self, val: Any) -> bool:
         try:
             wh = float(val)
-        except Exception:
+        except Exception as exc:
+            _LOGGER.debug("Failed to convert value to float in KiloWattHourEnergySensorEntity: %s", exc)
             return False
         kwh = wh / 1000.0
         if kwh >= 0:

@@ -133,8 +133,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for it in items:
                 try:
                     total += float(it.get("indexValue", 0))
-                except Exception:
-                    pass
+                except Exception as exc:
+                    _LOGGER.debug("Failed to convert indexValue to float in _sum_values: %s", exc)
             return total
 
         def _sum_battery(items: list[dict]) -> tuple[float, float]:
@@ -143,7 +143,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for it in items:
                 try:
                     val = float(it.get("indexValue", 0))
-                except Exception:
+                except Exception as exc:
+                    _LOGGER.debug("Failed to convert indexValue to float in _sum_battery: %s", exc)
                     val = 0.0
                 extra = str(it.get("extra", ""))
                 if extra == "2":
@@ -208,8 +209,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     params["history.environmentalImpactCumulative"] = _sum_values(all_items)
                     params["history.environmentalImpactCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.environmentalImpactCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception:
-                pass
+            except Exception as exc:
+                _LOGGER.debug("Failed to fetch cumulative environmental impact: %s", exc)
 
             # Solar Energy Savings - Today
             try:
@@ -224,8 +225,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     params["history.solarEnergySavingsToday.endTime"] = end_day.strftime(fmt)
                     if unit_td:
                         params["history.solarEnergySavingsUnit"] = unit_td
-            except Exception:
-                pass
+            except Exception as exc:
+                _LOGGER.debug("Failed to fetch solar energy savings today: %s", exc)
 
             # Solar Energy Savings - Cumulative
             try:
@@ -246,8 +247,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     params["history.solarEnergySavingsCumulative.endTime"] = end_day.strftime(fmt)
                     if unit:
                         params["history.solarEnergySavingsUnit"] = unit
-            except Exception:
-                pass
+            except Exception as exc:
+                _LOGGER.debug("Failed to fetch cumulative solar energy savings: %s", exc)
 
             # Solar Generated - Today
             resp = await _call_historical_api(
@@ -270,8 +271,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     params["history.solarGeneratedCumulative"] = _sum_values(all_items)
                     params["history.solarGeneratedCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.solarGeneratedCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception:
-                pass
+            except Exception as exc:
+                _LOGGER.debug("Failed to fetch cumulative solar generated energy: %s", exc)
 
             # Electricity Consumption - Today
             resp = await _call_historical_api(
@@ -294,8 +295,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     params["history.electricityConsumptionCumulative"] = _sum_values(items_ec_all)
                     params["history.electricityConsumptionCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.electricityConsumptionCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception:
-                pass
+            except Exception as exc:
+                _LOGGER.debug("Failed to fetch cumulative electricity consumption: %s", exc)
 
             # Grid Import/Export - Today
             resp = await _call_historical_api(
@@ -326,8 +327,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     params["history.gridExportCumulative"] = exp_all
                     params["history.gridExportCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.gridExportCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception:
-                pass
+            except Exception as exc:
+                _LOGGER.debug("Failed to fetch cumulative grid import/export: %s", exc)
 
             # Battery Charge/Discharge - Today
             resp = await _call_historical_api(
@@ -358,8 +359,8 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     params["history.batteryDischargeCumulative"] = total_discharge
                     params["history.batteryDischargeCumulative.beginTime"] = begin_all.strftime(fmt)
                     params["history.batteryDischargeCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception:
-                pass
+            except Exception as exc:
+                _LOGGER.debug("Failed to fetch cumulative battery charge/discharge: %s", exc)
 
         except Exception as e:
             _LOGGER.error("Failed to fetch historical data: %s", e, exc_info=True)
