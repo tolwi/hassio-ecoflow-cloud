@@ -337,7 +337,7 @@ class KiloWattHourEnergySensorEntity(EnergySensorEntity):
             return False
         kwh = wh / 1000.0
         if kwh >= 0:
-            return super(EnergySensorEntity, self)._update_value(kwh)
+            return BaseSensorEntity._update_value(self, kwh)
         return False
 
 
