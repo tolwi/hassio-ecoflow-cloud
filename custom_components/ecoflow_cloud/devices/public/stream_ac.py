@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone as _timezone
+from typing import Final
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -11,7 +12,7 @@ from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowBroadcastDataHolder, const
 from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
 from custom_components.ecoflow_cloud.number import BatteryBackupLevel
 from custom_components.ecoflow_cloud.sensor import (
@@ -48,6 +49,28 @@ DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC = 900  # 15 minutes
 
 # Magic date for EcoFlow business start (used for cumulative queries)
 ECOFLOW_BUSINESS_START = datetime(2017, 5, 1, 0, 0, 0, tzinfo=_timezone.utc)
+
+
+HISTORY_METRIC_BASE_KEYS: Final[tuple[str, ...]] = (
+    "history.energyIndependenceToday",
+    "history.energyIndependenceYear",
+    "history.environmentalImpactToday",
+    "history.environmentalImpactCumulative",
+    "history.solarEnergySavingsToday",
+    "history.solarEnergySavingsCumulative",
+    "history.solarGeneratedToday",
+    "history.solarGeneratedCumulative",
+    "history.electricityConsumptionToday",
+    "history.electricityConsumptionCumulative",
+    "history.gridImport",
+    "history.gridExport",
+    "history.gridImportCumulative",
+    "history.gridExportCumulative",
+    "history.batteryCharge",
+    "history.batteryDischarge",
+    "history.batteryChargeCumulative",
+    "history.batteryDischargeCumulative",
+)
 
 
 def _utcnow() -> datetime:
@@ -91,6 +114,14 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         sn = self._device.device_info.sn
 
         params: dict[str, Any] = {}
+
+        last_check_iso = (self.last_check or now).isoformat()
+        # Always update these markers so entities can show "last checked" even if a
+        # specific metric call fails or returns no data.
+        params["history.mainSn"] = sn
+        params["history.last_history_check"] = last_check_iso
+        for base_key in HISTORY_METRIC_BASE_KEYS:
+            params[f"{base_key}.last_history_check"] = last_check_iso
 
         _LOGGER.debug(
             "StreamACHistoryUpdateCoordinator: fetching historical data for sn=%s",
@@ -154,27 +185,38 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return chg, dsg
 
         async def _call_historical_api(begin: str, end: str, code: str) -> dict:
-            """Call the historical data API endpoint."""
-            body = {
-                "sn": sn,
-                "params": {
-                    "beginTime": begin,
-                    "endTime": end,
-                    "code": code,
-                },
-            }
-            return await self._client.post_api("/device/quota/data", body)  # type: ignore[attr-defined]
+            """Call the historical data API endpoint using whichever client capability exists."""
+            historical_data = getattr(self._client, "historical_data", None)
+            if callable(historical_data):
+                return await historical_data(sn, begin, end, code)
 
+            post_api = getattr(self._client, "post_api", None)
+            if callable(post_api):
+                body = {
+                    "sn": sn,
+                    "params": {
+                        "beginTime": begin,
+                        "endTime": end,
+                        "code": code,
+                    },
+                }
+                return await post_api("/device/quota/data", body)
+
+            raise AttributeError("Ecoflow client does not support historical data")
+
+        # Energy Independence - Today
         try:
-            # Energy Independence - Today
             resp_td = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE)
             items_td = resp_td.get("data", {}).get("data", [])
             if items_td:
                 params["history.energyIndependenceToday"] = _first_value(items_td)
                 params["history.energyIndependenceToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.energyIndependenceToday.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch energy independence (today)", exc_info=True)
 
-            # Energy Independence - Year
+        # Energy Independence - Year
+        try:
             begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
             end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
             resp_y = await _call_historical_api(begin_year.strftime(fmt), end_year.strftime(fmt), HIST_CODE_ENERGY_INDEPENDENCE)
@@ -183,106 +225,114 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 params["history.energyIndependenceYear"] = _first_value(items_y)
                 params["history.energyIndependenceYear.beginTime"] = begin_year.strftime(fmt)
                 params["history.energyIndependenceYear.endTime"] = end_year.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch energy independence (year)", exc_info=True)
 
-            # Environmental Impact - Today
+        # Environmental Impact - Today
+        try:
             resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT)
             items = resp.get("data", {}).get("data", [])
             if items:
                 params["history.environmentalImpactToday"] = _first_value(items)
                 params["history.environmentalImpactToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.environmentalImpactToday.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch environmental impact (today)", exc_info=True)
 
-            # Environmental Impact - Cumulative
-            try:
-                begin_all = ECOFLOW_BUSINESS_START
-                resp_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT)
-                all_items = resp_all.get("data", {}).get("data", [])
-                if all_items:
-                    params["history.environmentalImpactCumulative"] = _sum_values(all_items)
-                    params["history.environmentalImpactCumulative.beginTime"] = begin_all.strftime(fmt)
-                    params["history.environmentalImpactCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception as exc:
-                _LOGGER.debug("Failed to fetch cumulative environmental impact: %s", exc)
+        # Environmental Impact - Cumulative
+        try:
+            begin_all = ECOFLOW_BUSINESS_START
+            resp_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ENV_IMPACT)
+            all_items = resp_all.get("data", {}).get("data", [])
+            if all_items:
+                params["history.environmentalImpactCumulative"] = _sum_values(all_items)
+                params["history.environmentalImpactCumulative.beginTime"] = begin_all.strftime(fmt)
+                params["history.environmentalImpactCumulative.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch environmental impact (cumulative)", exc_info=True)
 
-            # Solar Energy Savings - Today
-            try:
-                resp_sav_today = await _call_historical_api(
-                    begin_day.strftime(fmt),
-                    end_day.strftime(fmt),
-                    HIST_CODE_SAVINGS_TOTAL,
-                )
-                items_sav_today = resp_sav_today.get("data", {}).get("data", [])
-                if items_sav_today:
-                    val_td, unit_td = _first_value_and_unit(items_sav_today)
-                    params["history.solarEnergySavingsToday"] = val_td
-                    params["history.solarEnergySavingsToday.beginTime"] = begin_day.strftime(fmt)
-                    params["history.solarEnergySavingsToday.endTime"] = end_day.strftime(fmt)
-                    if unit_td:
-                        params["history.solarEnergySavingsUnit"] = unit_td
-            except Exception as exc:
-                _LOGGER.debug("Failed to fetch solar energy savings today: %s", exc)
+        # Solar Energy Savings - Today
+        try:
+            resp_sav_today = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL)
+            items_sav_today = resp_sav_today.get("data", {}).get("data", [])
+            if items_sav_today:
+                val_td, unit_td = _first_value_and_unit(items_sav_today)
+                params["history.solarEnergySavingsToday"] = val_td
+                params["history.solarEnergySavingsToday.beginTime"] = begin_day.strftime(fmt)
+                params["history.solarEnergySavingsToday.endTime"] = end_day.strftime(fmt)
+                if unit_td:
+                    params["history.solarEnergySavingsUnit"] = unit_td
+        except Exception:
+            _LOGGER.debug("Failed to fetch solar energy savings (today)", exc_info=True)
 
-            # Solar Energy Savings - Cumulative
-            try:
-                begin_all = ECOFLOW_BUSINESS_START
-                resp_sav_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL)
-                items_sav_all = resp_sav_all.get("data", {}).get("data", [])
-                if items_sav_all:
-                    total_sav = _sum_values(items_sav_all)
-                    unit = None
-                    for it in items_sav_all:
-                        u = it.get("unit")
-                        if isinstance(u, str) and u:
-                            unit = u
-                    params["history.solarEnergySavingsCumulative"] = total_sav
-                    params["history.solarEnergySavingsCumulative.beginTime"] = begin_all.strftime(fmt)
-                    params["history.solarEnergySavingsCumulative.endTime"] = end_day.strftime(fmt)
-                    if unit:
-                        params["history.solarEnergySavingsUnit"] = unit
-            except Exception as exc:
-                _LOGGER.debug("Failed to fetch cumulative solar energy savings: %s", exc)
+        # Solar Energy Savings - Cumulative
+        try:
+            begin_all = ECOFLOW_BUSINESS_START
+            resp_sav_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SAVINGS_TOTAL)
+            items_sav_all = resp_sav_all.get("data", {}).get("data", [])
+            if items_sav_all:
+                total_sav = _sum_values(items_sav_all)
+                unit = None
+                for it in items_sav_all:
+                    u = it.get("unit")
+                    if isinstance(u, str) and u:
+                        unit = u
+                params["history.solarEnergySavingsCumulative"] = total_sav
+                params["history.solarEnergySavingsCumulative.beginTime"] = begin_all.strftime(fmt)
+                params["history.solarEnergySavingsCumulative.endTime"] = end_day.strftime(fmt)
+                if unit:
+                    params["history.solarEnergySavingsUnit"] = unit
+        except Exception:
+            _LOGGER.debug("Failed to fetch solar energy savings (cumulative)", exc_info=True)
 
-            # Solar Generated - Today
+        # Solar Generated - Today
+        try:
             resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED)
             items = resp.get("data", {}).get("data", [])
             if items:
                 params["history.solarGeneratedToday"] = _first_value(items)
                 params["history.solarGeneratedToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.solarGeneratedToday.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch solar generated (today)", exc_info=True)
 
-            # Solar Generated - Cumulative
-            try:
-                begin_all = ECOFLOW_BUSINESS_START
-                resp_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED)
-                all_items = resp_all.get("data", {}).get("data", [])
-                if all_items:
-                    params["history.solarGeneratedCumulative"] = _sum_values(all_items)
-                    params["history.solarGeneratedCumulative.beginTime"] = begin_all.strftime(fmt)
-                    params["history.solarGeneratedCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception as exc:
-                _LOGGER.debug("Failed to fetch cumulative solar generated energy: %s", exc)
+        # Solar Generated - Cumulative
+        try:
+            begin_all = ECOFLOW_BUSINESS_START
+            resp_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_SOLAR_GENERATED)
+            all_items = resp_all.get("data", {}).get("data", [])
+            if all_items:
+                params["history.solarGeneratedCumulative"] = _sum_values(all_items)
+                params["history.solarGeneratedCumulative.beginTime"] = begin_all.strftime(fmt)
+                params["history.solarGeneratedCumulative.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch solar generated (cumulative)", exc_info=True)
 
-            # Electricity Consumption - Today
+        # Electricity Consumption - Today
+        try:
             resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS)
             items = resp.get("data", {}).get("data", [])
             if items:
                 params["history.electricityConsumptionToday"] = _first_value(items)
                 params["history.electricityConsumptionToday.beginTime"] = begin_day.strftime(fmt)
                 params["history.electricityConsumptionToday.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch electricity consumption (today)", exc_info=True)
 
-            # Electricity Consumption - Cumulative
-            try:
-                begin_all = ECOFLOW_BUSINESS_START
-                resp_ec_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS)
-                items_ec_all = resp_ec_all.get("data", {}).get("data", [])
-                if items_ec_all:
-                    params["history.electricityConsumptionCumulative"] = _sum_values(items_ec_all)
-                    params["history.electricityConsumptionCumulative.beginTime"] = begin_all.strftime(fmt)
-                    params["history.electricityConsumptionCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception as exc:
-                _LOGGER.debug("Failed to fetch cumulative electricity consumption: %s", exc)
+        # Electricity Consumption - Cumulative
+        try:
+            begin_all = ECOFLOW_BUSINESS_START
+            resp_ec_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_ELECTRICITY_CONS)
+            items_ec_all = resp_ec_all.get("data", {}).get("data", [])
+            if items_ec_all:
+                params["history.electricityConsumptionCumulative"] = _sum_values(items_ec_all)
+                params["history.electricityConsumptionCumulative.beginTime"] = begin_all.strftime(fmt)
+                params["history.electricityConsumptionCumulative.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch electricity consumption (cumulative)", exc_info=True)
 
-            # Grid Import/Export - Today
+        # Grid Import/Export - Today
+        try:
             resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID)
             items = resp.get("data", {}).get("data", [])
             if items:
@@ -293,24 +343,27 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 params["history.gridExport"] = exp_td
                 params["history.gridExport.beginTime"] = begin_day.strftime(fmt)
                 params["history.gridExport.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch grid import/export (today)", exc_info=True)
 
-            # Grid Import/Export - Cumulative
-            try:
-                begin_all = ECOFLOW_BUSINESS_START
-                resp_grid_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID)
-                items_grid_all = resp_grid_all.get("data", {}).get("data", [])
-                if items_grid_all:
-                    imp_all, exp_all = _sum_grid(items_grid_all)
-                    params["history.gridImportCumulative"] = imp_all
-                    params["history.gridImportCumulative.beginTime"] = begin_all.strftime(fmt)
-                    params["history.gridImportCumulative.endTime"] = end_day.strftime(fmt)
-                    params["history.gridExportCumulative"] = exp_all
-                    params["history.gridExportCumulative.beginTime"] = begin_all.strftime(fmt)
-                    params["history.gridExportCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception as exc:
-                _LOGGER.debug("Failed to fetch cumulative grid import/export: %s", exc)
+        # Grid Import/Export - Cumulative
+        try:
+            begin_all = ECOFLOW_BUSINESS_START
+            resp_grid_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_GRID)
+            items_grid_all = resp_grid_all.get("data", {}).get("data", [])
+            if items_grid_all:
+                imp_all, exp_all = _sum_grid(items_grid_all)
+                params["history.gridImportCumulative"] = imp_all
+                params["history.gridImportCumulative.beginTime"] = begin_all.strftime(fmt)
+                params["history.gridImportCumulative.endTime"] = end_day.strftime(fmt)
+                params["history.gridExportCumulative"] = exp_all
+                params["history.gridExportCumulative.beginTime"] = begin_all.strftime(fmt)
+                params["history.gridExportCumulative.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch grid import/export (cumulative)", exc_info=True)
 
-            # Battery Charge/Discharge - Today
+        # Battery Charge/Discharge - Today
+        try:
             resp = await _call_historical_api(begin_day.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY)
             items = resp.get("data", {}).get("data", [])
             if items:
@@ -321,39 +374,39 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 params["history.batteryDischarge"] = dsg_td
                 params["history.batteryDischarge.beginTime"] = begin_day.strftime(fmt)
                 params["history.batteryDischarge.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch battery charge/discharge (today)", exc_info=True)
 
-            # Battery Charge/Discharge - Cumulative
+        # Battery Charge/Discharge - Cumulative
+        try:
+            begin_all = ECOFLOW_BUSINESS_START
+            resp_batt_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY)
+            items_batt_all = resp_batt_all.get("data", {}).get("data", [])
+            if items_batt_all:
+                total_charge, total_discharge = _sum_battery(items_batt_all)
+                params["history.batteryChargeCumulative"] = total_charge
+                params["history.batteryChargeCumulative.beginTime"] = begin_all.strftime(fmt)
+                params["history.batteryChargeCumulative.endTime"] = end_day.strftime(fmt)
+                params["history.batteryDischargeCumulative"] = total_discharge
+                params["history.batteryDischargeCumulative.beginTime"] = begin_all.strftime(fmt)
+                params["history.batteryDischargeCumulative.endTime"] = end_day.strftime(fmt)
+        except Exception:
+            _LOGGER.debug("Failed to fetch battery charge/discharge (cumulative)", exc_info=True)
+
+        try:
+            self._device.data.params.update(params)
+            self._device.data.set_params_time = _utcnow()
+            # Force entity state/attribute refresh even if the numeric value didn't
+            # change, so "Last Checked" and other attrs update reliably.
             try:
-                begin_all = ECOFLOW_BUSINESS_START
-                resp_batt_all = await _call_historical_api(begin_all.strftime(fmt), end_day.strftime(fmt), HIST_CODE_BATTERY)
-                items_batt_all = resp_batt_all.get("data", {}).get("data", [])
-                if items_batt_all:
-                    total_charge, total_discharge = _sum_battery(items_batt_all)
-                    params["history.batteryChargeCumulative"] = total_charge
-                    params["history.batteryChargeCumulative.beginTime"] = begin_all.strftime(fmt)
-                    params["history.batteryChargeCumulative.endTime"] = end_day.strftime(fmt)
-                    params["history.batteryDischargeCumulative"] = total_discharge
-                    params["history.batteryDischargeCumulative.beginTime"] = begin_all.strftime(fmt)
-                    params["history.batteryDischargeCumulative.endTime"] = end_day.strftime(fmt)
-            except Exception as exc:
-                _LOGGER.debug("Failed to fetch cumulative battery charge/discharge: %s", exc)
-
-        except Exception as e:
-            _LOGGER.error("Failed to fetch historical data: %s", e, exc_info=True)
-
-        if params:
-            params["history.mainSn"] = sn
-            # Set last_history_check for each historical entity
-            last_check = self.last_check.isoformat() if self.last_check else None
-            for k in list(params.keys()):
-                if k.startswith("history.") and not k.endswith("beginTime") and not k.endswith("endTime") and not k.endswith("mainSn") and not k.endswith("Unit"):
-                    params[f"{k}.last_history_check"] = last_check
-            try:
-                self._device.data.params.update(params)
-                self._device.data.set_params_time = _utcnow()
-                _LOGGER.debug("Updated device params for sn=%s: %s", sn, str(self._device.data.params))
-            except Exception as exc:
-                _LOGGER.error("Failed to update device params for sn=%s: %s", sn, exc, exc_info=True)
+                self._device.coordinator.async_set_updated_data(
+                    EcoflowBroadcastDataHolder(self._device.data, True)
+                )
+            except Exception:
+                # Coordinator may not exist yet or may be unloading; ignore.
+                pass
+        except Exception as exc:
+            _LOGGER.error("Failed to update device params for sn=%s: %s", sn, exc, exc_info=True)
 
         return params
 
