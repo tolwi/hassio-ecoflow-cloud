@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 import logging
@@ -186,9 +187,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     for sn, device_data in devices_list.items():
         device = api_client.configure_device(device_data)
         device.configure(hass)
-        # Configure device-specific coordinators (e.g., historical data for StreamAC)
-        if hasattr(device, "configure_history"):
-            device.configure_history(hass, api_client)
+        # Configure device-specific coordinators (e.g., historical data).
+        configure_history = getattr(device, "configure_history", None)
+        if callable(configure_history):
+            try:
+                configure_history(hass, api_client)
+            except Exception as exc:
+                _LOGGER.error("Failed to configure history for %s: %s", sn, exc, exc_info=True)
 
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
@@ -210,6 +215,21 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
         return False
 
     client = hass.data[ECOFLOW_DOMAIN].pop(entry.entry_id)
+
+    # Best-effort cleanup for devices that run background tasks (e.g., history coordinators)
+    try:
+        devices = getattr(client, "devices", None)
+        if isinstance(devices, dict):
+            cleanups = []
+            for dev in devices.values():
+                cleanup = getattr(dev, "async_cleanup", None)
+                if callable(cleanup):
+                    cleanups.append(cleanup())
+            if cleanups:
+                await asyncio.gather(*cleanups, return_exceptions=True)
+    except Exception:
+        _LOGGER.debug("Failed to cleanup devices on unload", exc_info=True)
+
     client.stop()
     return True
 

@@ -363,6 +363,14 @@ class StreamAC(BaseDevice):
 
     async def async_cleanup(self):
         """Cancel all background tasks (historical refresh) on device unload."""
+        unsub = getattr(self, "_history_unsub", None)
+        if unsub:
+            try:
+                unsub()
+            except Exception:  # best-effort cleanup
+                _LOGGER.debug("Failed to unsubscribe history coordinator listener", exc_info=True)
+            self._history_unsub = None
+
         tasks = getattr(self, "_background_tasks", None)
         if tasks:
             for task in list(tasks):
@@ -376,42 +384,38 @@ class StreamAC(BaseDevice):
 
     def configure_history(self, hass: HomeAssistant, client: EcoflowApiClient) -> None:
         """Configure the historical data update coordinator for this device and trigger an immediate refresh."""
-        self.history_coordinator = StreamACHistoryUpdateCoordinator(
-            hass,
-            client,
-            self,
-            DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
-        )
-        # Track background tasks for cleanup
         if not hasattr(self, "_background_tasks"):
             self._background_tasks: set[asyncio.Task[Any]] = set()
-
-        def _task_done_callback(t: "asyncio.Task") -> None:
-            try:
-                t.result()
-            except Exception as exc:
-                _LOGGER.debug("Background historical fetch task failed: %s", exc)
-            finally:
-                self._background_tasks.discard(t)
-
         try:
+            if self.history_coordinator is None:
+                self.history_coordinator = StreamACHistoryUpdateCoordinator(
+                    hass,
+                    client,
+                    self,
+                    DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
+                )
+
+            # Ensure the coordinator keeps its periodic refresh schedule.
+            # DataUpdateCoordinator only schedules periodic updates while it has listeners.
+            if getattr(self, "_history_unsub", None) is None and self.history_coordinator is not None:
+                self._history_unsub = self.history_coordinator.async_add_listener(lambda: None)
+
+            # Schedule the coordinator refresh and track the task
+            def _task_done_callback(t: "asyncio.Task") -> None:
+                try:
+                    t.result()
+                except Exception as exc:
+                    _LOGGER.error("Background historical fetch task failed: %s", exc)
+                finally:
+                    self._background_tasks.discard(t)
+
             if self.history_coordinator is not None:
-                if asyncio.get_event_loop().is_running():
-                    task = asyncio.create_task(self.history_coordinator.async_request_refresh())
-                    self._background_tasks.add(task)
-                    task.add_done_callback(_task_done_callback)
-                else:
-                    loop = asyncio.get_event_loop()
-
-                    def schedule():
-                        if self.history_coordinator is not None:
-                            task = asyncio.create_task(self.history_coordinator.async_request_refresh())
-                            self._background_tasks.add(task)
-                            task.add_done_callback(_task_done_callback)
-
-                    loop.call_soon_threadsafe(schedule)
+                task = hass.async_create_task(self.history_coordinator.async_request_refresh())
+                self._background_tasks.add(task)
+                task.add_done_callback(_task_done_callback)
+            _LOGGER.info(f"Scheduled initial historical refresh for StreamAC {self.device_info.sn}")
         except Exception as exc:
-            _LOGGER.debug("Failed to schedule initial historical refresh: %s", exc)
+            _LOGGER.error(f"Failed to schedule initial historical refresh for StreamAC {self.device_info.sn}: {exc}", exc_info=True)
 
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
@@ -677,7 +681,7 @@ class StreamAC(BaseDevice):
             BaseSensorEntity(client, self, "history.environmentalImpactToday", const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_TODAY)
             .with_unit_of_measurement("g")
             .with_icon("mdi:leaf")
-            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .with_state_class(SensorStateClass.TOTAL)
             .attr("history.environmentalImpactToday.beginTime", "Begin Time", "")
             .attr("history.environmentalImpactToday.endTime", "End Time", "")
             .attr("history.environmentalImpactToday.last_history_check", "Last Checked", "")
@@ -696,7 +700,7 @@ class StreamAC(BaseDevice):
                 client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY
             )
             .with_icon("mdi:cash")
-            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .with_state_class(SensorStateClass.TOTAL)
             .attr("history.solarEnergySavingsToday.beginTime", "Begin Time", "")
             .attr("history.solarEnergySavingsToday.endTime", "End Time", "")
             .attr("history.solarEnergySavingsToday.last_history_check", "Last Checked", "")
@@ -717,7 +721,7 @@ class StreamAC(BaseDevice):
             KiloWattHourEnergySensorEntity(client, self, "history.solarGeneratedToday", const.STREAM_HISTORY_SOLAR_GENERATED_TODAY)
             .with_unit_of_measurement("kWh")
             .with_icon("mdi:solar-power")
-            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .with_state_class(SensorStateClass.TOTAL)
             .attr("history.solarGeneratedToday.beginTime", "Begin Time", "")
             .attr("history.solarGeneratedToday.endTime", "End Time", "")
             .attr("history.solarGeneratedToday.last_history_check", "Last Checked", "")
@@ -735,7 +739,7 @@ class StreamAC(BaseDevice):
             KiloWattHourEnergySensorEntity(client, self, "history.electricityConsumptionToday", const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_TODAY)
             .with_unit_of_measurement("kWh")
             .with_icon("mdi:power-plug")
-            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .with_state_class(SensorStateClass.TOTAL)
             .attr("history.electricityConsumptionToday.beginTime", "Begin Time", "")
             .attr("history.electricityConsumptionToday.endTime", "End Time", "")
             .attr("history.electricityConsumptionToday.last_history_check", "Last Checked", "")
@@ -753,7 +757,7 @@ class StreamAC(BaseDevice):
             KiloWattHourEnergySensorEntity(client, self, "history.gridImport", const.STREAM_HISTORY_GRID_IMPORT_TODAY)
             .with_unit_of_measurement("kWh")
             .with_icon("mdi:transmission-tower-import")
-            .with_state_class(SensorStateClass.MEASUREMENT)
+            .with_state_class(SensorStateClass.TOTAL)
             .attr("history.gridImport.beginTime", "Begin Time", "")
             .attr("history.gridImport.endTime", "End Time", "")
             .attr("history.gridImport.last_history_check", "Last Checked", "")
@@ -771,7 +775,7 @@ class StreamAC(BaseDevice):
             KiloWattHourEnergySensorEntity(client, self, "history.gridExport", const.STREAM_HISTORY_GRID_EXPORT_TODAY)
             .with_unit_of_measurement("kWh")
             .with_icon("mdi:transmission-tower-export")
-            .with_state_class(SensorStateClass.MEASUREMENT)
+            .with_state_class(SensorStateClass.TOTAL)
             .attr("history.gridExport.beginTime", "Begin Time", "")
             .attr("history.gridExport.endTime", "End Time", "")
             .attr("history.gridExport.last_history_check", "Last Checked", "")
@@ -789,7 +793,7 @@ class StreamAC(BaseDevice):
             KiloWattHourEnergySensorEntity(client, self, "history.batteryCharge", const.STREAM_HISTORY_BATTERY_CHARGE_TODAY)
             .with_unit_of_measurement("kWh")
             .with_icon("mdi:battery-arrow-up")
-            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .with_state_class(SensorStateClass.TOTAL)
             .attr("history.batteryCharge.beginTime", "Begin Time", "")
             .attr("history.batteryCharge.endTime", "End Time", "")
             .attr("history.batteryCharge.last_history_check", "Last Checked", "")
@@ -807,7 +811,7 @@ class StreamAC(BaseDevice):
             KiloWattHourEnergySensorEntity(client, self, "history.batteryDischarge", const.STREAM_HISTORY_BATTERY_DISCHARGE_TODAY)
             .with_unit_of_measurement("kWh")
             .with_icon("mdi:battery-arrow-down")
-            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .with_state_class(SensorStateClass.TOTAL)
             .attr("history.batteryDischarge.beginTime", "Begin Time", "")
             .attr("history.batteryDischarge.endTime", "End Time", "")
             .attr("history.batteryDischarge.last_history_check", "Last Checked", "")
