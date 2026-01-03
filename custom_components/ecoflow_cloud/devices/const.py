@@ -310,6 +310,7 @@ STREAM_GET_SCHUKO2 = "Power SCHUKO2"  # powGetSchuko2
 STREAM_POWER_GRID = "Power Grid"  # power from smart meter or shelly
 STREAM_POWER_BATTERY = "Power Battery"  # <0 discharge battery / >0 charge batterie
 STREAM_POWER_BATTERY_SOC = "Power Battery SOC"  # <0 discharge battery / >0 charge batterie
+STREAM_POWER_BATTERY_SOC_PRECISE = "Power Battery SOC (Precise)"
 STREAM_BATTERY_LEVEL = "Battery Level"
 STREAM_DESIGN_CAPACITY = "Design Capacity"
 STREAM_FULL_CAPACITY = "Full Capacity"
