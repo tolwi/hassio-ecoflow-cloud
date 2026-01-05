@@ -2652,24 +2652,48 @@
 
 </p></details>
 
-<details><summary> Smart Home Panel (API) <i>(sensors: 7, binary_sensors: 1, switches: 2, sliders: 2)</i> </summary>
+<details><summary> Smart Home Panel (API) <i>(sensors: 30, binary_sensors: 1, switches: 3, sliders: 2)</i> </summary>
 <p>
 
 *Sensors*
 - Battery Level
+- Battery 1 Level
+- Battery 2 Level  _(disabled)_
 - Remaining Time
-- Main Battery Temperature
-- Main Battery Input Power (energy:  _[Device Name]_ Main Battery Input  Energy)
-- Main Battery Output Power (energy:  _[Device Name]_ Main Battery Output  Energy)
+- Battery 1 Charge Remaining Time  _(disabled)_
+- Battery 2 Charge Remaining Time  _(disabled)_
+- Battery 1 Discharge Remaining Time  _(disabled)_
+- Battery 2 Discharge Remaining Time  _(disabled)_
+- Battery 1 Temperature
+- Battery 2 Temperature  _(disabled)_
+- Battery 1 Input Power (energy:  _[Device Name]_ Battery 1 Input  Energy)
+- Battery 2 Input Power  _(disabled)_ (energy:  _[Device Name]_ Battery 2 Input  Energy)
+- Battery 1 Output Power (energy:  _[Device Name]_ Battery 1 Output  Energy)
+- Battery 2 Output Power  _(disabled)_ (energy:  _[Device Name]_ Battery 2 Output  Energy)
 - Power Grid Today
 - Battery Today
+- Power Grid Voltage
+- Power Grid Frequency
+- Battery 1 Current  _(disabled)_
+- Battery 2 Current  _(disabled)_
+- Circuit 1 Current  _(disabled)_
+- Circuit 2 Current  _(disabled)_
+- Circuit 3 Current  _(disabled)_
+- Circuit 4 Current  _(disabled)_
+- Circuit 5 Current  _(disabled)_
+- Circuit 6 Current  _(disabled)_
+- Circuit 7 Current  _(disabled)_
+- Circuit 8 Current  _(disabled)_
+- Circuit 9 Current  _(disabled)_
+- Circuit 10 Current  _(disabled)_
 
 *Binary sensors*
 - Power Grid
 
 *Switches*
 - EPS Mode 
-- Main Battery Charge 
+- Battery 1 Charge 
+- Battery 2 Charge 
 
 *Sliders (numbers)*
 - Min Discharge Level 
