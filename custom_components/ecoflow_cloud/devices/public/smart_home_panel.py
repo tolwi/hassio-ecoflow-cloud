@@ -20,6 +20,9 @@ from custom_components.ecoflow_cloud.sensor import (
     OutWattsSensorEntity,
     RemainSensorEntity,
     TempSensorEntity,
+    VoltSensorEntity,
+    FrequencySensorEntity,
+    AmpSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
@@ -27,28 +30,42 @@ from custom_components.ecoflow_cloud.switch import EnabledEntity
 class SmartHomePanel(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
-            LevelSensorEntity(client, self, "heartbeat.backupBatPer", const.COMBINED_BATTERY_LEVEL).attr(
-                "heartbeat.energyInfos[0].batteryPercentage", const.MAIN_BATTERY_LEVEL, 0
-            ),
-            RemainSensorEntity(client, self, "heartbeat.backupChaTime", const.REMAINING_TIME)
-            .attr("heartbeat.energyInfos[0].chargeTime", const.MAIN_CHARGE_REMAINING_TIME, 0)
-            .attr("heartbeat.energyInfos[0].dischargeTime", const.MAIN_DISCHARGE_REMAINING_TIME, 0),
-            TempSensorEntity(client, self, "heartbeat.energyInfos[0].emsBatTemp", const.MAIN_BATTERY_TEMP),
-            InWattsSensorEntity(client, self, "heartbeat.energyInfos[0].lcdInputWatts", const.MAIN_BATTERY_IN_POWER)
-            .with_energy()
-            .with_icon("mdi:transmission-tower"),
-            OutWattsSensorEntity(client, self, "heartbeat.energyInfos[0].outputPower", const.MAIN_BATTERY_OUT_POWER)
-            .with_energy()
-            .with_icon("mdi:home-battery"),
+            LevelSensorEntity(client, self, "heartbeat.backupBatPer", const.COMBINED_BATTERY_LEVEL),
+            LevelSensorEntity(client, self, "heartbeat.energyInfos[0].batteryPercentage", const.BATTERY_N_LEVEL % 1),
+            LevelSensorEntity(client, self, "heartbeat.energyInfos[1].batteryPercentage", const.BATTERY_N_LEVEL % 2, False),
+            RemainSensorEntity(client, self, "heartbeat.backupChaTime", const.REMAINING_TIME),
+            RemainSensorEntity(client, self, "heartbeat.energyInfos[0].chargeTime", const.BATTERY_N_CHARGE_REMAINING_TIME % 1, False),
+            RemainSensorEntity(client, self, "heartbeat.energyInfos[1].chargeTime", const.BATTERY_N_CHARGE_REMAINING_TIME % 2, False),
+            RemainSensorEntity(client, self, "heartbeat.energyInfos[0].dischargeTime", const.BATTERY_N_DISCHARGE_REMAINING_TIME % 1, False),
+            RemainSensorEntity(client, self, "heartbeat.energyInfos[1].dischargeTime", const.BATTERY_N_DISCHARGE_REMAINING_TIME % 2, False),
+            TempSensorEntity(client, self, "heartbeat.energyInfos[0].emsBatTemp", const.BATTERY_N_TEMP % 1),
+            TempSensorEntity(client, self, "heartbeat.energyInfos[1].emsBatTemp", const.BATTERY_N_TEMP % 2, False),
+            InWattsSensorEntity(client, self, "heartbeat.energyInfos[0].lcdInputWatts", const.BATTERY_N_IN_POWER % 1)
+            .with_energy().with_icon("mdi:transmission-tower"),
+            InWattsSensorEntity(client, self, "heartbeat.energyInfos[1].lcdInputWatts", const.BATTERY_N_IN_POWER % 2, False)
+            .with_energy().with_icon("mdi:transmission-tower"),
+            OutWattsSensorEntity(client, self, "heartbeat.energyInfos[0].outputPower", const.BATTERY_N_OUT_POWER % 1)
+            .with_energy().with_icon("mdi:home-battery"),
+            OutWattsSensorEntity(client, self, "heartbeat.energyInfos[1].outputPower", const.BATTERY_N_OUT_POWER % 2, False)
+            .with_energy().with_icon("mdi:home-battery"),
             InEnergySensorEntity(client, self, "heartbeat.gridDayWatth", const.POWER_GRID_TODAY),
             OutEnergySensorEntity(client, self, "heartbeat.backupDayWatth", const.BATTERY_TODAY),
+            VoltSensorEntity(client, self, "'gridInfo.gridVol'", const.POWER_GRID_VOLTAGE, diagnostic=True),
+            FrequencySensorEntity(client, self, "'gridInfo.gridFreq'", const.POWER_GRID_FREQUENCY, diagnostic=True),
+            *[
+                AmpSensorEntity(client, self, f"'loadChCurInfo.cur'[{x+10}]", const.BATTERY_N_CURRENT % (x+1), False, diagnostic=True)
+                for x in range(2)
+            ],
+            *[
+                AmpSensorEntity(client, self, f"'loadChCurInfo.cur'[{x}]", const.CIRCUIT_N_CURRENT % (x+1), False, diagnostic=True)
+                for x in range(10)
+            ],
         ]
 
     def binary_sensors(self, client: EcoflowApiClient) -> list[BinarySensorEntity]:
         return [
-            MiscBinarySensorEntity(client, self, "heartbeat.gridSta", const.POWER_GRID).with_icon(
-                "mdi:transmission-tower"
-            ),
+            MiscBinarySensorEntity(client, self, "heartbeat.gridSta", const.POWER_GRID)
+            .with_icon("mdi:transmission-tower"),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
@@ -103,26 +120,8 @@ class SmartHomePanel(BaseDevice):
             )
             .with_category(EntityCategory.CONFIG)
             .with_icon("mdi:power-plug-battery"),
-            EnabledEntity(
-                client,
-                self,
-                "heartbeat.backupCmdChCtrlInfos[0].ctrlSta",
-                const.MAIN_BATTERY_CHARGE,
-                lambda value: {
-                    "operateType": "TCP",
-                    "params": {
-                        "cmdSet": 11,
-                        "id": 17,
-                        "sta": 2 if value else 0,
-                        "ctrlMode": 1 if value else 0,
-                        "ch": 10,
-                    },
-                },
-                enableValue=2,
-                disableValue=0,
-            )
-            .with_category(EntityCategory.CONFIG)
-            .with_icon("mdi:battery-charging"),
+            self._batteryChargeSwitch(client, 1, True),
+            self._batteryChargeSwitch(client, 2, False),
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
@@ -130,3 +129,28 @@ class SmartHomePanel(BaseDevice):
 
     def flat_json(self):
         return False
+    
+    def _batteryChargeSwitch(self, client: EcoflowApiClient, index: int, enabled: bool = True) -> SwitchEntity:
+        return (
+            EnabledEntity(
+                client,
+                self,
+                f"heartbeat.backupCmdChCtrlInfos[{index - 1}].ctrlSta",
+                f"{const.BATTERY_N_CHARGE % index}",
+                lambda value: {
+                    "operateType": "TCP",
+                    "params": {
+                        "cmdSet": 11,
+                        "id": 17,
+                        "sta": 2 if value else 0,
+                        "ctrlMode": 1 if value else 0,
+                        "ch": 9 + index,
+                    },
+                },
+                enabled,
+                enableValue=2,
+                disableValue=0,
+            )
+            .with_category(EntityCategory.CONFIG)
+            .with_icon("mdi:battery-charging")
+        )
