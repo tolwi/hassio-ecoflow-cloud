@@ -98,10 +98,12 @@ class EcoflowApiClient(ABC):
         self.mqtt_client.publish(self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload())
 
     def start(self):
+        _LOGGER.debug("Starting MQTT client for %s", self.mqtt_info.client_id)
         from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient
 
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
 
     def stop(self):
+        _LOGGER.debug("Stopping MQTT client for %s", self.mqtt_info.client_id)
         assert self.mqtt_client is not None
         self.mqtt_client.stop()

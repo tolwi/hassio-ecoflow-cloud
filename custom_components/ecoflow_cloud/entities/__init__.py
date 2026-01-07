@@ -9,7 +9,7 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.helpers.entity import DeviceInfo, EntityCategory
+from homeassistant.helpers.entity import DeviceInfo, Entity, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .. import ECOFLOW_DOMAIN
@@ -23,12 +23,10 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 
-class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
+class EcoFlowAbstractEntity(Entity):
     _attr_has_entity_name = True
-    _attr_should_poll = False
 
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str, key: str):
-        super().__init__(device.coordinator)
         self._client: EcoflowApiClient = client
         self._device: BaseDevice = device
         self._attr_name: str = title
@@ -77,7 +75,15 @@ class EcoFlowAbstractEntity(CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
         return self
 
 
-class EcoFlowDictEntity(EcoFlowAbstractEntity):
+class EcoFlowAbstractDataEntity(EcoFlowAbstractEntity, CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
+    _attr_should_poll = False
+
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str, key: str):
+        CoordinatorEntity.__init__(self, device.coordinator)
+        EcoFlowAbstractEntity.__init__(self, client, device, title, key)
+
+
+class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
     def __init__(
         self,
         client: EcoflowApiClient,

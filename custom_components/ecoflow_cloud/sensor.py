@@ -46,7 +46,7 @@ from .api import EcoflowApiClient
 from .devices import BaseDevice, const
 from .entities import (
     BaseSensorEntity,
-    EcoFlowAbstractEntity,
+    EcoFlowAbstractDataEntity,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -494,7 +494,7 @@ class _OnlineStatus(enum.Enum):
     ONLINE = enum.auto()
 
 
-class StatusSensorEntity(SensorEntity, EcoFlowAbstractEntity):
+class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     assume_offline_period_sec: int = 300  # 5 minutes
@@ -675,7 +675,7 @@ class SystemPowerSensorEntity(WattsSensorEntity):
 
 
 # Code based on HA's native MinMaxSensor helper sensor for combining multiple sensors with math operations
-class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractEntity):
+class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
     """Sensor to calculate power consumed as output minus input power for Energy panel."""
 
     _attr_entity_category = EntityCategory.DIAGNOSTIC
