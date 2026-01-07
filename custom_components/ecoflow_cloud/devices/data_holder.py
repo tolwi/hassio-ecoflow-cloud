@@ -103,8 +103,15 @@ class EcoflowDataHolder:
 
     def __update_params(self, params: dict[str, Any]):
         if "params" in params:
-            self.params.update(params["params"])
-            self.set_params_time = dt.utcnow()
+            # Only treat as "changed" if at least one value differs.
+            # MQTT can publish the same values frequently; updating timestamps on no-op
+            # updates forces the coordinator to trigger all entities and can be CPU heavy.
+            incoming = params["params"]
+            for key, value in incoming.items():
+                if self.params.get(key) != value:
+                    self.params.update(incoming)
+                    self.set_params_time = dt.utcnow()
+                    break
 
     def __accept_prepared_data(self, data: PreparedData, raw_data_acceptor: Callable[[dict[str, Any]], None]):
         if data.online is not None:

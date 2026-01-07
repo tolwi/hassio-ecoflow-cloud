@@ -12,7 +12,7 @@ from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowBroadcastDataHolder, const
+from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
 from custom_components.ecoflow_cloud.number import BatteryBackupLevel
 from custom_components.ecoflow_cloud.sensor import (
@@ -395,16 +395,6 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         try:
             self._device.data.params.update(params)
-            self._device.data.set_params_time = _utcnow()
-            # Force entity state/attribute refresh even if the numeric value didn't
-            # change, so "Last Checked" and other attrs update reliably.
-            try:
-                self._device.coordinator.async_set_updated_data(
-                    EcoflowBroadcastDataHolder(self._device.data, True)
-                )
-            except Exception:
-                # Coordinator may not exist yet or may be unloading; ignore.
-                pass
         except Exception as exc:
             _LOGGER.error("Failed to update device params for sn=%s: %s", sn, exc, exc_info=True)
 
@@ -447,11 +437,6 @@ class StreamAC(BaseDevice):
                     self,
                     DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
                 )
-
-            # Ensure the coordinator keeps its periodic refresh schedule.
-            # DataUpdateCoordinator only schedules periodic updates while it has listeners.
-            if getattr(self, "_history_unsub", None) is None and self.history_coordinator is not None:
-                self._history_unsub = self.history_coordinator.async_add_listener(lambda: None)
 
             # Schedule the coordinator refresh and track the task
             def _task_done_callback(t: "asyncio.Task") -> None:

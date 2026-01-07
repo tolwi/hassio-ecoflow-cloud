@@ -69,7 +69,11 @@ class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataH
             hass,
             _LOGGER,
             name="Ecoflow update coordinator",
-            always_update=True,
+            # Let DataUpdateCoordinator suppress updates when the returned
+            # EcoflowBroadcastDataHolder is equal to the previous one.
+            # This avoids waking every entity on every tick when no new data
+            # has arrived.
+            always_update=False,
             update_interval=datetime.timedelta(seconds=max(refresh_period, 5)),
         )
         self.holder = holder
