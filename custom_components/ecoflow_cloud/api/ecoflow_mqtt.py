@@ -3,15 +3,13 @@ from __future__ import annotations
 import logging
 import ssl
 import time
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from homeassistant.core import callback
 from paho.mqtt.client import Client, ConnectFlags, DisconnectFlags, MQTTMessage, PayloadType
+from paho.mqtt.enums import CallbackAPIVersion
 from paho.mqtt.properties import Properties
 from paho.mqtt.reasoncodes import ReasonCode
-
-if TYPE_CHECKING:
-    from paho.mqtt.client import SocketLike
 
 from ..devices import BaseDevice
 from . import EcoflowMqttInfo
@@ -31,6 +29,7 @@ class EcoflowMQTTClient:
             client_id=self.__mqtt_info.client_id,
             reconnect_on_failure=True,
             clean_session=True,
+            callback_api_version=CallbackAPIVersion.VERSION2,
         )
 
         # self.__client._connect_timeout = 15.0
@@ -64,8 +63,8 @@ class EcoflowMQTTClient:
             return False
 
     @callback
-    def _on_socket_close(self, client: Client, userdata: Any, sock: SocketLike) -> None:
-        _LOGGER.error(f"Unexpected MQTT Socket disconnection : {str(sock)}")
+    def _on_socket_close(self, client: Client, userdata: Any, sock: Any) -> None:
+        _LOGGER.info(f"MQTT Socket disconnection : {str(sock)}")
 
     @callback
     def _on_connect(
