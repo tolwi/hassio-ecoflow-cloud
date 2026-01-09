@@ -10,10 +10,20 @@ Inspired by [hassio-ecoflow](https://github.com/vwt12eh8/hassio-ecoflow) and [ec
 
 ## Installation
 
-- Install as a custom repository via HACS
+### HACS installation
+The quickest way to install this integration is via [HACS](https://github.com/hacs/integration) by clicking the button below:
+
+[![Add to HACS via My Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tolwi&repository=hassio-ecoflow-cloud&category=Integration)
+
+1. Click above to install as a custom repository via HACS
+2. Restart Home Assistant
+3. Once restart is done, use `Add Integration` → `EcoflowCloud`.
+
+### Manual installation options
+- Install as a [custom repository](https://github.com/tolwi/hassio-ecoflow-cloud) via [HACS](https://github.com/hacs/integration)
 - Manually download and extract to the custom_components directory
 
-Once installed, use Add Integration -> Ecoflow Cloud.
+Restart Home Assistant. Once restart is done, use `Add Integration` → `EcoflowCloud`.
 
 ## Disclaimers
 

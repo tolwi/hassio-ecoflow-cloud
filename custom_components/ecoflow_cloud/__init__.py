@@ -18,11 +18,12 @@ ECOFLOW_DOMAIN = "ecoflow_cloud"
 CONFIG_VERSION = 9
 
 _PLATFORMS = {
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
     Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,
     Platform.SWITCH,
-    Platform.BUTTON,
 }
 
 ATTR_STATUS_SN = "SN"
