@@ -1,3 +1,4 @@
+from typing import Any
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 import hashlib
 import hmac
@@ -33,13 +34,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
     async def login(self):
         _LOGGER.info("Requesting IoT MQTT credentials")
-        response = await self.call_api("/certification")
+        response = await self.call_api("GET", "/certification")
         self._accept_mqqt_certification(response)
         self.mqtt_info.client_id = f"Hassio-{self.mqtt_info.username}-{self.group.replace(' ', '-')}"
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info("Requesting all devices")
-        response = await self.call_api("/device/list")
+        response = await self.call_api("GET", "/device/list")
         result = list()
         for device in response["data"]:
             _LOGGER.debug(str(device))
@@ -90,14 +91,14 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
         for sn in target_devices:
             try:
-                raw = await self.call_api("/device/quota/all", {"sn": sn})
+                raw = await self.call_api("GET", "/device/quota/all", {"sn": sn})
                 if "data" in raw:
                     self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw))
             except Exception as exception:
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Error retrieving %s", sn)
 
-    async def call_api(self, endpoint: str, params: dict[str, str] | None = None) -> dict:
+    async def call_api(self, method: str, endpoint: str, params: dict[str, Any] | None = None) -> dict:
         self.nonce = str(random.randint(10000, 1000000))
         self.timestamp = str(int(time.time() * 1000))
         async with aiohttp.ClientSession() as session:
@@ -115,7 +116,8 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             }
 
             _LOGGER.debug("Request: %s %s.", str(endpoint), str(params_str))
-            resp = await session.get(
+            resp = await session.request(
+                method,
                 f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}",
                 headers=headers,
             )
@@ -152,9 +154,28 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
         return self.__encrypt_hmac_sha256(target_str, self.secret_key)
 
-    def __sort_and_concat_params(self, params: dict[str, str]) -> str:
+    def __flatten_params(self, data: dict[str, Any]) -> list[tuple[str, str]]:
+        def _flatten(prefix: str, value: Any) -> list[tuple[str, str]]:
+            items: list[tuple[str, str]] = []
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    key = f"{prefix}.{k}" if prefix else k
+                    items.extend(_flatten(key, v))
+            elif isinstance(value, list):
+                for idx, v in enumerate(value):
+                    key = f"{prefix}[{idx}]"
+                    items.extend(_flatten(key, v))
+            else:
+                items.append((prefix, str(value)))
+            return items
+
+        return _flatten("", data)
+
+    def __sort_and_concat_params(self, params: dict[str, Any]) -> str:
+        flat_params = self.__flatten_params(params)
+
         # Sort the dictionary items by key
-        sorted_items = sorted(params.items(), key=lambda x: x[0])
+        sorted_items = sorted(flat_params, key=lambda x: x[0])
 
         # Create a list of "key=value" strings
         param_strings = [f"{key}={value}" for key, value in sorted_items]

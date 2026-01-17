@@ -1,4 +1,11 @@
-from typing import Any
+from datetime import timezone
+from custom_components.ecoflow_cloud.api.public_api import EcoflowPublicApiClient
+from datetime import datetime
+from datetime import timedelta
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from typing import Any, NamedTuple
+import asyncio
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
@@ -24,7 +31,189 @@ from custom_components.ecoflow_cloud.sensor import (
     VoltSensorEntity,
     WattsSensorEntity,
 )
+from homeassistant.util import dt
 from custom_components.ecoflow_cloud.switch import EnabledEntity
+
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+
+# Historical metric codes
+HIST_CODE_ENERGY_INDEPENDENCE = "BK621-App-HOME-INDEPENDENCE-PERCENT-FLOW-indep-progress_bar-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_ENV_IMPACT = "BK621-App-HOME-CO2-WEIGHT-FLOW-impact-progress_arc-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_SAVINGS_TOTAL = "BK621-App-HOME-SAVING-CURRENCY-FLOW-earnings-progress_arc-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_SOLAR_GENERATED = "BK621-App-HOME-SOLAR-ENERGY-FLOW-solor-line-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_ELECTRICITY_CONS = "BK621-App-HOME-LOAD-ENERGY-FLOW-consumption-prop_arc-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_GRID = "BK621-App-HOME-GRID-ENERGY-FLOW-grid_prop_bar-NOTDISTINGUISH-MASTER_DATA"
+HIST_CODE_BATTERY = "BK621-App-HOME-SOC-ENERGY-FLOW-battery-prop_bar-NOTDISTINGUISH-MASTER_DATA"
+
+
+# Historical data refresh period (seconds)
+DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC = 900  # 15 minutes
+
+# Magic date for EcoFlow business start (used for cumulative queries)
+ECOFLOW_BUSINESS_START = datetime(2017, 5, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+
+class MetrConfig(NamedTuple):
+    code: str
+    key: str
+    mode: str
+
+
+METRICS_CONFIG = [
+    MetrConfig(HIST_CODE_ENERGY_INDEPENDENCE, "history.energyIndependenceToday", "today"),
+    MetrConfig(HIST_CODE_ENERGY_INDEPENDENCE, "history.energyIndependenceYear", "year"),
+    MetrConfig(HIST_CODE_ENV_IMPACT, "history.environmentalImpactToday", "today"),
+    MetrConfig(HIST_CODE_ENV_IMPACT, "history.environmentalImpactCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_SAVINGS_TOTAL, "history.solarEnergySavingsToday", "today"),
+    MetrConfig(HIST_CODE_SAVINGS_TOTAL, "history.solarEnergySavingsCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_SOLAR_GENERATED, "history.solarGeneratedToday", "today"),
+    MetrConfig(HIST_CODE_SOLAR_GENERATED, "history.solarGeneratedCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_ELECTRICITY_CONS, "history.electricityConsumptionToday", "today"),
+    MetrConfig(HIST_CODE_ELECTRICITY_CONS, "history.electricityConsumptionCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_GRID, "history.gridToday", "today"),
+    MetrConfig(HIST_CODE_GRID, "history.gridCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_BATTERY, "history.batteryToday", "today"),
+    MetrConfig(HIST_CODE_BATTERY, "history.batteryCumulative", "cumulative"),
+]
+
+
+class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Coordinator to fetch historical data for StreamAC devices."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: EcoflowPublicApiClient,
+        device: BaseDevice,
+        update_interval_seconds: int = DEFAULT_STREAM_AC_HISTORY_PERIOD_SEC,
+    ) -> None:
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"StreamAC History ({device.device_info.sn})",
+            update_interval=timedelta(seconds=update_interval_seconds),
+        )
+        self._client = client
+        self._device = device
+        self.last_check: datetime | None = None
+
+    def _get_time_ranges(self) -> dict[str, tuple[str, str]]:
+        now = dt.utcnow()
+        fmt = "%Y-%m-%d %H:%M:%S"
+
+        begin_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_day = now.replace(hour=23, minute=59, second=59, microsecond=0)
+
+        begin_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        end_year = now.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=0)
+
+        begin_all = ECOFLOW_BUSINESS_START
+
+        return {
+            "today": (begin_day.strftime(fmt), end_day.strftime(fmt)),
+            "year": (begin_year.strftime(fmt), end_year.strftime(fmt)),
+            "cumulative": (begin_all.strftime(fmt), end_day.strftime(fmt)),
+        }
+
+    def _process_items(self, items: list[dict]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+
+        for it in items:
+            val = float(it.get("indexValue", 0))
+            extra = str(it.get("extra", ""))
+
+            # Determine target key
+            target_key = f"value_{extra}" if extra else "value"
+            if target_key not in result:
+                result[target_key] = 0.0
+
+            # Aggregate
+            result[target_key] += val
+
+            # Extract unit from "first valid item" logic
+            if "unit" not in result and (u := it.get("unit")):
+                result["unit"] = u
+
+        return result
+
+    async def _call_historical_api(self, begin: str, end: str, code: str) -> dict:
+        params: dict[str, Any] = {
+            "sn": self._device.device_info.sn,
+            "params": {
+                "beginTime": begin,
+                "endTime": end,
+                "code": code,
+            },
+        }
+        try:
+            return await self._client.call_api("POST", "/device/quota/data", params)
+        except Exception:
+            # Return empty dict on error so we can proceed with other requests
+            # The caller handles logging/retry if needed (though existing code just ignored errors)
+            _LOGGER.debug(f"Failed to fetch historical data for code {code}", exc_info=True)
+            return {}
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Fetch historical data from the API."""
+        self.last_check = dt.utcnow()
+        return await self._fetch_historical_data()
+
+    async def _fetch_historical_data(self) -> dict[str, Any]:
+        """Fetch historical metrics and return them as a dict."""
+        # now = dt.utcnow()
+        time_ranges = self._get_time_ranges()
+
+        params: dict[str, Any] = {}
+        # last_check_iso = (self.last_check or now).isoformat()
+
+        params["history.mainSn"] = self._device.device_info.sn
+        # params["history.last_history_check"] = last_check_iso // storage consumptive
+
+        _LOGGER.debug(
+            "StreamACHistoryUpdateCoordinator: fetching historical data for sn=%s",
+            self._device.device_info.sn,
+        )
+
+        # Prepare all API calls
+        tasks = []
+        for config in METRICS_CONFIG:
+            begin, end = time_ranges[config.mode]
+            tasks.append(self._call_historical_api(begin, end, config.code))
+
+        # Execute all calls in parallel
+        results = await asyncio.gather(*tasks)
+
+        # Process results
+        for config, resp in zip(METRICS_CONFIG, results):
+            begin, end = time_ranges[config.mode]
+            items = resp.get("data", {}).get("data", [])
+
+            if items:
+                processed = self._process_items(items)
+
+                for internal_key, val in processed.items():
+                    if internal_key == "unit":
+                        continue
+
+                    device_key = f"{config.key}.{internal_key}"
+                    params[device_key] = val
+                    params[f"{device_key}.beginTime"] = begin
+                    params[f"{device_key}.endTime"] = end
+
+                    # Assuming all metrics from the same batch share the unit if present
+                    if "unit" in processed and "solarEnergySavings" in config.key:
+                        params["history.solarEnergySavingsUnit"] = processed["unit"]
+
+        try:
+            self._device.data.params.update(params)
+        except Exception as exc:
+            _LOGGER.error(
+                "Failed to update device params for sn=%s: %s", self._device.device_info.sn, exc, exc_info=True
+            )
+
+        return params
 
 
 class StreamAC(BaseDevice):
