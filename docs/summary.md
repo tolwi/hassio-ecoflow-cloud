@@ -79,7 +79,7 @@
 
 </p></details>
 
-<details><summary> DELTA_3 <i>(sensors: 28, switches: 2, sliders: 6, selects: 4)</i> </summary>
+<details><summary> DELTA_3 <i>(sensors: 32, switches: 6, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -89,42 +89,49 @@
 - Main Remain Capacity  _(disabled)_
 - State of Health
 - Battery Level
+- Battery Charging State
 - Total In Power (energy:  _[Device Name]_ Total In  Energy)
 - Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- Solar In Power
+- Solar In Current
+- AC In Power
+- AC Out Power
 - AC In Volts
 - AC Out Volts
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
 - DC Out Power
 - Type-C (1) Out Power
-- Type-C (2) Out Power
 - USB QC (1) Out Power
 - USB QC (2) Out Power
 - Charge Remaining Time
 - Discharge Remaining Time
-- Cycles
+- Remaining Time
+- PCS DC Temperature
+- PCS AC Temperature
 - Battery Temperature
-- Min Cell Temperature  _(disabled)_
 - Max Cell Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Cycles
+- Solar In Energy
 - Status
 
 *Switches*
 - Beeper 
+- AC Enabled 
 - X-Boost Enabled 
+- DC (12V) Enabled 
+- AC Always On 
+- Backup Reserve Enabled 
 
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
-- Backup Reserve Level 
-- Generator Auto Start Level 
-- Generator Auto Stop Level 
 - AC Charging Power 
+- Backup Reserve Level 
 
 *Selects*
+- DC (12V) Charge Current 
 - Screen Timeout 
 - Unit Timeout 
 - AC Timeout 
@@ -1773,177 +1780,6 @@
 - AC Charging Power 
 
 *Selects*
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
-
-</p></details>
-
-<details><summary> DELTA 3 (API) <i>(sensors: 28, switches: 2, sliders: 6, selects: 4)</i> </summary>
-<p>
-
-*Sensors*
-- Main Battery Level
-- Main Design Capacity  _(disabled)_
-- Main Full Capacity  _(disabled)_
-- Main Remain Capacity  _(disabled)_
-- State of Health
-- Battery Level
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
-- AC In Volts
-- AC Out Volts
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
-- DC Out Power
-- Type-C (1) Out Power
-- Type-C (2) Out Power
-- USB QC (1) Out Power
-- USB QC (2) Out Power
-- Charge Remaining Time
-- Discharge Remaining Time
-- Cycles
-- Battery Temperature
-- Min Cell Temperature  _(disabled)_
-- Max Cell Temperature  _(disabled)_
-- Battery Volts  _(disabled)_
-- Min Cell Volts  _(disabled)_
-- Max Cell Volts  _(disabled)_
-- Status
-
-*Switches*
-- Beeper 
-- X-Boost Enabled 
-
-*Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- Backup Reserve Level 
-- Generator Auto Start Level 
-- Generator Auto Stop Level 
-- AC Charging Power 
-
-*Selects*
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
-- DC (12V) Timeout 
-
-</p></details>
-
-<details><summary> RIVER 2 (API) <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
-<p>
-
-*Sensors*
-- Main Battery Level
-- Main Design Capacity  _(disabled)_
-- Main Full Capacity  _(disabled)_
-- Main Remain Capacity  _(disabled)_
-- State of Health
-- Battery Level
-- Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- Solar In Current
-- Solar In Voltage
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
-- AC In Volts
-- AC Out Volts
-- Type-C In Power
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
-- DC Out Power
-- Type-C Out Power
-- USB Out Power
-- Charge Remaining Time
-- Discharge Remaining Time
-- Remaining Time
-- Inv Out Temperature
-- Cycles
-- Battery Temperature
-- Min Cell Temperature  _(disabled)_
-- Max Cell Temperature  _(disabled)_
-- Battery Volts  _(disabled)_
-- Min Cell Volts  _(disabled)_
-- Max Cell Volts  _(disabled)_
-- Status
-
-*Switches*
-- AC Enabled 
-- AC Always On 
-- X-Boost Enabled 
-- DC (12V) Enabled 
-- Backup Reserve Enabled 
-
-*Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- AC Charging Power 
-- Backup Reserve Level 
-
-*Selects*
-- DC (12V) Charge Current 
-- DC Mode 
-- Screen Timeout 
-- Unit Timeout 
-- AC Timeout 
-
-</p></details>
-
-<details><summary> RIVER 2 Max (API) <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
-<p>
-
-*Sensors*
-- Main Battery Level
-- Main Design Capacity  _(disabled)_
-- Main Full Capacity  _(disabled)_
-- Main Remain Capacity  _(disabled)_
-- State of Health
-- Battery Level
-- Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- Solar In Current
-- Solar In Voltage
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
-- AC In Volts
-- AC Out Volts
-- Type-C In Power
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
-- DC Out Power
-- Type-C Out Power
-- USB Out Power
-- Charge Remaining Time
-- Discharge Remaining Time
-- Remaining Time
-- Inv Out Temperature
-- Cycles
-- Battery Temperature
-- Min Cell Temperature  _(disabled)_
-- Max Cell Temperature  _(disabled)_
-- Battery Volts  _(disabled)_
-- Min Cell Volts  _(disabled)_
-- Max Cell Volts  _(disabled)_
-- Status
-
-*Switches*
-- AC Enabled 
-- AC Always On 
-- X-Boost Enabled 
-- DC (12V) Enabled 
-- Backup Reserve Enabled 
-
-*Sliders (numbers)*
-- Max Charge Level 
-- Min Discharge Level 
-- AC Charging Power 
-- Backup Reserve Level 
-
-*Selects*
-- DC (12V) Charge Current 
-- DC Mode 
 - Screen Timeout 
 - Unit Timeout 
 - AC Timeout 

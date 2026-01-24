@@ -17,3 +17,9 @@ mypy .
 tools.protoc = "32.0"
 dir = "custom_components/ecoflow_cloud/devices/internal/proto"
 run = "protoc --proto_path=. --python_out=. --pyi_out=.  *.proto"
+
+[tasks.gendocs]
+description = "Generate documentation"
+dir = "docs"
+env = { PYTHONPATH = ".." }
+run = "python gen.py"
