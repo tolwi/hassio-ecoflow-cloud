@@ -202,7 +202,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     for sn, device_data in devices_list.items():
         device = api_client.configure_device(device_data)
-        device.configure(hass)
+        device.configure(hass, api_client)
 
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client

@@ -1,3 +1,6 @@
+from typing import cast
+from custom_components.ecoflow_cloud.device_data import DeviceData
+from custom_components.ecoflow_cloud.devices import EcoflowDeviceInfo
 from datetime import timezone
 from custom_components.ecoflow_cloud.api.public_api import EcoflowPublicApiClient
 from datetime import datetime
@@ -62,20 +65,20 @@ class MetrConfig(NamedTuple):
 
 
 METRICS_CONFIG = [
-    MetrConfig(HIST_CODE_ENERGY_INDEPENDENCE, "history.energyIndependenceToday", "today"),
-    MetrConfig(HIST_CODE_ENERGY_INDEPENDENCE, "history.energyIndependenceYear", "year"),
-    MetrConfig(HIST_CODE_ENV_IMPACT, "history.environmentalImpactToday", "today"),
-    MetrConfig(HIST_CODE_ENV_IMPACT, "history.environmentalImpactCumulative", "cumulative"),
-    MetrConfig(HIST_CODE_SAVINGS_TOTAL, "history.solarEnergySavingsToday", "today"),
-    MetrConfig(HIST_CODE_SAVINGS_TOTAL, "history.solarEnergySavingsCumulative", "cumulative"),
-    MetrConfig(HIST_CODE_SOLAR_GENERATED, "history.solarGeneratedToday", "today"),
-    MetrConfig(HIST_CODE_SOLAR_GENERATED, "history.solarGeneratedCumulative", "cumulative"),
-    MetrConfig(HIST_CODE_ELECTRICITY_CONS, "history.electricityConsumptionToday", "today"),
-    MetrConfig(HIST_CODE_ELECTRICITY_CONS, "history.electricityConsumptionCumulative", "cumulative"),
-    MetrConfig(HIST_CODE_GRID, "history.gridToday", "today"),
-    MetrConfig(HIST_CODE_GRID, "history.gridCumulative", "cumulative"),
-    MetrConfig(HIST_CODE_BATTERY, "history.batteryToday", "today"),
-    MetrConfig(HIST_CODE_BATTERY, "history.batteryCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_ENERGY_INDEPENDENCE, "energyIndependenceToday", "today"),
+    MetrConfig(HIST_CODE_ENERGY_INDEPENDENCE, "energyIndependenceYear", "year"),
+    MetrConfig(HIST_CODE_ENV_IMPACT, "environmentalImpactToday", "today"),
+    MetrConfig(HIST_CODE_ENV_IMPACT, "environmentalImpactCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_SAVINGS_TOTAL, "solarEnergySavingsToday", "today"),
+    MetrConfig(HIST_CODE_SAVINGS_TOTAL, "solarEnergySavingsCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_SOLAR_GENERATED, "solarGeneratedToday", "today"),
+    MetrConfig(HIST_CODE_SOLAR_GENERATED, "solarGeneratedCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_ELECTRICITY_CONS, "electricityConsumptionToday", "today"),
+    MetrConfig(HIST_CODE_ELECTRICITY_CONS, "electricityConsumptionCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_GRID, "gridToday", "today"),
+    MetrConfig(HIST_CODE_GRID, "gridCumulative", "cumulative"),
+    MetrConfig(HIST_CODE_BATTERY, "batteryToday", "today"),
+    MetrConfig(HIST_CODE_BATTERY, "batteryCumulative", "cumulative"),
 ]
 
 
@@ -158,17 +161,13 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch historical data from the API."""
         self.last_check = dt.utcnow()
-        return await self._fetch_historical_data()
-
-    async def _fetch_historical_data(self) -> dict[str, Any]:
-        """Fetch historical metrics and return them as a dict."""
         # now = dt.utcnow()
         time_ranges = self._get_time_ranges()
 
         params: dict[str, Any] = {}
         # last_check_iso = (self.last_check or now).isoformat()
 
-        params["history.mainSn"] = self._device.device_info.sn
+        # params["history.mainSn"] = self._device.device_info.sn
         # params["history.last_history_check"] = last_check_iso // storage consumptive
 
         _LOGGER.debug(
@@ -207,7 +206,7 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         params["history.solarEnergySavingsUnit"] = processed["unit"]
 
         try:
-            self._device.data.params.update(params)
+            self._device.data.params.update({"history": params})
         except Exception as exc:
             _LOGGER.error(
                 "Failed to update device params for sn=%s: %s", self._device.device_info.sn, exc, exc_info=True
@@ -217,6 +216,17 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
 
 class StreamAC(BaseDevice):
+    def __init__(self, device_info: EcoflowDeviceInfo, device_data: DeviceData):
+        super().__init__(device_info, device_data)
+        self.history_coordinator: StreamACHistoryUpdateCoordinator | None = None
+
+    def configure(self, hass: HomeAssistant, client: EcoflowApiClient):
+        super().configure(hass, client)
+        self.history_coordinator = StreamACHistoryUpdateCoordinator(hass, cast(EcoflowPublicApiClient, client), self)
+
+    def flat_json(self) -> bool:
+        return False
+
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             # "accuChgCap": 198511,

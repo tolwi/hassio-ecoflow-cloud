@@ -101,7 +101,7 @@ class BaseDevice(ABC):
                 self.device_data.options.diagnostic_mode,
             )
 
-    def configure(self, hass: HomeAssistant):
+    def configure(self, hass: HomeAssistant, client: EcoflowApiClient):
         self.coordinator = EcoflowDeviceUpdateCoordinator(hass, self.data, self.device_data.options.refresh_period)
 
     @staticmethod
