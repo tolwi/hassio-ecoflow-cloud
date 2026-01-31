@@ -1,76 +1,78 @@
 {
-  "title": "EcoFlow-Cloud",
-  "config": {
-    "step": {
-      "user": {
-        "data": {
-          "group": "Groupe d'appareils"
+    "title": "EcoFlow-Cloud",
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "group": "Groupe d'appareils"
+                }
+            },
+            "api": {
+                "menu_options": {
+                    "api_add_device": "Ajouter un appareil",
+                    "remove_device": "Supprimer un appareil",
+                    "finish": "Terminer"
+                },
+                "data": {
+                    "access_key": "Clé d'accès",
+                    "secret_key": "Clé secrète",
+                    "load_all_devices": "Chargement automatique des appareils"
+                }
+            },
+            "choose_type": {
+                "menu_options": {
+                    "api": "Utiliser l'API publique",
+                    "manual": "Utiliser l'API de l'application"
+                }
+            },
+            "select_device": {
+                "data": {
+                    "select_device": "Sélectionner un appareil"
+                }
+            },
+            "confirm_cloud_device": {
+                "data": {
+                    "device_type": "Type d'appareil",
+                    "device_name": "Nom de l'appareil",
+                    "device_id": "SN de l'appareil"
+                }
+            },
+            "manual": {
+                "menu_options": {
+                    "manual_add_device": "Ajouter un appareil",
+                    "remove_device": "Supprimer un appareil",
+                    "finish": "Terminer"
+                },
+                "data": {
+                    "username": "E-mail de l'utilisateur",
+                    "password": "Mot de passe de l'utilisateur"
+                }
+            },
+            "manual_device_input": {
+                "data": {
+                    "device_type": "Type d'appareil",
+                    "device_name": "Nom de l'appareil",
+                    "device_id": "SN de l'appareil"
+                }
+            }
         }
-      },
-      "api": {
-        "menu_options": {
-          "api_add_device": "Ajouter un appareil",
-          "remove_device": "Supprimer un appareil",
-          "finish": "Terminer"
-        },
-        "data": {
-          "access_key": "Clé d'accès",
-          "secret_key": "Clé secrète",
-          "load_all_devices": "Chargement automatique des appareils"
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "select_device": "Sélectionner un appareil"
+                }
+            },
+            "options": {
+                "data": {
+                    "power_step": "Pas du curseur de puissance de charge",
+                    "refresh_period_sec": "Période de rafraîchissement des données (sec)",
+                    "diagnostic_mode": "Mode diagnostic",
+                    "assume_offline_sec": "Délai avant supposition hors ligne (sec)",
+                    "verbose_status_mode": "Mode de statut détaillé"
+                }
+            }
         }
-      },
-      "choose_type": {
-         "menu_options": {
-          "api": "Utiliser l'API publique",
-          "manual": "Utiliser l'API de l'application"
-        }
-      },
-      "select_device": {
-        "data": {
-          "select_device": "Sélectionner un appareil"
-        }
-      },
-      "confirm_cloud_device": {
-        "data": {
-          "device_type": "Type d'appareil",
-          "device_name": "Nom de l'appareil",
-          "device_id": "SN de l'appareil"
-        }
-      },
-      "manual": {
-        "menu_options": {
-          "manual_add_device": "Ajouter un appareil",
-          "remove_device": "Supprimer un appareil",
-          "finish": "Terminer"
-        },
-        "data": {
-          "username": "E-mail de l'utilisateur",
-          "password": "Mot de passe de l'utilisateur"
-        }
-      },
-      "manual_device_input": {
-        "data": {
-          "device_type": "Type d'appareil",
-          "device_name": "Nom de l'appareil",
-          "device_id": "SN de l'appareil"
-        }
-      }
     }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "data": {
-          "select_device": "Sélectionner un appareil"
-        }
-      },
-      "options": {
-        "data": {
-          "power_step": "Pas du curseur de puissance de charge",
-          "refresh_period_sec": "Période de rafraîchissement des données (sec)",
-          "diagnostic_mode": "Mode diagnostic"
-        }
-      }
-    }
-  }
 }

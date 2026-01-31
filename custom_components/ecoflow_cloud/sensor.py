@@ -475,9 +475,6 @@ class _OnlineStatus(enum.Enum):
 class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    assume_offline_period_sec: int = 300  # 5 minutes
-    force_offline_period_sec: int = assume_offline_period_sec * 3
-
     def __init__(
         self,
         client: EcoflowApiClient,
@@ -487,6 +484,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
     ):
         super().__init__(client, device, title, key)
         self._attr_force_update = False
+        self.assume_offline_period_sec = device.device_data.options.assume_offline_sec
+        self.force_offline_period_sec = self.assume_offline_period_sec * 3
 
         self._online = _OnlineStatus.UNKNOWN
         self._last_update = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
@@ -507,7 +506,12 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
 
         if changed:
             self.coordinator.data.data_holder.online = self._online == _OnlineStatus.ONLINE
-            self.schedule_update_ha_state()
+
+            if self._device.device_data.options.verbose_status_mode or self._online in {
+                _OnlineStatus.ONLINE,
+                _OnlineStatus.OFFLINE,
+            }:
+                self.schedule_update_ha_state()
 
     def _actualize_status(self) -> bool:
         changed = False
@@ -543,8 +547,10 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
         return changed
 
     def _actualize_attributes(self):
-        if self._online in {_OnlineStatus.OFFLINE, _OnlineStatus.ONLINE}:
+        if self._online == _OnlineStatus.ONLINE:
             self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = f"< {self.assume_offline_period_sec} sec"
+        elif self._online == _OnlineStatus.ASSUME_OFFLINE:
+            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = f"< {self.force_offline_period_sec} sec"
         else:
             self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._last_update
 

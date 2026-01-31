@@ -8,6 +8,8 @@ class DeviceOptions:
     refresh_period: int
     power_step: int
     diagnostic_mode: bool
+    verbose_status_mode: bool
+    assume_offline_sec: int
 
 
 @dataclasses.dataclass

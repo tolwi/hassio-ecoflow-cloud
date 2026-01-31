@@ -1,76 +1,78 @@
 {
-  "title": "EcoFlow-Cloud",
-  "config": {
-    "step": {
-      "user": {
-        "data": {
-          "group": "Gerätegruppe"
+    "title": "EcoFlow-Cloud",
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "group": "Gerätegruppe"
+                }
+            },
+            "api": {
+                "menu_options": {
+                    "api_add_device": "Gerät hinzufügen",
+                    "remove_device": "Gerät entfernen",
+                    "finish": "Abschließen"
+                },
+                "data": {
+                    "access_key": "Zugriffsschlüssel",
+                    "secret_key": "Geheimschlüssel",
+                    "load_all_devices": "Automatisches Laden von Geräten"
+                }
+            },
+            "choose_type": {
+                "menu_options": {
+                    "api": "Öffentliche API verwenden",
+                    "manual": "Anwendungs-API verwenden"
+                }
+            },
+            "select_device": {
+                "data": {
+                    "select_device": "Gerät auswählen"
+                }
+            },
+            "confirm_cloud_device": {
+                "data": {
+                    "device_type": "Gerätetyp",
+                    "device_name": "Gerätename",
+                    "device_id": "Gerät SN"
+                }
+            },
+            "manual": {
+                "menu_options": {
+                    "manual_add_device": "Gerät hinzufügen",
+                    "remove_device": "Gerät entfernen",
+                    "finish": "Abschließen"
+                },
+                "data": {
+                    "username": "Benutzer-E-Mail",
+                    "password": "Benutzerpasswort"
+                }
+            },
+            "manual_device_input": {
+                "data": {
+                    "device_type": "Gerätetyp",
+                    "device_name": "Gerätename",
+                    "device_id": "Gerät SN"
+                }
+            }
         }
-      },
-      "api": {
-        "menu_options": {
-          "api_add_device": "Gerät hinzufügen",
-          "remove_device": "Gerät entfernen",
-          "finish": "Abschließen"
-        },
-        "data": {
-          "access_key": "Zugriffsschlüssel",
-          "secret_key": "Geheimschlüssel",
-          "load_all_devices": "Automatisches Laden von Geräten"
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "select_device": "Gerät auswählen"
+                }
+            },
+            "options": {
+                "data": {
+                    "power_step": "Schieberegler-Schritt für Ladeleistung",
+                    "refresh_period_sec": "Datenaktualisierungsperiode (Sek.)",
+                    "diagnostic_mode": "Diagnosemodus",
+                    "assume_offline_sec": "Zeit bis zur Offline-Annahme (Sek.)",
+                    "verbose_status_mode": "Detaillierter Statusmodus"
+                }
+            }
         }
-      },
-      "choose_type": {
-         "menu_options": {
-          "api": "Öffentliche API verwenden",
-          "manual": "Anwendungs-API verwenden"
-        }
-      },
-      "select_device": {
-        "data": {
-          "select_device": "Gerät auswählen"
-        }
-      },
-      "confirm_cloud_device": {
-        "data": {
-          "device_type": "Gerätetyp",
-          "device_name": "Gerätename",
-          "device_id": "Gerät SN"
-        }
-      },
-      "manual": {
-        "menu_options": {
-          "manual_add_device": "Gerät hinzufügen",
-          "remove_device": "Gerät entfernen",
-          "finish": "Abschließen"
-        },
-        "data": {
-          "username": "Benutzer-E-Mail",
-          "password": "Benutzerpasswort"
-        }
-      },
-      "manual_device_input": {
-        "data": {
-          "device_type": "Gerätetyp",
-          "device_name": "Gerätename",
-          "device_id": "Gerät SN"
-        }
-      }
     }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "data": {
-          "select_device": "Gerät auswählen"
-        }
-      },
-      "options": {
-        "data": {
-          "power_step": "Schieberegler-Schritt für Ladeleistung",
-          "refresh_period_sec": "Datenaktualisierungsperiode (Sek.)",
-          "diagnostic_mode": "Diagnosemodus"
-        }
-      }
-    }
-  }
 }
