@@ -32,13 +32,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         self.timestamp = str(int(time.time() * 1000))
 
     async def login(self):
-        _LOGGER.info("Requesting IoT MQTT credentials")
+        _LOGGER.debug("API: Requesting IoT MQTT credentials (/certification)")
         response = await self.call_api("/certification")
         self._accept_mqqt_certification(response)
         self.mqtt_info.client_id = f"Hassio-{self.mqtt_info.username}-{self.group.replace(' ', '-')}"
 
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
-        _LOGGER.info("Requesting all devices")
+        _LOGGER.debug("API: Requesting all devices (/device/list)")
         response = await self.call_api("/device/list")
         result = list()
         for device in response["data"]:
@@ -93,9 +93,34 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 raw = await self.call_api("/device/quota/all", {"sn": sn})
                 if "data" in raw:
                     self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw))
+                    # Ensure the device coordinator refreshes so entities re-evaluate promptly
+                    try:
+                        dev = self.devices.get(sn)
+                        if dev is not None and getattr(dev, "coordinator", None) is not None:
+                            await dev.coordinator.async_request_refresh()
+                    except Exception as exc:
+                        _LOGGER.debug("Failed to request coordinator refresh for %s: %s", sn, exc)
             except Exception as exception:
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Error retrieving %s", sn)
+
+    async def historical_data(self, device_sn: str, begin_time: str, end_time: str, code: str) -> dict:
+        body = {
+            "sn": device_sn,
+            "params": {
+                "beginTime": begin_time,
+                "endTime": end_time,
+                "code": code,
+            },
+        }
+        _LOGGER.debug(
+            "API HIST /device/quota/data sn=%s begin=%s end=%s code=%s",
+            device_sn,
+            begin_time,
+            end_time,
+            code,
+        )
+        return await self.post_api("/device/quota/data", body)
 
     async def call_api(self, endpoint: str, params: dict[str, str] | None = None) -> dict:
         self.nonce = str(random.randint(10000, 1000000))
@@ -114,23 +139,62 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 "sign": sign,
             }
 
-            _LOGGER.debug("Request: %s %s.", str(endpoint), str(params_str))
+            _LOGGER.debug("API GET %s params=%s", str(endpoint), str(params_str))
             resp = await session.get(
                 f"https://{self.api_domain}/iot-open/sign{endpoint}?{params_str}",
                 headers=headers,
             )
             json_resp = await self._get_json_response(resp)
-            _LOGGER.debug(
-                "Request: %s %s. Response : %s",
-                str(endpoint),
-                str(params_str),
-                str(json_resp),
-            )
+            _LOGGER.debug("API GET %s complete: status=%s", str(endpoint), resp.status)
             return json_resp
 
-    def __create_device_info(
-        self, device_sn: str, device_name: str, device_type: str, status: int = -1
-    ) -> EcoflowDeviceInfo:
+    def __flatten_params(self, data: dict) -> list[tuple[str, str]]:
+        def _flatten(prefix: str, value) -> list[tuple[str, str]]:
+            items: list[tuple[str, str]] = []
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    key = f"{prefix}.{k}" if prefix else k
+                    items.extend(_flatten(key, v))
+            elif isinstance(value, list):
+                for idx, v in enumerate(value):
+                    key = f"{prefix}[{idx}]"
+                    items.extend(_flatten(key, v))
+            else:
+                items.append((prefix, str(value)))
+            return items
+
+        return _flatten("", data)
+
+    async def post_api(self, endpoint: str, body: dict) -> dict:
+        self.nonce = str(random.randint(10000, 1000000))
+        self.timestamp = str(int(time.time() * 1000))
+
+        # Build sign string from flattened JSON body
+        flat = [(k, v) for (k, v) in self.__flatten_params(body) if k]
+        flat.sort(key=lambda x: x[0])
+        params_str = "&".join([f"{k}={v}" for k, v in flat])
+        sign = self.__gen_sign(params_str)
+
+        headers = {
+            "accessKey": self.access_key,
+            "nonce": self.nonce,
+            "timestamp": self.timestamp,
+            "sign": sign,
+            "Content-Type": "application/json;charset=UTF-8",
+        }
+
+        async with aiohttp.ClientSession() as session:
+            _LOGGER.debug("API POST %s body=%s", str(endpoint), str(body))
+            resp = await session.post(
+                f"https://{self.api_domain}/iot-open/sign{endpoint}",
+                headers=headers,
+                json=body,
+            )
+            json_resp = await self._get_json_response(resp)
+            _LOGGER.debug("API POST %s complete: status=%s", str(endpoint), resp.status)
+            return json_resp
+
+    def __create_device_info(self, device_sn: str, device_name: str, device_type: str, status: int = -1) -> EcoflowDeviceInfo:
         return EcoflowDeviceInfo(
             public_api=True,
             sn=device_sn,
