@@ -25,6 +25,9 @@ The quickest way to install this integration is via [HACS](https://github.com/ha
 
 Restart Home Assistant. Once restart is done, use `Add Integration` → `EcoflowCloud`.
 
+## Device Management
+For information on how to add, remove, and configure devices, please refer to the [Device Management Documentation](docs/device_management.md).
+
 ## Disclaimers
 
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
