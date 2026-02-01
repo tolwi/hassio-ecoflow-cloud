@@ -18,6 +18,9 @@ from ..devices import (
     BaseDevice,
     EcoflowDeviceUpdateCoordinator,
 )
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class EcoFlowAbstractEntity(Entity):
@@ -46,13 +49,7 @@ class EcoFlowAbstractEntity(Entity):
         return "api-" if self._device.device_info.public_api else ""
 
     def _gen_unique_id(self, sn: str, key: str) -> str:
-        return (
-            "ecoflow-"
-            + self._type_prefix()
-            + sn
-            + "-"
-            + key.replace(".", "-").replace("_", "-").replace("[", "-").replace("]", "-")
-        )
+        return "ecoflow-" + self._type_prefix() + sn + "-" + key.replace(".", "-").replace("_", "-").replace("[", "-").replace("]", "-")
 
     def title(self) -> str:
         return self._attr_name
@@ -142,26 +139,54 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         # self.async_on_remove(d.dispose)
 
     def _handle_coordinator_update(self) -> None:
-        if self.coordinator.data.changed:
-            self._updated(self.coordinator.data.data_holder.params)
-        elif not self.coordinator.data.data_holder.online:  # Device is offline
+        # Most entities use the EcoflowDeviceUpdateCoordinator whose data is an
+        # EcoflowBroadcastDataHolder (with .data_holder + .changed).
+        # Some device-specific entities (e.g. Stream AC history) may use a
+        # DataUpdateCoordinator whose .data is a plain dict.
+        coordinator_data = getattr(self.coordinator, "data", None)
+        data_holder = getattr(coordinator_data, "data_holder", None)
+        if data_holder is None:
+            # Fallback: update from the device's latest params.
+            self._updated(self._device.data.params)
+            return
+
+        try:
+            changed = getattr(coordinator_data, "changed", None)
+        except Exception:
+            _LOGGER.exception(
+                "Failed to read 'changed' attribute from coordinator data for entity %s",
+                self._attr_unique_id,
+            )
+            changed = None
+
+        if changed is False:
+            return
+
+        if changed or changed is None:
+            self._updated(data_holder.params)
+        elif not data_holder.online:  # Device is offline
             # Reset sensors that should reset to default values
             if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
-                self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
-                self._updated(self.coordinator.data.data_holder.params)
+                self._mqtt_key_expr.update(data_holder.params, self._attr_default_value)
+                self._updated(data_holder.params)
 
     def _updated(self, data: dict[str, Any]):
         # update attributes
+        attr_changed = False
         for key, title in self.__attributes_mapping.items():
             key_expr = jp.parse(self._adopt_json_key(key))
             attr_values = key_expr.find(data)
             if len(attr_values) == 1:
-                self.__attrs[title] = attr_values[0].value
+                if self.__attrs.get(title) != attr_values[0].value:
+                    self.__attrs[title] = attr_values[0].value
+                    attr_changed = True
             elif len(attr_values) > 1 and self._multiple_value_sum:
                 total = attr_values[0].value
                 for v in attr_values[1:]:
                     total += v.value
-                self.__attrs[title] = total
+                if self.__attrs.get(title) != total:
+                    self.__attrs[title] = total
+                    attr_changed = True
 
         # update value
         values = self._mqtt_key_expr.find(data)
@@ -175,12 +200,27 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
             if len(values) > 1 and self._multiple_value_sum:
                 for v in values[1:]:
                     total += v.value
+            value_changed = False
             if self._update_value(total):
+                value_changed = True
+                _LOGGER.debug(
+                    "Entity %s value changed to %s (mqtt_key=%s)",
+                    self._attr_unique_id,
+                    total,
+                    self.__mqtt_key,
+                )
+
+            if value_changed or attr_changed:
                 self.schedule_update_ha_state()
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
-        return self.__attrs
+        attrs = dict(self.__attrs) if self.__attrs else {}
+        # Add last history check if available
+        coordinator = getattr(self, "coordinator", None)
+        if coordinator and hasattr(coordinator, "last_check") and coordinator.last_check:
+            attrs["last_history_check"] = coordinator.last_check.isoformat()
+        return attrs
 
     def _update_value(self, val: Any) -> bool:
         return False
@@ -202,9 +242,7 @@ class EcoFlowBaseCommandEntity[_CommandArg](EcoFlowDictEntity):
         device: BaseDevice,
         mqtt_key: str,
         title: str,
-        command: Callable[[_CommandArg], dict[str, Any] | Message]
-        | Callable[[_CommandArg, dict[str, Any]], dict[str, Any] | Message]
-        | None,
+        command: Callable[[_CommandArg], dict[str, Any] | Message] | Callable[[_CommandArg, dict[str, Any]], dict[str, Any] | Message] | None,
         enabled: bool = True,
         auto_enable: bool = False,
     ):
@@ -241,9 +279,7 @@ class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity[int]):
         title: str,
         min_value: int,
         max_value: int,
-        command: Callable[[int], dict[str, Any] | Message]
-        | Callable[[int, dict[str, Any]], dict[str, Any] | Message]
-        | None,
+        command: Callable[[int], dict[str, Any] | Message] | Callable[[int, dict[str, Any]], dict[str, Any] | Message] | None,
         enabled: bool = True,
         auto_enable: bool = False,
     ):
@@ -273,6 +309,14 @@ class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):
         diagnostic: Optional[bool] = None,
     ):
         super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic)
+
+        # Stream AC exposes historical metrics under the "history." namespace.
+        # When the device provides a dedicated history coordinator, bind these
+        # sensors to it so they do not re-evaluate on every MQTT refresh.
+        hist = getattr(device, "history_coordinator", None)
+        if hist is not None and mqtt_key.startswith("history."):
+            self.coordinator = hist
+
         if self._attr_default_value is not None:
             self._attr_native_value = self._attr_default_value
 
