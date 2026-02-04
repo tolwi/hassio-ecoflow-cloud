@@ -411,6 +411,8 @@ POWER_GRID = "Power Grid"
 POWER_GRID_TODAY = "Power Grid Today"
 BATTERY_TODAY = "Battery Today"
 EPS_MODE = "EPS Mode"
+SCHEDULED_CHARGE = "Scheduled Charge"
+BATTERY_N_SCHEDULED_CHARGE = "Battery %i Scheduled Charge"
 POWER_GRID_VOLTAGE = "Power Grid Voltage"
 POWER_GRID_FREQUENCY = "Power Grid Frequency"
 

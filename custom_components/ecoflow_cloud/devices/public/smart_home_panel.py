@@ -120,6 +120,9 @@ class SmartHomePanel(BaseDevice):
             )
             .with_category(EntityCategory.CONFIG)
             .with_icon("mdi:power-plug-battery"),
+            self._scheduledCharge(client, "scheduledCharge1", const.BATTERY_N_SCHEDULED_CHARGE % 1, 1, [1, 0], False),
+            self._scheduledCharge(client, "scheduledCharge2", const.BATTERY_N_SCHEDULED_CHARGE % 2, 2, [0, 1], False),
+            self._scheduledCharge(client, "scheduledCharge", const.SCHEDULED_CHARGE, 3, [1, 1]),
             self._batteryChargeSwitch(client, 1, True),
             self._batteryChargeSwitch(client, 2, False),
         ]
@@ -129,6 +132,56 @@ class SmartHomePanel(BaseDevice):
 
     def flat_json(self):
         return False
+    
+    def _scheduledCharge(
+        self,
+        client: EcoflowApiClient,
+        mqtt_key: str,
+        title: str,
+        index: int,
+        ch_sta: list[int],
+        enabled: bool = True,
+    ) -> SwitchEntity:
+        return (
+            EnabledEntity(
+                client,
+                self,
+                mqtt_key,
+                title,
+                lambda value: {
+                    "operateType": "TCP",
+                    "params": {
+                        "cfg": {
+                            "param": {
+                                "lowBattery": 95,
+                                "hightBattery": 100,
+                                "chChargeWatt": 2000,
+                                "chSta": ch_sta,
+                            },
+                            "comCfg": {
+                                "timeScale": [255] * 18,
+                                "isCfg": 1,
+                                "type": 1,
+                                "timeRange": {
+                                    "isCfg": 1,
+                                    "isEnable": 1,
+                                    "startTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": index},
+                                    "endTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2030, "day": index},
+                                },
+                                "setTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": index},
+                                "isEnable": int(value),
+                            },
+                        },
+                        "cfgIndex": index,
+                        "cmdSet": 11,
+                        "id": 81,
+                    },
+                },
+                enabled,
+            )
+            .with_category(EntityCategory.CONFIG)
+            .with_icon("mdi:battery-clock")
+        )
     
     def _batteryChargeSwitch(self, client: EcoflowApiClient, index: int, enabled: bool = True) -> SwitchEntity:
         return (
