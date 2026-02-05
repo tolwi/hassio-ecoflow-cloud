@@ -33,13 +33,8 @@ from custom_components.ecoflow_cloud.switch import EnabledEntity
 class ScheduledChargeChStaSelectEntity(DictSelectEntity):
     def _update_value(self, val) -> bool:
         if isinstance(val, list):
-            if val == [1, 0]:
-                idx = 0
-            elif val == [0, 1]:
-                idx = 1
-            else:
-                idx = 2
-            return super()._update_value(idx)
+            list_value = val if val in const.SCHEDULED_CHARGE_BATTERY_OPTIONS.values() else [1, 1]
+            return super()._update_value(list_value)
         return super()._update_value(val)
 
 
@@ -175,21 +170,19 @@ class SmartHomePanel(BaseDevice):
                 "timeTask.cfg.param.chSta",
                 const.SCHEDULED_CHARGE_BATTERY,
                 const.SCHEDULED_CHARGE_BATTERY_OPTIONS,
-                lambda value, params: self._scheduled_charge_command(params, ch_sta_index=value),
+                lambda value, params: self._scheduled_charge_command(params, ch_sta=value),
             ),
         ]
 
     def flat_json(self):
         return False
-    
-    _CH_STA_MAP = {0: [1, 0], 1: [0, 1], 2: [1, 1]}
 
     def _scheduled_charge_command(
         self,
         params: dict,
         high_battery: int | None = None,
         charge_watt: int | None = None,
-        ch_sta_index: int | None = None,
+        ch_sta: list | None = None,
         is_enable: int | None = None,
     ) -> dict:
         def get_param(path, default):
@@ -200,18 +193,7 @@ class SmartHomePanel(BaseDevice):
         _low = max(_high - 5, 0)
         _watt = charge_watt if charge_watt is not None else int(get_param("timeTask.cfg.param.chChargeWatt", 2000))
 
-        if ch_sta_index is not None:
-            _ch = ch_sta_index
-        else:
-            ch_sta_array = get_param("timeTask.cfg.param.chSta", [1, 1])
-            if ch_sta_array == [1, 0]:
-                _ch = 0
-            elif ch_sta_array == [0, 1]:
-                _ch = 1
-            else:
-                _ch = 2
-
-        _ch_sta = self._CH_STA_MAP.get(_ch, [1, 1])
+        _ch_sta = ch_sta if ch_sta is not None else get_param("timeTask.cfg.param.chSta", [1, 1])
         _enable = is_enable if is_enable is not None else int(get_param("timeTask.cfg.comCfg.isEnable", 0))
 
         return {
