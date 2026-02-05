@@ -190,7 +190,7 @@ class SmartHomePanel(BaseDevice):
             return matches[0].value if matches else default
 
         _high = high_battery if high_battery is not None else int(get_param("timeTask.cfg.param.hightBattery", 100))
-        _low = max(_high - 5, 0)
+        _low = int(get_param("timeTask.cfg.param.lowBattery", max(_high - 5, 0)))
         _watt = charge_watt if charge_watt is not None else int(get_param("timeTask.cfg.param.chChargeWatt", 2000))
 
         _ch_sta = ch_sta if ch_sta is not None else get_param("timeTask.cfg.param.chSta", [1, 1])
