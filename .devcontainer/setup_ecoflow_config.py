@@ -168,7 +168,7 @@ def main():
     print("EcoFlow Cloud integration configured successfully!")
     print(f"  - API Host: {api_host}")
     print(f"  - Group: {group}")
-    print(f"  - Devices: {', '.join(d['name'] for d in devices)}")
+    print(f"  - Devices: {', '.join(d['name'] + ' (' + d['sn'] + ')' for d in devices)}")
 
 
 if __name__ == "__main__":
