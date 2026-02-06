@@ -1,4 +1,3 @@
-import jsonpath_ng.ext as jp
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
@@ -33,12 +32,22 @@ from custom_components.ecoflow_cloud.switch import EnabledEntity
 class ScheduledChargeChStaSelectEntity(DictSelectEntity):
     def _update_value(self, val) -> bool:
         if isinstance(val, list):
-            list_value = val if val in const.SCHEDULED_CHARGE_BATTERY_OPTIONS.values() else [1, 1]
+            default = SmartHomePanel.SCHEDULED_CHARGE_CH_STA_DEFAULT
+            list_value = val if val in const.SCHEDULED_CHARGE_BATTERY_OPTIONS.values() else default
             return super()._update_value(list_value)
         return super()._update_value(val)
 
 
 class SmartHomePanel(BaseDevice):
+    # Scheduled charge defaults and limits
+    SCHEDULED_CHARGE_BATTERY_MIN = 50
+    SCHEDULED_CHARGE_BATTERY_MAX = 100
+    SCHEDULED_CHARGE_BATTERY_DEFAULT = 100
+    SCHEDULED_CHARGE_POWER_MIN = 200
+    SCHEDULED_CHARGE_POWER_MAX = 3400
+    SCHEDULED_CHARGE_POWER_DEFAULT = 2000
+    SCHEDULED_CHARGE_CH_STA_DEFAULT = [1, 1]
+
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             LevelSensorEntity(client, self, "heartbeat.backupBatPer", const.COMBINED_BATTERY_LEVEL),
@@ -120,8 +129,8 @@ class SmartHomePanel(BaseDevice):
                 self,
                 "timeTask.cfg.param.hightBattery",
                 const.SCHEDULED_CHARGE_BATTERY_LEVEL,
-                50,
-                100,
+                self.SCHEDULED_CHARGE_BATTERY_MIN,
+                self.SCHEDULED_CHARGE_BATTERY_MAX,
                 lambda value, params: self._scheduled_charge_command(params, high_battery=value),
             ),
             ChargingPowerEntity(
@@ -129,8 +138,8 @@ class SmartHomePanel(BaseDevice):
                 self,
                 "timeTask.cfg.param.chChargeWatt",
                 const.SCHEDULED_CHARGE_POWER,
-                200,
-                3400,
+                self.SCHEDULED_CHARGE_POWER_MIN,
+                self.SCHEDULED_CHARGE_POWER_MAX,
                 lambda value, params: self._scheduled_charge_command(params, charge_watt=value),
             ),
         ]
@@ -154,7 +163,7 @@ class SmartHomePanel(BaseDevice):
                 self,
                 "timeTask.cfg.comCfg.isEnable",
                 const.SCHEDULED_CHARGE,
-                lambda value, params: self._scheduled_charge_command(params, is_enable=int(value)),
+                lambda value, params: self._scheduled_charge_enable_command(params, int(value)),
             )
             .with_category(EntityCategory.CONFIG)
             .with_icon("mdi:battery-clock"),
@@ -177,6 +186,70 @@ class SmartHomePanel(BaseDevice):
     def flat_json(self):
         return False
 
+    @classmethod
+    def _get_scheduled_charge_params(cls, params: dict) -> dict:
+        """Extract current scheduled charge param values from timeTask structure."""
+        time_task = params.get("timeTask", {}) if params else {}
+        cfg = time_task.get("cfg", {})
+        cfg_param = cfg.get("param", {})
+        cfg_com = cfg.get("comCfg", {})
+
+        high = cfg_param.get("hightBattery", cls.SCHEDULED_CHARGE_BATTERY_DEFAULT)
+        return {
+            "hightBattery": high,
+            "lowBattery": cfg_param.get("lowBattery", max(high - 5, 0)),
+            "chChargeWatt": cfg_param.get("chChargeWatt", cls.SCHEDULED_CHARGE_POWER_DEFAULT),
+            "chSta": cfg_param.get("chSta", cls.SCHEDULED_CHARGE_CH_STA_DEFAULT.copy()),
+            "isEnable": cfg_com.get("isEnable", 0),
+        }
+
+    @staticmethod
+    def _build_scheduled_charge_command(
+        high_battery: int,
+        low_battery: int,
+        charge_watt: int,
+        ch_sta: list,
+        is_enable: int,
+    ) -> dict:
+        """Build the scheduled charge command structure."""
+        return {
+            "operateType": "TCP",
+            "params": {
+                "cfg": {
+                    "param": {
+                        "lowBattery": low_battery,
+                        "hightBattery": high_battery,
+                        "chChargeWatt": charge_watt,
+                        "chSta": ch_sta,
+                    },
+                    "comCfg": {
+                        "timeScale": [-1] * 18,
+                        "isCfg": 1,
+                        "type": 1,
+                        "timeRange": {
+                            "isCfg": 1,
+                            "isEnable": 1,
+                            "timeMode": 0,
+                            "startTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1},
+                            "endTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2030, "day": 1},
+                        },
+                        "setTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1},
+                        "isEnable": is_enable,
+                    },
+                },
+                "cfgIndex": 10,
+                "cmdSet": 11,
+                "id": 81,
+            },
+        }
+
+    def _scheduled_charge_enable_command(self, params: dict, is_enable: int) -> dict:
+        """Toggle scheduled charge on/off - preserves all other param values."""
+        p = self._get_scheduled_charge_params(params)
+        return self._build_scheduled_charge_command(
+            p["hightBattery"], p["lowBattery"], p["chChargeWatt"], p["chSta"], is_enable
+        )
+
     def _scheduled_charge_command(
         self,
         params: dict,
@@ -185,46 +258,15 @@ class SmartHomePanel(BaseDevice):
         ch_sta: list | None = None,
         is_enable: int | None = None,
     ) -> dict:
-        def get_param(path, default):
-            matches = jp.parse(path).find(params)
-            return matches[0].value if matches else default
-
-        _high = high_battery if high_battery is not None else int(get_param("timeTask.cfg.param.hightBattery", 100))
-        _low = int(get_param("timeTask.cfg.param.lowBattery", max(_high - 5, 0)))
-        _watt = charge_watt if charge_watt is not None else int(get_param("timeTask.cfg.param.chChargeWatt", 2000))
-
-        _ch_sta = ch_sta if ch_sta is not None else get_param("timeTask.cfg.param.chSta", [1, 1])
-        _enable = is_enable if is_enable is not None else int(get_param("timeTask.cfg.comCfg.isEnable", 0))
-
-        return {
-            "operateType": "TCP",
-            "params": {
-                "cfg": {
-                    "param": {
-                        "lowBattery": _low,
-                        "hightBattery": _high,
-                        "chChargeWatt": _watt,
-                        "chSta": _ch_sta,
-                    },
-                    "comCfg": {
-                        "timeScale": [255] * 18,
-                        "isCfg": 1,
-                        "type": 1,
-                        "timeRange": {
-                            "isCfg": 1,
-                            "isEnable": 1,
-                            "startTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1},
-                            "endTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2030, "day": 1},
-                        },
-                        "setTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1},
-                        "isEnable": _enable,
-                    },
-                },
-                "cfgIndex": 10,
-                "cmdSet": 11,
-                "id": 81,
-            },
-        }
+        """Update scheduled charge settings - overrides specified values, preserves others."""
+        p = self._get_scheduled_charge_params(params)
+        return self._build_scheduled_charge_command(
+            high_battery if high_battery is not None else p["hightBattery"],
+            p["lowBattery"] if high_battery is None else max(high_battery - 5, 0),
+            charge_watt if charge_watt is not None else p["chChargeWatt"],
+            ch_sta if ch_sta is not None else p["chSta"],
+            is_enable if is_enable is not None else p["isEnable"],
+        )
     
     def _batteryChargeSwitch(self, client: EcoflowApiClient, index: int, enabled: bool = True) -> SwitchEntity:
         return (
