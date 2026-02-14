@@ -52,6 +52,19 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 for devicetype in device_list:
                     if "deviceName" in device and device["deviceName"].lower().startswith(devicetype.lower()):
                         product_name = devicetype
+
+                # Fallback for Stream family: EcoFlow often prefixes deviceName with
+                # a Stream variant not present in `device_by_product`.
+                if product_name == "undefined" and "deviceName" in device:
+                    dn = str(device.get("deviceName", ""))
+                    if dn.casefold().startswith("stream"):
+                        product_name = "Stream Battery"
+
+            # Canonicalize to a known product key when EcoFlow varies naming
+            # (e.g. "Stream AC Pro" / "Stream Max").
+            from ..devices.registry import canonical_product_name
+
+            product_name = canonical_product_name(product_name)
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
             result.append(self.__create_device_info(sn, device_name, product_name, status))
@@ -64,14 +77,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         else:
             info = self.__create_device_info(device_data.sn, device_data.name, device_data.device_type)
 
-        from custom_components.ecoflow_cloud.devices.registry import device_by_product
+        from custom_components.ecoflow_cloud.devices.registry import device_class_for_product_name
 
-        if device_data.device_type in device_by_product:
-            device = device_by_product[device_data.device_type](info, device_data)
-        elif device_data.parent is not None and device_data.parent.device_type in device_by_product:
-            device = device_by_product[device_data.parent.device_type](info, device_data)
-        else:
-            device = DiagnosticDevice(info, device_data)
+        device_cls = device_class_for_product_name(device_data.device_type)
+        if device_cls is None and device_data.parent is not None:
+            device_cls = device_class_for_product_name(device_data.parent.device_type)
+
+        device = device_cls(info, device_data) if device_cls is not None else DiagnosticDevice(info, device_data)
 
         self.add_device(device)
         return device

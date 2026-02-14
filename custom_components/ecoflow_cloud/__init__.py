@@ -137,11 +137,23 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
 def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
     result = dict[str, DeviceData]()
+    is_public_api = CONF_ACCESS_KEY in entry.data and CONF_SECRET_KEY in entry.data
+    canonicalize = None
+    if is_public_api:
+        try:
+            from .devices.registry import canonical_product_name as _canonical_product_name
+
+            canonicalize = _canonical_product_name
+        except Exception:
+            canonicalize = None
     for sn, data in entry.data[CONF_DEVICE_LIST].items():
+        device_type = data[CONF_DEVICE_TYPE]
+        if canonicalize is not None:
+            device_type = canonicalize(device_type)
         result[sn] = DeviceData(
             sn,
             data[CONF_DEVICE_NAME],
-            data[CONF_DEVICE_TYPE],
+            device_type,
             DeviceOptions(
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC],
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_POWER_STEP],
