@@ -71,8 +71,40 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         self.new_options = deepcopy(dict(config_entry.options))
 
     def set_device_list(self, device_list: list[EcoflowDeviceInfo]) -> None:
+        from .devices.registry import canonical_product_name, device_by_product
+
+        def _best_device_type(device: EcoflowDeviceInfo) -> str:
+            # Prefer the device_type reported by the API when it maps to a known device.
+            raw_type = str(getattr(device, "device_type", "") or "").strip()
+            if raw_type and raw_type.casefold() != "undefined":
+                candidate = canonical_product_name(raw_type)
+                if candidate in device_by_product:
+                    return candidate
+
+            # If EcoFlow reports productName=undefined, deviceName might still
+            # include a recognizable prefix (e.g. "Stream ...").
+            name_cf = str(getattr(device, "name", "") or "").casefold()
+            if name_cf.startswith("stream"):
+                candidate = canonical_product_name("Stream Battery")
+                if candidate in device_by_product:
+                    return candidate
+
+            # Last-resort: look for any known product key as substring.
+            for key in device_by_product.keys():
+                if key.casefold() in name_cf:
+                    return canonical_product_name(key)
+
+            return ""
+
         for device in device_list:
-            self.cloud_devices[f"{device.name} ({device.device_type})"] = device
+            guessed_type = _best_device_type(device)
+            if guessed_type:
+                # Only overwrite when we have a known, canonical type.
+                device.device_type = guessed_type
+
+            # Avoid showing "(undefined)" in the selector label.
+            label_suffix = device.device_type if device.device_type and device.device_type.casefold() != "undefined" else device.sn
+            self.cloud_devices[f"{device.name} ({label_suffix})"] = device
 
     def set_local_device_list(self, devices: list[DeviceData]) -> None:
         for device in devices:
@@ -388,13 +420,70 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         if not user_input:
             device_list = list(device_by_product.keys())
             default_type = canonical_product_name(self.cloud_device.device_type)
+            if default_type not in device_by_product:
+                inferred_type = ""
+
+                # First: guess from the device name (helps when EcoFlow returns undefined).
+                if str(self.cloud_device.name).casefold().startswith("stream") and "Stream Battery" in device_by_product:
+                    inferred_type = "Stream Battery"
+
+                # Second: if /device/list doesn't expose product fields (as per EcoFlow docs),
+                # probe /device/quota/all for stable identifiers.
+                if inferred_type == "" and getattr(self, "auth", None) is not None:
+                    try:
+                        quota_resp = await self.auth.call_api("/device/quota/all", {"sn": self.cloud_device.sn})
+                        params = quota_resp.get("data")
+                        if not isinstance(params, dict):
+                            params = {}
+
+                        def _as_int(value) -> int | None:
+                            try:
+                                if value is None:
+                                    return None
+                                return int(value)
+                            except (TypeError, ValueError):
+                                return None
+
+                        stream_markers = {
+                            "powGetBpCms",  # battery power (Stream batteries)
+                            "sysGridConnectionPower",
+                            "powGetSysGrid",
+                        }
+
+                        # Look for explicit numeric identifiers first.
+                        product_type: int | None = None
+                        product_detail: int | None = None
+                        for key, value in params.items():
+                            lowered = str(key).casefold()
+                            if lowered.endswith("producttype"):
+                                product_type = _as_int(value) if product_type is None else product_type
+                            if lowered.endswith("productdetail"):
+                                product_detail = _as_int(value) if product_detail is None else product_detail
+
+                        # Fallback: look for known Stream-specific keys.
+                        has_stream_marker = any(marker in params for marker in stream_markers)
+
+                        # Stream batteries are observed as productType=58, sometimes with productDetail=5.
+                        if (product_type == 58) or (product_type is None and product_detail == 5) or has_stream_marker:
+                            if "Stream Battery" in device_by_product:
+                                inferred_type = "Stream Battery"
+                    except Exception:
+                        # If the probe fails, keep inferred_type empty so we don't auto-select incorrectly.
+                        inferred_type = ""
+
+                # If we can't infer, don't preselect anything.
+                default_type = inferred_type
+
+            options = device_list
+            if default_type == "":
+                options = [""] + device_list
             return self.async_show_form(
                 step_id="confirm_cloud_device",
                 data_schema=vol.Schema(
                     {
                         vol.Required(CONF_DEVICE_TYPE, default=default_type): selector.SelectSelector(
                             selector.SelectSelectorConfig(
-                                options=device_list,
+                                options=options,
                                 mode=selector.SelectSelectorMode.DROPDOWN,
                             ),
                         ),
@@ -403,6 +492,10 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
                     }
                 ),
             )
+
+        if not user_input.get(CONF_DEVICE_TYPE):
+            # Force the user to choose a type if we couldn't infer one.
+            return await self.async_step_confirm_cloud_device(None)
 
         device = device_by_product[user_input[CONF_DEVICE_TYPE]]
 
