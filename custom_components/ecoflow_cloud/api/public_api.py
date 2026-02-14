@@ -56,6 +56,19 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                     if "deviceName" in device and device["deviceName"].lower().startswith(devicetype.lower()):
                         product_name = devicetype
                         break
+
+                # Fallback for Stream family: EcoFlow often prefixes deviceName with
+                # a Stream variant not present in `device_by_product`.
+                if product_name == "undefined" and "deviceName" in device:
+                    dn = str(device.get("deviceName", ""))
+                    if dn.casefold().startswith("stream"):
+                        product_name = "Stream Battery"
+
+            # Canonicalize to a known product key when EcoFlow varies naming
+            # (e.g. "Stream AC Pro" / "Stream Max").
+            from ..devices.registry import canonical_product_name
+
+            product_name = canonical_product_name(product_name)
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
             result.append(self._create_device_info(sn, device_name, product_name, status))
