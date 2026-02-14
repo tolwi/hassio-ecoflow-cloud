@@ -177,9 +177,13 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     _LOGGER.debug("Failed to convert indexValue to float in _sum_battery: %s", exc)
                     val = 0.0
                 extra = str(it.get("extra", ""))
-                if extra == "2":
+                # Stream AC historical battery metrics use `extra` to distinguish
+                # charge vs discharge. Observed in the EcoFlow app:
+                # - extra="1" => charge
+                # - extra="2" => discharge
+                if extra == "1":
                     chg += val
-                elif extra == "1":
+                elif extra == "2":
                     dsg += val
             return chg, dsg
 
