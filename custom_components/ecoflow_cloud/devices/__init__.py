@@ -55,6 +55,7 @@ class EcoflowDeviceInfo:
 @dataclasses.dataclass
 class EcoflowBroadcastDataHolder:
     data_holder: EcoflowDataHolder
+    received_time: datetime.datetime
     changed: bool
 
 
@@ -89,7 +90,9 @@ class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataH
             changed,
         )
         self.__last_broadcast = received_time
-        return EcoflowBroadcastDataHolder(self.holder, changed)
+        # Include received_time in the coordinator data so DataUpdateCoordinator
+        # can detect updates even though the holder object identity is stable.
+        return EcoflowBroadcastDataHolder(self.holder, received_time, changed)
 
 
 class BaseDevice(ABC):
