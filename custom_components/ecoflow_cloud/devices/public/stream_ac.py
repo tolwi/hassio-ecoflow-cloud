@@ -10,14 +10,17 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from typing import Any, NamedTuple
 import asyncio
 
+import jsonpath_ng.ext as jp
+
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity
 from custom_components.ecoflow_cloud.number import BatteryBackupLevel
 from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
@@ -164,11 +167,11 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # now = dt.utcnow()
         time_ranges = self._get_time_ranges()
 
-        params: dict[str, Any] = {}
-        # last_check_iso = (self.last_check or now).isoformat()
+        history: dict[str, Any] = {}
+        last_check_iso = self.last_check.isoformat()
 
         # params["history.mainSn"] = self._device.device_info.sn
-        # params["history.last_history_check"] = last_check_iso // storage consumptive
+        history["last_history_check"] = last_check_iso
 
         _LOGGER.debug(
             "StreamACHistoryUpdateCoordinator: fetching historical data for sn=%s",
@@ -192,27 +195,45 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if items:
                 processed = self._process_items(items)
 
+                # Ensure the key exists in history
+                if config.key not in history:
+                    history[config.key] = {}
+
+                metric_data = history[config.key]
+                metric_data["beginTime"] = begin
+                metric_data["endTime"] = end
+
                 for internal_key, val in processed.items():
                     if internal_key == "unit":
+                        # Store unit at the metric level or specific key if needed
+                        # For now, we can store it in the metric dict
+                        metric_data["unit"] = val
                         continue
 
-                    device_key = f"{config.key}.{internal_key}"
-                    params[device_key] = val
-                    params[f"{device_key}.beginTime"] = begin
-                    params[f"{device_key}.endTime"] = end
-
-                    # Assuming all metrics from the same batch share the unit if present
-                    if "unit" in processed and "solarEnergySavings" in config.key:
-                        params["history.solarEnergySavingsUnit"] = processed["unit"]
+                    metric_data[internal_key] = val
 
         try:
-            self._device.data.params.update({"history": params})
+            self._device.data.params.update({"history": history})
         except Exception as exc:
             _LOGGER.error(
                 "Failed to update device params for sn=%s: %s", self._device.device_info.sn, exc, exc_info=True
             )
 
-        return params
+        return history
+
+
+class StreamACMonetarySensorEntity(BaseSensorEntity):
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, unit_key: str):
+        super().__init__(client, device, mqtt_key, title)
+        self._unit_key = unit_key
+        self._unit_key_expr = jp.parse(unit_key)
+
+    def _updated(self, data: dict[str, Any]):
+        units = self._unit_key_expr.find(data)
+        if len(units) == 1:
+            self._attr_native_unit_of_measurement = units[0].value
+
+        super()._updated(data)
 
 
 class StreamAC(BaseDevice):
@@ -475,7 +496,7 @@ class StreamAC(BaseDevice):
             .attr("minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
-        ]
+        ] + self._history_sensors(client)
 
     # moduleWifiRssi
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
@@ -609,3 +630,196 @@ class StreamAC(BaseDevice):
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
         return StatusSensorEntity(client, self)
+
+    def _history_sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+        return [
+            # Energy Independence (Today)
+            EnergySensorEntity(
+                client, self, "history.energyIndependenceToday.value", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_TODAY
+            )
+            .with_unit_of_measurement("%")
+            .with_icon("mdi:percent")
+            .with_state_class(SensorStateClass.MEASUREMENT)
+            .attr("history.energyIndependenceToday.beginTime", "Begin Time", "")
+            .attr("history.energyIndependenceToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Energy Independence (Year)
+            EnergySensorEntity(
+                client, self, "history.energyIndependenceYear.value", const.STREAM_HISTORY_ENERGY_INDEPENDENCE_YEAR
+            )
+            .with_unit_of_measurement("%")
+            .with_icon("mdi:percent")
+            .with_state_class(SensorStateClass.MEASUREMENT)
+            .attr("history.energyIndependenceYear.beginTime", "Begin Time", "")
+            .attr("history.energyIndependenceYear.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Environmental Impact (Today)
+            EnergySensorEntity(
+                client, self, "history.environmentalImpactToday.value", const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_TODAY
+            )
+            .with_unit_of_measurement("kg")
+            .with_icon("mdi:leaf")
+            .with_state_class(SensorStateClass.TOTAL)
+            .attr("history.environmentalImpactToday.beginTime", "Begin Time", "")
+            .attr("history.environmentalImpactToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Environmental Impact (Cumulative)
+            EnergySensorEntity(
+                client,
+                self,
+                "history.environmentalImpactCumulative.value",
+                const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE,
+            )
+            .with_unit_of_measurement("kg")
+            .with_icon("mdi:leaf")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.environmentalImpactCumulative.beginTime", "Begin Time", "")
+            .attr("history.environmentalImpactCumulative.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Solar Energy Savings (Today)
+            StreamACMonetarySensorEntity(
+                client,
+                self,
+                "history.solarEnergySavingsToday.value",
+                const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY,
+                "history.solarEnergySavingsToday.unit",
+            )
+            .with_icon("mdi:cash")
+            .with_state_class(SensorStateClass.TOTAL)
+            .attr("history.solarEnergySavingsToday.beginTime", "Begin Time", "")
+            .attr("history.solarEnergySavingsToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Solar Energy Savings (Cumulative)
+            StreamACMonetarySensorEntity(
+                client,
+                self,
+                "history.solarEnergySavingsCumulative.value",
+                const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE,
+                "history.solarEnergySavingsCumulative.unit",
+            )
+            .with_icon("mdi:cash")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.solarEnergySavingsCumulative.beginTime", "Begin Time", "")
+            .attr("history.solarEnergySavingsCumulative.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Solar Generated (Today)
+            EnergySensorEntity(
+                client, self, "history.solarGeneratedToday.value", const.STREAM_HISTORY_SOLAR_GENERATED_TODAY
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:solar-power")
+            .with_state_class(SensorStateClass.TOTAL)
+            .attr("history.solarGeneratedToday.beginTime", "Begin Time", "")
+            .attr("history.solarGeneratedToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Solar Generated (Cumulative)
+            EnergySensorEntity(
+                client, self, "history.solarGeneratedCumulative.value", const.STREAM_HISTORY_SOLAR_GENERATED_CUMULATIVE
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:solar-power")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.solarGeneratedCumulative.beginTime", "Begin Time", "")
+            .attr("history.solarGeneratedCumulative.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Electricity Consumption (Today)
+            EnergySensorEntity(
+                client,
+                self,
+                "history.electricityConsumptionToday.value",
+                const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_TODAY,
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:lightning-bolt")
+            .with_state_class(SensorStateClass.TOTAL)
+            .attr("history.electricityConsumptionToday.beginTime", "Begin Time", "")
+            .attr("history.electricityConsumptionToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Electricity Consumption (Cumulative)
+            EnergySensorEntity(
+                client,
+                self,
+                "history.electricityConsumptionCumulative.value",
+                const.STREAM_HISTORY_ELECTRICITY_CONSUMPTION_CUMULATIVE,
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:lightning-bolt")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.electricityConsumptionCumulative.beginTime", "Begin Time", "")
+            .attr("history.electricityConsumptionCumulative.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Grid Import (Today) (extra='1' -> value_1)
+            EnergySensorEntity(client, self, "history.gridToday.value_1", const.STREAM_HISTORY_GRID_IMPORT_TODAY)
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:transmission-tower-import")
+            .with_state_class(SensorStateClass.TOTAL)
+            .attr("history.gridToday.beginTime", "Begin Time", "")
+            .attr("history.gridToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Grid Import (Cumulative)
+            EnergySensorEntity(
+                client, self, "history.gridCumulative.value_1", const.STREAM_HISTORY_GRID_IMPORT_CUMULATIVE
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:transmission-tower-import")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.gridCumulative.beginTime", "Begin Time", "")
+            .attr("history.gridCumulative.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Grid Export (Today) (extra='2' -> value_2)
+            EnergySensorEntity(client, self, "history.gridToday.value_2", const.STREAM_HISTORY_GRID_EXPORT_TODAY)
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:transmission-tower-export")
+            .with_state_class(SensorStateClass.TOTAL)
+            .attr("history.gridToday.beginTime", "Begin Time", "")
+            .attr("history.gridToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Grid Export (Cumulative)
+            EnergySensorEntity(
+                client, self, "history.gridCumulative.value_2", const.STREAM_HISTORY_GRID_EXPORT_CUMULATIVE
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:transmission-tower-export")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.gridCumulative.beginTime", "Begin Time", "")
+            .attr("history.gridCumulative.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Battery Charge (Today) (extra='1' -> value_1)
+            EnergySensorEntity(client, self, "history.batteryToday.value_1", const.STREAM_HISTORY_BATTERY_CHARGE_TODAY)
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:battery-arrow-up")
+            .with_state_class(SensorStateClass.TOTAL)
+            .attr("history.batteryToday.beginTime", "Begin Time", "")
+            .attr("history.batteryToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Battery Charge (Cumulative)
+            EnergySensorEntity(
+                client, self, "history.batteryCumulative.value_1", const.STREAM_HISTORY_BATTERY_CHARGE_CUMULATIVE
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:battery-arrow-up")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.batteryCumulative.beginTime", "Begin Time", "")
+            .attr("history.batteryCumulative.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Battery Discharge (Today) (extra='2' -> value_2)
+            EnergySensorEntity(
+                client, self, "history.batteryToday.value_2", const.STREAM_HISTORY_BATTERY_DISCHARGE_TODAY
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:battery-arrow-down")
+            .with_state_class(SensorStateClass.TOTAL)
+            .attr("history.batteryToday.beginTime", "Begin Time", "")
+            .attr("history.batteryToday.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+            # Battery Discharge (Cumulative)
+            EnergySensorEntity(
+                client, self, "history.batteryCumulative.value_2", const.STREAM_HISTORY_BATTERY_DISCHARGE_CUMULATIVE
+            )
+            .with_unit_of_measurement("Wh")
+            .with_icon("mdi:battery-arrow-down")
+            .with_state_class(SensorStateClass.TOTAL_INCREASING)
+            .attr("history.batteryCumulative.beginTime", "Begin Time", "")
+            .attr("history.batteryCumulative.endTime", "End Time", "")
+            .attr("history.last_history_check", "Last Checked", ""),
+        ]
