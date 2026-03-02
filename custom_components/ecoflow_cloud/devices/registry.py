@@ -7,6 +7,7 @@ from custom_components.ecoflow_cloud.devices.internal import (
     delta2 as internal_delta2,
     delta2_max as internal_delta2_max,
     delta3 as internal_delta3,
+    delta3_1500 as internal_delta3_1500,
     delta_max as internal_delta_max,
     delta_mini as internal_delta_mini,
     delta_pro as internal_delta_pro,
@@ -51,6 +52,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
     {
         "DELTA_2": internal_delta2.Delta2,
         "DELTA_3": internal_delta3.Delta3,
+        "DELTA_3_1500": internal_delta3_1500.Delta31500,
         "RIVER_2": internal_river2.River2,
         "RIVER_2_MAX": internal_river2_max.River2Max,
         "RIVER_2_PRO": internal_river2_pro.River2Pro,
