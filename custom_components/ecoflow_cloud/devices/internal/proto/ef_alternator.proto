@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+// Envelope for all alternator MQTT messages (incoming and outgoing)
+message AlternatorHeader {
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src = 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+    optional int32 time_snap = 18;
+    optional int32 is_rw_cmd = 19;
+    optional int32 is_queue = 20;
+    optional int32 ack_type = 21;
+    optional string code = 22;
+    optional string from_ = 23;
+    optional string module_sn = 24;
+    optional string device_sn = 25;
+}
+
+message AlternatorMessage {
+    repeated AlternatorHeader msg = 1;
+}
+
+// Received from device: heartbeat (cmdFunc=254, cmdId=21)
+// All sensor values published by the alternator charger
+message AlternatorHeartbeat {
+    optional int32 status1 = 1;           // Error/status flags (0=ok, 32=undervoltage)
+    optional int32 temp = 102;            // Temperature in °C
+    optional float alternator_power = 105; // Current alternator output power (W)
+    optional int32 switch_off130 = 130;   // Device online flag
+    optional int32 start_voltage = 138;   // Car battery start threshold (raw × 0.1 = V)
+    optional float car_bat_volt = 139;    // Car battery voltage (V, measured)
+    optional float bat_soc = 262;         // Station battery state of charge (%)
+    optional int32 charge_to_full268 = 268; // Discharge remaining time (min)
+    optional int32 unknown269 = 269;       // Charge remaining time (min)
+    optional float station_power = 425;   // Power delivered to station (W)
+    optional int32 unknown427 = 427;       // DCP type info
+    optional int32 unknown428 = 428;       // DCP detail info
+    optional int32 operation_mode = 581;  // 1=charge, 2=battery maintenance, 3=reverse charge
+    optional int32 start_stop = 597;      // Charger enabled: 0=off, 1=on
+    optional float permanent_watts = 598; // Configured power limit (W)
+    optional float wifi_rssi = 602;       // WiFi signal strength (dBm)
+    optional float rated_power = 603;     // Rated max power (W)
+    optional float cable_length608 = 608; // Extension cable length P setting (m)
+    optional float unknown609 = 609;      // Extension cable length N setting (m)
+    optional float sp_charger_car_batt_chg_amp_limit = 624; // Charge-mode current limit (A)
+    optional float sp_charger_dev_batt_chg_amp_limit = 625; // Reverse-charge current limit (A)
+    optional float sp_charger_car_batt_chg_amp_max = 723;   // Rated max charge current (A, read-only)
+    optional float sp_charger_dev_batt_chg_amp_max = 725;   // Rated max reverse-charge current (A, read-only)
+}
+
+// Sent to device: configuration write (cmdFunc=254, cmdId=17)
+// Note: field numbers differ from AlternatorHeartbeat — these are ConfigWrite fields
+message AlternatorSet {
+    optional int32 switch_off = 1;        // Power off/on
+    optional int32 operation_mode = 116;  // 1=charge, 2=maintenance, 3=reverse charge
+    optional int32 start_stop = 122;      // 0=off, 1=on
+    optional float permanent_watts = 123; // Power limit (W, 0–800)
+    optional int32 start_voltage = 137;   // Car battery threshold (int × 10 = V, e.g. 120 = 12.0 V)
+    optional float cable_length = 203;    // Extension cable length (m)
+    optional float cfg_sp_charger_car_batt_chg_amp_limit = 217; // Set charge-mode current limit (A)
+    optional float cfg_sp_charger_dev_batt_chg_amp_limit = 218; // Set reverse-charge current limit (A)
+}

@@ -4,6 +4,7 @@ from typing import Type
 from custom_components.ecoflow_cloud.devices import BaseDevice, DiagnosticDevice
 
 from custom_components.ecoflow_cloud.devices.internal import (
+    alternator as internal_alternator,
     delta2 as internal_delta2,
     delta2_max as internal_delta2_max,
     delta3 as internal_delta3,
@@ -50,6 +51,7 @@ from custom_components.ecoflow_cloud.devices.public import (
 
 devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]](
     {
+        "ALTERNATOR": internal_alternator.Alternator,
         "DELTA_2": internal_delta2.Delta2,
         "DELTA_3": internal_delta3.Delta3,
         "DELTA_3_1500": internal_delta3_1500.Delta31500,
