@@ -194,7 +194,7 @@ class SmartHomePanel(BaseDevice):
     def configure(self, hass: HomeAssistant):
         super().configure(hass)
         self._hass = hass
-        self._store = Store(hass, 1, f"ecoflow_cloud.{self.device_info.sn}.timetask")
+        self._store: Store[dict] = Store(hass, 1, f"ecoflow_cloud.{self.device_info.sn}.timetask")
 
     async def async_restore_state(self):
         data = await self._store.async_load()
