@@ -66,6 +66,9 @@ class PowerOcean(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         sensors: list[SensorEntity] = [
             LevelSensorEntity(client, self, "96_8.bpSoc", "bpSoc"),
+            WattsSensorEntity(client, self, "96_8.bpPwr", "bpPwr"),
+            WattsSensorEntity(client, self, "96_8.mpptPwr", "mpptPwr"),
+            WattsSensorEntity(client, self, "96_8.sysGridPwr", "sysGridPwr"),
             VoltSensorEntity(client, self, "96_1.pcsAPhase.vol", "pcsAPhase.vol"),
             AmpSensorEntity(client, self, "96_1.pcsAPhase.amp", "pcsAPhase.amp"),
             WattsSensorEntity(client, self, "96_1.pcsAPhase.actPwr", "pcsAPhase.actPwr"),
