@@ -608,16 +608,11 @@ class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
         quota_diff = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._quota_last_update)
         # if delay passed, reload quota
         if quota_diff > (self.assume_offline_period_sec):
-            self._attr_native_value = "updating"
             self._quota_last_update = dt.utcnow()
             self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
             self._attrs[ATTR_QUOTA_REQUESTS] = self._attrs[ATTR_QUOTA_REQUESTS] + 1
             _LOGGER.debug("Reload quota for device %s", self._device.device_info.sn)
             changed = True
-        else:
-            if self._attr_native_value == "updating":
-                changed = True
-            self._attr_native_value = "online"
         return changed
 
 
