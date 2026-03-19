@@ -144,7 +144,10 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
     def _handle_coordinator_update(self) -> None:
         if self.coordinator.data.changed:
             self._updated(self.coordinator.data.data_holder.params)
-        elif not self.coordinator.data.data_holder.online:  # Device is offline
+        elif (
+            not self.coordinator.data.data_holder.online
+            and not self._device.device_info.public_api
+        ):  # Keep the last public API reading instead of flapping to sensor defaults.
             # Reset sensors that should reset to default values
             if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
                 self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
