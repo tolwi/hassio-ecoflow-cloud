@@ -44,6 +44,9 @@ _MANUFACTURER_ID = 0xB5B5
 _DEFAULT_CAPABILITY_FLAGS = 0b0111000
 _RIVER2_PACKET_VERSION = 2
 _AUTH_HEADER_DST = 0x35
+_PD_ADDR = 0x02
+_PD_CMD_SET = 0x20
+_PD_GET_WIFI_INFO_CMD_ID = 0xA1
 _POST_PROVISION_OBSERVE_SEC = 15
 _DHODM_RPC_SRC = "user_1"
 _SUPPORTED_DEVICE_TYPES = {
@@ -53,6 +56,12 @@ _SUPPORTED_DEVICE_TYPES = {
     "RIVER 2",
     "RIVER 2 Max",
     "RIVER 2 Pro",
+}
+_MODULE_SOURCE_NAMES = {
+    0x02: "pd",
+    0x03: "bms_ems",
+    0x04: "inv",
+    0x05: "mppt",
 }
 _BT_PROTOCOL_UUIDS = {
     "rfcomm": {
@@ -736,6 +745,10 @@ def _normalize_wifi_channel(value: Any) -> int | None:
     return None
 
 
+def _module_source_name(src: int) -> str:
+    return _MODULE_SOURCE_NAMES.get(src, f"src_0x{src:02X}")
+
+
 @dataclass(slots=True)
 class BleRecoveryState:
     in_progress: bool = False
@@ -1405,6 +1418,42 @@ class EcoflowBleProvisioner:
 
         return packets
 
+    async def query_pd_wifi_info(self) -> list[Packet]:
+        packet = Packet(
+            0x21,
+            _PD_ADDR,
+            _PD_CMD_SET,
+            _PD_GET_WIFI_INFO_CMD_ID,
+            b"",
+            dsrc=0x01,
+            ddst=0x01,
+            version=self._packet_version,
+        )
+
+        try:
+            packets = await self._send_packet_request(
+                packet,
+                timeout=3,
+                predicate=lambda response: response.src == _PD_ADDR and response.cmd_set == _PD_CMD_SET,
+            )
+        except BleRecoveryError:
+            _LOGGER.warning("No PD wifi-info response for %s", self._serial_number)
+            return []
+
+        for response in packets:
+            _LOGGER.warning(
+                "BLE PD wifi-info response for %s: src=0x%02X dst=0x%02X cmd_set=0x%02X cmd_id=0x%02X seq=%s payload=%s",
+                self._serial_number,
+                response.src,
+                response.dst,
+                response.cmd_set,
+                response.cmd_id,
+                response.seq.hex(),
+                response.payload.hex(),
+            )
+
+        return packets
+
     async def _observe_post_provision_packets(self, timeout: float) -> dict[str, Any]:
         deadline = asyncio.get_running_loop().time() + timeout
         saw_packet = False
@@ -1431,6 +1480,7 @@ class EcoflowBleProvisioner:
                         network_status_by_source[f"0x{response.src:02X}"] = decoded_network_status
                     else:
                         network_status_by_source[f"0x{response.src:02X}"] = {
+                            "module": _module_source_name(response.src),
                             "cmd_id": response.cmd_id,
                             "seq": response.seq.hex(),
                             "raw": response.payload.hex(),
@@ -2020,7 +2070,17 @@ class EcoflowBleRecoveryManager:
                         dhodm_request_id += 1
                         await provisioner.request_mqtt_status(request_id=dhodm_request_id)
                         dhodm_request_id += 1
+                        pd_wifi_info_packets = await provisioner.query_pd_wifi_info()
                         probed_network_status = await provisioner._observe_post_provision_packets(timeout=8)
+                        if pd_wifi_info_packets:
+                            probed_network_status["_pd_wifi_info"] = [
+                                {
+                                    "cmd_id": packet.cmd_id,
+                                    "seq": packet.seq.hex(),
+                                    "raw": packet.payload.hex(),
+                                }
+                                for packet in pd_wifi_info_packets
+                            ]
                         if probed_network_status:
                             state.last_network_status = probed_network_status
                         _LOGGER.warning(
