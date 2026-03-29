@@ -251,6 +251,7 @@ GEN_TYPE_OPTIONS = {
 }
 
 POWER = "Power"
+MAX_POWER = "Max Power"
 ENERGY = "Energy"
 CURRENT = "Current"
 MAX_CURRENT = "Max Current"

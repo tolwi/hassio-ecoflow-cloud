@@ -4,4 +4,5 @@ from .devices.internal.proto import (
     powerstream_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
     stream_ac_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
     ef_smartmeter_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
+    smartplug_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
 )

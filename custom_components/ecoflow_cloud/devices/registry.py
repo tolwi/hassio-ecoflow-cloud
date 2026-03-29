@@ -22,6 +22,7 @@ from custom_components.ecoflow_cloud.devices.internal import (
     river_mini as internal_river_mini,
     river_pro as internal_river_pro,
     smart_meter as internal_smart_meter,
+    smart_plug as internal_smart_plug,
     stream_ac as internal_stream_ac,
     wave2 as internal_wave2,
 )
@@ -69,6 +70,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "GLACIER": internal_glacier.Glacier,
         "WAVE_2": internal_wave2.Wave2,
         "SMART_METER": internal_smart_meter.SmartMeter,
+        "SMART_PLUG": internal_smart_plug.SmartPlug,
         "STREAM_AC": internal_stream_ac.StreamAC,
         "STREAM_PRO": internal_stream_ac.StreamAC,
         "STREAM_ULTRA": internal_stream_ac.StreamAC,
