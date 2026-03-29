@@ -47,6 +47,8 @@ Newly added supported devices enable BLE Wi-Fi recovery by default. Existing ent
   The password used for BLE recovery.
 - **Recovery Wi-Fi BSSID**
   Optional AP BSSID to target, in `AA:BB:CC:DD:EE:FF` format.
+- **Recovery Wi-Fi channel**
+  Optional AP channel to target. This is useful when the same SSID is advertised on both 2.4 GHz and 5 GHz and the device only supports the 2.4 GHz AP.
 - **BLE recovery timeout (sec)**
   Maximum time allowed for a BLE recovery attempt and cloud rejoin wait.
 - **BLE recovery cooldown (sec)**
@@ -85,7 +87,7 @@ Two manual entry points are available for supported devices:
 
 The service accepts:
 - `serial_number` or `device_id`
-- optional one-shot overrides for `ssid`, `password`, and `bssid`
+- optional one-shot overrides for `ssid`, `password`, `bssid`, and `channel`
 
 These overrides apply only to that service call.
 

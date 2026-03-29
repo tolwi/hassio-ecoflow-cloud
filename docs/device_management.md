@@ -78,6 +78,7 @@ Use the **Configure** button to adjust specific settings for your devices, such 
         *   **Recovery Wi-Fi SSID**
         *   **Recovery Wi-Fi password**
         *   **Recovery Wi-Fi BSSID**
+        *   **Recovery Wi-Fi channel**
         *   **BLE recovery timeout (sec)**
         *   **BLE recovery cooldown (sec)**
 
@@ -109,6 +110,6 @@ Supported devices also expose manual recovery actions:
 
 The service accepts:
 *   `serial_number` or `device_id`
-*   optional one-shot overrides for `ssid`, `password`, and `bssid`
+*   optional one-shot overrides for `ssid`, `password`, `bssid`, and `channel`
 
 These overrides are useful for testing or for recovering a device before you save its credentials permanently.

@@ -14,6 +14,7 @@ class DeviceOptions:
     ble_wifi_ssid: str
     ble_wifi_password: str
     ble_wifi_bssid: str
+    ble_wifi_channel: int | None
     ble_recovery_timeout_sec: int
     ble_recovery_cooldown_sec: int
 

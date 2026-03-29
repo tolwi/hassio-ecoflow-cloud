@@ -11,6 +11,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import DeviceInfo, Entity, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt
 
 from .. import ECOFLOW_DOMAIN
 from ..api import EcoflowApiClient, Message
@@ -141,16 +142,42 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         # d = self._device.data.params_observable().subscribe(self._updated)
         # self.async_on_remove(d.dispose)
 
+    def _sensor_data_is_fresh(self) -> bool:
+        coordinator_data = getattr(self.coordinator, "data", None)
+        data_holder = getattr(coordinator_data, "data_holder", None)
+        if data_holder is None:
+            return True
+
+        computed_online = getattr(data_holder, "computed_online", None)
+        if computed_online is False:
+            return False
+
+        if not data_holder.online:
+            return False
+
+        assume_offline_sec = self._device.device_data.options.assume_offline_sec
+        time_since_update = (dt.utcnow() - data_holder.last_received_time()).total_seconds()
+        return time_since_update < assume_offline_sec
+
     def _handle_coordinator_update(self) -> None:
         if self.coordinator.data.changed:
             self._updated(self.coordinator.data.data_holder.params)
-        elif not self.coordinator.data.data_holder.online:  # Device is offline
-            # Reset sensors that should reset to default values
-            if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
-                self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
-                self._updated(self.coordinator.data.data_holder.params)
+        elif isinstance(self, BaseSensorEntity) and not self._sensor_data_is_fresh():
+            # Do not invent telemetry values while the device is offline.
+            # Keeping power/voltage/temperature sensors at 0 masks the real state.
+            if self._attr_available:
+                self._attr_available = False
+                self.schedule_update_ha_state()
 
     def _updated(self, data: dict[str, Any]):
+        if isinstance(self, BaseSensorEntity) and not self._sensor_data_is_fresh():
+            # Offline payloads from EcoFlow often contain placeholder zeros.
+            # Keep telemetry unavailable instead of treating those placeholders as real values.
+            if self._attr_available:
+                self._attr_available = False
+                self.schedule_update_ha_state()
+            return
+
         # update attributes
         for key, title in self.__attributes_mapping.items():
             key_expr = jp.parse(self._adopt_json_key(key))
@@ -273,8 +300,21 @@ class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):
         diagnostic: Optional[bool] = None,
     ):
         super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic)
-        if self._attr_default_value is not None:
+        coordinator_data = getattr(self.coordinator, "data", None)
+        data_holder = getattr(coordinator_data, "data_holder", None)
+        is_online = self._sensor_data_is_fresh() if data_holder is not None else True
+
+        if not is_online:
+            # Sensors with baked-in defaults such as 0 or 0.003 should not
+            # appear as real telemetry while the device is offline at startup.
+            self._attr_available = False
+
+        if self._attr_default_value is not None and is_online:
             self._attr_native_value = self._attr_default_value
+
+    @property
+    def available(self) -> bool:
+        return super().available and self._sensor_data_is_fresh()
 
     def _update_value(self, val: Any) -> bool:
         if self._attr_native_value != val:

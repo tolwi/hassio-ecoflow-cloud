@@ -41,6 +41,7 @@ from custom_components.ecoflow_cloud import (
     OPTS_BLE_RECOVERY_COOLDOWN_SEC,
     OPTS_BLE_RECOVERY_TIMEOUT_SEC,
     OPTS_BLE_WIFI_BSSID,
+    OPTS_BLE_WIFI_CHANNEL,
     OPTS_BLE_WIFI_PASSWORD,
     OPTS_BLE_WIFI_RECOVERY_ENABLED,
     OPTS_BLE_WIFI_SSID,
@@ -292,6 +293,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_BLE_WIFI_SSID: "",
             OPTS_BLE_WIFI_PASSWORD: "",
             OPTS_BLE_WIFI_BSSID: "",
+            OPTS_BLE_WIFI_CHANNEL: None,
             OPTS_BLE_RECOVERY_TIMEOUT_SEC: DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
             OPTS_BLE_RECOVERY_COOLDOWN_SEC: DEFAULT_BLE_RECOVERY_COOLDOWN_SEC,
         }
@@ -441,6 +443,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_BLE_WIFI_SSID: "",
             OPTS_BLE_WIFI_PASSWORD: "",
             OPTS_BLE_WIFI_BSSID: "",
+            OPTS_BLE_WIFI_CHANNEL: None,
             OPTS_BLE_RECOVERY_TIMEOUT_SEC: DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
             OPTS_BLE_RECOVERY_COOLDOWN_SEC: DEFAULT_BLE_RECOVERY_COOLDOWN_SEC,
         }
@@ -503,6 +506,7 @@ class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
                     selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
                 )
                 schema[vol.Required(OPTS_BLE_WIFI_BSSID, default=device_options.ble_wifi_bssid)] = selector.TextSelector()
+                schema[vol.Required(OPTS_BLE_WIFI_CHANNEL, default=device_options.ble_wifi_channel or 0)] = int
                 schema[vol.Required(
                     OPTS_BLE_RECOVERY_TIMEOUT_SEC,
                     default=device_options.ble_recovery_timeout_sec or DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
@@ -519,7 +523,7 @@ class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
             )
 
         supports_ble_recovery = supports_ble_wifi_recovery_device_type(self.selected_device.device_type)
-        new_options = {**self.config_entry.options}
+        new_options = deepcopy(dict(self.config_entry.options))
         new_options[CONF_DEVICE_LIST][self.selected_device.sn] = {
             OPTS_POWER_STEP: user_input[OPTS_POWER_STEP],
             OPTS_REFRESH_PERIOD_SEC: user_input[OPTS_REFRESH_PERIOD_SEC],
@@ -532,6 +536,9 @@ class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
             OPTS_BLE_WIFI_SSID: user_input.get(OPTS_BLE_WIFI_SSID, "") if supports_ble_recovery else "",
             OPTS_BLE_WIFI_PASSWORD: user_input.get(OPTS_BLE_WIFI_PASSWORD, "") if supports_ble_recovery else "",
             OPTS_BLE_WIFI_BSSID: user_input.get(OPTS_BLE_WIFI_BSSID, "") if supports_ble_recovery else "",
+            OPTS_BLE_WIFI_CHANNEL: (int(user_input.get(OPTS_BLE_WIFI_CHANNEL, 0)) or None)
+            if supports_ble_recovery
+            else None,
             OPTS_BLE_RECOVERY_TIMEOUT_SEC: user_input.get(
                 OPTS_BLE_RECOVERY_TIMEOUT_SEC, DEFAULT_BLE_RECOVERY_TIMEOUT_SEC
             )

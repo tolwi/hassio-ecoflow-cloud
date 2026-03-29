@@ -30,3 +30,11 @@ recover_wifi_via_ble:
       description: Optional one-shot BSSID override, formatted like AA:BB:CC:DD:EE:FF.
       selector:
         text:
+    channel:
+      name: Wi-Fi channel
+      description: Optional one-shot Wi-Fi channel override, usually needed only on dual-band SSIDs.
+      selector:
+        number:
+          min: 0
+          max: 196
+          mode: box

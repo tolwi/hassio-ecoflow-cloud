@@ -75,6 +75,7 @@
                     "ble_wifi_ssid": "Recovery Wi-Fi SSID",
                     "ble_wifi_password": "Recovery Wi-Fi password",
                     "ble_wifi_bssid": "Recovery Wi-Fi BSSID",
+                    "ble_wifi_channel": "Recovery Wi-Fi channel",
                     "ble_recovery_timeout_sec": "BLE recovery timeout (sec)",
                     "ble_recovery_cooldown_sec": "BLE recovery cooldown (sec)"
                 }
@@ -105,6 +106,10 @@
                 "bssid": {
                     "name": "BSSID",
                     "description": "Optional one-shot BSSID override, formatted like AA:BB:CC:DD:EE:FF."
+                },
+                "channel": {
+                    "name": "Wi-Fi channel",
+                    "description": "Optional one-shot Wi-Fi channel override, usually needed only on dual-band SSIDs."
                 }
             }
         }
@@ -119,7 +124,9 @@
                         "description": "The device was seen over Bluetooth, but Wi-Fi recovery needs valid credentials. Review the SSID and enter the Wi-Fi password.",
                         "data": {
                             "ble_wifi_ssid": "Wi-Fi SSID",
-                            "ble_wifi_password": "Wi-Fi password"
+                            "ble_wifi_password": "Wi-Fi password",
+                            "ble_wifi_bssid": "Wi-Fi BSSID",
+                            "ble_wifi_channel": "Wi-Fi channel"
                         }
                     }
                 },

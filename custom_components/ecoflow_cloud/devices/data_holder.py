@@ -36,6 +36,7 @@ class EcoflowDataHolder:
         collect_raw: bool = False,
     ):
         self.online = True
+        self.computed_online: bool | None = None
         self.module_sn = module_sn
 
         self.params = dict[str, Any]()

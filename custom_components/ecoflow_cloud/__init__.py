@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 from typing import Any
 from typing import Final
 
@@ -17,7 +18,7 @@ from .device_data import DeviceData, DeviceOptions
 _LOGGER = logging.getLogger(__name__)
 
 ECOFLOW_DOMAIN = "ecoflow_cloud"
-CONFIG_VERSION = 11
+CONFIG_VERSION = 12
 
 _PLATFORMS = {
     Platform.BINARY_SENSOR,
@@ -64,6 +65,7 @@ OPTS_BLE_WIFI_RECOVERY_ENABLED: Final = "ble_wifi_recovery_enabled"
 OPTS_BLE_WIFI_SSID: Final = "ble_wifi_ssid"
 OPTS_BLE_WIFI_PASSWORD: Final = "ble_wifi_password"
 OPTS_BLE_WIFI_BSSID: Final = "ble_wifi_bssid"
+OPTS_BLE_WIFI_CHANNEL: Final = "ble_wifi_channel"
 OPTS_BLE_RECOVERY_TIMEOUT_SEC: Final = "ble_recovery_timeout_sec"
 OPTS_BLE_RECOVERY_COOLDOWN_SEC: Final = "ble_recovery_cooldown_sec"
 SERVICE_RECOVER_WIFI_VIA_BLE: Final = "recover_wifi_via_ble"
@@ -71,6 +73,7 @@ SERVICE_ATTR_SERIAL_NUMBER: Final = "serial_number"
 SERVICE_ATTR_SSID: Final = "ssid"
 SERVICE_ATTR_PASSWORD: Final = "password"
 SERVICE_ATTR_BSSID: Final = "bssid"
+SERVICE_ATTR_CHANNEL: Final = "channel"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 5
 DEFAULT_ASSUME_OFFLINE_SEC: Final = 300  # 5 minutes
@@ -162,17 +165,28 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
     if config_entry.version == 10:
-        new_options = dict(config_entry.options)
+        new_options = deepcopy(dict(config_entry.options))
         for sn, device_options in new_options[CONF_DEVICE_LIST].items():
             device_type = config_entry.data[CONF_DEVICE_LIST][sn].get(CONF_DEVICE_TYPE, "")
-            device_options[OPTS_BLE_WIFI_RECOVERY_ENABLED] = default_ble_wifi_recovery_enabled(device_type)
-            device_options[OPTS_BLE_WIFI_SSID] = ""
-            device_options[OPTS_BLE_WIFI_PASSWORD] = ""
-            device_options[OPTS_BLE_WIFI_BSSID] = ""
-            device_options[OPTS_BLE_RECOVERY_TIMEOUT_SEC] = DEFAULT_BLE_RECOVERY_TIMEOUT_SEC
-            device_options[OPTS_BLE_RECOVERY_COOLDOWN_SEC] = DEFAULT_BLE_RECOVERY_COOLDOWN_SEC
+            device_options.setdefault(
+                OPTS_BLE_WIFI_RECOVERY_ENABLED,
+                default_ble_wifi_recovery_enabled(device_type),
+            )
+            device_options.setdefault(OPTS_BLE_WIFI_SSID, "")
+            device_options.setdefault(OPTS_BLE_WIFI_PASSWORD, "")
+            device_options.setdefault(OPTS_BLE_WIFI_BSSID, "")
+            device_options.setdefault(OPTS_BLE_RECOVERY_TIMEOUT_SEC, DEFAULT_BLE_RECOVERY_TIMEOUT_SEC)
+            device_options.setdefault(OPTS_BLE_RECOVERY_COOLDOWN_SEC, DEFAULT_BLE_RECOVERY_COOLDOWN_SEC)
 
         updated = hass.config_entries.async_update_entry(config_entry, version=11, options=new_options)
+        _LOGGER.info("Config entries updated to version %d", config_entry.version)
+
+    if config_entry.version == 11:
+        new_options = deepcopy(dict(config_entry.options))
+        for device_options in new_options[CONF_DEVICE_LIST].values():
+            device_options.setdefault(OPTS_BLE_WIFI_CHANNEL, None)
+
+        updated = hass.config_entries.async_update_entry(config_entry, version=12, options=new_options)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
     return updated
@@ -228,6 +242,7 @@ async def _async_handle_recover_wifi_via_ble(hass: HomeAssistant, call: ServiceC
         ssid=call.data.get(SERVICE_ATTR_SSID),
         password=call.data.get(SERVICE_ATTR_PASSWORD),
         bssid=call.data.get(SERVICE_ATTR_BSSID),
+        channel=call.data.get(SERVICE_ATTR_CHANNEL),
     )
     if not recovered:
         raise HomeAssistantError(f"BLE Wi-Fi recovery did not succeed for {serial_number}")
@@ -244,6 +259,7 @@ def _async_register_services(hass: HomeAssistant) -> None:
             vol.Optional(SERVICE_ATTR_SSID): str,
             vol.Optional(SERVICE_ATTR_PASSWORD): str,
             vol.Optional(SERVICE_ATTR_BSSID): str,
+            vol.Optional(SERVICE_ATTR_CHANNEL): int,
         }
     )
 
@@ -280,6 +296,7 @@ def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
                 ble_wifi_ssid=entry.options[CONF_DEVICE_LIST][sn].get(OPTS_BLE_WIFI_SSID, ""),
                 ble_wifi_password=entry.options[CONF_DEVICE_LIST][sn].get(OPTS_BLE_WIFI_PASSWORD, ""),
                 ble_wifi_bssid=entry.options[CONF_DEVICE_LIST][sn].get(OPTS_BLE_WIFI_BSSID, ""),
+                ble_wifi_channel=entry.options[CONF_DEVICE_LIST][sn].get(OPTS_BLE_WIFI_CHANNEL),
                 ble_recovery_timeout_sec=entry.options[CONF_DEVICE_LIST][sn].get(
                     OPTS_BLE_RECOVERY_TIMEOUT_SEC, DEFAULT_BLE_RECOVERY_TIMEOUT_SEC
                 ),

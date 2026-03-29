@@ -11,6 +11,8 @@ from homeassistant.helpers import selector
 
 from . import (
     CONF_DEVICE_LIST,
+    OPTS_BLE_WIFI_BSSID,
+    OPTS_BLE_WIFI_CHANNEL,
     OPTS_BLE_WIFI_PASSWORD,
     OPTS_BLE_WIFI_SSID,
 )
@@ -26,7 +28,7 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
 
     async def async_step_init(
         self,
-        user_input: dict[str, str] | None = None,
+        user_input: dict[str, Any] | None = None,
     ) -> data_entry_flow.FlowResult:
         """Handle the fix flow."""
         entry_id = self._issue_data.get("entry_id")
@@ -45,12 +47,16 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
         if user_input is not None:
             ssid = user_input[OPTS_BLE_WIFI_SSID].strip()
             password = user_input[OPTS_BLE_WIFI_PASSWORD].strip()
+            bssid = user_input[OPTS_BLE_WIFI_BSSID].strip()
+            channel = int(user_input[OPTS_BLE_WIFI_CHANNEL] or 0) or None
             if not ssid or not password:
                 return self.async_show_form(
                     step_id="init",
                     data_schema=self._schema(
                         ssid=user_input[OPTS_BLE_WIFI_SSID],
                         password=user_input[OPTS_BLE_WIFI_PASSWORD],
+                        bssid=user_input[OPTS_BLE_WIFI_BSSID],
+                        channel=user_input[OPTS_BLE_WIFI_CHANNEL],
                     ),
                     errors={"base": "missing_credentials"},
                 )
@@ -58,6 +64,8 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
             new_options = deepcopy(dict(entry.options))
             new_options[CONF_DEVICE_LIST][serial_number][OPTS_BLE_WIFI_SSID] = ssid
             new_options[CONF_DEVICE_LIST][serial_number][OPTS_BLE_WIFI_PASSWORD] = password
+            new_options[CONF_DEVICE_LIST][serial_number][OPTS_BLE_WIFI_BSSID] = bssid
+            new_options[CONF_DEVICE_LIST][serial_number][OPTS_BLE_WIFI_CHANNEL] = channel
             self.hass.config_entries.async_update_entry(entry, options=new_options)
             return self.async_create_entry(title="", data={})
 
@@ -67,11 +75,16 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
         )
         return self.async_show_form(
             step_id="init",
-            data_schema=self._schema(ssid=current_ssid, password=""),
+            data_schema=self._schema(
+                ssid=current_ssid,
+                password="",
+                bssid=device_options.get(OPTS_BLE_WIFI_BSSID, ""),
+                channel=device_options.get(OPTS_BLE_WIFI_CHANNEL) or 0,
+            ),
         )
 
     @staticmethod
-    def _schema(*, ssid: str, password: str) -> vol.Schema:
+    def _schema(*, ssid: str, password: str, bssid: str, channel: int) -> vol.Schema:
         return vol.Schema(
             {
                 vol.Required(OPTS_BLE_WIFI_SSID, default=ssid): selector.TextSelector(),
@@ -81,6 +94,8 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
                 ): selector.TextSelector(
                     selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
                 ),
+                vol.Required(OPTS_BLE_WIFI_BSSID, default=bssid): selector.TextSelector(),
+                vol.Required(OPTS_BLE_WIFI_CHANNEL, default=channel): int,
             }
         )
 

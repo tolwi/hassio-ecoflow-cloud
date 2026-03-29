@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
 import logging
 import struct
 from collections.abc import Callable
@@ -20,7 +21,11 @@ from bleak.backends.scanner import AdvertisementData
 from bleak.exc import BleakError
 from bleak_retry_connector import BleakNotFoundError, establish_connection
 from google.protobuf import descriptor_pb2, descriptor_pool, message_factory
-from homeassistant.components.bluetooth import BluetoothServiceInfoBleak, async_discovered_service_info
+from homeassistant.components.bluetooth import (
+    BluetoothServiceInfoBleak,
+    async_discovered_service_info,
+    async_last_service_info,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import dt
@@ -39,6 +44,8 @@ _MANUFACTURER_ID = 0xB5B5
 _DEFAULT_CAPABILITY_FLAGS = 0b0111000
 _RIVER2_PACKET_VERSION = 2
 _AUTH_HEADER_DST = 0x35
+_POST_PROVISION_OBSERVE_SEC = 15
+_DHODM_RPC_SRC = "user_1"
 _SUPPORTED_DEVICE_TYPES = {
     "RIVER_2",
     "RIVER_2_MAX",
@@ -63,10 +70,19 @@ ATTR_BLE_RECOVERY_ATTEMPTS = "ble_recovery_attempts"
 ATTR_BLE_RECOVERY_LAST_ATTEMPT = "ble_recovery_last_attempt"
 ATTR_BLE_RECOVERY_LAST_RESULT = "ble_recovery_last_result"
 ATTR_BLE_RECOVERY_LAST_ERROR = "ble_recovery_last_error"
+ATTR_BLE_RECOVERY_STAGE = "ble_recovery_stage"
+ATTR_BLE_RECOVERY_STRATEGY = "ble_recovery_strategy"
+ATTR_BLE_RECOVERY_NETWORK_STATUS = "ble_recovery_network_status"
 
 _WIFI_SSID_KEYS = {
     "modulewifissid",
     "wifissid",
+}
+_WIFI_CHANNEL_KEYS = {
+    "modulewificonnectchannel",
+    "modulewifichannel",
+    "wificonnectchannel",
+    "wifichannel",
 }
 _BLE_WIFI_CREDENTIALS_ISSUE_PREFIX = "ble_wifi_credentials_"
 
@@ -85,6 +101,39 @@ class BlePacketError(BleRecoveryError):
 
 def supports_ble_wifi_recovery_device_type(device_type: str) -> bool:
     return device_type in _SUPPORTED_DEVICE_TYPES
+
+
+def _discovery_address(discovery: BluetoothServiceInfoBleak) -> str:
+    return getattr(discovery, "address", "") or discovery.device.address
+
+
+def _discovery_name(discovery: BluetoothServiceInfoBleak) -> str:
+    return getattr(discovery, "name", "") or discovery.device.name or ""
+
+
+def _discovery_rssi(discovery: BluetoothServiceInfoBleak) -> int:
+    rssi = getattr(discovery.advertisement, "rssi", None)
+    return rssi if isinstance(rssi, int) else -127
+
+
+def _discovery_source(discovery: BluetoothServiceInfoBleak) -> str:
+    source = getattr(discovery, "source", None)
+    if isinstance(source, str) and source:
+        return source
+
+    details = getattr(discovery.device, "details", None)
+    if isinstance(details, dict):
+        detail_source = details.get("source")
+        if isinstance(detail_source, str) and detail_source:
+            return detail_source
+
+        props = details.get("props")
+        if isinstance(props, dict):
+            adapter = props.get("Adapter")
+            if isinstance(adapter, str) and adapter:
+                return adapter
+
+    return "unknown"
 
 
 def get_ble_recovery_state_attributes(client: "EcoflowApiClient", sn: str) -> dict[str, Any]:
@@ -225,7 +274,7 @@ class EncPacket:
 
     def to_bytes(self) -> bytes:
         payload = self._encrypt_payload()
-        data = self.PREFIX + struct.pack("<B", self._frame_type << 4) + b"\x01"
+        data = self.PREFIX + struct.pack("<B", (self._frame_type << 4) | self._payload_type) + b"\x01"
         data += struct.pack("<H", len(payload) + 2)
         data += payload
         data += struct.pack("<H", _crc16_arc(data))
@@ -505,23 +554,151 @@ def _network_message_class():
 
 def _build_network_message_payload(
     *,
-    ssid: str,
-    password: str,
+    ssid: str | None,
+    password: str | None,
     bssid: bytes | None,
     channel: int | None = None,
+    https_url: str | None = None,
 ) -> bytes:
     message_cls = _network_message_class()
     message = message_cls()
-    message.router_ssid = ssid
-    message.router_pwd = password
+    if ssid is not None:
+        message.router_ssid = ssid
+    if password is not None:
+        message.router_pwd = password
     message.mesh_id = b""
-    message.https_url = ""
+    if https_url is not None:
+        message.https_url = https_url
     message.mesh_enable = 0
     if bssid is not None:
         message.router_bssid = bssid
     if channel is not None and channel >= 0:
         message.router_channel = channel
     return message.SerializeToString()
+
+
+def _recovery_https_url(client: "EcoflowApiClient") -> str:
+    api_domain = str(getattr(client, "api_domain", "")).strip()
+    if not api_domain:
+        return ""
+    return f"https://{api_domain}"
+
+
+def _recovery_mqtt_server(client: "EcoflowApiClient") -> str:
+    mqtt_info = getattr(client, "mqtt_info", None)
+    if mqtt_info is None:
+        return ""
+
+    url = str(getattr(mqtt_info, "url", "")).strip()
+    port = getattr(mqtt_info, "port", None)
+    if not url:
+        return ""
+
+    if isinstance(port, int) and port > 0:
+        return f"{url}:{port}"
+
+    return url
+
+
+def _build_dhodm_rpc_payload(
+    *,
+    request_id: int,
+    method: str,
+    params: Any,
+    dst: str = "",
+) -> bytes:
+    payload = {
+        "id": request_id,
+        "src": _DHODM_RPC_SRC,
+        "method": method,
+        "params": params,
+        "dst": dst,
+        "result": None,
+    }
+    return json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+def _decode_protobuf_fields(payload: bytes) -> dict[int, Any]:
+    values: dict[int, Any] = {}
+    index = 0
+    payload_len = len(payload)
+
+    def read_varint(start: int) -> tuple[int, int]:
+        shift = 0
+        value = 0
+        pos = start
+        while pos < payload_len:
+            byte = payload[pos]
+            value |= (byte & 0x7F) << shift
+            pos += 1
+            if byte < 0x80:
+                return value, pos
+            shift += 7
+        raise ValueError("truncated_varint")
+
+    while index < payload_len:
+        key, index = read_varint(index)
+        field_number = key >> 3
+        wire_type = key & 0x07
+
+        if field_number == 0:
+            raise ValueError("invalid_field_number")
+
+        if wire_type == 0:
+            value, index = read_varint(index)
+        elif wire_type == 2:
+            size, index = read_varint(index)
+            value_bytes = payload[index : index + size]
+            if len(value_bytes) != size:
+                raise ValueError("truncated_length_delimited")
+            index += size
+            try:
+                decoded = value_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                value = value_bytes.hex()
+            else:
+                value = decoded if decoded.isprintable() else value_bytes.hex()
+        elif wire_type == 5:
+            value_bytes = payload[index : index + 4]
+            if len(value_bytes) != 4:
+                raise ValueError("truncated_fixed32")
+            value = struct.unpack("<I", value_bytes)[0]
+            index += 4
+        elif wire_type == 1:
+            value_bytes = payload[index : index + 8]
+            if len(value_bytes) != 8:
+                raise ValueError("truncated_fixed64")
+            value = struct.unpack("<Q", value_bytes)[0]
+            index += 8
+        else:
+            raise ValueError(f"unsupported_wire_type:{wire_type}")
+
+        values[field_number] = value
+
+    return values
+
+
+def _decode_network_status_payload(payload: bytes) -> dict[str, Any] | None:
+    if not payload:
+        return None
+
+    try:
+        fields = _decode_protobuf_fields(payload)
+    except ValueError:
+        return None
+
+    decoded = {
+        "mesh_state": fields.get(1),
+        "mesh_layer": fields.get(2),
+        "parent_rssi": fields.get(3),
+        "https_state": fields.get(4),
+        "mqtt_state": fields.get(5),
+        "ping_info": fields.get(6),
+        "raw": payload.hex(),
+    }
+    if not any(value is not None for key, value in decoded.items() if key != "raw"):
+        return None
+    return decoded
 
 
 def _auth_result_error(payload: bytes) -> str | None:
@@ -539,6 +716,26 @@ def _auth_result_error(payload: bytes) -> str | None:
     return errors.get(payload, f"unknown_auth_error:{payload.hex()}")
 
 
+def _normalize_wifi_channel(value: Any) -> int | None:
+    if isinstance(value, bool):
+        return None
+
+    if isinstance(value, int):
+        return value if value > 0 else None
+
+    if isinstance(value, float) and value.is_integer():
+        parsed = int(value)
+        return parsed if parsed > 0 else None
+
+    if isinstance(value, str):
+        stripped = value.strip()
+        if stripped.isdigit():
+            parsed = int(stripped)
+            return parsed if parsed > 0 else None
+
+    return None
+
+
 @dataclass(slots=True)
 class BleRecoveryState:
     in_progress: bool = False
@@ -546,7 +743,11 @@ class BleRecoveryState:
     last_attempt: Any = None
     last_result: str | None = None
     last_error: str | None = None
+    last_stage: str | None = None
+    last_strategy: str | None = None
+    last_network_status: dict[str, Any] | None = None
     learned_ssid: str | None = None
+    learned_channel: int | None = None
 
 
 class EcoflowBleProvisioner:
@@ -704,11 +905,107 @@ class EcoflowBleProvisioner:
             if matched:
                 return matched
 
+    async def _await_dhodm_payloads(self, timeout: float) -> tuple[list[dict[str, Any]], bool]:
+        if self._session_encryption is None:
+            raise BleRecoveryError("session_not_initialized")
+
+        assembler: EncPacketAssembler | RawHeaderAssembler
+        if self._encrypt_type == 1:
+            assembler = RawHeaderAssembler(self._session_encryption)  # type: ignore[arg-type]
+        else:
+            assembler = EncPacketAssembler(self._session_encryption)
+
+        deadline = asyncio.get_running_loop().time() + timeout
+        ignored_frames = 0
+        seen_frames = 0
+        raw_payloads_seen = 0
+        sample_notes: list[str] = []
+        saw_packet_activity = False
+        while True:
+            remaining = deadline - asyncio.get_running_loop().time()
+            if remaining <= 0:
+                summary = (
+                    f"dhodm_response_timeout:"
+                    f"frames={seen_frames},payloads={raw_payloads_seen},ignored={ignored_frames},samples={sample_notes[:5]}"
+                )
+                raise BleRecoveryError(summary)
+
+            try:
+                frame = await asyncio.wait_for(self._notify_queue.get(), timeout=remaining)
+            except TimeoutError as err:
+                summary = (
+                    f"dhodm_response_timeout:"
+                    f"frames={seen_frames},payloads={raw_payloads_seen},ignored={ignored_frames},samples={sample_notes[:5]}"
+                )
+                raise BleRecoveryError(summary) from err
+            seen_frames += 1
+            responses: list[dict[str, Any]] = []
+            raw_payload_batch = await assembler.reassemble(frame)
+            if not raw_payload_batch:
+                sample_notes.append(f"no-payload len={len(frame)} hex={frame[:16].hex()}")
+            for raw_payload in raw_payload_batch:
+                raw_payloads_seen += 1
+                try:
+                    decoded = raw_payload.decode("utf-8")
+                except UnicodeDecodeError:
+                    ignored_frames += 1
+                    if len(sample_notes) < 8:
+                        try:
+                            packet = Packet.from_bytes(raw_payload)
+                            saw_packet_activity = True
+                            decoded_network_status = None
+                            if packet.cmd_set == 0x20:
+                                decoded_network_status = _decode_network_status_payload(packet.payload)
+                            sample_notes.append(
+                                "packet "
+                                f"src=0x{packet.src:02X} dst=0x{packet.dst:02X} "
+                                f"cmd_set=0x{packet.cmd_set:02X} cmd_id=0x{packet.cmd_id:02X} "
+                                f"seq={packet.seq.hex()} decoded={decoded_network_status}"
+                            )
+                        except Exception:  # noqa: BLE001
+                            sample_notes.append(f"non-utf8 len={len(raw_payload)} hex={raw_payload[:24].hex()}")
+                    continue
+                try:
+                    payload = json.loads(decoded)
+                except json.JSONDecodeError:
+                    ignored_frames += 1
+                    if len(sample_notes) < 8:
+                        sample_notes.append(f"non-json {decoded[:80]!r}")
+                    continue
+                if isinstance(payload, dict):
+                    responses.append(payload)
+                else:
+                    ignored_frames += 1
+                    if len(sample_notes) < 8:
+                        sample_notes.append(f"non-dict-json {payload!r}")
+
+            if responses:
+                return responses, saw_packet_activity
+
+            if saw_packet_activity:
+                return [], True
+
     async def _send_simple_request(self, payload: bytes, *, timeout: float = 10) -> bytes:
         await self._ensure_notify()
         self._drain_notifications()
         await self._write(SimplePacketAssembler.encode(payload), response=True)
         return await self._await_simple_payload(timeout)
+
+    async def _send_dhodm_rpc_request(self, payload: bytes, *, timeout: float = 5) -> tuple[list[dict[str, Any]], bool]:
+        if self._session_encryption is None:
+            raise BleRecoveryError("session_not_initialized")
+
+        await self._ensure_notify()
+        self._drain_notifications()
+        encoded = EncPacket(
+            EncPacket.FRAME_TYPE_PROTOCOL,
+            0x02,
+            payload,
+            self._session_encryption.session_key,
+            self._session_encryption.iv,
+        ).to_bytes()
+        await self._write(encoded, response=True)
+        return await self._await_dhodm_payloads(timeout)
 
     def _packet_assembler(self) -> EncPacketAssembler | RawHeaderAssembler:
         if self._session_encryption is None:
@@ -738,6 +1035,40 @@ class EcoflowBleProvisioner:
         assembler = self._packet_assembler()
         payload = await assembler.encode(packet)
         await self._write(payload, response=assembler.write_with_response)
+
+    async def _send_packet_no_reply_without_drain(self, packet: Packet) -> None:
+        await self._ensure_notify()
+        assembler = self._packet_assembler()
+        payload = await assembler.encode(packet)
+        await self._write(payload, response=assembler.write_with_response)
+
+    async def _reply_packet(self, packet: Packet) -> None:
+        reply = Packet(
+            packet.dst,
+            packet.src,
+            packet.cmd_set,
+            packet.cmd_id,
+            packet.payload,
+            dsrc=0x01,
+            ddst=0x01,
+            version=packet.version,
+            seq=packet.seq,
+            product_id=packet.product_id,
+        )
+        await self._send_packet_no_reply_without_drain(reply)
+
+    @staticmethod
+    def _should_reply_post_provision_packet(packet: Packet) -> bool:
+        if packet.dst != 0x21:
+            return False
+
+        if packet.cmd_set == 0x20:
+            return True
+
+        if packet.src in {0x02, 0x03, 0x04, 0x05} and packet.cmd_set == 0x02:
+            return True
+
+        return packet.src == 0x06 and packet.cmd_set == 0xFE and packet.cmd_id == 0x10
 
     def _generate_session_key(self, seed: bytes, srand: bytes) -> bytes:
         position = seed[0] * 0x10 + ((seed[1] - 1) & 0xFF) * 0x100
@@ -822,11 +1153,15 @@ class EcoflowBleProvisioner:
         ssid: str,
         password: str,
         bssid: str | None = None,
-    ) -> None:
+        channel: int | None = None,
+        https_url: str | None = None,
+    ) -> dict[str, Any]:
         payload = _build_network_message_payload(
             ssid=ssid,
             password=password,
             bssid=_parse_bssid(bssid),
+            channel=channel,
+            https_url=https_url,
         )
         packet = Packet(
             0x21,
@@ -839,6 +1174,304 @@ class EcoflowBleProvisioner:
             version=self._packet_version,
         )
         await self._send_packet_no_reply(packet)
+        try:
+            packets = await self._await_packets(timeout=5)
+        except BleRecoveryError:
+            _LOGGER.debug("No immediate BLE provision response for %s", self._serial_number)
+            return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
+
+        for response in packets:
+            _LOGGER.debug(
+                "BLE provision response for %s: src=0x%02X cmd_set=0x%02X cmd_id=0x%02X payload=%s",
+                self._serial_number,
+                response.src,
+                response.cmd_set,
+                response.cmd_id,
+                response.payload.hex(),
+            )
+
+        return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
+
+    async def provision_device_url(self, *, https_url: str) -> None:
+        if not https_url.strip():
+            return
+
+        payload = _build_network_message_payload(
+            ssid=None,
+            password=None,
+            bssid=None,
+            channel=None,
+            https_url=https_url,
+        )
+        packet = Packet(
+            0x21,
+            _AUTH_HEADER_DST,
+            0x35,
+            0x0D,
+            payload,
+            dsrc=0x01,
+            ddst=0x01,
+            version=self._packet_version,
+        )
+        await self._send_packet_no_reply(packet)
+
+        try:
+            packets = await self._await_packets(timeout=2)
+        except BleRecoveryError:
+            _LOGGER.debug("No immediate BLE URL-preflight response for %s", self._serial_number)
+            return
+
+        for response in packets:
+            decoded_network_status = None
+            if response.cmd_set == 0x20:
+                decoded_network_status = _decode_network_status_payload(response.payload)
+
+            _LOGGER.debug(
+                "BLE URL-preflight response for %s: src=0x%02X dst=0x%02X cmd_set=0x%02X cmd_id=0x%02X payload=%s decoded=%s",
+                self._serial_number,
+                response.src,
+                response.dst,
+                response.cmd_set,
+                response.cmd_id,
+                response.payload.hex(),
+                decoded_network_status,
+            )
+
+    async def send_dhodm_rpc(
+        self,
+        *,
+        method: str,
+        params: dict[str, Any],
+        request_id: int,
+        timeout: float = 5,
+        best_effort: bool = False,
+    ) -> list[dict[str, Any]]:
+        payload = _build_dhodm_rpc_payload(
+            request_id=request_id,
+            method=method,
+            params=params,
+        )
+        try:
+            responses, saw_packet_activity = await self._send_dhodm_rpc_request(payload, timeout=timeout)
+        except BleRecoveryError as err:
+            err_text = str(err)
+            if not best_effort or not err_text.startswith("dhodm_response_timeout"):
+                raise
+            _LOGGER.warning(
+                "BLE DHOdm request timed out for %s method=%s request_id=%s details=%s; continuing best-effort",
+                self._serial_number,
+                method,
+                request_id,
+                err_text,
+            )
+            return []
+        if saw_packet_activity and not responses:
+            _LOGGER.info(
+                "BLE DHOdm command for %s method=%s request_id=%s saw packet activity without JSON reply",
+                self._serial_number,
+                method,
+                request_id,
+            )
+        for response in responses:
+            _LOGGER.debug(
+                "BLE DHOdm response for %s method=%s request_id=%s payload=%s",
+                self._serial_number,
+                method,
+                request_id,
+                response,
+            )
+        return responses
+
+    async def provision_mqtt_config(
+        self,
+        *,
+        request_id: int,
+        server: str,
+        client_id: str,
+        username: str,
+        password: str,
+        topic_prefix: str,
+        ssl_ca: str,
+    ) -> bool | None:
+        responses = await self.send_dhodm_rpc(
+            method="Mqtt.SetConfig",
+            request_id=request_id,
+            params={
+                "config": {
+                    "enable": True,
+                    "server": server,
+                    "client_id": client_id,
+                    "user": username,
+                    "pass": password,
+                    "ssl_ca": ssl_ca,
+                    "topic_prefix": topic_prefix,
+                    "use_client_cert": False,
+                }
+            },
+            best_effort=True,
+        )
+        return self._extract_restart_required(responses)
+
+    async def configure_rpc_udp(self, *, request_id: int) -> bool | None:
+        responses = await self.send_dhodm_rpc(
+            method="Sys.SetConfig",
+            request_id=request_id,
+            params={"config": {"rpc_udp": {"listen_port": 7890}}},
+            best_effort=True,
+        )
+        return self._extract_restart_required(responses)
+
+    async def enable_ble_config(self, *, request_id: int) -> bool | None:
+        responses = await self.send_dhodm_rpc(
+            method="BLE.SetConfig",
+            request_id=request_id,
+            params={"config": {"enable": True}},
+            timeout=2,
+            best_effort=True,
+        )
+        return self._extract_restart_required(responses)
+
+    async def reboot_device(self, *, request_id: int) -> bool | None:
+        responses = await self.send_dhodm_rpc(
+            method="Shelly.Reboot",
+            request_id=request_id,
+            params={},
+            timeout=2,
+            best_effort=True,
+        )
+        return self._extract_restart_required(responses)
+
+    async def request_wifi_status(self, *, request_id: int) -> None:
+        await self.send_dhodm_rpc(
+            method="WiFi.GetStatus",
+            request_id=request_id,
+            params={},
+            timeout=2,
+            best_effort=True,
+        )
+
+    async def request_mqtt_status(self, *, request_id: int) -> None:
+        await self.send_dhodm_rpc(
+            method="Mqtt.GetStatus",
+            request_id=request_id,
+            params={},
+            timeout=2,
+            best_effort=True,
+        )
+
+    @staticmethod
+    def _extract_restart_required(responses: list[dict[str, Any]]) -> bool | None:
+        for response in responses:
+            result = response.get("result")
+            if isinstance(result, dict) and "restart_required" in result:
+                restart_required = result.get("restart_required")
+                if isinstance(restart_required, bool):
+                    return restart_required
+        return None
+
+    async def query_connect_status(self) -> list[Packet]:
+        packet = Packet(
+            0x21,
+            _AUTH_HEADER_DST,
+            0x35,
+            0xA2,
+            b"",
+            dsrc=0x01,
+            ddst=0x01,
+            version=self._packet_version,
+        )
+
+        try:
+            packets = await self._send_packet_request(packet, timeout=2)
+        except BleRecoveryError:
+            _LOGGER.debug("No BLE connect-status response for %s", self._serial_number)
+            return []
+
+        for response in packets:
+            decoded_network_status = None
+            if response.cmd_set == 0x20:
+                decoded_network_status = _decode_network_status_payload(response.payload)
+
+            _LOGGER.debug(
+                "BLE connect-status response for %s: src=0x%02X dst=0x%02X cmd_set=0x%02X cmd_id=0x%02X payload=%s decoded=%s",
+                self._serial_number,
+                response.src,
+                response.dst,
+                response.cmd_set,
+                response.cmd_id,
+                response.payload.hex(),
+                decoded_network_status,
+            )
+
+        return packets
+
+    async def _observe_post_provision_packets(self, timeout: float) -> dict[str, Any]:
+        deadline = asyncio.get_running_loop().time() + timeout
+        saw_packet = False
+        network_status_by_source: dict[str, Any] = {}
+
+        await self.query_connect_status()
+
+        while True:
+            remaining = deadline - asyncio.get_running_loop().time()
+            if remaining <= 0:
+                break
+
+            try:
+                packets = await self._await_packets(timeout=min(remaining, 5))
+            except (BleRecoveryError, TimeoutError):
+                break
+
+            saw_packet = True
+            for response in packets:
+                decoded_network_status = None
+                if response.cmd_set == 0x20:
+                    decoded_network_status = _decode_network_status_payload(response.payload)
+                    if decoded_network_status is not None:
+                        network_status_by_source[f"0x{response.src:02X}"] = decoded_network_status
+                    else:
+                        network_status_by_source[f"0x{response.src:02X}"] = {
+                            "cmd_id": response.cmd_id,
+                            "seq": response.seq.hex(),
+                            "raw": response.payload.hex(),
+                        }
+
+                if response.cmd_set == 0x35 and response.cmd_id == 0xA2:
+                    _LOGGER.info(
+                        "BLE post-provision connect status for %s: src=0x%02X seq=%s payload=%s",
+                        self._serial_number,
+                        response.src,
+                        response.seq.hex(),
+                        response.payload.hex(),
+                    )
+                else:
+                    _LOGGER.debug(
+                        "BLE post-provision packet for %s: src=0x%02X dst=0x%02X cmd_set=0x%02X cmd_id=0x%02X seq=%s payload=%s decoded=%s",
+                        self._serial_number,
+                        response.src,
+                        response.dst,
+                        response.cmd_set,
+                        response.cmd_id,
+                        response.seq.hex(),
+                        response.payload.hex(),
+                        decoded_network_status,
+                    )
+
+                if self._should_reply_post_provision_packet(response):
+                    _LOGGER.debug(
+                        "BLE post-provision ack for %s: src=0x%02X dst=0x%02X cmd_set=0x%02X cmd_id=0x%02X seq=%s",
+                        self._serial_number,
+                        response.src,
+                        response.dst,
+                        response.cmd_set,
+                        response.cmd_id,
+                        response.seq.hex(),
+                    )
+                    await self._reply_packet(response)
+
+        if not saw_packet:
+            _LOGGER.debug("No BLE post-provision status packets for %s", self._serial_number)
+        return network_status_by_source
 
 
 class EcoflowBleRecoveryManager:
@@ -864,6 +1497,9 @@ class EcoflowBleRecoveryManager:
                 ATTR_BLE_RECOVERY_LAST_ATTEMPT: None,
                 ATTR_BLE_RECOVERY_LAST_RESULT: None,
                 ATTR_BLE_RECOVERY_LAST_ERROR: None,
+                ATTR_BLE_RECOVERY_STAGE: None,
+                ATTR_BLE_RECOVERY_STRATEGY: None,
+                ATTR_BLE_RECOVERY_NETWORK_STATUS: None,
             }
         return {
             ATTR_BLE_RECOVERY_ACTIVE: state.in_progress,
@@ -871,6 +1507,9 @@ class EcoflowBleRecoveryManager:
             ATTR_BLE_RECOVERY_LAST_ATTEMPT: state.last_attempt,
             ATTR_BLE_RECOVERY_LAST_RESULT: state.last_result,
             ATTR_BLE_RECOVERY_LAST_ERROR: state.last_error,
+            ATTR_BLE_RECOVERY_STAGE: state.last_stage,
+            ATTR_BLE_RECOVERY_STRATEGY: state.last_strategy,
+            ATTR_BLE_RECOVERY_NETWORK_STATUS: state.last_network_status,
         }
 
     async def async_shutdown(self) -> None:
@@ -903,6 +1542,7 @@ class EcoflowBleRecoveryManager:
         ssid: str | None = None,
         password: str | None = None,
         bssid: str | None = None,
+        channel: int | None = None,
     ) -> bool:
         lock = self._locks.setdefault(sn, asyncio.Lock())
         if lock.locked():
@@ -916,6 +1556,7 @@ class EcoflowBleRecoveryManager:
                 ssid=ssid,
                 password=password,
                 bssid=bssid,
+                channel=channel,
             )
 
     def _state(self, sn: str) -> BleRecoveryState:
@@ -951,6 +1592,26 @@ class EcoflowBleRecoveryManager:
                     return nested
         return None
 
+    def _extract_wifi_channel(self, value: Any) -> int | None:
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if self._normalize_wifi_key(key) in _WIFI_CHANNEL_KEYS:
+                    channel = _normalize_wifi_channel(item)
+                    if channel is not None:
+                        return channel
+                nested = self._extract_wifi_channel(item)
+                if nested is not None:
+                    return nested
+            return None
+
+        if isinstance(value, list):
+            for item in value:
+                nested = self._extract_wifi_channel(item)
+                if nested is not None:
+                    return nested
+
+        return None
+
     def note_online_device(self, sn: str) -> None:
         device = self._device(sn)
         if device is None or not bool(device.data.online):
@@ -965,11 +1626,53 @@ class EcoflowBleRecoveryManager:
         if not device.device_data.options.ble_wifi_ssid:
             device.device_data.options.ble_wifi_ssid = ssid
 
+        channel = self._extract_wifi_channel(device.data.params)
+        if channel is not None:
+            state.learned_channel = channel
+            if device.device_data.options.ble_wifi_channel is None:
+                device.device_data.options.ble_wifi_channel = channel
+
     def _find_device_discovery(self, sn: str) -> BluetoothServiceInfoBleak | None:
+        matches_by_address: dict[str, list[BluetoothServiceInfoBleak]] = {}
         for discovery in async_discovered_service_info(self._hass):
-            if _serial_from_advertisement(discovery.advertisement) == sn:
-                return discovery
-        return None
+            if _serial_from_advertisement(discovery.advertisement) != sn:
+                continue
+
+            address = _discovery_address(discovery)
+            matches_by_address.setdefault(address, []).append(discovery)
+
+        if not matches_by_address:
+            return None
+
+        preferred_matches: list[BluetoothServiceInfoBleak] = []
+        for address, candidates in matches_by_address.items():
+            for candidate in candidates:
+                _LOGGER.debug(
+                    "BLE recovery candidate for %s via source=%s address=%s rssi=%s name=%s",
+                    sn,
+                    _discovery_source(candidate),
+                    address,
+                    _discovery_rssi(candidate),
+                    _discovery_name(candidate),
+                )
+
+            preferred = async_last_service_info(self._hass, address, connectable=True)
+            if preferred is not None and _serial_from_advertisement(preferred.advertisement) == sn:
+                preferred_matches.append(preferred)
+                continue
+
+            preferred_matches.append(max(candidates, key=_discovery_rssi))
+
+        selected = max(preferred_matches, key=_discovery_rssi)
+        _LOGGER.debug(
+            "BLE recovery selected source=%s address=%s rssi=%s name=%s for %s",
+            _discovery_source(selected),
+            _discovery_address(selected),
+            _discovery_rssi(selected),
+            _discovery_name(selected),
+            sn,
+        )
+        return selected
 
     def _delete_credentials_issue(self, sn: str) -> None:
         ir.async_delete_issue(self._hass, "ecoflow_cloud", self._issue_id(sn))
@@ -1092,6 +1795,7 @@ class EcoflowBleRecoveryManager:
         ssid: str | None,
         password: str | None,
         bssid: str | None,
+        channel: int | None,
     ) -> bool:
         state = self._state(sn)
         device = self._device(sn)
@@ -1115,34 +1819,39 @@ class EcoflowBleRecoveryManager:
         state.attempt_count += 1
         state.last_attempt = now
         state.last_error = None
+        state.last_stage = "start"
+        state.last_strategy = None
+        state.last_network_status = None
 
         try:
             if not supports_ble_wifi_recovery_device_type(device.device_data.device_type):
                 state.last_result = "unsupported_device"
+                state.last_stage = "unsupported_device"
                 return False
 
             user_id = str(getattr(self._client, "user_id", "")).strip()
             if not user_id:
                 state.last_result = "unsupported_auth_type"
+                state.last_stage = "unsupported_auth_type"
                 return False
 
             if not manual and not options.ble_wifi_recovery_enabled:
                 state.last_result = "disabled"
-                return False
-
-            discovery = self._find_device_discovery(sn)
-            if discovery is None:
-                state.last_result = "device_not_seen"
+                state.last_stage = "disabled"
                 return False
 
             target_ssid = options.ble_wifi_ssid if ssid is None else ssid
             target_password = options.ble_wifi_password if password is None else password
             target_bssid = options.ble_wifi_bssid if bssid is None else bssid
+            target_channel = options.ble_wifi_channel if channel is None else channel
             if not target_ssid:
                 target_ssid = state.learned_ssid or ""
+            if target_channel is None:
+                target_channel = state.learned_channel
             target_ssid = target_ssid.strip()
             target_password = target_password.strip()
             target_bssid = target_bssid.strip() if target_bssid is not None else None
+            target_channel = _normalize_wifi_channel(target_channel)
             used_shared_password = False
 
             if target_ssid and not target_password:
@@ -1153,36 +1862,199 @@ class EcoflowBleRecoveryManager:
 
             if not target_ssid or not target_password:
                 state.last_result = "missing_credentials"
+                state.last_stage = "missing_credentials"
                 if not manual:
                     self._create_credentials_issue(sn, reason="missing_credentials")
                 return False
 
-            provisioner = EcoflowBleProvisioner(
-                discovery.device,
-                sn,
-                user_id,
-                encrypt_type=_encrypt_type_from_advertisement(discovery.advertisement),
-                packet_version=_RIVER2_PACKET_VERSION,
-                timeout=max(10, options.ble_recovery_timeout_sec),
-            )
-            try:
-                await provisioner.connect()
-                await provisioner.authenticate()
-                await provisioner.provision_wifi(
-                    ssid=target_ssid,
-                    password=target_password,
-                    bssid=target_bssid or None,
-                )
-            finally:
-                await provisioner.disconnect()
+            explicit_bssid = bssid is not None
+            explicit_channel = channel is not None
+            recovery_https_url = _recovery_https_url(self._client)
+            recovery_mqtt_server = _recovery_mqtt_server(self._client)
+            recovery_mqtt_info = getattr(self._client, "mqtt_info", None)
+            provision_targets: list[tuple[str, str | None, int | None]] = []
+            seen_targets: set[tuple[str | None, int | None]] = set()
 
-            recovered = await self._wait_for_cloud_recovery(sn, options.ble_recovery_timeout_sec)
+            def add_provision_target(
+                strategy: str,
+                attempt_bssid: str | None,
+                attempt_channel: int | None,
+            ) -> None:
+                normalized_bssid = attempt_bssid.strip() if attempt_bssid else None
+                normalized_channel = _normalize_wifi_channel(attempt_channel)
+                key = (normalized_bssid, normalized_channel)
+                if key in seen_targets:
+                    return
+                seen_targets.add(key)
+                provision_targets.append((strategy, normalized_bssid, normalized_channel))
+
+            if explicit_bssid or explicit_channel:
+                add_provision_target("explicit", target_bssid, target_channel)
+                add_provision_target("ssid_only_fallback", None, None)
+            else:
+                if target_channel is not None:
+                    add_provision_target("channel_only", None, target_channel)
+                add_provision_target("ssid_only", None, None)
+                if target_bssid or target_channel is not None:
+                    add_provision_target("configured_pin_fallback", target_bssid, target_channel)
+
+            recovered = False
+            for strategy, attempt_bssid, attempt_channel in provision_targets:
+                state.last_strategy = strategy
+                state.last_stage = "discovery"
+                discovery = self._find_device_discovery(sn)
+                if discovery is None:
+                    state.last_result = "device_not_seen"
+                    state.last_stage = "device_not_seen"
+                    return False
+
+                _LOGGER.info(
+                    "BLE recovery starting for %s via source=%s ssid=%s bssid=%s channel=%s manual=%s strategy=%s",
+                    sn,
+                    _discovery_source(discovery),
+                    target_ssid,
+                    attempt_bssid or "auto",
+                    attempt_channel if attempt_channel is not None else "auto",
+                    manual,
+                    strategy,
+                )
+                provisioner = EcoflowBleProvisioner(
+                    discovery.device,
+                    sn,
+                    user_id,
+                    encrypt_type=_encrypt_type_from_advertisement(discovery.advertisement),
+                    packet_version=_RIVER2_PACKET_VERSION,
+                    timeout=max(10, options.ble_recovery_timeout_sec),
+                )
+                try:
+                    dhodm_request_id = 10_000
+                    state.last_stage = "connect"
+                    await provisioner.connect()
+                    _LOGGER.info("BLE recovery connected to %s strategy=%s", sn, strategy)
+                    state.last_stage = "authenticate"
+                    await provisioner.authenticate()
+                    _LOGGER.info("BLE recovery authenticated %s strategy=%s", sn, strategy)
+                    if recovery_https_url:
+                        state.last_stage = "set_url"
+                        try:
+                            await provisioner.provision_device_url(https_url=recovery_https_url)
+                            _LOGGER.info(
+                                "BLE recovery URL preflight sent for %s strategy=%s https_url=%s",
+                                sn,
+                                strategy,
+                                recovery_https_url,
+                            )
+                        except BleRecoveryError:
+                            _LOGGER.debug(
+                                "BLE recovery URL preflight failed for %s strategy=%s https_url=%s",
+                                sn,
+                                strategy,
+                                recovery_https_url,
+                                exc_info=True,
+                            )
+                    state.last_stage = "provision"
+                    observed_network_status = await provisioner.provision_wifi(
+                        ssid=target_ssid,
+                        password=target_password,
+                        bssid=attempt_bssid,
+                        channel=attempt_channel,
+                        https_url=recovery_https_url,
+                    )
+                    _LOGGER.info("BLE recovery provision packet sent for %s strategy=%s", sn, strategy)
+                    if observed_network_status:
+                        state.last_network_status = observed_network_status
+                    if (
+                        recovery_mqtt_info is not None
+                        and recovery_mqtt_server
+                        and recovery_mqtt_info.client_id
+                        and recovery_mqtt_info.username
+                        and recovery_mqtt_info.password
+                    ):
+                        state.last_stage = "set_mqtt"
+                        restart_required = await provisioner.provision_mqtt_config(
+                            request_id=dhodm_request_id,
+                            server=recovery_mqtt_server,
+                            client_id=recovery_mqtt_info.client_id,
+                            username=recovery_mqtt_info.username,
+                            password=recovery_mqtt_info.password,
+                            topic_prefix=f"/shelly/thing/property/post/{sn}",
+                            ssl_ca="ca.pem",
+                        )
+                        dhodm_request_id += 1
+                        _LOGGER.info(
+                            "BLE recovery MQTT config sent for %s strategy=%s restart_required=%s",
+                            sn,
+                            strategy,
+                            restart_required,
+                        )
+                        state.last_stage = "set_rpc_udp"
+                        restart_required = await provisioner.configure_rpc_udp(request_id=dhodm_request_id)
+                        dhodm_request_id += 1
+                        _LOGGER.info(
+                            "BLE recovery Sys.SetConfig sent for %s strategy=%s restart_required=%s",
+                            sn,
+                            strategy,
+                            restart_required,
+                        )
+                        state.last_stage = "set_ble"
+                        restart_required = await provisioner.enable_ble_config(request_id=dhodm_request_id)
+                        dhodm_request_id += 1
+                        _LOGGER.info(
+                            "BLE recovery BLE.SetConfig sent for %s strategy=%s restart_required=%s",
+                            sn,
+                            strategy,
+                            restart_required,
+                        )
+                        state.last_stage = "reboot"
+                        restart_required = await provisioner.reboot_device(request_id=dhodm_request_id)
+                        dhodm_request_id += 1
+                        _LOGGER.info(
+                            "BLE recovery Shelly.Reboot sent for %s strategy=%s restart_required=%s",
+                            sn,
+                            strategy,
+                            restart_required,
+                        )
+                        await asyncio.sleep(5)
+                        state.last_stage = "probe_status"
+                        await provisioner.request_wifi_status(request_id=dhodm_request_id)
+                        dhodm_request_id += 1
+                        await provisioner.request_mqtt_status(request_id=dhodm_request_id)
+                        dhodm_request_id += 1
+                        probed_network_status = await provisioner._observe_post_provision_packets(timeout=8)
+                        if probed_network_status:
+                            state.last_network_status = probed_network_status
+                        _LOGGER.warning(
+                            "BLE recovery post-config status probe for %s strategy=%s network_status=%s",
+                            sn,
+                            strategy,
+                            probed_network_status,
+                        )
+                finally:
+                    await provisioner.disconnect()
+
+                state.last_stage = "wait_cloud"
+                _LOGGER.info("BLE recovery waiting for cloud rejoin for %s strategy=%s", sn, strategy)
+                recovered = await self._wait_for_cloud_recovery(sn, options.ble_recovery_timeout_sec)
+                if recovered:
+                    break
+
+                state.last_error = f"device_did_not_rejoin_wifi:{strategy}"
+                _LOGGER.warning(
+                    "BLE recovery timed out for %s strategy=%s network_status=%s",
+                    sn,
+                    strategy,
+                    state.last_network_status,
+                )
+
             state.last_result = "success" if recovered else "timeout"
             if not recovered:
-                state.last_error = "device_did_not_rejoin_wifi"
+                if state.last_error is None:
+                    state.last_error = "device_did_not_rejoin_wifi"
+                state.last_stage = "timeout"
                 if not manual:
                     self._create_credentials_issue(sn, reason="recovery_failed")
             else:
+                state.last_stage = "success"
                 if used_shared_password:
                     self._persist_wifi_credentials(sn, ssid=target_ssid, password=target_password)
                 self._delete_credentials_issue(sn)
@@ -1190,6 +2062,7 @@ class EcoflowBleRecoveryManager:
         except Exception as err:  # noqa: BLE001
             state.last_result = "failed"
             state.last_error = str(err)
+            state.last_stage = "failed"
             if not manual:
                 self._create_credentials_issue(sn, reason="recovery_failed")
             _LOGGER.warning("BLE Wi-Fi recovery failed for %s: %s", sn, err, exc_info=True)

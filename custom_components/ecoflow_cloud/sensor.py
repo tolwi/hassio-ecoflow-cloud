@@ -505,6 +505,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
         changed = self._actualize_attributes() or changed
 
         if changed:
+            self.coordinator.data.data_holder.computed_online = self._online == _OnlineStatus.ONLINE
             self.coordinator.data.data_holder.online = self._online == _OnlineStatus.ONLINE
 
             if self._device.device_data.options.verbose_status_mode or self._online in {
