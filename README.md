@@ -25,8 +25,15 @@ The quickest way to install this integration is via [HACS](https://github.com/ha
 
 Restart Home Assistant. Once restart is done, use `Add Integration` → `EcoflowCloud`.
 
-## Device Management
-For information on how to add, remove, and configure devices, please refer to the [Device Management Documentation](docs/device_management.md).
+## Documentation
+- [Device Management](docs/device_management.md)
+- [BLE Wi-Fi Recovery](docs/ble_wifi_recovery.md)
+
+## BLE Wi-Fi Recovery
+
+Supported on `RIVER_2`, `RIVER_2_MAX`, and `RIVER_2_PRO` when using the EcoFlow app credentials flow (private API). Newly added supported devices enable BLE Wi-Fi recovery by default, learn the SSID from MQTT when available, can reuse a saved password from another EcoFlow device on the same SSID, and open a Repairs form only when credentials are still missing or fail. Manual recovery is also available through the device button and `ecoflow_cloud.recover_wifi_via_ble`.
+
+See the full setup and behavior details in [BLE Wi-Fi Recovery](docs/ble_wifi_recovery.md).
 
 ## Disclaimers
 

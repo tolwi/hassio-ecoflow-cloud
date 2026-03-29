@@ -31,6 +31,7 @@ class EcoflowApiClient(ABC):
         self.mqtt_info: EcoflowMqttInfo
         self.devices: dict[str, Any] = {}
         self.mqtt_client: EcoflowMQTTClient
+        self.ble_recovery_manager: Any = None
 
     @abstractmethod
     async def login(self):

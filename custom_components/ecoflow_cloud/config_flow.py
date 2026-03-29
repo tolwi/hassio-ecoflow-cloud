@@ -32,9 +32,18 @@ from custom_components.ecoflow_cloud import (
     CONF_USERNAME,
     CONFIG_VERSION,
     DEFAULT_ASSUME_OFFLINE_SEC,
+    DEFAULT_BLE_RECOVERY_COOLDOWN_SEC,
+    DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
+    default_ble_wifi_recovery_enabled,
     DEFAULT_REFRESH_PERIOD_SEC,
     ECOFLOW_DOMAIN,
     OPTS_ASSUME_OFFLINE_SEC,
+    OPTS_BLE_RECOVERY_COOLDOWN_SEC,
+    OPTS_BLE_RECOVERY_TIMEOUT_SEC,
+    OPTS_BLE_WIFI_BSSID,
+    OPTS_BLE_WIFI_PASSWORD,
+    OPTS_BLE_WIFI_RECOVERY_ENABLED,
+    OPTS_BLE_WIFI_SSID,
     OPTS_DIAGNOSTIC_MODE,
     OPTS_POWER_STEP,
     OPTS_REFRESH_PERIOD_SEC,
@@ -45,6 +54,7 @@ from custom_components.ecoflow_cloud import (
 )
 
 from .api import EcoflowException
+from .ble import supports_ble_wifi_recovery_device_type
 from .devices import EcoflowDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
@@ -278,6 +288,12 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_DIAGNOSTIC_MODE: False,
             OPTS_VERBOSE_STATUS_MODE: False,
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
+            OPTS_BLE_WIFI_RECOVERY_ENABLED: default_ble_wifi_recovery_enabled(user_input[CONF_DEVICE_TYPE]),
+            OPTS_BLE_WIFI_SSID: "",
+            OPTS_BLE_WIFI_PASSWORD: "",
+            OPTS_BLE_WIFI_BSSID: "",
+            OPTS_BLE_RECOVERY_TIMEOUT_SEC: DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
+            OPTS_BLE_RECOVERY_COOLDOWN_SEC: DEFAULT_BLE_RECOVERY_COOLDOWN_SEC,
         }
 
         return await self.update_or_create()
@@ -421,6 +437,12 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_DIAGNOSTIC_MODE: ("Diagnostic".lower() == user_input[CONF_DEVICE_TYPE].lower()),
             OPTS_VERBOSE_STATUS_MODE: False,
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
+            OPTS_BLE_WIFI_RECOVERY_ENABLED: default_ble_wifi_recovery_enabled(user_input[CONF_DEVICE_TYPE]),
+            OPTS_BLE_WIFI_SSID: "",
+            OPTS_BLE_WIFI_PASSWORD: "",
+            OPTS_BLE_WIFI_BSSID: "",
+            OPTS_BLE_RECOVERY_TIMEOUT_SEC: DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
+            OPTS_BLE_RECOVERY_COOLDOWN_SEC: DEFAULT_BLE_RECOVERY_COOLDOWN_SEC,
         }
 
         return await self.update_or_create()
@@ -456,24 +478,47 @@ class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
     async def async_step_options(self, user_input: dict[str, Any] | None = None):
         if user_input is None:
             device_options: DeviceOptions = self.devices[self.selected_device.sn].options
+            supports_ble_recovery = supports_ble_wifi_recovery_device_type(self.selected_device.device_type)
+            schema: dict[Any, Any] = {
+                vol.Required(OPTS_POWER_STEP, default=device_options.power_step): int,
+                vol.Required(
+                    OPTS_REFRESH_PERIOD_SEC,
+                    default=device_options.refresh_period,
+                ): int,
+                vol.Required(OPTS_DIAGNOSTIC_MODE, default=device_options.diagnostic_mode): bool,
+                vol.Required(OPTS_VERBOSE_STATUS_MODE, default=device_options.verbose_status_mode): bool,
+                vol.Required(OPTS_ASSUME_OFFLINE_SEC, default=device_options.assume_offline_sec): int,
+            }
+
+            if supports_ble_recovery:
+                schema[vol.Required(
+                    OPTS_BLE_WIFI_RECOVERY_ENABLED,
+                    default=device_options.ble_wifi_recovery_enabled,
+                )] = bool
+                schema[vol.Required(OPTS_BLE_WIFI_SSID, default=device_options.ble_wifi_ssid)] = selector.TextSelector()
+                schema[vol.Required(
+                    OPTS_BLE_WIFI_PASSWORD,
+                    default=device_options.ble_wifi_password,
+                )] = selector.TextSelector(
+                    selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
+                )
+                schema[vol.Required(OPTS_BLE_WIFI_BSSID, default=device_options.ble_wifi_bssid)] = selector.TextSelector()
+                schema[vol.Required(
+                    OPTS_BLE_RECOVERY_TIMEOUT_SEC,
+                    default=device_options.ble_recovery_timeout_sec or DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
+                )] = int
+                schema[vol.Required(
+                    OPTS_BLE_RECOVERY_COOLDOWN_SEC,
+                    default=device_options.ble_recovery_cooldown_sec or DEFAULT_BLE_RECOVERY_COOLDOWN_SEC,
+                )] = int
 
             return self.async_show_form(
                 step_id="options",
                 last_step=True,
-                data_schema=vol.Schema(
-                    {
-                        vol.Required(OPTS_POWER_STEP, default=device_options.power_step): int,
-                        vol.Required(
-                            OPTS_REFRESH_PERIOD_SEC,
-                            default=device_options.refresh_period,
-                        ): int,
-                        vol.Required(OPTS_DIAGNOSTIC_MODE, default=device_options.diagnostic_mode): bool,
-                        vol.Required(OPTS_VERBOSE_STATUS_MODE, default=device_options.verbose_status_mode): bool,
-                        vol.Required(OPTS_ASSUME_OFFLINE_SEC, default=device_options.assume_offline_sec): int,
-                    }
-                ),
+                data_schema=vol.Schema(schema),
             )
 
+        supports_ble_recovery = supports_ble_wifi_recovery_device_type(self.selected_device.device_type)
         new_options = {**self.config_entry.options}
         new_options[CONF_DEVICE_LIST][self.selected_device.sn] = {
             OPTS_POWER_STEP: user_input[OPTS_POWER_STEP],
@@ -481,6 +526,22 @@ class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
             OPTS_DIAGNOSTIC_MODE: user_input[OPTS_DIAGNOSTIC_MODE],
             OPTS_VERBOSE_STATUS_MODE: user_input[OPTS_VERBOSE_STATUS_MODE],
             OPTS_ASSUME_OFFLINE_SEC: user_input[OPTS_ASSUME_OFFLINE_SEC],
+            OPTS_BLE_WIFI_RECOVERY_ENABLED: user_input.get(OPTS_BLE_WIFI_RECOVERY_ENABLED, False)
+            if supports_ble_recovery
+            else False,
+            OPTS_BLE_WIFI_SSID: user_input.get(OPTS_BLE_WIFI_SSID, "") if supports_ble_recovery else "",
+            OPTS_BLE_WIFI_PASSWORD: user_input.get(OPTS_BLE_WIFI_PASSWORD, "") if supports_ble_recovery else "",
+            OPTS_BLE_WIFI_BSSID: user_input.get(OPTS_BLE_WIFI_BSSID, "") if supports_ble_recovery else "",
+            OPTS_BLE_RECOVERY_TIMEOUT_SEC: user_input.get(
+                OPTS_BLE_RECOVERY_TIMEOUT_SEC, DEFAULT_BLE_RECOVERY_TIMEOUT_SEC
+            )
+            if supports_ble_recovery
+            else DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
+            OPTS_BLE_RECOVERY_COOLDOWN_SEC: user_input.get(
+                OPTS_BLE_RECOVERY_COOLDOWN_SEC, DEFAULT_BLE_RECOVERY_COOLDOWN_SEC
+            )
+            if supports_ble_recovery
+            else DEFAULT_BLE_RECOVERY_COOLDOWN_SEC,
         }
 
         return self.async_create_entry(title="", data=new_options)

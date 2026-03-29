@@ -1,0 +1,32 @@
+recover_wifi_via_ble:
+  name: Recover Wi-Fi via BLE
+  description: Trigger EcoFlow BLE Wi-Fi recovery for a supported device.
+  fields:
+    serial_number:
+      name: Serial number
+      description: EcoFlow serial number to recover.
+      example: R62XXXXXXXXXXX
+      selector:
+        text:
+    device_id:
+      name: Device
+      description: Home Assistant device ID for the EcoFlow device.
+      selector:
+        device:
+          integration: ecoflow_cloud
+    ssid:
+      name: SSID
+      description: Optional one-shot Wi-Fi SSID override for this recovery attempt.
+      selector:
+        text:
+    password:
+      name: Password
+      description: Optional one-shot Wi-Fi password override for this recovery attempt.
+      selector:
+        text:
+          type: password
+    bssid:
+      name: BSSID
+      description: Optional one-shot BSSID override, formatted like AA:BB:CC:DD:EE:FF.
+      selector:
+        text:

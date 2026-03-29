@@ -70,7 +70,68 @@
                     "refresh_period_sec": "Data refresh period (sec)",
                     "diagnostic_mode": "Diagnostic mode",
                     "assume_offline_sec": "Assume offline timeout (sec)",
-                    "verbose_status_mode": "Verbose status mode"
+                    "verbose_status_mode": "Verbose status mode",
+                    "ble_wifi_recovery_enabled": "Enable BLE Wi-Fi recovery",
+                    "ble_wifi_ssid": "Recovery Wi-Fi SSID",
+                    "ble_wifi_password": "Recovery Wi-Fi password",
+                    "ble_wifi_bssid": "Recovery Wi-Fi BSSID",
+                    "ble_recovery_timeout_sec": "BLE recovery timeout (sec)",
+                    "ble_recovery_cooldown_sec": "BLE recovery cooldown (sec)"
+                }
+            }
+        }
+    },
+    "services": {
+        "recover_wifi_via_ble": {
+            "name": "Recover Wi-Fi via BLE",
+            "description": "Trigger EcoFlow BLE Wi-Fi recovery for a supported device.",
+            "fields": {
+                "serial_number": {
+                    "name": "Serial number",
+                    "description": "EcoFlow serial number to recover."
+                },
+                "device_id": {
+                    "name": "Device",
+                    "description": "Home Assistant device ID for the EcoFlow device."
+                },
+                "ssid": {
+                    "name": "SSID",
+                    "description": "Optional one-shot Wi-Fi SSID override for this recovery attempt."
+                },
+                "password": {
+                    "name": "Password",
+                    "description": "Optional one-shot Wi-Fi password override for this recovery attempt."
+                },
+                "bssid": {
+                    "name": "BSSID",
+                    "description": "Optional one-shot BSSID override, formatted like AA:BB:CC:DD:EE:FF."
+                }
+            }
+        }
+    },
+    "issues": {
+        "ble_wifi_credentials": {
+            "title": "Enter Wi-Fi credentials for {device_name}",
+            "fix_flow": {
+                "step": {
+                    "init": {
+                        "title": "BLE Wi-Fi recovery credentials",
+                        "description": "The device was seen over Bluetooth, but Wi-Fi recovery needs valid credentials. Review the SSID and enter the Wi-Fi password.",
+                        "data": {
+                            "ble_wifi_ssid": "Wi-Fi SSID",
+                            "ble_wifi_password": "Wi-Fi password"
+                        }
+                    }
+                },
+                "error": {
+                    "missing_credentials": "SSID and password are required."
+                },
+                "abort": {
+                    "entry_missing": "The related config entry is no longer available.",
+                    "device_missing": "The related device is no longer available in this config entry."
+                },
+                "create_entry": {
+                    "default": "Wi-Fi credentials saved. BLE recovery will use them on the next retry."
                 }
             }
         }

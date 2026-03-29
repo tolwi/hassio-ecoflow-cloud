@@ -43,6 +43,7 @@ from . import (
     ECOFLOW_DOMAIN,
 )
 from .api import EcoflowApiClient
+from .ble import get_ble_recovery_state_attributes
 from .devices import BaseDevice, const
 from .entities import (
     BaseSensorEntity,
@@ -499,10 +500,9 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
         update_time = self.coordinator.data.data_holder.last_received_time()
         if self._last_update < update_time:
             self._last_update = max(update_time, self._last_update)
-            self._actualize_attributes()
-            changed = True
 
         changed = self._actualize_status() or changed
+        changed = self._actualize_attributes() or changed
 
         if changed:
             self.coordinator.data.data_holder.online = self._online == _OnlineStatus.ONLINE
@@ -546,15 +546,33 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
 
         return changed
 
-    def _actualize_attributes(self):
-        if self._online == _OnlineStatus.ONLINE:
-            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = f"< {self.assume_offline_period_sec} sec"
-        elif self._online == _OnlineStatus.ASSUME_OFFLINE:
-            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = f"< {self.force_offline_period_sec} sec"
-        else:
-            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._last_update
+    def _actualize_attributes(self) -> bool:
+        changed = False
+        if self._online == _OnlineStatus.ONLINE and self._client.ble_recovery_manager is not None:
+            self._client.ble_recovery_manager.note_online_device(self._device.device_info.sn)
 
-        self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
+        if self._online == _OnlineStatus.ONLINE:
+            target_last_update = f"< {self.assume_offline_period_sec} sec"
+        elif self._online == _OnlineStatus.ASSUME_OFFLINE:
+            target_last_update = f"< {self.force_offline_period_sec} sec"
+        else:
+            target_last_update = self._last_update
+
+        if self._attrs.get(ATTR_STATUS_DATA_LAST_UPDATE) != target_last_update:
+            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = target_last_update
+            changed = True
+
+        mqtt_connected = self._client.mqtt_client.is_connected()
+        if self._attrs.get(ATTR_MQTT_CONNECTED) != mqtt_connected:
+            self._attrs[ATTR_MQTT_CONNECTED] = mqtt_connected
+            changed = True
+
+        for key, value in get_ble_recovery_state_attributes(self._client, self._device.device_info.sn).items():
+            if self._attrs.get(key) != value:
+                self._attrs[key] = value
+                changed = True
+
+        return changed
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
@@ -587,6 +605,11 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
         if self._online == _OnlineStatus.ASSUME_OFFLINE:
             time_since_req = (dt.utcnow() - self._last_quota_req).total_seconds()
             if time_since_req >= self.assume_offline_period_sec:
+                if self._client.ble_recovery_manager is not None:
+                    self._client.ble_recovery_manager.async_schedule_recovery(
+                        self._device.device_info.sn,
+                        reason="assume_offline",
+                    )
                 self.hass.async_create_background_task(
                     self._client.quota_all(self._device.device_info.sn), f"get quota {self._device.device_info.sn}"
                 )
