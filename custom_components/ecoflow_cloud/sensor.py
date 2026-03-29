@@ -2,7 +2,7 @@ import enum
 import logging
 import re
 import struct
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any, Mapping, OrderedDict, override
 
 from homeassistant.components.integration.sensor import IntegrationSensor  # pyright: ignore[reportMissingImports]
@@ -552,7 +552,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
             self._client.ble_recovery_manager.note_online_device(self._device.device_info.sn)
 
         if self._online == _OnlineStatus.ONLINE:
-            target_last_update = f"< {self.assume_offline_period_sec} sec"
+            target_last_update: str | datetime = f"< {self.assume_offline_period_sec} sec"
         elif self._online == _OnlineStatus.ASSUME_OFFLINE:
             target_last_update = f"< {self.force_offline_period_sec} sec"
         else:

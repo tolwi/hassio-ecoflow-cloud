@@ -710,6 +710,14 @@ class EcoflowBleProvisioner:
         await self._write(SimplePacketAssembler.encode(payload), response=True)
         return await self._await_simple_payload(timeout)
 
+    def _packet_assembler(self) -> EncPacketAssembler | RawHeaderAssembler:
+        if self._session_encryption is None:
+            raise BleRecoveryError("session_not_initialized")
+        if self._encrypt_type == 1:
+            assert isinstance(self._session_encryption, Type1Encryption)
+            return RawHeaderAssembler(self._session_encryption)
+        return EncPacketAssembler(self._session_encryption)
+
     async def _send_packet_request(
         self,
         packet: Packet,
@@ -717,25 +725,17 @@ class EcoflowBleProvisioner:
         timeout: float = 10,
         predicate: Callable[[Packet], bool] | None = None,
     ) -> list[Packet]:
-        if self._session_encryption is None:
-            raise BleRecoveryError("session_not_initialized")
         await self._ensure_notify()
         self._drain_notifications()
-        assembler = RawHeaderAssembler(self._session_encryption) if self._encrypt_type == 1 else EncPacketAssembler(
-            self._session_encryption
-        )
+        assembler = self._packet_assembler()
         payload = await assembler.encode(packet)
         await self._write(payload, response=assembler.write_with_response)
         return await self._await_packets(timeout, predicate=predicate)
 
     async def _send_packet_no_reply(self, packet: Packet) -> None:
-        if self._session_encryption is None:
-            raise BleRecoveryError("session_not_initialized")
         await self._ensure_notify()
         self._drain_notifications()
-        assembler = RawHeaderAssembler(self._session_encryption) if self._encrypt_type == 1 else EncPacketAssembler(
-            self._session_encryption
-        )
+        assembler = self._packet_assembler()
         payload = await assembler.encode(packet)
         await self._write(payload, response=assembler.write_with_response)
 

@@ -20,7 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
     for sn, device in client.devices.items():
         async_add_entities(device.buttons(client))
-        extra = [ReconnectButtonEntity(client, device)]
+        extra: list[ButtonEntity] = [ReconnectButtonEntity(client, device)]
         if (
             client.ble_recovery_manager is not None
             and client.ble_recovery_manager.supports_device(device.device_data)
