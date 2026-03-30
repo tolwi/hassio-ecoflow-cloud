@@ -2885,6 +2885,17 @@ class EcoflowBleRecoveryManager:
                                                         }
                                             except Exception as err:
                                                 new_bind_state["bind_systems_error"] = str(err)
+                                        if hasattr(self._client, "get_enterprise_certification"):
+                                            try:
+                                                new_bind_state["enterprise_certification"] = {
+                                                    "is_success": True,
+                                                    "response": await self._client.get_enterprise_certification(),
+                                                }
+                                            except Exception as err:
+                                                new_bind_state["enterprise_certification"] = {
+                                                    "is_success": False,
+                                                    "error": str(err),
+                                                }
                                         if hasattr(self._client, "get_enterprise_device_refresh_token"):
                                             try:
                                                 enterprise_refresh = await self._client.get_enterprise_device_refresh_token(sn)

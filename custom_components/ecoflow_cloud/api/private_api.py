@@ -18,6 +18,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EcoflowPrivateApiClient(EcoflowApiClient):
+    _PROVIDER_HEADERS = {
+        "x-appid": "777",
+        "systemName": "provider_app",
+    }
+
     def __init__(self, api_domain: str, ecoflow_username: str, ecoflow_password: str, group: str):
         super().__init__()
         self.api_domain = api_domain
@@ -120,13 +125,28 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             get_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/get_reply",
         )
 
-    async def __call_api(self, endpoint: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    @classmethod
+    def _with_provider_headers(cls, headers: dict[str, str], *, provider_mode: bool) -> dict[str, str]:
+        if provider_mode:
+            return {**headers, **cls._PROVIDER_HEADERS}
+        return headers
+
+    async def __call_api(
+        self,
+        endpoint: str,
+        params: dict[str, Any] | None = None,
+        *,
+        provider_mode: bool = False,
+    ) -> dict[str, Any]:
         async with aiohttp.ClientSession() as session:
-            headers = {
-                "lang": "en_US",
-                "authorization": f"Bearer {self.token}",
-                "content-type": "application/json",
-            }
+            headers = self._with_provider_headers(
+                {
+                    "lang": "en_US",
+                    "authorization": f"Bearer {self.token}",
+                    "content-type": "application/json",
+                },
+                provider_mode=provider_mode,
+            )
             user_data = {"userId": self.user_id}
             req_params = {}
             if params is not None:
@@ -141,13 +161,22 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             _LOGGER.info(f"Request: {endpoint} {req_params}: got {resp}")
             return await self._get_json_response(resp)
 
-    async def __post_api(self, endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
+    async def __post_api(
+        self,
+        endpoint: str,
+        payload: dict[str, Any],
+        *,
+        provider_mode: bool = False,
+    ) -> dict[str, Any]:
         async with aiohttp.ClientSession() as session:
-            headers = {
-                "lang": "en_US",
-                "authorization": f"Bearer {self.token}",
-                "content-type": "application/json",
-            }
+            headers = self._with_provider_headers(
+                {
+                    "lang": "en_US",
+                    "authorization": f"Bearer {self.token}",
+                    "content-type": "application/json",
+                },
+                provider_mode=provider_mode,
+            )
 
             resp = await session.post(
                 f"https://{self.api_domain}{endpoint}",
@@ -228,10 +257,21 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         return data
 
     async def get_enterprise_device_refresh_token(self, device_sn: str) -> dict[str, Any]:
-        response = await self.__call_api("/iot-service/enterprise-device", params={"sn": device_sn})
+        response = await self.__call_api(
+            "/iot-service/enterprise-device",
+            params={"sn": device_sn},
+            provider_mode=True,
+        )
         data = response.get("data")
         if not isinstance(data, dict):
             raise EcoflowException(f"Missing enterprise refresh token data: {response}")
+        return data
+
+    async def get_enterprise_certification(self) -> dict[str, Any]:
+        response = await self.__call_api("/iot-auth/app/enterprise/certification", provider_mode=True)
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing enterprise certification data: {response}")
         return data
 
     async def get_device_status(self, device_sn: str) -> dict[str, Any]:
@@ -242,7 +282,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         return data
 
     async def list_bind_systems(self) -> list[dict[str, Any]]:
-        response = await self.__call_api("/app/device/bind/system/list")
+        response = await self.__call_api("/app/device/bind/system/list", provider_mode=True)
         data = response.get("data")
         if not isinstance(data, list):
             raise EcoflowException(f"Missing bind system list data: {response}")
@@ -253,4 +293,8 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             "systemNo": system_no,
             "snList": [{"sn": device_sn}],
         }
-        return await self.__post_api("/app/device/bind/system/systemAddDevice", payload)
+        return await self.__post_api(
+            "/app/device/bind/system/systemAddDevice",
+            payload,
+            provider_mode=True,
+        )
