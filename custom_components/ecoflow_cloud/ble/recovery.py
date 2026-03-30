@@ -84,6 +84,7 @@ ATTR_BLE_RECOVERY_LAST_ERROR = "ble_recovery_last_error"
 ATTR_BLE_RECOVERY_STAGE = "ble_recovery_stage"
 ATTR_BLE_RECOVERY_STRATEGY = "ble_recovery_strategy"
 ATTR_BLE_RECOVERY_NETWORK_STATUS = "ble_recovery_network_status"
+ATTR_BLE_RECOVERY_AUTH_STATUS = "ble_recovery_auth_status"
 
 _WIFI_SSID_KEYS = {
     "modulewifissid",
@@ -901,6 +902,21 @@ def _auth_result_error(payload: bytes) -> str | None:
     return errors.get(payload, f"unknown_auth_error:{payload.hex()}")
 
 
+def _decode_auth_status_payload(payload: bytes) -> dict[str, Any]:
+    auth_type = payload[1] if len(payload) > 1 else 0
+    key_status = payload[0] if payload else 0
+    decoded = {
+        "auth_type": auth_type,
+        "key_status": key_status,
+        "raw": payload.hex(),
+    }
+    if auth_type == 1:
+        decoded["flow"] = "token"
+    else:
+        decoded["flow"] = "key"
+    return decoded
+
+
 def _normalize_wifi_channel(value: Any) -> int | None:
     if isinstance(value, bool):
         return None
@@ -1042,6 +1058,7 @@ class BleRecoveryState:
     last_stage: str | None = None
     last_strategy: str | None = None
     last_network_status: dict[str, Any] | None = None
+    last_auth_status: dict[str, Any] | None = None
     learned_ssid: str | None = None
     learned_channel: int | None = None
 
@@ -1402,7 +1419,7 @@ class EcoflowBleProvisioner:
         iv = hashlib.md5(self._serial_number[::-1].encode()).digest()
         self._session_encryption = Type1Encryption(session_key, iv)
 
-    async def authenticate(self) -> None:
+    async def authenticate(self) -> dict[str, Any]:
         if self._encrypt_type == 1:
             await self._authenticate_type1()
         else:
@@ -1418,7 +1435,25 @@ class EcoflowBleProvisioner:
             ddst=0x01,
             version=self._packet_version,
         )
-        await self._send_packet_request(auth_status_packet, timeout=10)
+        auth_status_packets = await self._send_packet_request(
+            auth_status_packet,
+            timeout=10,
+            predicate=lambda packet: packet.src == _AUTH_HEADER_DST
+            and packet.cmd_set == 0x35
+            and packet.cmd_id == 0x89,
+        )
+        auth_status = _decode_auth_status_payload(auth_status_packets[0].payload)
+        _LOGGER.info(
+            "BLE auth status for %s: auth_type=%s key_status=%s flow=%s raw=%s",
+            self._serial_number,
+            auth_status["auth_type"],
+            auth_status["key_status"],
+            auth_status["flow"],
+            auth_status["raw"],
+        )
+
+        if auth_status["auth_type"] == 1:
+            return auth_status
 
         md5_data = hashlib.md5((self._user_id + self._serial_number).encode("ascii")).digest()
         auth_payload = ("".join(f"{byte:02X}" for byte in md5_data)).encode("ascii")
@@ -1442,6 +1477,8 @@ class EcoflowBleProvisioner:
         auth_error = _auth_result_error(auth_packets[0].payload)
         if auth_error is not None:
             raise BleAuthError(auth_error)
+        auth_status["key_auth_result"] = "ok"
+        return auth_status
 
     async def provision_wifi(
         self,
@@ -1990,6 +2027,7 @@ class EcoflowBleRecoveryManager:
                 ATTR_BLE_RECOVERY_STAGE: None,
                 ATTR_BLE_RECOVERY_STRATEGY: None,
                 ATTR_BLE_RECOVERY_NETWORK_STATUS: None,
+                ATTR_BLE_RECOVERY_AUTH_STATUS: None,
             }
         return {
             ATTR_BLE_RECOVERY_ACTIVE: state.in_progress,
@@ -2000,6 +2038,7 @@ class EcoflowBleRecoveryManager:
             ATTR_BLE_RECOVERY_STAGE: state.last_stage,
             ATTR_BLE_RECOVERY_STRATEGY: state.last_strategy,
             ATTR_BLE_RECOVERY_NETWORK_STATUS: state.last_network_status,
+            ATTR_BLE_RECOVERY_AUTH_STATUS: state.last_auth_status,
         }
 
     async def async_shutdown(self) -> None:
@@ -2312,6 +2351,7 @@ class EcoflowBleRecoveryManager:
         state.last_stage = "start"
         state.last_strategy = None
         state.last_network_status = None
+        state.last_auth_status = None
 
         try:
             if not supports_ble_wifi_recovery_device_type(device.device_data.device_type):
@@ -2422,8 +2462,14 @@ class EcoflowBleRecoveryManager:
                     await provisioner.connect()
                     _LOGGER.info("BLE recovery connected to %s strategy=%s", sn, strategy)
                     state.last_stage = "authenticate"
-                    await provisioner.authenticate()
-                    _LOGGER.info("BLE recovery authenticated %s strategy=%s", sn, strategy)
+                    auth_status = await provisioner.authenticate()
+                    state.last_auth_status = auth_status
+                    _LOGGER.info(
+                        "BLE recovery authenticated %s strategy=%s auth_status=%s",
+                        sn,
+                        strategy,
+                        auth_status,
+                    )
                     if recovery_https_url:
                         state.last_stage = "set_url"
                         try:
