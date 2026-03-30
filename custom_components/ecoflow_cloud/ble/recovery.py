@@ -619,9 +619,81 @@ def _ap_follow_info_proto_classes() -> tuple[type[Any], type[Any], type[Any]]:
     )
 
 
+@lru_cache(maxsize=1)
+def _cfg_net_proto_classes() -> tuple[type[Any], type[Any]]:
+    file_descriptor = descriptor_pb2.FileDescriptorProto()
+    file_descriptor.name = "iot_config.proto"
+    file_descriptor.package = "ecoflow.iot"
+    file_descriptor.syntax = "proto2"
+
+    share_message = file_descriptor.message_type.add()
+    share_message.name = "ShareCfgNetInfo"
+    share_fields = [
+        ("wifi_ssid", 1, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+        ("wifi_password", 2, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+        ("https_url", 3, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+    ]
+    for name, number, field_type in share_fields:
+        field = share_message.field.add()
+        field.name = name
+        field.number = number
+        field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+        field.type = field_type
+
+    cfg_list_message = file_descriptor.message_type.add()
+    cfg_list_message.name = "CfgNetDeviceList"
+
+    device_sn_field = cfg_list_message.field.add()
+    device_sn_field.name = "device_sn"
+    device_sn_field.number = 1
+    device_sn_field.label = descriptor_pb2.FieldDescriptorProto.LABEL_REPEATED
+    device_sn_field.type = descriptor_pb2.FieldDescriptorProto.TYPE_STRING
+
+    share_cfg_field = cfg_list_message.field.add()
+    share_cfg_field.name = "share_cfg_net_info"
+    share_cfg_field.number = 2
+    share_cfg_field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+    share_cfg_field.type = descriptor_pb2.FieldDescriptorProto.TYPE_MESSAGE
+    share_cfg_field.type_name = ".ecoflow.iot.ShareCfgNetInfo"
+
+    pool = descriptor_pool.DescriptorPool()
+    pool.Add(file_descriptor)
+    share_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ShareCfgNetInfo")
+    cfg_list_descriptor = pool.FindMessageTypeByName("ecoflow.iot.CfgNetDeviceList")
+    return (
+        message_factory.GetMessageClass(share_descriptor),
+        message_factory.GetMessageClass(cfg_list_descriptor),
+    )
+
+
 def _build_ap_follow_info_list_get_payload() -> bytes:
     _, _, list_get_cls = _ap_follow_info_proto_classes()
     return list_get_cls().SerializeToString()
+
+
+def _build_cfg_net_device_list_payload(
+    *,
+    device_sns: list[str],
+    ssid: str,
+    password: str,
+    https_url: str | None = None,
+) -> bytes:
+    share_cls, cfg_list_cls = _cfg_net_proto_classes()
+
+    share_message = share_cls()
+    share_message.wifi_ssid = ssid
+    share_message.wifi_password = password
+    if https_url:
+        share_message.https_url = https_url
+
+    cfg_list_message = cfg_list_cls()
+    cfg_list_message.device_sn.extend(device_sns)
+    cfg_list_message.share_cfg_net_info.CopyFrom(share_message)
+    return cfg_list_message.SerializeToString()
+
+
+def _next_packet_seq() -> bytes:
+    return struct.pack("<I", int(dt.utcnow().timestamp() * 1000) & 0xFFFFFFFF)
 
 
 def _decode_ap_follow_info_list(payload: bytes) -> dict[str, Any] | None:
@@ -1379,7 +1451,7 @@ class EcoflowBleProvisioner:
         bssid: str | None = None,
         channel: int | None = None,
         https_url: str | None = None,
-    ) -> dict[str, Any]:
+        ) -> dict[str, Any]:
         payload = _build_network_message_payload(
             ssid=ssid,
             password=password,
@@ -1412,6 +1484,55 @@ class EcoflowBleProvisioner:
                 response.cmd_set,
                 response.cmd_id,
                 response.payload.hex(),
+            )
+
+        return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
+
+    async def provision_wifi_cfg_net(
+        self,
+        *,
+        ssid: str,
+        password: str,
+        https_url: str | None = None,
+    ) -> dict[str, Any]:
+        payload = _build_cfg_net_device_list_payload(
+            device_sns=[self._serial_number],
+            ssid=ssid,
+            password=password,
+            https_url=https_url,
+        )
+        packet = Packet(
+            0x20,
+            _AUTH_HEADER_DST,
+            0x35,
+            0x2A,
+            payload,
+            dsrc=0x01,
+            ddst=0x01,
+            version=4,
+            seq=_next_packet_seq(),
+        )
+        await self._send_packet_no_reply(packet)
+        try:
+            packets = await self._await_packets(timeout=5)
+        except BleRecoveryError:
+            _LOGGER.debug("No immediate BLE cfg-net response for %s", self._serial_number)
+            return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
+
+        for response in packets:
+            wifi_state = None
+            if response.cmd_set == 0x35 and response.cmd_id in {0x20, 0x35}:
+                wifi_state = _decode_wifi_state_prefix(response.payload)
+            _LOGGER.debug(
+                "BLE cfg-net response for %s: src=0x%02X dst=0x%02X cmd_set=0x%02X cmd_id=0x%02X seq=%s payload=%s decoded=%s",
+                self._serial_number,
+                response.src,
+                response.dst,
+                response.cmd_set,
+                response.cmd_id,
+                response.seq.hex(),
+                response.payload.hex(),
+                wifi_state,
             )
 
         return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
@@ -1791,6 +1912,15 @@ class EcoflowBleProvisioner:
                             "decoded_words": _decode_module_blob_words(response.payload),
                             "raw": response.payload.hex(),
                         }
+                elif response.cmd_set == 0x35 and response.cmd_id in {0x20, 0x35}:
+                    wifi_state_prefix = _decode_wifi_state_prefix(response.payload)
+                    network_status_by_source[f"0x35:{response.cmd_id:02X}:0x{response.src:02X}"] = {
+                        "module": _module_source_name(response.src),
+                        "cmd_id": response.cmd_id,
+                        "seq": response.seq.hex(),
+                        "wifi_state_prefix": wifi_state_prefix,
+                        "raw": response.payload.hex(),
+                    }
 
                 if response.cmd_set == 0x35 and response.cmd_id == 0xA2:
                     _LOGGER.info(
@@ -1810,7 +1940,11 @@ class EcoflowBleProvisioner:
                         response.cmd_id,
                         response.seq.hex(),
                         response.payload.hex(),
-                        decoded_network_status if decoded_network_status is not None else wifi_state,
+                        decoded_network_status
+                        if decoded_network_status is not None
+                        else wifi_state
+                        if wifi_state is not None
+                        else wifi_state_prefix,
                     )
 
                 if self._should_reply_post_provision_packet(response):
@@ -2308,15 +2442,35 @@ class EcoflowBleRecoveryManager:
                                 recovery_https_url,
                                 exc_info=True,
                             )
-                    state.last_stage = "provision"
-                    observed_network_status = await provisioner.provision_wifi(
+                    state.last_stage = "provision_cfg_net"
+                    observed_network_status = await provisioner.provision_wifi_cfg_net(
                         ssid=target_ssid,
                         password=target_password,
-                        bssid=attempt_bssid,
-                        channel=attempt_channel,
                         https_url=recovery_https_url,
                     )
-                    _LOGGER.info("BLE recovery provision packet sent for %s strategy=%s", sn, strategy)
+                    saw_cfg_net_status = any(key.startswith("0x35:") for key in observed_network_status)
+                    if saw_cfg_net_status:
+                        _LOGGER.info(
+                            "BLE recovery cfg-net packet sent for %s strategy=%s observed_network_status=%s",
+                            sn,
+                            strategy,
+                            observed_network_status,
+                        )
+                    else:
+                        _LOGGER.info(
+                            "BLE recovery cfg-net packet for %s strategy=%s produced no 0x35 wifi-state, falling back to legacy provisioning",
+                            sn,
+                            strategy,
+                        )
+                        state.last_stage = "provision"
+                        observed_network_status = await provisioner.provision_wifi(
+                            ssid=target_ssid,
+                            password=target_password,
+                            bssid=attempt_bssid,
+                            channel=attempt_channel,
+                            https_url=recovery_https_url,
+                        )
+                        _LOGGER.info("BLE recovery legacy provision packet sent for %s strategy=%s", sn, strategy)
                     if observed_network_status:
                         state.last_network_status = observed_network_status
                     if (
