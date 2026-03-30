@@ -1,10 +1,13 @@
 import base64
 import hashlib
 import logging
+import json
 from time import time
 from typing import Any
 
 import aiohttp
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
 from homeassistant.util import uuid
 
 from ..device_data import DeviceData
@@ -137,3 +140,55 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             )
             _LOGGER.info(f"Request: {endpoint} {req_params}: got {resp}")
             return await self._get_json_response(resp)
+
+    async def __post_api(self, endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                "lang": "en_US",
+                "authorization": f"Bearer {self.token}",
+                "content-type": "application/json",
+            }
+
+            resp = await session.post(
+                f"https://{self.api_domain}{endpoint}",
+                json=payload,
+                headers=headers,
+            )
+            _LOGGER.info("Request: %s payload_keys=%s: got %s", endpoint, sorted(payload.keys()), resp)
+            return await self._get_json_response(resp)
+
+    @staticmethod
+    def _encrypt_bound_payload(json_string: str, secret_key: str) -> str:
+        padded_key = secret_key.ljust(32, "0")[:32].encode("utf-8")
+        cipher = AES.new(padded_key, AES.MODE_ECB)
+        encrypted = cipher.encrypt(pad(json_string.encode("utf-8"), AES.block_size))
+        return base64.b64encode(encrypted).decode("ascii")
+
+    async def get_dynamic_security(self, scene: str = "APP_SECURITY_KEY") -> dict[str, Any]:
+        response = await self.__call_api("/iot-service/user/security/key", params={"scene": scene})
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing dynamic security data: {response}")
+        return data
+
+    async def bound_device_encrypted(self, device_sn: str, device_name: str) -> dict[str, Any]:
+        if not self.user_id or not self.token:
+            raise EcoflowException("Cloud bind requires authenticated private API session")
+
+        security = await self.get_dynamic_security()
+        secret_key = str(security.get("key", "")).strip()
+        if not secret_key:
+            raise EcoflowException(f"Missing dynamic security key: {security}")
+
+        request_payload = {
+            "sn": device_sn,
+            "deviceName": device_name,
+            "connectionType": 2,
+            "recordTime": int(time() * 1000),
+            "userId": int(self.user_id),
+        }
+        encrypted_payload = self._encrypt_bound_payload(
+            json.dumps(request_payload, separators=(",", ":"), ensure_ascii=False),
+            secret_key,
+        )
+        return await self.__post_api("/iot-service/device/bound", {"data": encrypted_payload})

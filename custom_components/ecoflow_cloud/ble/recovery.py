@@ -85,6 +85,7 @@ ATTR_BLE_RECOVERY_STAGE = "ble_recovery_stage"
 ATTR_BLE_RECOVERY_STRATEGY = "ble_recovery_strategy"
 ATTR_BLE_RECOVERY_NETWORK_STATUS = "ble_recovery_network_status"
 ATTR_BLE_RECOVERY_AUTH_STATUS = "ble_recovery_auth_status"
+ATTR_BLE_RECOVERY_CLOUD_BIND = "ble_recovery_cloud_bind"
 
 _WIFI_SSID_KEYS = {
     "modulewifissid",
@@ -1087,6 +1088,7 @@ class BleRecoveryState:
     last_network_status: dict[str, Any] | None = None
     last_auth_status: dict[str, Any] | None = None
     last_device_key_info: dict[str, Any] | None = None
+    last_cloud_bind: dict[str, Any] | None = None
     learned_ssid: str | None = None
     learned_channel: int | None = None
 
@@ -2102,6 +2104,7 @@ class EcoflowBleRecoveryManager:
                 ATTR_BLE_RECOVERY_NETWORK_STATUS: None,
                 ATTR_BLE_RECOVERY_AUTH_STATUS: None,
                 "ble_recovery_device_key_info": None,
+                ATTR_BLE_RECOVERY_CLOUD_BIND: None,
             }
         return {
             ATTR_BLE_RECOVERY_ACTIVE: state.in_progress,
@@ -2114,6 +2117,7 @@ class EcoflowBleRecoveryManager:
             ATTR_BLE_RECOVERY_NETWORK_STATUS: state.last_network_status,
             ATTR_BLE_RECOVERY_AUTH_STATUS: state.last_auth_status,
             "ble_recovery_device_key_info": state.last_device_key_info,
+            ATTR_BLE_RECOVERY_CLOUD_BIND: state.last_cloud_bind,
         }
 
     async def async_shutdown(self) -> None:
@@ -2428,6 +2432,7 @@ class EcoflowBleRecoveryManager:
         state.last_network_status = None
         state.last_auth_status = None
         state.last_device_key_info = None
+        state.last_cloud_bind = None
 
         try:
             if not supports_ble_wifi_recovery_device_type(device.device_data.device_type):
@@ -2710,6 +2715,39 @@ class EcoflowBleRecoveryManager:
                             strategy,
                             probed_network_status,
                         )
+                        if (
+                            not (state.last_device_key_info or {}).get("is_success")
+                            and hasattr(self._client, "bound_device_encrypted")
+                        ):
+                            state.last_stage = "bind_cloud"
+                            try:
+                                bind_result = await self._client.bound_device_encrypted(
+                                    sn,
+                                    getattr(device.device_info, "name", None) or device.device_data.name or sn,
+                                )
+                                state.last_cloud_bind = {
+                                    "path": "encrypted",
+                                    "is_success": True,
+                                    "response": bind_result.get("data", bind_result),
+                                }
+                                _LOGGER.warning(
+                                    "BLE recovery encrypted cloud bind succeeded for %s strategy=%s bind_result=%s",
+                                    sn,
+                                    strategy,
+                                    state.last_cloud_bind,
+                                )
+                            except Exception as err:
+                                state.last_cloud_bind = {
+                                    "path": "encrypted",
+                                    "is_success": False,
+                                    "error": str(err),
+                                }
+                                _LOGGER.warning(
+                                    "BLE recovery encrypted cloud bind failed for %s strategy=%s",
+                                    sn,
+                                    strategy,
+                                    exc_info=True,
+                                )
                 finally:
                     await provisioner.disconnect()
 
