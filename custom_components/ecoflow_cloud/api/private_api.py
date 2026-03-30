@@ -192,3 +192,17 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             secret_key,
         )
         return await self.__post_api("/iot-service/device/bound", {"data": encrypted_payload})
+
+    async def get_device_refresh_token(self, device_sn: str) -> dict[str, Any]:
+        response = await self.__call_api("/iot-service/user/device/refreshToken", params={"sn": device_sn})
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing refresh token data: {response}")
+        return data
+
+    async def get_device_status(self, device_sn: str) -> dict[str, Any]:
+        response = await self.__call_api("/iot-devices/device/status", params={"sn": device_sn})
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing device status data: {response}")
+        return data

@@ -2730,6 +2730,16 @@ class EcoflowBleRecoveryManager:
                                     "is_success": True,
                                     "response": bind_result.get("data", bind_result),
                                 }
+                                if hasattr(self._client, "get_device_refresh_token"):
+                                    try:
+                                        state.last_cloud_bind["refresh_token"] = await self._client.get_device_refresh_token(sn)
+                                    except Exception as err:
+                                        state.last_cloud_bind["refresh_token_error"] = str(err)
+                                if hasattr(self._client, "get_device_status"):
+                                    try:
+                                        state.last_cloud_bind["device_status"] = await self._client.get_device_status(sn)
+                                    except Exception as err:
+                                        state.last_cloud_bind["device_status_error"] = str(err)
                                 _LOGGER.warning(
                                     "BLE recovery encrypted cloud bind succeeded for %s strategy=%s bind_result=%s",
                                     sn,
