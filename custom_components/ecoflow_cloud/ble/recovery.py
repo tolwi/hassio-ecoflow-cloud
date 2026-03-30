@@ -698,6 +698,32 @@ def _next_packet_seq() -> bytes:
     return struct.pack("<I", int(dt.utcnow().timestamp() * 1000) & 0xFFFFFFFF)
 
 
+def _encode_protobuf_varint(value: int) -> bytes:
+    encoded = bytearray()
+    remaining = value
+    while True:
+        current = remaining & 0x7F
+        remaining >>= 7
+        if remaining:
+            encoded.append(current | 0x80)
+        else:
+            encoded.append(current)
+            return bytes(encoded)
+
+
+def _encode_confirm_bind_payload(random_code: str, user_info_en: str) -> bytes:
+    random_code_bytes = random_code.encode("utf-8")
+    user_info_bytes = user_info_en.encode("utf-8")
+    return (
+        b"\x0A"
+        + _encode_protobuf_varint(len(random_code_bytes))
+        + random_code_bytes
+        + b"\x12"
+        + _encode_protobuf_varint(len(user_info_bytes))
+        + user_info_bytes
+    )
+
+
 def _decode_ap_follow_info_list(payload: bytes) -> dict[str, Any] | None:
     if not payload:
         return None
@@ -1509,6 +1535,53 @@ class EcoflowBleProvisioner:
             raise BleAuthError(auth_error)
         auth_status["key_auth_result"] = "ok"
         return auth_status
+
+    async def confirm_bind(self, *, random_code: str, user_info_en: str) -> dict[str, Any]:
+        packet = Packet(
+            0x21,
+            _AUTH_HEADER_DST,
+            0x35,
+            0xA9,
+            _encode_confirm_bind_payload(random_code, user_info_en),
+            dsrc=0x01,
+            ddst=0x01,
+            version=4,
+            seq=_next_packet_seq(),
+        )
+        try:
+            packets = await self._send_packet_request(
+                packet,
+                timeout=10,
+                predicate=lambda response: response.cmd_set == 0x35 and response.cmd_id == 0xA9,
+            )
+        except (BleRecoveryError, TimeoutError):
+            _LOGGER.warning(
+                "BLE confirm-bind probe timed out for %s",
+                self._serial_number,
+            )
+            return {"is_success": False, "error": "timeout"}
+
+        result = {
+            "is_success": True,
+            "packet_count": len(packets),
+            "samples": [
+                {
+                    "src": packet.src,
+                    "dst": packet.dst,
+                    "cmd_set": packet.cmd_set,
+                    "cmd_id": packet.cmd_id,
+                    "raw": packet.payload.hex(),
+                }
+                for packet in packets[:5]
+            ],
+        }
+        _LOGGER.info(
+            "BLE confirm-bind for %s: packet_count=%s samples=%s",
+            self._serial_number,
+            result["packet_count"],
+            result["samples"],
+        )
+        return result
 
     async def query_device_key_info(self) -> dict[str, Any]:
         user_id_bytes = self._user_id.encode("utf-8")[:64]
@@ -2812,6 +2885,32 @@ class EcoflowBleRecoveryManager:
                                                         }
                                             except Exception as err:
                                                 new_bind_state["bind_systems_error"] = str(err)
+                                        if hasattr(self._client, "get_enterprise_device_refresh_token"):
+                                            try:
+                                                enterprise_refresh = await self._client.get_enterprise_device_refresh_token(sn)
+                                                enterprise_state: dict[str, Any] = {
+                                                    "is_success": True,
+                                                    "response": enterprise_refresh,
+                                                }
+                                                random_code = enterprise_refresh.get("randomCode")
+                                                user_info_en = enterprise_refresh.get("userInfoEn")
+                                                if isinstance(random_code, str) and random_code and isinstance(user_info_en, str) and user_info_en:
+                                                    state.last_stage = "confirm_bind"
+                                                    enterprise_state["confirm_bind"] = await provisioner.confirm_bind(
+                                                        random_code=random_code,
+                                                        user_info_en=user_info_en,
+                                                    )
+                                                if hasattr(self._client, "get_device_status"):
+                                                    try:
+                                                        enterprise_state["device_status"] = await self._client.get_device_status(sn)
+                                                    except Exception as err:
+                                                        enterprise_state["device_status_error"] = str(err)
+                                                new_bind_state["enterprise_refresh_token"] = enterprise_state
+                                            except Exception as err:
+                                                new_bind_state["enterprise_refresh_token"] = {
+                                                    "is_success": False,
+                                                    "error": str(err),
+                                                }
                                         state.last_cloud_bind["new_bind"] = new_bind_state
                                     except Exception as err:
                                         state.last_cloud_bind["new_bind"] = {

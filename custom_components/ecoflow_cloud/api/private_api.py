@@ -227,6 +227,13 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             raise EcoflowException(f"Missing refresh token data: {response}")
         return data
 
+    async def get_enterprise_device_refresh_token(self, device_sn: str) -> dict[str, Any]:
+        response = await self.__call_api("/iot-service/enterprise-device", params={"sn": device_sn})
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing enterprise refresh token data: {response}")
+        return data
+
     async def get_device_status(self, device_sn: str) -> dict[str, Any]:
         response = await self.__call_api("/iot-devices/device/status", params={"sn": device_sn})
         data = response.get("data")
