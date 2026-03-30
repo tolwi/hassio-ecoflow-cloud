@@ -47,6 +47,8 @@ _AUTH_HEADER_DST = 0x35
 _PD_ADDR = 0x02
 _PD_CMD_SET = 0x20
 _PD_GET_WIFI_INFO_CMD_ID = 0xA1
+_AP_FOLLOW_INFO_LIST_CMD_SET = 0x35
+_AP_FOLLOW_INFO_LIST_CMD_ID = 0x26
 _POST_PROVISION_OBSERVE_SEC = 15
 _DHODM_RPC_SRC = "user_1"
 _SUPPORTED_DEVICE_TYPES = {
@@ -559,6 +561,108 @@ def _network_message_class():
     pool.Add(file_descriptor)
     descriptor = pool.FindMessageTypeByName("wn.network_message")
     return message_factory.GetMessageClass(descriptor)
+
+
+@lru_cache(maxsize=1)
+def _ap_follow_info_proto_classes() -> tuple[type[Any], type[Any], type[Any]]:
+    file_descriptor = descriptor_pb2.FileDescriptorProto()
+    file_descriptor.name = "iot_comm_ap_follow.proto"
+    file_descriptor.package = "ecoflow.iot"
+    file_descriptor.syntax = "proto2"
+
+    ack_message = file_descriptor.message_type.add()
+    ack_message.name = "ApFollowInfoAck"
+    ack_fields = [
+        ("follow_switch", 1, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("pack_lost_rate", 2, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("rssi", 3, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("ip_addr", 4, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("bssid", 5, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+        ("ssid", 6, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+        ("pwd", 7, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+        ("is_connect", 8, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("is_enable", 9, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("is_found", 10, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("retry_cnt", 11, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("channel", 12, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("disconnect_reason", 13, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("connect_timestamp", 14, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+    ]
+    for name, number, field_type in ack_fields:
+        field = ack_message.field.add()
+        field.name = name
+        field.number = number
+        field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+        field.type = field_type
+
+    list_ack_message = file_descriptor.message_type.add()
+    list_ack_message.name = "ApFollowInfoListAck"
+    list_field = list_ack_message.field.add()
+    list_field.name = "list"
+    list_field.number = 1
+    list_field.label = descriptor_pb2.FieldDescriptorProto.LABEL_REPEATED
+    list_field.type = descriptor_pb2.FieldDescriptorProto.TYPE_MESSAGE
+    list_field.type_name = ".ecoflow.iot.ApFollowInfoAck"
+
+    list_get_message = file_descriptor.message_type.add()
+    list_get_message.name = "ApFollowInfoListGet"
+
+    pool = descriptor_pool.DescriptorPool()
+    pool.Add(file_descriptor)
+    ack_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowInfoAck")
+    list_ack_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowInfoListAck")
+    list_get_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowInfoListGet")
+    return (
+        message_factory.GetMessageClass(ack_descriptor),
+        message_factory.GetMessageClass(list_ack_descriptor),
+        message_factory.GetMessageClass(list_get_descriptor),
+    )
+
+
+def _build_ap_follow_info_list_get_payload() -> bytes:
+    _, _, list_get_cls = _ap_follow_info_proto_classes()
+    return list_get_cls().SerializeToString()
+
+
+def _decode_ap_follow_info_list(payload: bytes) -> dict[str, Any] | None:
+    if not payload:
+        return None
+
+    _, list_ack_cls, _ = _ap_follow_info_proto_classes()
+    try:
+        decoded = list_ack_cls.FromString(payload)
+    except Exception:
+        return None
+
+    entries: list[dict[str, Any]] = []
+    connected_entry: dict[str, Any] | None = None
+    for entry in decoded.list:
+        parsed = {
+            "follow_switch": int(entry.follow_switch),
+            "pack_lost_rate": int(entry.pack_lost_rate),
+            "rssi": int(entry.rssi),
+            "ip_addr": int(entry.ip_addr),
+            "bssid": str(entry.bssid),
+            "ssid": str(entry.ssid),
+            "pwd": str(entry.pwd),
+            "is_connect": int(entry.is_connect),
+            "is_enable": int(entry.is_enable),
+            "is_found": int(entry.is_found),
+            "retry_cnt": int(entry.retry_cnt),
+            "channel": int(entry.channel),
+            "disconnect_reason": int(entry.disconnect_reason),
+            "connect_timestamp": int(entry.connect_timestamp),
+        }
+        entries.append(parsed)
+        if connected_entry is None and parsed["is_connect"] == 1:
+            connected_entry = parsed
+
+    return {
+        "entry_count": len(entries),
+        "connected_entry": connected_entry,
+        "entries": entries,
+        "raw": payload.hex(),
+    }
 
 
 def _build_network_message_payload(
@@ -1506,6 +1610,43 @@ class EcoflowBleProvisioner:
 
         return packets
 
+    async def query_ap_follow_info_list(self) -> list[Packet]:
+        packet = Packet(
+            0x21,
+            _AUTH_HEADER_DST,
+            _AP_FOLLOW_INFO_LIST_CMD_SET,
+            _AP_FOLLOW_INFO_LIST_CMD_ID,
+            _build_ap_follow_info_list_get_payload(),
+            dsrc=0x01,
+            ddst=0x01,
+            version=self._packet_version,
+        )
+
+        try:
+            packets = await self._send_packet_request(
+                packet,
+                timeout=3,
+                predicate=lambda response: response.cmd_id == _AP_FOLLOW_INFO_LIST_CMD_ID,
+            )
+        except BleRecoveryError:
+            _LOGGER.warning("No AP-follow wifi-info response for %s", self._serial_number)
+            return []
+
+        for response in packets:
+            _LOGGER.warning(
+                "BLE AP-follow wifi-info response for %s: src=0x%02X dst=0x%02X cmd_set=0x%02X cmd_id=0x%02X seq=%s payload=%s decoded=%s",
+                self._serial_number,
+                response.src,
+                response.dst,
+                response.cmd_set,
+                response.cmd_id,
+                response.seq.hex(),
+                response.payload.hex(),
+                _decode_ap_follow_info_list(response.payload),
+            )
+
+        return packets
+
     async def _observe_post_provision_packets(self, timeout: float) -> dict[str, Any]:
         deadline = asyncio.get_running_loop().time() + timeout
         saw_packet = False
@@ -2123,6 +2264,7 @@ class EcoflowBleRecoveryManager:
                         dhodm_request_id += 1
                         await provisioner.request_mqtt_status(request_id=dhodm_request_id)
                         dhodm_request_id += 1
+                        ap_follow_info_packets = await provisioner.query_ap_follow_info_list()
                         pd_wifi_info_packets = await provisioner.query_pd_wifi_info()
                         probed_network_status = await provisioner._observe_post_provision_packets(timeout=8)
                         pd_status_raw: bytes | None = None
@@ -2134,6 +2276,17 @@ class EcoflowBleRecoveryManager:
                                     pd_status_raw = bytes.fromhex(pd_status_raw_hex)
                                 except ValueError:
                                     pd_status_raw = None
+                        if ap_follow_info_packets:
+                            probed_network_status["_ap_follow_info"] = [
+                                {
+                                    "cmd_set": packet.cmd_set,
+                                    "cmd_id": packet.cmd_id,
+                                    "seq": packet.seq.hex(),
+                                    "decoded": _decode_ap_follow_info_list(packet.payload),
+                                    "raw": packet.payload.hex(),
+                                }
+                                for packet in ap_follow_info_packets
+                            ]
                         if pd_wifi_info_packets:
                             probed_network_status["_pd_wifi_info"] = [
                                 {
