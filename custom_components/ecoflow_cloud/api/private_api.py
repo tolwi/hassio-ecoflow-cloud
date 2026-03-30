@@ -355,6 +355,13 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             raise EcoflowException(f"Missing provider auth-code device-info data: {response}")
         return data
 
+    async def query_auth_provider(self, device_sn: str) -> dict[str, Any]:
+        response = await self.__call_api("/app/device/queryAuthProvider", params={"sn": device_sn})
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing auth-provider data: {response}")
+        return data
+
     async def get_device_status(self, device_sn: str) -> dict[str, Any]:
         response = await self.__call_api("/iot-devices/device/status", params={"sn": device_sn})
         data = response.get("data")

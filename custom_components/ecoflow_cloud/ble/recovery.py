@@ -2931,6 +2931,17 @@ class EcoflowBleRecoveryManager:
                                                     "is_success": False,
                                                     "error": str(err),
                                                 }
+                                        if hasattr(self._client, "query_auth_provider"):
+                                            try:
+                                                new_bind_state["query_auth_provider"] = {
+                                                    "is_success": True,
+                                                    "response": await self._client.query_auth_provider(sn),
+                                                }
+                                            except Exception as err:
+                                                new_bind_state["query_auth_provider"] = {
+                                                    "is_success": False,
+                                                    "error": str(err),
+                                                }
                                         if hasattr(self._client, "get_provider_auth_code"):
                                             for is_init_complete in (False, True):
                                                 probe_key = (
