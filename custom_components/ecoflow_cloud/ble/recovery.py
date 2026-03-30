@@ -749,6 +749,58 @@ def _module_source_name(src: int) -> str:
     return _MODULE_SOURCE_NAMES.get(src, f"src_0x{src:02X}")
 
 
+def _decode_module_blob_words(payload: bytes, *, preview_words: int = 12) -> dict[str, Any]:
+    """Expose opaque module payloads as little-endian word slices for debugging."""
+    if not payload:
+        return {"raw": ""}
+
+    whole_words = len(payload) // 4
+    words_u32 = [
+        int.from_bytes(payload[index : index + 4], "little", signed=False)
+        for index in range(0, whole_words * 4, 4)
+    ]
+    words_i32 = [
+        int.from_bytes(payload[index : index + 4], "little", signed=True)
+        for index in range(0, whole_words * 4, 4)
+    ]
+    trailing = payload[whole_words * 4 :]
+
+    return {
+        "len": len(payload),
+        "u32_head": words_u32[:preview_words],
+        "i32_head": words_i32[:preview_words],
+        "u32_tail": words_u32[-min(preview_words, len(words_u32)) :],
+        "nonzero_u32": {
+            f"w{index:02d}": value
+            for index, value in enumerate(words_u32)
+            if value != 0
+        },
+        "trailing_hex": trailing.hex(),
+    }
+
+
+def _diff_module_blob_words(left: bytes, right: bytes) -> dict[str, Any]:
+    """Summarize changed 32-bit words between two opaque payload snapshots."""
+    word_count = min(len(left), len(right)) // 4
+    changed_words: dict[str, dict[str, int]] = {}
+    for index in range(word_count):
+        left_word = int.from_bytes(left[index * 4 : index * 4 + 4], "little", signed=False)
+        right_word = int.from_bytes(right[index * 4 : index * 4 + 4], "little", signed=False)
+        if left_word != right_word:
+            changed_words[f"w{index:02d}"] = {
+                "left": left_word,
+                "right": right_word,
+            }
+
+    return {
+        "same_len": len(left) == len(right),
+        "left_len": len(left),
+        "right_len": len(right),
+        "changed_word_count": len(changed_words),
+        "changed_words": changed_words,
+    }
+
+
 @dataclass(slots=True)
 class BleRecoveryState:
     in_progress: bool = False
@@ -1483,6 +1535,7 @@ class EcoflowBleProvisioner:
                             "module": _module_source_name(response.src),
                             "cmd_id": response.cmd_id,
                             "seq": response.seq.hex(),
+                            "decoded_words": _decode_module_blob_words(response.payload),
                             "raw": response.payload.hex(),
                         }
 
@@ -2072,11 +2125,26 @@ class EcoflowBleRecoveryManager:
                         dhodm_request_id += 1
                         pd_wifi_info_packets = await provisioner.query_pd_wifi_info()
                         probed_network_status = await provisioner._observe_post_provision_packets(timeout=8)
+                        pd_status_raw: bytes | None = None
+                        pd_status_entry = probed_network_status.get("0x02")
+                        if isinstance(pd_status_entry, dict):
+                            pd_status_raw_hex = pd_status_entry.get("raw")
+                            if isinstance(pd_status_raw_hex, str):
+                                try:
+                                    pd_status_raw = bytes.fromhex(pd_status_raw_hex)
+                                except ValueError:
+                                    pd_status_raw = None
                         if pd_wifi_info_packets:
                             probed_network_status["_pd_wifi_info"] = [
                                 {
                                     "cmd_id": packet.cmd_id,
                                     "seq": packet.seq.hex(),
+                                    "decoded_words": _decode_module_blob_words(packet.payload),
+                                    "diff_vs_pd_status": (
+                                        _diff_module_blob_words(packet.payload, pd_status_raw)
+                                        if pd_status_raw is not None
+                                        else None
+                                    ),
                                     "raw": packet.payload.hex(),
                                 }
                                 for packet in pd_wifi_info_packets
