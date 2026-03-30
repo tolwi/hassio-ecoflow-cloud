@@ -908,6 +908,18 @@ def _decode_wifi_state_payload(payload: bytes) -> dict[str, Any] | None:
     return decoded
 
 
+def _decode_wifi_state_prefix(payload: bytes) -> dict[str, Any] | None:
+    """Expose the leading type/state bytes on opaque module status payloads."""
+    if len(payload) < 2:
+        return None
+
+    return {
+        "type": payload[0],
+        "state": payload[1],
+        "raw_prefix": payload[:8].hex(),
+    }
+
+
 def _diff_module_blob_words(left: bytes, right: bytes) -> dict[str, Any]:
     """Summarize changed 32-bit words between two opaque payload snapshots."""
     word_count = min(len(left), len(right)) // 4
@@ -1670,8 +1682,11 @@ class EcoflowBleProvisioner:
                 if response.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET:
                     decoded = _decode_ap_follow_info_list(response.payload)
                 wifi_state = None
+                wifi_state_prefix = None
                 if response.cmd_set == _PD_CMD_SET and response.cmd_id == 0x20:
                     wifi_state = _decode_wifi_state_payload(response.payload)
+                elif response.cmd_set == _PD_CMD_SET:
+                    wifi_state_prefix = _decode_wifi_state_prefix(response.payload)
                 if len(sample_packets) < 8:
                     sample_packets.append(
                         {
@@ -1682,6 +1697,7 @@ class EcoflowBleProvisioner:
                             "seq": response.seq.hex(),
                             "decoded": decoded,
                             "wifi_state": wifi_state,
+                            "wifi_state_prefix": wifi_state_prefix,
                             "payload": response.payload.hex(),
                         }
                     )
@@ -1732,6 +1748,7 @@ class EcoflowBleProvisioner:
             for response in packets:
                 decoded_network_status = None
                 wifi_state = None
+                wifi_state_prefix = None
                 if response.cmd_set == 0x20:
                     decoded_network_status = _decode_network_status_payload(response.payload)
                     if decoded_network_status is not None:
@@ -1747,10 +1764,12 @@ class EcoflowBleProvisioner:
                                 "raw": response.payload.hex(),
                             }
                     else:
+                        wifi_state_prefix = _decode_wifi_state_prefix(response.payload)
                         network_status_by_source[f"0x{response.src:02X}"] = {
                             "module": _module_source_name(response.src),
                             "cmd_id": response.cmd_id,
                             "seq": response.seq.hex(),
+                            "wifi_state_prefix": wifi_state_prefix,
                             "decoded_words": _decode_module_blob_words(response.payload),
                             "raw": response.payload.hex(),
                         }
