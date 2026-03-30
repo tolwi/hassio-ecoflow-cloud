@@ -917,6 +917,33 @@ def _decode_auth_status_payload(payload: bytes) -> dict[str, Any]:
     return decoded
 
 
+def _decode_cstring_bytes(data: bytes) -> str:
+    return data.split(b"\x00", 1)[0].decode("utf-8", errors="ignore")
+
+
+def _decode_device_key_info_payload(payload: bytes) -> dict[str, Any]:
+    if len(payload) < 134:
+        return {
+            "is_success": False,
+            "raw": payload.hex(),
+            "error": f"payload_too_short:{len(payload)}",
+        }
+
+    random_code = _decode_cstring_bytes(payload[1:65])
+    sign_string = _decode_cstring_bytes(payload[65:129])
+    ver = payload[129]
+    timestamp_raw = struct.unpack("<I", payload[130:134])[0]
+    return {
+        "is_success": True,
+        "random_code": random_code,
+        "sign_string": sign_string,
+        "timestamp": str(timestamp_raw),
+        "timestamp_raw": timestamp_raw,
+        "ver": ver,
+        "raw": payload.hex(),
+    }
+
+
 def _normalize_wifi_channel(value: Any) -> int | None:
     if isinstance(value, bool):
         return None
@@ -1059,6 +1086,7 @@ class BleRecoveryState:
     last_strategy: str | None = None
     last_network_status: dict[str, Any] | None = None
     last_auth_status: dict[str, Any] | None = None
+    last_device_key_info: dict[str, Any] | None = None
     learned_ssid: str | None = None
     learned_channel: int | None = None
 
@@ -1479,6 +1507,51 @@ class EcoflowBleProvisioner:
             raise BleAuthError(auth_error)
         auth_status["key_auth_result"] = "ok"
         return auth_status
+
+    async def query_device_key_info(self) -> dict[str, Any]:
+        user_id_bytes = self._user_id.encode("utf-8")[:64]
+        payload = bytes([0x01]) + user_id_bytes.ljust(64, b"\x00") + struct.pack(
+            "<I", int(dt.utcnow().timestamp())
+        )
+        packet = Packet(
+            0x20,
+            _AUTH_HEADER_DST,
+            0x35,
+            0xA8,
+            payload,
+            dsrc=0x01,
+            ddst=0x01,
+            version=4,
+            seq=_next_packet_seq(),
+        )
+        try:
+            packets = await self._send_packet_request(
+                packet,
+                timeout=10,
+                predicate=lambda response: response.cmd_set == 0x35 and response.cmd_id == 0xA8,
+            )
+        except (BleRecoveryError, TimeoutError):
+            decoded = {
+                "is_success": False,
+                "error": "timeout",
+            }
+            _LOGGER.warning(
+                "BLE device-key-info probe timed out for %s",
+                self._serial_number,
+            )
+            return decoded
+        decoded = _decode_device_key_info_payload(packets[0].payload)
+        _LOGGER.info(
+            "BLE device-key-info for %s: success=%s ver=%s timestamp=%s random_code_len=%s sign_string_len=%s raw=%s",
+            self._serial_number,
+            decoded.get("is_success"),
+            decoded.get("ver"),
+            decoded.get("timestamp"),
+            len(decoded.get("random_code", "")),
+            len(decoded.get("sign_string", "")),
+            decoded.get("raw"),
+        )
+        return decoded
 
     async def provision_wifi(
         self,
@@ -2028,6 +2101,7 @@ class EcoflowBleRecoveryManager:
                 ATTR_BLE_RECOVERY_STRATEGY: None,
                 ATTR_BLE_RECOVERY_NETWORK_STATUS: None,
                 ATTR_BLE_RECOVERY_AUTH_STATUS: None,
+                "ble_recovery_device_key_info": None,
             }
         return {
             ATTR_BLE_RECOVERY_ACTIVE: state.in_progress,
@@ -2039,6 +2113,7 @@ class EcoflowBleRecoveryManager:
             ATTR_BLE_RECOVERY_STRATEGY: state.last_strategy,
             ATTR_BLE_RECOVERY_NETWORK_STATUS: state.last_network_status,
             ATTR_BLE_RECOVERY_AUTH_STATUS: state.last_auth_status,
+            "ble_recovery_device_key_info": state.last_device_key_info,
         }
 
     async def async_shutdown(self) -> None:
@@ -2352,6 +2427,7 @@ class EcoflowBleRecoveryManager:
         state.last_strategy = None
         state.last_network_status = None
         state.last_auth_status = None
+        state.last_device_key_info = None
 
         try:
             if not supports_ble_wifi_recovery_device_type(device.device_data.device_type):
@@ -2470,6 +2546,18 @@ class EcoflowBleRecoveryManager:
                         strategy,
                         auth_status,
                     )
+                    if auth_status.get("flow") == "key" and auth_status.get("key_auth_result") == "ok":
+                        state.last_stage = "device_key_info"
+                        try:
+                            device_key_info = await provisioner.query_device_key_info()
+                            state.last_device_key_info = device_key_info
+                        except BleRecoveryError:
+                            _LOGGER.warning(
+                                "BLE device-key-info probe failed for %s strategy=%s",
+                                sn,
+                                strategy,
+                                exc_info=True,
+                            )
                     if recovery_https_url:
                         state.last_stage = "set_url"
                         try:
