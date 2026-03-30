@@ -2929,6 +2929,52 @@ class EcoflowBleRecoveryManager:
                                                     "is_success": False,
                                                     "error": str(err),
                                                 }
+                                        if hasattr(self._client, "get_provider_auth_code"):
+                                            for is_init_complete in (False, True):
+                                                probe_key = (
+                                                    "provider_auth_code_init_complete_true"
+                                                    if is_init_complete
+                                                    else "provider_auth_code_init_complete_false"
+                                                )
+                                                try:
+                                                    provider_auth_code = await self._client.get_provider_auth_code(
+                                                        sn,
+                                                        is_init_complete=is_init_complete,
+                                                    )
+                                                    provider_auth_state: dict[str, Any] = {
+                                                        "is_success": True,
+                                                        "response": provider_auth_code,
+                                                    }
+                                                    auth_code = provider_auth_code.get("authCode")
+                                                    if isinstance(auth_code, str) and auth_code:
+                                                        if hasattr(self._client, "get_iot_auth_code_device_info"):
+                                                            try:
+                                                                provider_auth_state["iot_auth_code_device_info"] = {
+                                                                    "is_success": True,
+                                                                    "response": await self._client.get_iot_auth_code_device_info(auth_code),
+                                                                }
+                                                            except Exception as err:
+                                                                provider_auth_state["iot_auth_code_device_info"] = {
+                                                                    "is_success": False,
+                                                                    "error": str(err),
+                                                                }
+                                                        if hasattr(self._client, "get_provider_auth_code_device_info"):
+                                                            try:
+                                                                provider_auth_state["provider_auth_code_device_info"] = {
+                                                                    "is_success": True,
+                                                                    "response": await self._client.get_provider_auth_code_device_info(auth_code),
+                                                                }
+                                                            except Exception as err:
+                                                                provider_auth_state["provider_auth_code_device_info"] = {
+                                                                    "is_success": False,
+                                                                    "error": str(err),
+                                                                }
+                                                    new_bind_state[probe_key] = provider_auth_state
+                                                except Exception as err:
+                                                    new_bind_state[probe_key] = {
+                                                        "is_success": False,
+                                                        "error": str(err),
+                                                    }
                                         if hasattr(self._client, "get_enterprise_device_refresh_token"):
                                             try:
                                                 enterprise_refresh = await self._client.get_enterprise_device_refresh_token(sn)

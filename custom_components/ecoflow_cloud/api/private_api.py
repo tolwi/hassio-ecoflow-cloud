@@ -307,6 +307,37 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             raise EcoflowException(f"Missing provider bind-info data: {response}")
         return data
 
+    async def get_provider_auth_code(self, device_sn: str, *, is_init_complete: bool) -> dict[str, Any]:
+        response = await self.__call_api(
+            "/app/device/provider/authCode",
+            params={"sn": device_sn, "isInitComplete": str(is_init_complete).lower()},
+        )
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing provider auth-code data: {response}")
+        return data
+
+    async def get_iot_auth_code_device_info(self, auth_code: str) -> dict[str, Any]:
+        response = await self.__post_api(
+            "/iot-service/device/authCode/deviceInfo",
+            {"authCode": auth_code},
+        )
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing IoT auth-code device-info data: {response}")
+        return data
+
+    async def get_provider_auth_code_device_info(self, auth_code: str) -> dict[str, Any]:
+        response = await self.__post_api(
+            "/provider-service/app/device/authCode/deviceInfo",
+            {"authCode": auth_code},
+            provider_mode=True,
+        )
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing provider auth-code device-info data: {response}")
+        return data
+
     async def get_device_status(self, device_sn: str) -> dict[str, Any]:
         response = await self.__call_api("/iot-devices/device/status", params={"sn": device_sn})
         data = response.get("data")
