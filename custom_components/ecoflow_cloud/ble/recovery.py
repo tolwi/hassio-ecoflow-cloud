@@ -1622,14 +1622,49 @@ class EcoflowBleProvisioner:
             version=self._packet_version,
         )
 
-        try:
-            packets = await self._send_packet_request(
-                packet,
-                timeout=3,
-                predicate=lambda response: response.cmd_id == _AP_FOLLOW_INFO_LIST_CMD_ID,
+        await self._ensure_notify()
+        self._drain_notifications()
+        assembler = self._packet_assembler()
+        payload = await assembler.encode(packet)
+        await self._write(payload, response=assembler.write_with_response)
+
+        packets: list[Packet] = []
+        sample_packets: list[dict[str, Any]] = []
+        deadline = asyncio.get_running_loop().time() + 3
+        while True:
+            remaining = deadline - asyncio.get_running_loop().time()
+            if remaining <= 0:
+                break
+            try:
+                batch = await self._await_packets(timeout=min(remaining, 1))
+            except (BleRecoveryError, TimeoutError):
+                break
+
+            for response in batch:
+                decoded = None
+                if response.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET:
+                    decoded = _decode_ap_follow_info_list(response.payload)
+                if len(sample_packets) < 8:
+                    sample_packets.append(
+                        {
+                            "src": f"0x{response.src:02X}",
+                            "dst": f"0x{response.dst:02X}",
+                            "cmd_set": f"0x{response.cmd_set:02X}",
+                            "cmd_id": f"0x{response.cmd_id:02X}",
+                            "seq": response.seq.hex(),
+                            "decoded": decoded,
+                            "payload": response.payload.hex(),
+                        }
+                    )
+                if response.cmd_id == _AP_FOLLOW_INFO_LIST_CMD_ID or decoded is not None:
+                    packets.append(response)
+
+        if not packets:
+            _LOGGER.warning(
+                "No AP-follow wifi-info response for %s; samples=%s",
+                self._serial_number,
+                sample_packets,
             )
-        except BleRecoveryError:
-            _LOGGER.warning("No AP-follow wifi-info response for %s", self._serial_number)
             return []
 
         for response in packets:
