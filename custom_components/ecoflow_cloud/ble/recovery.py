@@ -883,6 +883,31 @@ def _decode_module_blob_words(payload: bytes, *, preview_words: int = 12) -> dic
     }
 
 
+def _decode_wifi_state_payload(payload: bytes) -> dict[str, Any] | None:
+    """Decode EcoFlow WifiStateBean payload used by PD cmd_id 0x20."""
+    if not payload:
+        return None
+
+    decoded: dict[str, Any] = {"raw": payload.hex()}
+    if len(payload) >= 1:
+        decoded["type"] = payload[0]
+    if len(payload) >= 2:
+        decoded["state"] = payload[1]
+    if len(payload) >= 4:
+        decoded["ping_min_raw"] = payload[2:4].hex()
+        decoded["ping_min_le"] = int.from_bytes(payload[2:4], "little", signed=False)
+        decoded["ping_min_be"] = int.from_bytes(payload[2:4], "big", signed=False)
+    if len(payload) >= 6:
+        decoded["ping_max_raw"] = payload[4:6].hex()
+        decoded["ping_max_le"] = int.from_bytes(payload[4:6], "little", signed=False)
+        decoded["ping_max_be"] = int.from_bytes(payload[4:6], "big", signed=False)
+    if len(payload) >= 8:
+        decoded["ping_avg_raw"] = payload[6:8].hex()
+        decoded["ping_avg_le"] = int.from_bytes(payload[6:8], "little", signed=False)
+        decoded["ping_avg_be"] = int.from_bytes(payload[6:8], "big", signed=False)
+    return decoded
+
+
 def _diff_module_blob_words(left: bytes, right: bytes) -> dict[str, Any]:
     """Summarize changed 32-bit words between two opaque payload snapshots."""
     word_count = min(len(left), len(right)) // 4
@@ -1644,6 +1669,9 @@ class EcoflowBleProvisioner:
                 decoded = None
                 if response.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET:
                     decoded = _decode_ap_follow_info_list(response.payload)
+                wifi_state = None
+                if response.cmd_set == _PD_CMD_SET and response.cmd_id == 0x20:
+                    wifi_state = _decode_wifi_state_payload(response.payload)
                 if len(sample_packets) < 8:
                     sample_packets.append(
                         {
@@ -1653,6 +1681,7 @@ class EcoflowBleProvisioner:
                             "cmd_id": f"0x{response.cmd_id:02X}",
                             "seq": response.seq.hex(),
                             "decoded": decoded,
+                            "wifi_state": wifi_state,
                             "payload": response.payload.hex(),
                         }
                     )
@@ -1702,10 +1731,21 @@ class EcoflowBleProvisioner:
             saw_packet = True
             for response in packets:
                 decoded_network_status = None
+                wifi_state = None
                 if response.cmd_set == 0x20:
                     decoded_network_status = _decode_network_status_payload(response.payload)
                     if decoded_network_status is not None:
                         network_status_by_source[f"0x{response.src:02X}"] = decoded_network_status
+                    elif response.cmd_id == 0x20:
+                        wifi_state = _decode_wifi_state_payload(response.payload)
+                        if wifi_state is not None:
+                            network_status_by_source[f"0x{response.src:02X}"] = {
+                                "module": _module_source_name(response.src),
+                                "cmd_id": response.cmd_id,
+                                "seq": response.seq.hex(),
+                                "wifi_state": wifi_state,
+                                "raw": response.payload.hex(),
+                            }
                     else:
                         network_status_by_source[f"0x{response.src:02X}"] = {
                             "module": _module_source_name(response.src),
@@ -1733,7 +1773,7 @@ class EcoflowBleProvisioner:
                         response.cmd_id,
                         response.seq.hex(),
                         response.payload.hex(),
-                        decoded_network_status,
+                        decoded_network_status if decoded_network_status is not None else wifi_state,
                     )
 
                 if self._should_reply_post_provision_packet(response):
