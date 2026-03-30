@@ -2896,6 +2896,39 @@ class EcoflowBleRecoveryManager:
                                                     "is_success": False,
                                                     "error": str(err),
                                                 }
+                                        if hasattr(self._client, "provider_query_user_device_info"):
+                                            try:
+                                                new_bind_state["provider_query_user_device_info"] = {
+                                                    "is_success": True,
+                                                    "response": await self._client.provider_query_user_device_info(sn),
+                                                }
+                                            except Exception as err:
+                                                new_bind_state["provider_query_user_device_info"] = {
+                                                    "is_success": False,
+                                                    "error": str(err),
+                                                }
+                                        if hasattr(self._client, "provider_get_system_device"):
+                                            try:
+                                                new_bind_state["provider_system_device"] = {
+                                                    "is_success": True,
+                                                    "response": await self._client.provider_get_system_device(sn),
+                                                }
+                                            except Exception as err:
+                                                new_bind_state["provider_system_device"] = {
+                                                    "is_success": False,
+                                                    "error": str(err),
+                                                }
+                                        if hasattr(self._client, "provider_get_device_bind_infos"):
+                                            try:
+                                                new_bind_state["provider_device_bind_infos"] = {
+                                                    "is_success": True,
+                                                    "response": await self._client.provider_get_device_bind_infos(sn),
+                                                }
+                                            except Exception as err:
+                                                new_bind_state["provider_device_bind_infos"] = {
+                                                    "is_success": False,
+                                                    "error": str(err),
+                                                }
                                         if hasattr(self._client, "get_enterprise_device_refresh_token"):
                                             try:
                                                 enterprise_refresh = await self._client.get_enterprise_device_refresh_token(sn)

@@ -274,6 +274,39 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             raise EcoflowException(f"Missing enterprise certification data: {response}")
         return data
 
+    async def provider_query_user_device_info(self, device_sn: str) -> dict[str, Any]:
+        response = await self.__call_api(
+            "/provider-service/app/device/queryUserDeviceInfo",
+            params={"sn": device_sn},
+            provider_mode=True,
+        )
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing provider user-device info data: {response}")
+        return data
+
+    async def provider_get_system_device(self, device_sn: str) -> dict[str, Any]:
+        response = await self.__call_api(
+            "/provider-service/app/system/systemDevice",
+            params={"sn": device_sn},
+            provider_mode=True,
+        )
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing provider system-device data: {response}")
+        return data
+
+    async def provider_get_device_bind_infos(self, device_sn: str) -> dict[str, Any]:
+        response = await self.__post_api(
+            "/provider-service/app/device/deviceBindInfos",
+            {"snList": [device_sn]},
+            provider_mode=True,
+        )
+        data = response.get("data")
+        if not isinstance(data, dict):
+            raise EcoflowException(f"Missing provider bind-info data: {response}")
+        return data
+
     async def get_device_status(self, device_sn: str) -> dict[str, Any]:
         response = await self.__call_api("/iot-devices/device/status", params={"sn": device_sn})
         data = response.get("data")
