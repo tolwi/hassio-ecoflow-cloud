@@ -2765,6 +2765,53 @@ class EcoflowBleRecoveryManager:
                                                 new_bind_state["device_status"] = await self._client.get_device_status(sn)
                                             except Exception as err:
                                                 new_bind_state["device_status_error"] = str(err)
+                                        if hasattr(self._client, "list_bind_systems"):
+                                            try:
+                                                bind_systems = await self._client.list_bind_systems()
+                                                new_bind_state["bind_systems"] = bind_systems
+                                                target_system_no = None
+                                                for item in bind_systems:
+                                                    candidate = item.get("systemNo")
+                                                    if isinstance(candidate, str) and candidate:
+                                                        target_system_no = candidate
+                                                        break
+                                                if (
+                                                    target_system_no
+                                                    and hasattr(self._client, "system_add_device")
+                                                ):
+                                                    try:
+                                                        add_result = await self._client.system_add_device(
+                                                            target_system_no,
+                                                            sn,
+                                                        )
+                                                        system_add_state: dict[str, Any] = {
+                                                            "is_success": True,
+                                                            "systemNo": target_system_no,
+                                                            "response": add_result.get("data", add_result),
+                                                        }
+                                                        if hasattr(self._client, "get_device_refresh_token"):
+                                                            try:
+                                                                system_add_state["refresh_token"] = (
+                                                                    await self._client.get_device_refresh_token(sn)
+                                                                )
+                                                            except Exception as err:
+                                                                system_add_state["refresh_token_error"] = str(err)
+                                                        if hasattr(self._client, "get_device_status"):
+                                                            try:
+                                                                system_add_state["device_status"] = (
+                                                                    await self._client.get_device_status(sn)
+                                                                )
+                                                            except Exception as err:
+                                                                system_add_state["device_status_error"] = str(err)
+                                                        new_bind_state["system_add_device"] = system_add_state
+                                                    except Exception as err:
+                                                        new_bind_state["system_add_device"] = {
+                                                            "is_success": False,
+                                                            "systemNo": target_system_no,
+                                                            "error": str(err),
+                                                        }
+                                            except Exception as err:
+                                                new_bind_state["bind_systems_error"] = str(err)
                                         state.last_cloud_bind["new_bind"] = new_bind_state
                                     except Exception as err:
                                         state.last_cloud_bind["new_bind"] = {

@@ -233,3 +233,17 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         if not isinstance(data, dict):
             raise EcoflowException(f"Missing device status data: {response}")
         return data
+
+    async def list_bind_systems(self) -> list[dict[str, Any]]:
+        response = await self.__call_api("/app/device/bind/system/list")
+        data = response.get("data")
+        if not isinstance(data, list):
+            raise EcoflowException(f"Missing bind system list data: {response}")
+        return [item for item in data if isinstance(item, dict)]
+
+    async def system_add_device(self, system_no: str, device_sn: str) -> dict[str, Any]:
+        payload = {
+            "systemNo": system_no,
+            "snList": [{"sn": device_sn}],
+        }
+        return await self.__post_api("/app/device/bind/system/systemAddDevice", payload)
