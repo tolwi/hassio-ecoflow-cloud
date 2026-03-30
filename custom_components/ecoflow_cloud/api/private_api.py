@@ -193,6 +193,33 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         )
         return await self.__post_api("/iot-service/device/bound", {"data": encrypted_payload})
 
+    async def bind_device_new(
+        self,
+        device_sn: str,
+        device_name: str,
+        *,
+        random_code: str | None = None,
+        device_hash_code: str | None = None,
+        timestamp: str | None = None,
+    ) -> dict[str, Any]:
+        if not self.user_id or not self.token:
+            raise EcoflowException("New cloud bind requires authenticated private API session")
+
+        request_payload: dict[str, Any] = {
+            "sn": device_sn,
+            "deviceName": device_name,
+            "connectionType": 2,
+            "recordTime": int(time() * 1000),
+            "userId": int(self.user_id),
+        }
+        if random_code is not None:
+            request_payload["randomCode"] = random_code
+        if device_hash_code is not None:
+            request_payload["deviceHashCode"] = device_hash_code
+        if timestamp is not None:
+            request_payload["timestamp"] = timestamp
+        return await self.__post_api("/app/device/bind", request_payload)
+
     async def get_device_refresh_token(self, device_sn: str) -> dict[str, Any]:
         response = await self.__call_api("/iot-service/user/device/refreshToken", params={"sn": device_sn})
         data = response.get("data")

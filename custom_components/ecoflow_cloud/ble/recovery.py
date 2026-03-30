@@ -2740,6 +2740,37 @@ class EcoflowBleRecoveryManager:
                                         state.last_cloud_bind["device_status"] = await self._client.get_device_status(sn)
                                     except Exception as err:
                                         state.last_cloud_bind["device_status_error"] = str(err)
+                                if (
+                                    state.last_cloud_bind.get("refresh_token_error")
+                                    and hasattr(self._client, "bind_device_new")
+                                ):
+                                    try:
+                                        new_bind_result = await self._client.bind_device_new(
+                                            sn,
+                                            getattr(device.device_info, "name", None) or device.device_data.name or sn,
+                                        )
+                                        new_bind_state: dict[str, Any] = {
+                                            "is_success": True,
+                                            "response": new_bind_result.get("data", new_bind_result),
+                                        }
+                                        if hasattr(self._client, "get_device_refresh_token"):
+                                            try:
+                                                new_bind_state["refresh_token"] = await self._client.get_device_refresh_token(
+                                                    sn
+                                                )
+                                            except Exception as err:
+                                                new_bind_state["refresh_token_error"] = str(err)
+                                        if hasattr(self._client, "get_device_status"):
+                                            try:
+                                                new_bind_state["device_status"] = await self._client.get_device_status(sn)
+                                            except Exception as err:
+                                                new_bind_state["device_status_error"] = str(err)
+                                        state.last_cloud_bind["new_bind"] = new_bind_state
+                                    except Exception as err:
+                                        state.last_cloud_bind["new_bind"] = {
+                                            "is_success": False,
+                                            "error": str(err),
+                                        }
                                 _LOGGER.warning(
                                     "BLE recovery encrypted cloud bind succeeded for %s strategy=%s bind_result=%s",
                                     sn,
