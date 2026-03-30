@@ -2803,6 +2803,8 @@ class EcoflowBleRecoveryManager:
                                     "is_success": True,
                                     "response": bind_result.get("data", bind_result),
                                 }
+                                if hasattr(self._client, "get_login_profile"):
+                                    state.last_cloud_bind["login_profile"] = self._client.get_login_profile()
                                 if hasattr(self._client, "get_device_refresh_token"):
                                     try:
                                         state.last_cloud_bind["refresh_token"] = await self._client.get_device_refresh_token(sn)

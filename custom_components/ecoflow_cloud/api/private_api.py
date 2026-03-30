@@ -32,6 +32,10 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         self.user_id = None
         self.token = None
         self.user_name = None
+        self.provider_id = None
+        self.user_type = None
+        self.login_source = "IOT_APP"
+        self.login_scene = "IOT_APP"
 
     async def login(self):
         async with aiohttp.ClientSession() as session:
@@ -50,9 +54,12 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             response = await self._get_json_response(resp)
 
             try:
+                user = response["data"]["user"]
                 self.token = response["data"]["token"]
-                self.user_id = response["data"]["user"]["userId"]
-                self.user_name = response["data"]["user"].get("name", "<no user name>")
+                self.user_id = user["userId"]
+                self.user_name = user.get("name", "<no user name>")
+                self.provider_id = user.get("providerId")
+                self.user_type = user.get("userType")
             except KeyError as key:
                 raise EcoflowException(f"Failed to extract key {key} from response: {response}")
 
@@ -192,6 +199,16 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         cipher = AES.new(padded_key, AES.MODE_ECB)
         encrypted = cipher.encrypt(pad(json_string.encode("utf-8"), AES.block_size))
         return base64.b64encode(encrypted).decode("ascii")
+
+    def get_login_profile(self) -> dict[str, Any]:
+        return {
+            "user_id": self.user_id,
+            "user_name": self.user_name,
+            "provider_id": self.provider_id,
+            "user_type": self.user_type,
+            "login_source": self.login_source,
+            "login_scene": self.login_scene,
+        }
 
     async def get_dynamic_security(self, scene: str = "APP_SECURITY_KEY") -> dict[str, Any]:
         response = await self.__call_api("/iot-service/user/security/key", params={"scene": scene})
