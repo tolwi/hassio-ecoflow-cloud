@@ -913,11 +913,29 @@ def _decode_wifi_state_prefix(payload: bytes) -> dict[str, Any] | None:
     if len(payload) < 2:
         return None
 
+    state_type = payload[0]
+    state_value = payload[1]
     return {
-        "type": payload[0],
-        "state": payload[1],
+        "type": state_type,
+        "state": state_value,
+        "meaning": _classify_wifi_state(state_type, state_value),
         "raw_prefix": payload[:8].hex(),
     }
+
+
+def _classify_wifi_state(state_type: int, state_value: int) -> str:
+    """Classify WifiStateBean states observed in the official app."""
+    if state_type == 3 and state_value == 0:
+        return "network_config_success"
+    if state_type == 0 and state_value == 0:
+        return "idle_or_no_progress"
+    if state_type == 0 and state_value == 1:
+        return "in_progress_or_partial"
+    if state_type == 0 and state_value == 2:
+        return "transient_step_2"
+    if state_type == 0 and state_value == 16:
+        return "transient_step_16"
+    return "unknown"
 
 
 def _diff_module_blob_words(left: bytes, right: bytes) -> dict[str, Any]:
