@@ -16,6 +16,8 @@ from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
     ChargingStateSensorEntity,
     CyclesSensorEntity,
+    DcModeStateSensorEntity,
+    Ft307FaultCodeSensorEntity,
     InMilliampSensorEntity,
     InMilliVoltSensorEntity,
     InWattsSensorEntity,
@@ -73,9 +75,9 @@ class River2Max(BaseInternalDevice):
             # These mppt.* fields are still useful diagnostics for understanding
             # which DC path is active and whether the internal 24V rail is alive,
             # but they are not a confirmed switchable 24V output like Delta Pro 3.
-            MiscSensorEntity(client, self, "mppt.chgType", "DC Mode State", diagnostic=True),
-            MiscSensorEntity(client, self, "mppt.faultCode", "MPPT Fault Code", diagnostic=True),
-            MiscSensorEntity(client, self, "mppt.dc24vState", "24V Rail State", diagnostic=True),
+            DcModeStateSensorEntity(client, self, "mppt.chgType", "DC Mode", diagnostic=True, entity_key="mppt.cfgChgType"),
+            Ft307FaultCodeSensorEntity(client, self, "mppt.faultCode", "MPPT Fault", diagnostic=True),
+            MiscSensorEntity(client, self, "mppt.dc24vState", "24V Rail State", diagnostic=True).with_icon("mdi:lightning-bolt-outline"),
             # OutWattsSensorEntity(client, self, "pd.usb2Watts", const.USB_2_OUT_POWER),
             RemainSensorEntity(client, self, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, self, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),

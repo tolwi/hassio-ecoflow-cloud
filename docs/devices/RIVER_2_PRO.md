@@ -21,8 +21,8 @@
 - DC Out Power (`pd.carWatts`)
 - Type-C Out Power (`pd.typec1Watts`)
 - USB Out Power (`pd.usb1Watts`)
-- DC Mode State (`mppt.chgType`)   _(diagnostic)_
-- MPPT Fault Code (`mppt.faultCode`)   _(diagnostic)_
+- DC Mode (`mppt.cfgChgType` preferred, falls back to `mppt.chgType`)   _(diagnostic; state shows the effective configured mode, attributes keep configured/runtime raw values and treat runtime `255` as `No active DC input`)_
+- MPPT Fault (`mppt.faultCode`)   _(diagnostic; decoded title with raw bitmask in attributes, with idle/no-input auxiliary warnings suppressed into attributes instead of shown as active faults)_
 - 24V Rail State (`mppt.dc24vState`)   _(diagnostic)_
 - Charge Remaining Time (`bms_emsStatus.chgRemainTime`)
 - Discharge Remaining Time (`bms_emsStatus.dsgRemainTime`)
