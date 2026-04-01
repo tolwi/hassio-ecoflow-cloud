@@ -54,6 +54,7 @@ _AP_FOLLOW_INFO_SET_CMD_ID = 0x27
 _AP_FOLLOW_INFO_DELETE_CMD_ID = 0x28
 _POST_PROVISION_OBSERVE_SEC = 15
 _CFG_NET_OBSERVE_SEC = 120
+_CFG_NET_MQTT_POLL_SEC = 3
 _DHODM_RPC_SRC = "user_1"
 _SUPPORTED_DEVICE_TYPES = {
     "RIVER_2",
@@ -1324,6 +1325,10 @@ def _network_status_has_cfg_net_success(network_status: dict[str, Any] | None) -
     if not network_status:
         return False
 
+    mqtt_status = network_status.get("dhodm_mqtt_status")
+    if isinstance(mqtt_status, dict) and mqtt_status.get("connected") is True:
+        return True
+
     for key, value in network_status.items():
         if not key.startswith("0x35:"):
             continue
@@ -1335,6 +1340,24 @@ def _network_status_has_cfg_net_success(network_status: dict[str, Any] | None) -
             return True
 
     return False
+
+
+def _extract_bind_fields_from_device_key_info(device_key_info: dict[str, Any] | None) -> dict[str, str]:
+    if not isinstance(device_key_info, dict) or not device_key_info.get("is_success"):
+        return {}
+
+    bind_fields: dict[str, str] = {}
+    random_code = str(device_key_info.get("random_code", "")).strip()
+    device_hash_code = str(device_key_info.get("sign_string", "")).strip()
+    timestamp = str(device_key_info.get("timestamp", "")).strip()
+
+    if random_code:
+        bind_fields["random_code"] = random_code
+    if device_hash_code:
+        bind_fields["device_hash_code"] = device_hash_code
+    if timestamp:
+        bind_fields["timestamp"] = timestamp
+    return bind_fields
 
 
 def _diff_module_blob_words(left: bytes, right: bytes) -> dict[str, Any]:
@@ -1966,7 +1989,7 @@ class EcoflowBleProvisioner:
             packets = await self._await_packets(timeout=5)
         except BleRecoveryError:
             _LOGGER.debug("No immediate BLE cfg-net response for %s", self._serial_number)
-            return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
+            return await self._observe_post_provision_packets(timeout=observe_timeout)
 
         for response in packets:
             wifi_state = None
@@ -1984,7 +2007,7 @@ class EcoflowBleProvisioner:
                 wifi_state,
             )
 
-        return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
+        return await self._observe_post_provision_packets(timeout=observe_timeout)
 
     async def provision_device_url(self, *, https_url: str) -> None:
         if not https_url.strip():
@@ -2155,6 +2178,20 @@ class EcoflowBleProvisioner:
             timeout=2,
             best_effort=True,
         )
+
+    async def query_mqtt_connected_status(self, *, request_id: int) -> dict[str, Any] | None:
+        responses = await self.send_dhodm_rpc(
+            method="Mqtt.GetStatus",
+            request_id=request_id,
+            params={},
+            timeout=_CFG_NET_MQTT_POLL_SEC,
+            best_effort=True,
+        )
+        for response in responses:
+            result = response.get("result")
+            if isinstance(result, dict) and isinstance(result.get("connected"), bool):
+                return result
+        return None
 
     @staticmethod
     def _extract_restart_required(responses: list[dict[str, Any]]) -> bool | None:
@@ -2482,21 +2519,40 @@ class EcoflowBleProvisioner:
         }
 
     async def _observe_post_provision_packets(self, timeout: float) -> dict[str, Any]:
-        deadline = asyncio.get_running_loop().time() + timeout
+        loop = asyncio.get_running_loop()
+        deadline = loop.time() + timeout
         saw_packet = False
         network_status_by_source: dict[str, Any] = {}
+        next_mqtt_poll = loop.time()
+        mqtt_poll_request_id = 1
 
         await self.query_connect_status()
 
         while True:
-            remaining = deadline - asyncio.get_running_loop().time()
+            now = loop.time()
+            if now >= next_mqtt_poll:
+                mqtt_status = await self.query_mqtt_connected_status(request_id=mqtt_poll_request_id)
+                mqtt_poll_request_id += 1
+                next_mqtt_poll = loop.time() + _CFG_NET_MQTT_POLL_SEC
+                if mqtt_status is not None:
+                    network_status_by_source["dhodm_mqtt_status"] = mqtt_status
+                    _LOGGER.info(
+                        "BLE cfg-net MQTT status for %s: %s",
+                        self._serial_number,
+                        mqtt_status,
+                    )
+                    if mqtt_status.get("connected") is True:
+                        return network_status_by_source
+
+            remaining = deadline - loop.time()
             if remaining <= 0:
                 break
 
+            wait_timeout = min(remaining, 5.0, max(0.1, next_mqtt_poll - loop.time()))
             try:
-                packets = await self._await_packets(timeout=min(remaining, 5))
+                packets = await self._await_packets(timeout=wait_timeout)
             except (BleRecoveryError, TimeoutError):
-                break
+                continue
 
             saw_packet = True
             for response in packets:
@@ -2573,6 +2629,9 @@ class EcoflowBleProvisioner:
                         response.seq.hex(),
                     )
                     await self._reply_packet(response)
+
+            if _network_status_has_cfg_net_success(network_status_by_source):
+                return network_status_by_source
 
         if not saw_packet:
             _LOGGER.debug("No BLE post-provision status packets for %s", self._serial_number)
@@ -3179,6 +3238,85 @@ class EcoflowBleRecoveryManager:
 
             await asyncio.sleep(min(5, remaining))
 
+    @staticmethod
+    def _device_name_for_bind(device: Any, sn: str) -> str:
+        return getattr(device.device_info, "name", None) or device.device_data.name or sn
+
+    async def _bind_cloud_after_local_success(
+        self,
+        sn: str,
+        *,
+        device: Any,
+        device_key_info: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        bind_fields = _extract_bind_fields_from_device_key_info(device_key_info)
+        device_name = self._device_name_for_bind(device, sn)
+        attempts: list[dict[str, Any]] = []
+
+        async def _attempt(path: str, func: Callable[..., Any], **kwargs: Any) -> dict[str, Any] | None:
+            try:
+                response = await func(**kwargs)
+            except Exception as err:  # noqa: BLE001
+                attempts.append({"path": path, "is_success": False, "error": str(err)})
+                return None
+
+            payload = response.get("data", response) if isinstance(response, dict) else response
+            attempt = {"path": path, "is_success": True, "response": payload}
+            attempts.append(attempt)
+            return attempt
+
+        success: dict[str, Any] | None = None
+        if hasattr(self._client, "bind_device_new"):
+            success = await _attempt(
+                "new",
+                self._client.bind_device_new,
+                device_sn=sn,
+                device_name=device_name,
+                random_code=bind_fields.get("random_code"),
+                device_hash_code=bind_fields.get("device_hash_code"),
+                timestamp=bind_fields.get("timestamp"),
+            )
+
+        if success is None and bind_fields and hasattr(self._client, "bind_device_v2"):
+            success = await _attempt(
+                "v2",
+                self._client.bind_device_v2,
+                device_sn=sn,
+                device_name=device_name,
+                random_code=bind_fields["random_code"],
+                device_hash_code=bind_fields["device_hash_code"],
+                timestamp=bind_fields["timestamp"],
+            )
+
+        if success is None and hasattr(self._client, "bound_device_encrypted"):
+            success = await _attempt(
+                "encrypted",
+                self._client.bound_device_encrypted,
+                device_sn=sn,
+                device_name=device_name,
+            )
+
+        if not attempts:
+            return None
+
+        result: dict[str, Any] = {
+            "attempts": attempts,
+            "bind_fields_present": sorted(bind_fields.keys()),
+            "is_success": success is not None,
+        }
+        if success is not None:
+            result.update(success)
+
+        if hasattr(self._client, "get_login_profile"):
+            result["login_profile"] = self._client.get_login_profile()
+        if hasattr(self._client, "get_device_status"):
+            try:
+                result["device_status"] = await self._client.get_device_status(sn)
+            except Exception as err:  # noqa: BLE001
+                result["device_status_error"] = str(err)
+
+        return result
+
     async def _async_recover_locked(
         self,
         sn: str,
@@ -3263,36 +3401,10 @@ class EcoflowBleRecoveryManager:
                     self._create_credentials_issue(sn, reason="missing_credentials")
                 return False
 
-            explicit_bssid = bssid is not None
-            explicit_channel = channel is not None
             recovery_https_url = _recovery_https_url(self._client)
-            recovery_mqtt_server = _recovery_mqtt_server(self._client)
-            recovery_mqtt_info = getattr(self._client, "mqtt_info", None)
-            provision_targets: list[tuple[str, str | None, int | None]] = []
-            seen_targets: set[tuple[str | None, int | None]] = set()
-
-            def add_provision_target(
-                strategy: str,
-                attempt_bssid: str | None,
-                attempt_channel: int | None,
-            ) -> None:
-                normalized_bssid = attempt_bssid.strip() if attempt_bssid else None
-                normalized_channel = _normalize_wifi_channel(attempt_channel)
-                key = (normalized_bssid, normalized_channel)
-                if key in seen_targets:
-                    return
-                seen_targets.add(key)
-                provision_targets.append((strategy, normalized_bssid, normalized_channel))
-
-            if explicit_bssid or explicit_channel:
-                add_provision_target("explicit", target_bssid, target_channel)
-                add_provision_target("ssid_only_fallback", None, None)
-            else:
-                if target_channel is not None:
-                    add_provision_target("channel_only", None, target_channel)
-                add_provision_target("ssid_only", None, None)
-                if target_bssid or target_channel is not None:
-                    add_provision_target("configured_pin_fallback", target_bssid, target_channel)
+            provision_targets: list[tuple[str, str | None, int | None]] = [("cfg_net_only", None, None)]
+            if target_bssid or target_channel is not None:
+                provision_targets.insert(0, ("hinted_cfg_net", target_bssid, target_channel))
 
             recovered = False
             for strategy, attempt_bssid, attempt_channel in provision_targets:
@@ -3323,7 +3435,6 @@ class EcoflowBleRecoveryManager:
                     timeout=max(10, options.ble_recovery_timeout_sec),
                 )
                 try:
-                    dhodm_request_id = 10_000
                     state.last_stage = "connect"
                     await provisioner.connect()
                     _LOGGER.info("BLE recovery connected to %s strategy=%s", sn, strategy)
@@ -3348,35 +3459,29 @@ class EcoflowBleRecoveryManager:
                                 strategy,
                                 exc_info=True,
                             )
-                    if recovery_https_url:
-                        state.last_stage = "set_url"
+
+                    if attempt_bssid or attempt_channel is not None:
+                        state.last_stage = "provision_hint"
                         try:
-                            await provisioner.provision_device_url(https_url=recovery_https_url)
-                            _LOGGER.info(
-                                "BLE recovery URL preflight sent for %s strategy=%s https_url=%s",
-                                sn,
-                                strategy,
-                                recovery_https_url,
+                            hinted_network_status = await provisioner.provision_wifi(
+                                ssid=target_ssid,
+                                password=target_password,
+                                bssid=attempt_bssid,
+                                channel=attempt_channel,
+                                https_url=recovery_https_url,
+                                observe_timeout=_POST_PROVISION_OBSERVE_SEC,
                             )
+                            if hinted_network_status:
+                                state.last_network_status = hinted_network_status
                         except BleRecoveryError:
-                            _LOGGER.debug(
-                                "BLE recovery URL preflight failed for %s strategy=%s https_url=%s",
+                            _LOGGER.warning(
+                                "BLE legacy Wi-Fi hint failed for %s strategy=%s bssid=%s channel=%s",
                                 sn,
                                 strategy,
-                                recovery_https_url,
+                                attempt_bssid,
+                                attempt_channel,
                                 exc_info=True,
                             )
-                    state.last_stage = "provision"
-                    observed_network_status = await provisioner.provision_wifi(
-                        ssid=target_ssid,
-                        password=target_password,
-                        bssid=attempt_bssid,
-                        channel=attempt_channel,
-                        https_url=recovery_https_url,
-                        observe_timeout=_POST_PROVISION_OBSERVE_SEC,
-                    )
-                    if observed_network_status:
-                        state.last_network_status = observed_network_status
 
                     state.last_stage = "provision_cfg_net"
                     observed_network_status = await provisioner.provision_wifi_cfg_net(
@@ -3389,67 +3494,51 @@ class EcoflowBleRecoveryManager:
                         state.last_network_status = observed_network_status
 
                     cfg_net_success = _network_status_has_cfg_net_success(observed_network_status)
-                    if cfg_net_success:
-                        _LOGGER.info(
-                            "BLE recovery cfg-net succeeded for %s strategy=%s observed_network_status=%s",
+                    if not cfg_net_success:
+                        state.last_error = _cfg_net_failure_reason(observed_network_status)
+                        _LOGGER.warning(
+                            "BLE recovery cfg-net did not reach device-reported success for %s strategy=%s observed_network_status=%s error=%s",
                             sn,
                             strategy,
                             observed_network_status,
+                            state.last_error,
+                        )
+                        continue
+
+                    _LOGGER.info(
+                        "BLE recovery cfg-net succeeded for %s strategy=%s observed_network_status=%s",
+                        sn,
+                        strategy,
+                        observed_network_status,
+                    )
+
+                    state.last_stage = "bind_cloud"
+                    state.last_cloud_bind = await self._bind_cloud_after_local_success(
+                        sn,
+                        device=device,
+                        device_key_info=state.last_device_key_info,
+                    )
+                    if state.last_cloud_bind is None:
+                        _LOGGER.info(
+                            "BLE recovery has no cloud bind client for %s strategy=%s",
+                            sn,
+                            strategy,
+                        )
+                    elif state.last_cloud_bind.get("is_success"):
+                        _LOGGER.info(
+                            "BLE recovery cloud bind succeeded for %s strategy=%s path=%s attempts=%s",
+                            sn,
+                            strategy,
+                            state.last_cloud_bind.get("path"),
+                            state.last_cloud_bind.get("attempts"),
                         )
                     else:
                         _LOGGER.warning(
-                            "BLE recovery cfg-net did not reach device-reported success for %s strategy=%s observed_network_status=%s",
+                            "BLE recovery cloud bind did not succeed for %s strategy=%s attempts=%s",
                             sn,
                             strategy,
-                            observed_network_status,
+                            state.last_cloud_bind.get("attempts"),
                         )
-                        state.last_error = _cfg_net_failure_reason(observed_network_status)
-                        return False
-                    if (
-                            not (state.last_device_key_info or {}).get("is_success")
-                            and hasattr(self._client, "bound_device_encrypted")
-                        ):
-                            state.last_stage = "bind_cloud"
-                            try:
-                                bind_result = await self._client.bound_device_encrypted(
-                                    sn,
-                                    getattr(device.device_info, "name", None) or device.device_data.name or sn,
-                                )
-                                state.last_cloud_bind = {
-                                    "path": "encrypted",
-                                    "is_success": True,
-                                    "response": bind_result.get("data", bind_result),
-                                }
-                                if hasattr(self._client, "get_login_profile"):
-                                    state.last_cloud_bind["login_profile"] = self._client.get_login_profile()
-                                if hasattr(self._client, "get_device_refresh_token"):
-                                    try:
-                                        state.last_cloud_bind["refresh_token"] = await self._client.get_device_refresh_token(sn)
-                                    except Exception as err:
-                                        state.last_cloud_bind["refresh_token_error"] = str(err)
-                                if hasattr(self._client, "get_device_status"):
-                                    try:
-                                        state.last_cloud_bind["device_status"] = await self._client.get_device_status(sn)
-                                    except Exception as err:
-                                        state.last_cloud_bind["device_status_error"] = str(err)
-                                _LOGGER.warning(
-                                    "BLE recovery encrypted cloud bind succeeded for %s strategy=%s bind_result=%s",
-                                    sn,
-                                    strategy,
-                                    state.last_cloud_bind,
-                                )
-                            except Exception as err:
-                                state.last_cloud_bind = {
-                                    "path": "encrypted",
-                                    "is_success": False,
-                                    "error": str(err),
-                                }
-                                _LOGGER.warning(
-                                    "BLE recovery encrypted cloud bind failed for %s strategy=%s",
-                                    sn,
-                                    strategy,
-                                    exc_info=True,
-                                )
                 finally:
                     await provisioner.disconnect()
 
@@ -3461,10 +3550,11 @@ class EcoflowBleRecoveryManager:
 
                 state.last_error = f"device_did_not_rejoin_wifi:{strategy}"
                 _LOGGER.warning(
-                    "BLE recovery timed out for %s strategy=%s network_status=%s",
+                    "BLE recovery timed out for %s strategy=%s network_status=%s cloud_bind=%s",
                     sn,
                     strategy,
                     state.last_network_status,
+                    state.last_cloud_bind,
                 )
 
             state.last_result = "success" if recovered else "timeout"
