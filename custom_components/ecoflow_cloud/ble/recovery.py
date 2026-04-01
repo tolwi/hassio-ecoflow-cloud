@@ -779,9 +779,8 @@ def _mqtt_send_header_proto_classes() -> tuple[type[Any], type[Any]]:
 
     pool = descriptor_pool.DescriptorPool()
     pool.Add(file_proto)
-    factory = message_factory.MessageFactory(pool)
-    header_cls = factory.GetPrototype(pool.FindMessageTypeByName("ecoflow.common.Header"))
-    wrapper_cls = factory.GetPrototype(pool.FindMessageTypeByName("ecoflow.common.Send_Header_Msg"))
+    header_cls = message_factory.GetMessageClass(pool.FindMessageTypeByName("ecoflow.common.Header"))
+    wrapper_cls = message_factory.GetMessageClass(pool.FindMessageTypeByName("ecoflow.common.Send_Header_Msg"))
     return header_cls, wrapper_cls
 
 
