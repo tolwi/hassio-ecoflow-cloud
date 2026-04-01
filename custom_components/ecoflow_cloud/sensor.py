@@ -126,22 +126,13 @@ class MiscSensorEntity(BaseSensorEntity):
 
 
 class DcModeStateSensorEntity(MiscSensorEntity):
-    """Expose the effective DC charge mode with configured/runtime hints in attrs."""
+    """Expose the live DC input mode without duplicating the config select."""
 
     _attr_icon = "mdi:tune-variant"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._raw_code: int | None = None
-        self._configured_code: int | None = None
-
-    def _configured_mode(self) -> tuple[int | None, str | None]:
-        params = self._device.data.params
-        configured_code = params.get("mppt.cfgChgType")
-        if configured_code is None:
-            return None, None
-        configured_code = int(configured_code)
-        return configured_code, const.DC_MODE_LABELS.get(configured_code, f"Unknown ({configured_code})")
 
     def _runtime_mode(self) -> tuple[int | None, str | None]:
         params = self._device.data.params
@@ -169,9 +160,15 @@ class DcModeStateSensorEntity(MiscSensorEntity):
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
         attrs = dict(super().extra_state_attributes or {})
         attrs["raw_code"] = self._raw_code
-        configured_code, configured_mode = self._configured_mode()
+        configured_code = self._device.data.params.get("mppt.cfgChgType")
+        if configured_code is not None:
+            configured_code = int(configured_code)
         attrs["configured_code"] = configured_code
-        attrs["configured_mode"] = configured_mode
+        attrs["configured_mode"] = (
+            const.DC_MODE_LABELS.get(configured_code, f"Unknown ({configured_code})")
+            if configured_code is not None
+            else None
+        )
         runtime_code, runtime_mode = self._runtime_mode()
         attrs["runtime_code"] = runtime_code
         attrs["runtime_mode"] = runtime_mode
@@ -179,18 +176,9 @@ class DcModeStateSensorEntity(MiscSensorEntity):
 
     def _update_value(self, val: Any) -> bool:
         runtime_code = int(val)
-        configured_code, configured_mode = self._configured_mode()
         runtime_mode = self._runtime_mode()[1]
-
-        if configured_mode is not None:
-            self._configured_code = configured_code
-            self._raw_code = configured_code
-            label = configured_mode
-        else:
-            self._configured_code = None
-            self._raw_code = runtime_code
-            label = runtime_mode or f"Unknown ({runtime_code})"
-
+        self._raw_code = runtime_code
+        label = runtime_mode or f"Unknown ({runtime_code})"
         return super()._update_value(label)
 
     def _updated(self, data: dict[str, Any]):
@@ -202,13 +190,11 @@ class DcModeStateSensorEntity(MiscSensorEntity):
 
         params = self._device.data.params
         runtime_code = params.get("mppt.chgType")
-        configured_code = params.get("mppt.cfgChgType")
-        if runtime_code is None and configured_code is None:
+        if runtime_code is None:
             return
 
         self._attr_available = True
-        effective_code = runtime_code if runtime_code is not None else configured_code
-        if self._update_value(effective_code):
+        if self._update_value(runtime_code):
             self.schedule_update_ha_state()
 
 

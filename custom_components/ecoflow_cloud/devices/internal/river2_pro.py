@@ -72,6 +72,7 @@ class River2Pro(BaseInternalDevice):
             # These mppt.* fields are still useful diagnostics for understanding
             # which DC path is active and whether the internal 24V rail is alive,
             # but they are not a confirmed switchable 24V output like Delta Pro 3.
+            # Keep the configured-key unique ID so the runtime sensor does not respawn under a new entity ID.
             DcModeStateSensorEntity(client, self, "mppt.chgType", "DC Mode", diagnostic=True, entity_key="mppt.cfgChgType"),
             Ft307FaultCodeSensorEntity(client, self, "mppt.faultCode", "MPPT Fault", diagnostic=True),
             MiscSensorEntity(client, self, "mppt.dc24vState", "24V Rail State", diagnostic=True).with_icon("mdi:lightning-bolt-outline"),
