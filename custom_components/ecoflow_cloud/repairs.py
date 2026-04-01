@@ -24,6 +24,7 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
     """Repair flow for EcoFlow BLE Wi-Fi credentials."""
 
     def __init__(self, issue_data: dict[str, Any] | None) -> None:
+        super().__init__()
         self._issue_data = issue_data or {}
 
     async def async_step_init(
@@ -44,7 +45,7 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
         if device_options is None:
             return self.async_abort(reason="device_missing")
 
-        if user_input is not None:
+        if user_input and OPTS_BLE_WIFI_SSID in user_input:
             ssid = user_input[OPTS_BLE_WIFI_SSID].strip()
             password = user_input[OPTS_BLE_WIFI_PASSWORD].strip()
             bssid = user_input[OPTS_BLE_WIFI_BSSID].strip()
