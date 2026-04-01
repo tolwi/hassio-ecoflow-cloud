@@ -38,3 +38,30 @@ recover_wifi_via_ble:
           min: 0
           max: 196
           mode: box
+
+disable_auto_follow_current_wifi_via_ble:
+  name: Disable Current Wi-Fi Follow via BLE
+  description: Disable the remembered auto-follow Wi-Fi entry that is currently connected on a supported EcoFlow device.
+  fields:
+    serial_number:
+      name: Serial number
+      description: EcoFlow serial number to reset.
+      example: R62XXXXXXXXXXX
+      selector:
+        text:
+    device_id:
+      name: Device
+      description: Home Assistant device ID for the EcoFlow device.
+      selector:
+        device:
+          integration: ecoflow_cloud
+    reboot_after_disable:
+      name: Reboot after disable
+      description: Reboot the device via BLE after disabling the remembered Wi-Fi follow entry so the change applies immediately.
+      selector:
+        boolean:
+    forget_current_wifi:
+      name: Forget current Wi-Fi
+      description: Delete the remembered Wi-Fi entry for the current SSID via BLE before rebooting, to force a fresh provisioning cycle.
+      selector:
+        boolean:

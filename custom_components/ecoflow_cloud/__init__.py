@@ -69,11 +69,14 @@ OPTS_BLE_WIFI_CHANNEL: Final = "ble_wifi_channel"
 OPTS_BLE_RECOVERY_TIMEOUT_SEC: Final = "ble_recovery_timeout_sec"
 OPTS_BLE_RECOVERY_COOLDOWN_SEC: Final = "ble_recovery_cooldown_sec"
 SERVICE_RECOVER_WIFI_VIA_BLE: Final = "recover_wifi_via_ble"
+SERVICE_DISABLE_AUTO_FOLLOW_CURRENT_WIFI_VIA_BLE: Final = "disable_auto_follow_current_wifi_via_ble"
 SERVICE_ATTR_SERIAL_NUMBER: Final = "serial_number"
 SERVICE_ATTR_SSID: Final = "ssid"
 SERVICE_ATTR_PASSWORD: Final = "password"
 SERVICE_ATTR_BSSID: Final = "bssid"
 SERVICE_ATTR_CHANNEL: Final = "channel"
+SERVICE_ATTR_REBOOT_AFTER_DISABLE: Final = "reboot_after_disable"
+SERVICE_ATTR_FORGET_CURRENT_WIFI: Final = "forget_current_wifi"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 5
 DEFAULT_ASSUME_OFFLINE_SEC: Final = 300  # 5 minutes
@@ -248,8 +251,38 @@ async def _async_handle_recover_wifi_via_ble(hass: HomeAssistant, call: ServiceC
         raise HomeAssistantError(f"BLE Wi-Fi recovery did not succeed for {serial_number}")
 
 
+async def _async_handle_disable_auto_follow_current_wifi_via_ble(
+    hass: HomeAssistant, call: ServiceCall
+) -> None:
+    serial_number = call.data.get(SERVICE_ATTR_SERIAL_NUMBER)
+    if serial_number is None and call.data.get(CONF_DEVICE_ID):
+        serial_number = _resolve_sn_from_device_id(hass, call.data[CONF_DEVICE_ID])
+
+    if not serial_number:
+        raise HomeAssistantError("Provide serial_number or device_id for EcoFlow BLE Wi-Fi reset")
+
+    client = _find_client_for_serial(hass, serial_number)
+    if client is None or serial_number not in client.devices:
+        raise HomeAssistantError(f"EcoFlow device not found for serial number: {serial_number}")
+
+    if client.ble_recovery_manager is None:
+        raise HomeAssistantError("BLE Wi-Fi recovery manager is not initialized")
+
+    device = client.devices[serial_number]
+    if not client.ble_recovery_manager.supports_device(device.device_data):
+        raise HomeAssistantError(f"BLE Wi-Fi recovery is not supported for {serial_number}")
+
+    await client.ble_recovery_manager.async_disable_auto_follow_current_wifi(
+        serial_number,
+        reboot_after_disable=bool(call.data.get(SERVICE_ATTR_REBOOT_AFTER_DISABLE, False)),
+        forget_current_wifi=bool(call.data.get(SERVICE_ATTR_FORGET_CURRENT_WIFI, False)),
+    )
+
+
 def _async_register_services(hass: HomeAssistant) -> None:
-    if hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_RECOVER_WIFI_VIA_BLE):
+    if hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_RECOVER_WIFI_VIA_BLE) and hass.services.has_service(
+        ECOFLOW_DOMAIN, SERVICE_DISABLE_AUTO_FOLLOW_CURRENT_WIFI_VIA_BLE
+    ):
         return
 
     service_schema = vol.Schema(
@@ -266,12 +299,33 @@ def _async_register_services(hass: HomeAssistant) -> None:
     async def _handle(call: ServiceCall) -> None:
         await _async_handle_recover_wifi_via_ble(hass, call)
 
-    hass.services.async_register(
-        ECOFLOW_DOMAIN,
-        SERVICE_RECOVER_WIFI_VIA_BLE,
-        _handle,
-        schema=service_schema,
+    if not hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_RECOVER_WIFI_VIA_BLE):
+        hass.services.async_register(
+            ECOFLOW_DOMAIN,
+            SERVICE_RECOVER_WIFI_VIA_BLE,
+            _handle,
+            schema=service_schema,
+        )
+
+    disable_schema = vol.Schema(
+        {
+            vol.Optional(SERVICE_ATTR_SERIAL_NUMBER): str,
+            vol.Optional(CONF_DEVICE_ID): str,
+            vol.Optional(SERVICE_ATTR_REBOOT_AFTER_DISABLE): bool,
+            vol.Optional(SERVICE_ATTR_FORGET_CURRENT_WIFI): bool,
+        }
     )
+
+    async def _handle_disable(call: ServiceCall) -> None:
+        await _async_handle_disable_auto_follow_current_wifi_via_ble(hass, call)
+
+    if not hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_DISABLE_AUTO_FOLLOW_CURRENT_WIFI_VIA_BLE):
+        hass.services.async_register(
+            ECOFLOW_DOMAIN,
+            SERVICE_DISABLE_AUTO_FOLLOW_CURRENT_WIFI_VIA_BLE,
+            _handle_disable,
+            schema=disable_schema,
+        )
 
 
 def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:

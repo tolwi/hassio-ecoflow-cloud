@@ -49,6 +49,7 @@ _PD_CMD_SET = 0x20
 _PD_GET_WIFI_INFO_CMD_ID = 0xA1
 _AP_FOLLOW_INFO_LIST_CMD_SET = 0x35
 _AP_FOLLOW_INFO_LIST_CMD_ID = 0x26
+_AP_FOLLOW_INFO_SET_CMD_ID = 0x27
 _POST_PROVISION_OBSERVE_SEC = 15
 _DHODM_RPC_SRC = "user_1"
 _SUPPORTED_DEVICE_TYPES = {
@@ -566,7 +567,7 @@ def _network_message_class():
 
 
 @lru_cache(maxsize=1)
-def _ap_follow_info_proto_classes() -> tuple[type[Any], type[Any], type[Any]]:
+def _ap_follow_info_proto_classes() -> tuple[type[Any], type[Any], type[Any], type[Any], type[Any], type[Any]]:
     file_descriptor = descriptor_pb2.FileDescriptorProto()
     file_descriptor.name = "iot_comm_ap_follow.proto"
     file_descriptor.package = "ecoflow.iot"
@@ -609,15 +610,56 @@ def _ap_follow_info_proto_classes() -> tuple[type[Any], type[Any], type[Any]]:
     list_get_message = file_descriptor.message_type.add()
     list_get_message.name = "ApFollowInfoListGet"
 
+    set_message = file_descriptor.message_type.add()
+    set_message.name = "ApFollowInfoSet"
+    set_fields = [
+        ("follow_switch", 1, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("ssid_len", 2, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("ssid", 3, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+    ]
+    for name, number, field_type in set_fields:
+        field = set_message.field.add()
+        field.name = name
+        field.number = number
+        field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+        field.type = field_type
+
+    delete_message = file_descriptor.message_type.add()
+    delete_message.name = "ApFollowInfoDelete"
+    delete_fields = [
+        ("ssid_len", 1, descriptor_pb2.FieldDescriptorProto.TYPE_UINT32),
+        ("ssid", 2, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+    ]
+    for name, number, field_type in delete_fields:
+        field = delete_message.field.add()
+        field.name = name
+        field.number = number
+        field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+        field.type = field_type
+
+    cmd_ack_message = file_descriptor.message_type.add()
+    cmd_ack_message.name = "ApFollowCmdAck"
+    result_field = cmd_ack_message.field.add()
+    result_field.name = "result"
+    result_field.number = 1
+    result_field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+    result_field.type = descriptor_pb2.FieldDescriptorProto.TYPE_INT32
+
     pool = descriptor_pool.DescriptorPool()
     pool.Add(file_descriptor)
     ack_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowInfoAck")
     list_ack_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowInfoListAck")
     list_get_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowInfoListGet")
+    set_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowInfoSet")
+    delete_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowInfoDelete")
+    cmd_ack_descriptor = pool.FindMessageTypeByName("ecoflow.iot.ApFollowCmdAck")
     return (
         message_factory.GetMessageClass(ack_descriptor),
         message_factory.GetMessageClass(list_ack_descriptor),
         message_factory.GetMessageClass(list_get_descriptor),
+        message_factory.GetMessageClass(set_descriptor),
+        message_factory.GetMessageClass(delete_descriptor),
+        message_factory.GetMessageClass(cmd_ack_descriptor),
     )
 
 
@@ -669,8 +711,25 @@ def _cfg_net_proto_classes() -> tuple[type[Any], type[Any]]:
 
 
 def _build_ap_follow_info_list_get_payload() -> bytes:
-    _, _, list_get_cls = _ap_follow_info_proto_classes()
+    _, _, list_get_cls, _, _, _ = _ap_follow_info_proto_classes()
     return list_get_cls().SerializeToString()
+
+
+def _build_ap_follow_info_set_payload(*, ssid: str, follow_switch: int) -> bytes:
+    _, _, _, set_cls, _, _ = _ap_follow_info_proto_classes()
+    message = set_cls()
+    message.follow_switch = int(follow_switch)
+    message.ssid_len = len(ssid)
+    message.ssid = ssid
+    return message.SerializeToString()
+
+
+def _build_ap_follow_info_delete_payload(*, ssid: str) -> bytes:
+    _, _, _, _, delete_cls, _ = _ap_follow_info_proto_classes()
+    message = delete_cls()
+    message.ssid_len = len(ssid)
+    message.ssid = ssid
+    return message.SerializeToString()
 
 
 def _build_cfg_net_device_list_payload(
@@ -728,7 +787,7 @@ def _decode_ap_follow_info_list(payload: bytes) -> dict[str, Any] | None:
     if not payload:
         return None
 
-    _, list_ack_cls, _ = _ap_follow_info_proto_classes()
+    _, list_ack_cls, _, _, _, _ = _ap_follow_info_proto_classes()
     try:
         decoded = list_ack_cls.FromString(payload)
     except Exception:
@@ -761,6 +820,22 @@ def _decode_ap_follow_info_list(payload: bytes) -> dict[str, Any] | None:
         "entry_count": len(entries),
         "connected_entry": connected_entry,
         "entries": entries,
+        "raw": payload.hex(),
+    }
+
+
+def _decode_ap_follow_cmd_ack(payload: bytes) -> dict[str, Any] | None:
+    if not payload:
+        return None
+
+    _, _, _, _, _, cmd_ack_cls = _ap_follow_info_proto_classes()
+    try:
+        decoded = cmd_ack_cls.FromString(payload)
+    except Exception:
+        return None
+
+    return {
+        "result": int(decoded.result),
         "raw": payload.hex(),
     }
 
@@ -2051,6 +2126,84 @@ class EcoflowBleProvisioner:
 
         return packets
 
+    async def set_ap_follow_info(self, *, ssid: str, follow_switch: int) -> dict[str, Any]:
+        packet = Packet(
+            0x20,
+            _AUTH_HEADER_DST,
+            _AP_FOLLOW_INFO_LIST_CMD_SET,
+            _AP_FOLLOW_INFO_SET_CMD_ID,
+            _build_ap_follow_info_set_payload(ssid=ssid, follow_switch=follow_switch),
+            dsrc=0x01,
+            ddst=0x01,
+            version=max(self._packet_version, 4),
+            seq=_next_packet_seq(),
+            product_id=1,
+        )
+
+        await self._send_packet_no_reply(packet)
+
+        try:
+            packets = await self._await_packets(2, predicate=lambda response: response.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET)
+        except (BleRecoveryError, TimeoutError):
+            packets = []
+
+        ack = None
+        for response in packets:
+            decoded_ack = _decode_ap_follow_cmd_ack(response.payload)
+            if decoded_ack is not None:
+                ack = decoded_ack
+                break
+
+        return {
+            "request": {
+                "ssid": ssid,
+                "follow_switch": follow_switch,
+            },
+            "ack": ack,
+            "best_effort": ack is None,
+            "packets": [
+                {
+                    "src": f"0x{response.src:02X}",
+                    "dst": f"0x{response.dst:02X}",
+                    "cmd_set": f"0x{response.cmd_set:02X}",
+                    "cmd_id": f"0x{response.cmd_id:02X}",
+                    "seq": response.seq.hex(),
+                    "payload": response.payload.hex(),
+                }
+                for response in packets
+            ],
+        }
+
+    async def disable_auto_follow_for_current_wifi(self, fallback_ssid: str | None = None) -> dict[str, Any]:
+        packets = await self.query_ap_follow_info_list()
+        decoded_entries = [
+            _decode_ap_follow_info_list(packet.payload)
+            for packet in packets
+            if packet.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET
+        ]
+        latest = next((item for item in decoded_entries if item), None) or {}
+        connected_entry = latest.get("connected_entry")
+
+        ssid = None
+        if isinstance(connected_entry, dict):
+            candidate_ssid = connected_entry.get("ssid")
+            if isinstance(candidate_ssid, str) and candidate_ssid:
+                ssid = candidate_ssid
+
+        if not ssid and fallback_ssid:
+            ssid = fallback_ssid.strip()
+
+        if not ssid:
+            raise BleRecoveryError("no_connected_ap_follow_entry")
+
+        set_result = await self.set_ap_follow_info(ssid=ssid, follow_switch=0)
+        return {
+            "connected_entry": connected_entry,
+            "fallback_ssid": fallback_ssid,
+            "used_ssid": ssid,
+            "set_result": set_result,
+        }
+
     async def _observe_post_provision_packets(self, timeout: float) -> dict[str, Any]:
         deadline = asyncio.get_running_loop().time() + timeout
         saw_packet = False
@@ -2239,6 +2392,60 @@ class EcoflowBleRecoveryManager:
                 bssid=bssid,
                 channel=channel,
             )
+
+    async def async_disable_auto_follow_current_wifi(self, sn: str, *, reboot_after_disable: bool = False) -> dict[str, Any]:
+        lock = self._locks.setdefault(sn, asyncio.Lock())
+        if lock.locked():
+            raise BleRecoveryError("recovery_in_progress")
+
+        async with lock:
+            device = self._device(sn)
+            if device is None:
+                raise BleRecoveryError("unknown_device")
+
+            discovery = self._find_device_discovery(sn)
+            if discovery is None:
+                raise BleRecoveryError("ble_device_not_found")
+
+            provisioner = EcoflowBleProvisioner(
+                discovery.device,
+                sn,
+                str(getattr(self._client, "user_id", "")).strip(),
+                encrypt_type=_encrypt_type_from_advertisement(discovery.advertisement),
+                packet_version=_RIVER2_PACKET_VERSION,
+                timeout=20,
+            )
+
+            state = self._state(sn)
+            state.in_progress = True
+            state.last_stage = "disable_ap_follow_connect"
+            state.last_error = None
+
+            try:
+                await provisioner.connect()
+                state.last_stage = "disable_ap_follow_auth"
+                await provisioner.authenticate()
+                state.last_stage = "disable_ap_follow"
+                fallback_ssid = device.device_data.options.ble_wifi_ssid or state.learned_ssid or self._extract_wifi_ssid(device.data.params)
+                result = await provisioner.disable_auto_follow_for_current_wifi(fallback_ssid=fallback_ssid)
+                if reboot_after_disable:
+                    state.last_stage = "disable_ap_follow_reboot"
+                    reboot_result = await provisioner.reboot_device(request_id=20_000)
+                    result["reboot_after_disable"] = {"requested": True, "restart_required": reboot_result}
+                else:
+                    result["reboot_after_disable"] = {"requested": False}
+                state.last_result = "ap_follow_disabled"
+                state.last_network_status = {
+                    "disabled_auto_follow": result,
+                }
+                return result
+            except Exception as err:
+                state.last_result = "failed"
+                state.last_error = str(err)
+                raise
+            finally:
+                await provisioner.disconnect()
+                state.in_progress = False
 
     def _state(self, sn: str) -> BleRecoveryState:
         return self._states.setdefault(sn, BleRecoveryState())
@@ -2815,211 +3022,6 @@ class EcoflowBleRecoveryManager:
                                         state.last_cloud_bind["device_status"] = await self._client.get_device_status(sn)
                                     except Exception as err:
                                         state.last_cloud_bind["device_status_error"] = str(err)
-                                if (
-                                    state.last_cloud_bind.get("refresh_token_error")
-                                    and hasattr(self._client, "bind_device_new")
-                                ):
-                                    try:
-                                        new_bind_result = await self._client.bind_device_new(
-                                            sn,
-                                            getattr(device.device_info, "name", None) or device.device_data.name or sn,
-                                        )
-                                        new_bind_state: dict[str, Any] = {
-                                            "is_success": True,
-                                            "response": new_bind_result.get("data", new_bind_result),
-                                        }
-                                        if hasattr(self._client, "get_device_refresh_token"):
-                                            try:
-                                                new_bind_state["refresh_token"] = await self._client.get_device_refresh_token(
-                                                    sn
-                                                )
-                                            except Exception as err:
-                                                new_bind_state["refresh_token_error"] = str(err)
-                                        if hasattr(self._client, "get_device_status"):
-                                            try:
-                                                new_bind_state["device_status"] = await self._client.get_device_status(sn)
-                                            except Exception as err:
-                                                new_bind_state["device_status_error"] = str(err)
-                                        if hasattr(self._client, "list_bind_systems"):
-                                            try:
-                                                bind_systems = await self._client.list_bind_systems()
-                                                new_bind_state["bind_systems"] = bind_systems
-                                                target_system_no = None
-                                                for item in bind_systems:
-                                                    candidate = item.get("systemNo")
-                                                    if isinstance(candidate, str) and candidate:
-                                                        target_system_no = candidate
-                                                        break
-                                                if (
-                                                    target_system_no
-                                                    and hasattr(self._client, "system_add_device")
-                                                ):
-                                                    try:
-                                                        add_result = await self._client.system_add_device(
-                                                            target_system_no,
-                                                            sn,
-                                                        )
-                                                        system_add_state: dict[str, Any] = {
-                                                            "is_success": True,
-                                                            "systemNo": target_system_no,
-                                                            "response": add_result.get("data", add_result),
-                                                        }
-                                                        if hasattr(self._client, "get_device_refresh_token"):
-                                                            try:
-                                                                system_add_state["refresh_token"] = (
-                                                                    await self._client.get_device_refresh_token(sn)
-                                                                )
-                                                            except Exception as err:
-                                                                system_add_state["refresh_token_error"] = str(err)
-                                                        if hasattr(self._client, "get_device_status"):
-                                                            try:
-                                                                system_add_state["device_status"] = (
-                                                                    await self._client.get_device_status(sn)
-                                                                )
-                                                            except Exception as err:
-                                                                system_add_state["device_status_error"] = str(err)
-                                                        new_bind_state["system_add_device"] = system_add_state
-                                                    except Exception as err:
-                                                        new_bind_state["system_add_device"] = {
-                                                            "is_success": False,
-                                                            "systemNo": target_system_no,
-                                                            "error": str(err),
-                                                        }
-                                            except Exception as err:
-                                                new_bind_state["bind_systems_error"] = str(err)
-                                        if hasattr(self._client, "get_enterprise_certification"):
-                                            try:
-                                                new_bind_state["enterprise_certification"] = {
-                                                    "is_success": True,
-                                                    "response": await self._client.get_enterprise_certification(),
-                                                }
-                                            except Exception as err:
-                                                new_bind_state["enterprise_certification"] = {
-                                                    "is_success": False,
-                                                    "error": str(err),
-                                                }
-                                        if hasattr(self._client, "provider_query_user_device_info"):
-                                            try:
-                                                new_bind_state["provider_query_user_device_info"] = {
-                                                    "is_success": True,
-                                                    "response": await self._client.provider_query_user_device_info(sn),
-                                                }
-                                            except Exception as err:
-                                                new_bind_state["provider_query_user_device_info"] = {
-                                                    "is_success": False,
-                                                    "error": str(err),
-                                                }
-                                        if hasattr(self._client, "provider_get_system_device"):
-                                            try:
-                                                new_bind_state["provider_system_device"] = {
-                                                    "is_success": True,
-                                                    "response": await self._client.provider_get_system_device(sn),
-                                                }
-                                            except Exception as err:
-                                                new_bind_state["provider_system_device"] = {
-                                                    "is_success": False,
-                                                    "error": str(err),
-                                                }
-                                        if hasattr(self._client, "provider_get_device_bind_infos"):
-                                            try:
-                                                new_bind_state["provider_device_bind_infos"] = {
-                                                    "is_success": True,
-                                                    "response": await self._client.provider_get_device_bind_infos(sn),
-                                                }
-                                            except Exception as err:
-                                                new_bind_state["provider_device_bind_infos"] = {
-                                                    "is_success": False,
-                                                    "error": str(err),
-                                                }
-                                        if hasattr(self._client, "query_auth_provider"):
-                                            try:
-                                                new_bind_state["query_auth_provider"] = {
-                                                    "is_success": True,
-                                                    "response": await self._client.query_auth_provider(sn),
-                                                }
-                                            except Exception as err:
-                                                new_bind_state["query_auth_provider"] = {
-                                                    "is_success": False,
-                                                    "error": str(err),
-                                                }
-                                        if hasattr(self._client, "get_provider_auth_code"):
-                                            for is_init_complete in (False, True):
-                                                probe_key = (
-                                                    "provider_auth_code_init_complete_true"
-                                                    if is_init_complete
-                                                    else "provider_auth_code_init_complete_false"
-                                                )
-                                                try:
-                                                    provider_auth_code = await self._client.get_provider_auth_code(
-                                                        sn,
-                                                        is_init_complete=is_init_complete,
-                                                    )
-                                                    provider_auth_state: dict[str, Any] = {
-                                                        "is_success": True,
-                                                        "response": provider_auth_code,
-                                                    }
-                                                    auth_code = provider_auth_code.get("authCode")
-                                                    if isinstance(auth_code, str) and auth_code:
-                                                        if hasattr(self._client, "get_iot_auth_code_device_info"):
-                                                            try:
-                                                                provider_auth_state["iot_auth_code_device_info"] = {
-                                                                    "is_success": True,
-                                                                    "response": await self._client.get_iot_auth_code_device_info(auth_code),
-                                                                }
-                                                            except Exception as err:
-                                                                provider_auth_state["iot_auth_code_device_info"] = {
-                                                                    "is_success": False,
-                                                                    "error": str(err),
-                                                                }
-                                                        if hasattr(self._client, "get_provider_auth_code_device_info"):
-                                                            try:
-                                                                provider_auth_state["provider_auth_code_device_info"] = {
-                                                                    "is_success": True,
-                                                                    "response": await self._client.get_provider_auth_code_device_info(auth_code),
-                                                                }
-                                                            except Exception as err:
-                                                                provider_auth_state["provider_auth_code_device_info"] = {
-                                                                    "is_success": False,
-                                                                    "error": str(err),
-                                                                }
-                                                    new_bind_state[probe_key] = provider_auth_state
-                                                except Exception as err:
-                                                    new_bind_state[probe_key] = {
-                                                        "is_success": False,
-                                                        "error": str(err),
-                                                    }
-                                        if hasattr(self._client, "get_enterprise_device_refresh_token"):
-                                            try:
-                                                enterprise_refresh = await self._client.get_enterprise_device_refresh_token(sn)
-                                                enterprise_state: dict[str, Any] = {
-                                                    "is_success": True,
-                                                    "response": enterprise_refresh,
-                                                }
-                                                random_code = enterprise_refresh.get("randomCode")
-                                                user_info_en = enterprise_refresh.get("userInfoEn")
-                                                if isinstance(random_code, str) and random_code and isinstance(user_info_en, str) and user_info_en:
-                                                    state.last_stage = "confirm_bind"
-                                                    enterprise_state["confirm_bind"] = await provisioner.confirm_bind(
-                                                        random_code=random_code,
-                                                        user_info_en=user_info_en,
-                                                    )
-                                                if hasattr(self._client, "get_device_status"):
-                                                    try:
-                                                        enterprise_state["device_status"] = await self._client.get_device_status(sn)
-                                                    except Exception as err:
-                                                        enterprise_state["device_status_error"] = str(err)
-                                                new_bind_state["enterprise_refresh_token"] = enterprise_state
-                                            except Exception as err:
-                                                new_bind_state["enterprise_refresh_token"] = {
-                                                    "is_success": False,
-                                                    "error": str(err),
-                                                }
-                                        state.last_cloud_bind["new_bind"] = new_bind_state
-                                    except Exception as err:
-                                        state.last_cloud_bind["new_bind"] = {
-                                            "is_success": False,
-                                            "error": str(err),
-                                        }
                                 _LOGGER.warning(
                                     "BLE recovery encrypted cloud bind succeeded for %s strategy=%s bind_result=%s",
                                     sn,

@@ -204,6 +204,16 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
                     total += v.value
             if self._update_value(total):
                 self.schedule_update_ha_state()
+        elif isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
+            # Some EcoFlow payloads omit inactive channels entirely while the device
+            # is online. Keep those sensors at their semantic default instead of
+            # leaving them permanently unavailable after an offline startup.
+            self._attr_available = True
+            if self._auto_enable:
+                self._attr_entity_registry_enabled_default = True
+                self._attr_entity_registry_visible_default = True
+            if self._update_value(self._attr_default_value):
+                self.schedule_update_ha_state()
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
