@@ -50,6 +50,7 @@ _PD_GET_WIFI_INFO_CMD_ID = 0xA1
 _AP_FOLLOW_INFO_LIST_CMD_SET = 0x35
 _AP_FOLLOW_INFO_LIST_CMD_ID = 0x26
 _AP_FOLLOW_INFO_SET_CMD_ID = 0x27
+_AP_FOLLOW_INFO_DELETE_CMD_ID = 0x28
 _POST_PROVISION_OBSERVE_SEC = 15
 _DHODM_RPC_SRC = "user_1"
 _SUPPORTED_DEVICE_TYPES = {
@@ -1297,6 +1298,8 @@ class EcoflowBleProvisioner:
 
     async def _write(self, payload: bytes, *, response: bool) -> None:
         assert self._client is not None
+        # A successful write_gatt_char call proves only that the local BLE stack accepted
+        # the write. Device-side handling is confirmed separately from notify traffic.
         await self._client.write_gatt_char(self._write_characteristic, bytearray(payload), response=response)
 
     async def _await_simple_payload(self, timeout: float) -> bytes:
@@ -1730,6 +1733,9 @@ class EcoflowBleProvisioner:
             version=self._packet_version,
         )
         await self._send_packet_no_reply(packet)
+        # Provisioning packets are considered delivered only after we observe follow-up
+        # device traffic. River 2 may skip a neat ACK and instead immediately switch to
+        # status packets, so the packet stream below is the real proof of handling.
         try:
             packets = await self._await_packets(timeout=5)
         except BleRecoveryError:
@@ -1862,6 +1868,9 @@ class EcoflowBleProvisioner:
             err_text = str(err)
             if not best_effort or not err_text.startswith("dhodm_response_timeout"):
                 raise
+            # Many River 2 DHOdm calls never return a JSON-RPC response even when the
+            # device is alive and starts sending ordinary EcoFlow status packets. Treat
+            # that as best-effort send + observed packet activity instead of fake success.
             _LOGGER.warning(
                 "BLE DHOdm request timed out for %s method=%s request_id=%s details=%s; continuing best-effort",
                 self._serial_number,
@@ -2142,6 +2151,9 @@ class EcoflowBleProvisioner:
 
         await self._send_packet_no_reply(packet)
 
+        # ApFollow commands are another River 2 quirk: the write can reach the device and
+        # still yield no ApFollowCmdAck. We keep the raw packet samples so delivery and
+        # device-side traffic are visible even when the ACK is absent.
         try:
             packets = await self._await_packets(2, predicate=lambda response: response.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET)
         except (BleRecoveryError, TimeoutError):
@@ -2174,7 +2186,52 @@ class EcoflowBleProvisioner:
             ],
         }
 
-    async def disable_auto_follow_for_current_wifi(self, fallback_ssid: str | None = None) -> dict[str, Any]:
+    async def delete_ap_follow_info(self, *, ssid: str) -> dict[str, Any]:
+        packet = Packet(
+            0x20,
+            _AUTH_HEADER_DST,
+            _AP_FOLLOW_INFO_LIST_CMD_SET,
+            _AP_FOLLOW_INFO_DELETE_CMD_ID,
+            _build_ap_follow_info_delete_payload(ssid=ssid),
+            dsrc=0x01,
+            ddst=0x01,
+            version=max(self._packet_version, 4),
+            seq=_next_packet_seq(),
+            product_id=1,
+        )
+
+        await self._send_packet_no_reply(packet)
+
+        try:
+            packets = await self._await_packets(2, predicate=lambda response: response.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET)
+        except (BleRecoveryError, TimeoutError):
+            packets = []
+
+        ack = None
+        for response in packets:
+            decoded_ack = _decode_ap_follow_cmd_ack(response.payload)
+            if decoded_ack is not None:
+                ack = decoded_ack
+                break
+
+        return {
+            "request": {"ssid": ssid},
+            "ack": ack,
+            "best_effort": ack is None,
+            "packets": [
+                {
+                    "src": f"0x{response.src:02X}",
+                    "dst": f"0x{response.dst:02X}",
+                    "cmd_set": f"0x{response.cmd_set:02X}",
+                    "cmd_id": f"0x{response.cmd_id:02X}",
+                    "seq": response.seq.hex(),
+                    "payload": response.payload.hex(),
+                }
+                for response in packets
+            ],
+        }
+
+    async def disable_auto_follow_for_current_wifi(self, fallback_ssid: str | None = None, *, forget_current_wifi: bool = False) -> dict[str, Any]:
         packets = await self.query_ap_follow_info_list()
         decoded_entries = [
             _decode_ap_follow_info_list(packet.payload)
@@ -2196,12 +2253,18 @@ class EcoflowBleProvisioner:
         if not ssid:
             raise BleRecoveryError("no_connected_ap_follow_entry")
 
+        # A missing ACK here does not mean the command was ignored; for these packets we
+        # preserve both the requested SSID and any observed follow-up packets for debugging.
         set_result = await self.set_ap_follow_info(ssid=ssid, follow_switch=0)
+        delete_result = None
+        if forget_current_wifi:
+            delete_result = await self.delete_ap_follow_info(ssid=ssid)
         return {
             "connected_entry": connected_entry,
             "fallback_ssid": fallback_ssid,
             "used_ssid": ssid,
             "set_result": set_result,
+            "delete_result": delete_result,
         }
 
     async def _observe_post_provision_packets(self, timeout: float) -> dict[str, Any]:
@@ -2393,7 +2456,7 @@ class EcoflowBleRecoveryManager:
                 channel=channel,
             )
 
-    async def async_disable_auto_follow_current_wifi(self, sn: str, *, reboot_after_disable: bool = False) -> dict[str, Any]:
+    async def async_disable_auto_follow_current_wifi(self, sn: str, *, reboot_after_disable: bool = False, forget_current_wifi: bool = False) -> dict[str, Any]:
         lock = self._locks.setdefault(sn, asyncio.Lock())
         if lock.locked():
             raise BleRecoveryError("recovery_in_progress")
@@ -2427,7 +2490,10 @@ class EcoflowBleRecoveryManager:
                 await provisioner.authenticate()
                 state.last_stage = "disable_ap_follow"
                 fallback_ssid = device.device_data.options.ble_wifi_ssid or state.learned_ssid or self._extract_wifi_ssid(device.data.params)
-                result = await provisioner.disable_auto_follow_for_current_wifi(fallback_ssid=fallback_ssid)
+                result = await provisioner.disable_auto_follow_for_current_wifi(
+                    fallback_ssid=fallback_ssid,
+                    forget_current_wifi=forget_current_wifi,
+                )
                 if reboot_after_disable:
                     state.last_stage = "disable_ap_follow_reboot"
                     reboot_result = await provisioner.reboot_device(request_id=20_000)
