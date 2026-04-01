@@ -43,3 +43,13 @@ class JSONMessage(Message):
     @override
     def to_mqtt_payload(self) -> PayloadType:
         return json.dumps(JSONMessage.prepare_payload(self.data))
+
+
+class RawMessage(Message):
+    def __init__(self, payload: bytes) -> None:
+        super().__init__()
+        self.payload = payload
+
+    @override
+    def to_mqtt_payload(self) -> PayloadType:
+        return self.payload

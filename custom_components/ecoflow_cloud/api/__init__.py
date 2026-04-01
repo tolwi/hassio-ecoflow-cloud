@@ -91,12 +91,15 @@ class EcoflowApiClient(ABC):
 
         self.mqtt_client.publish(self.devices[device_sn].device_info.get_topic, command.to_mqtt_payload())
 
-    def send_set_message(self, device_sn: str, mqtt_state: dict[str, Any], command: dict | Message):
+    def publish_set_message(self, device_sn: str, command: dict | Message):
         if isinstance(command, dict):
             command = JSONMessage(command)
 
-        self.devices[device_sn].data.update_to_target_state(mqtt_state)
         self.mqtt_client.publish(self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload())
+
+    def send_set_message(self, device_sn: str, mqtt_state: dict[str, Any], command: dict | Message):
+        self.devices[device_sn].data.update_to_target_state(mqtt_state)
+        self.publish_set_message(device_sn, command)
 
     def start(self):
         _LOGGER.debug("Starting MQTT client for %s", self.mqtt_info.client_id)

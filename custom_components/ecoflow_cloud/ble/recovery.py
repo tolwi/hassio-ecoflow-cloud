@@ -31,6 +31,7 @@ from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import dt
 
 from .. import CONF_DEVICE_LIST, OPTS_BLE_WIFI_PASSWORD, OPTS_BLE_WIFI_SSID
+from ..api.message import RawMessage
 from . import keydata
 
 if TYPE_CHECKING:
@@ -52,6 +53,7 @@ _AP_FOLLOW_INFO_LIST_CMD_ID = 0x26
 _AP_FOLLOW_INFO_SET_CMD_ID = 0x27
 _AP_FOLLOW_INFO_DELETE_CMD_ID = 0x28
 _POST_PROVISION_OBSERVE_SEC = 15
+_CFG_NET_OBSERVE_SEC = 120
 _DHODM_RPC_SRC = "user_1"
 _SUPPORTED_DEVICE_TYPES = {
     "RIVER_2",
@@ -733,6 +735,95 @@ def _build_ap_follow_info_delete_payload(*, ssid: str) -> bytes:
     return message.SerializeToString()
 
 
+@lru_cache(maxsize=1)
+def _mqtt_send_header_proto_classes() -> tuple[type[Any], type[Any]]:
+    file_proto = descriptor_pb2.FileDescriptorProto()
+    file_proto.name = "ecoflow_mqtt_send_header.proto"
+    file_proto.package = "ecoflow.common"
+    file_proto.syntax = "proto3"
+
+    header_message = file_proto.message_type.add()
+    header_message.name = "Header"
+    for name, number, field_type in (
+        ("src", 1, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("dest", 2, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("cmd_func", 3, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("cmd_id", 4, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("data_len", 5, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("enc_type", 6, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("check_type", 7, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("need_ack", 8, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("d_dest", 9, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("d_src", 10, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("device_sn", 11, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+        ("version", 12, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("payload_ver", 13, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("seq", 14, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("product_id", 15, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
+        ("pdata", 16, descriptor_pb2.FieldDescriptorProto.TYPE_BYTES),
+    ):
+        field = header_message.field.add()
+        field.name = name
+        field.number = number
+        field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+        field.type = field_type
+
+    wrapper_message = file_proto.message_type.add()
+    wrapper_message.name = "Send_Header_Msg"
+    wrapper_field = wrapper_message.field.add()
+    wrapper_field.name = "header"
+    wrapper_field.number = 1
+    wrapper_field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
+    wrapper_field.type = descriptor_pb2.FieldDescriptorProto.TYPE_MESSAGE
+    wrapper_field.type_name = ".ecoflow.common.Header"
+
+    pool = descriptor_pool.DescriptorPool()
+    pool.Add(file_proto)
+    factory = message_factory.MessageFactory(pool)
+    header_cls = factory.GetPrototype(pool.FindMessageTypeByName("ecoflow.common.Header"))
+    wrapper_cls = factory.GetPrototype(pool.FindMessageTypeByName("ecoflow.common.Send_Header_Msg"))
+    return header_cls, wrapper_cls
+
+
+def _build_online_ap_follow_set_json_command(serial_number: str, *, ssid: str, follow_switch: int) -> dict[str, Any]:
+    return {
+        "moduleType": 6,
+        "moduleSn": serial_number,
+        "operateType": "apFollowInfoSet",
+        "params": {
+            "followSwitch": int(follow_switch),
+            "ssidLen": len(ssid),
+            "ssid": ssid,
+        },
+    }
+
+
+def _build_online_ap_follow_set_binary_command(serial_number: str, *, ssid: str, follow_switch: int) -> RawMessage:
+    header_cls, wrapper_cls = _mqtt_send_header_proto_classes()
+    header = header_cls()
+    payload = _build_ap_follow_info_set_payload(ssid=ssid, follow_switch=follow_switch)
+    header.src = 0x20
+    header.dest = _AUTH_HEADER_DST
+    header.cmd_func = _AP_FOLLOW_INFO_LIST_CMD_SET
+    header.cmd_id = _AP_FOLLOW_INFO_SET_CMD_ID
+    header.data_len = len(payload)
+    header.enc_type = 0
+    header.check_type = 0
+    header.need_ack = 1
+    header.d_dest = 1
+    header.d_src = 1
+    header.device_sn = serial_number
+    header.version = 0x13
+    header.payload_ver = 1
+    header.seq = int.from_bytes(_next_packet_seq(), "little", signed=False)
+    header.product_id = 1
+    header.pdata = payload
+
+    wrapper = wrapper_cls()
+    wrapper.header.CopyFrom(header)
+    return RawMessage(wrapper.SerializeToString())
+
+
 def _build_cfg_net_device_list_payload(
     *,
     device_sns: list[str],
@@ -1133,18 +1224,56 @@ def _decode_wifi_state_prefix(payload: bytes) -> dict[str, Any] | None:
 
     state_type = payload[0]
     state_value = payload[1]
+    fail_code = state_type * 1000 + state_value
     return {
         "type": state_type,
         "state": state_value,
+        "fail_code": fail_code,
+        "stage": _wifi_state_stage_name(state_type),
         "meaning": _classify_wifi_state(state_type, state_value),
+        "app_bucket": _wifi_state_app_bucket(state_type, state_value),
         "raw_prefix": payload[:8].hex(),
     }
 
 
+def _wifi_state_stage_name(state_type: int) -> str:
+    if state_type == 1:
+        return "router_connect"
+    if state_type == 2:
+        return "mqtt_secret"
+    if state_type == 3:
+        return "mqtt_connect"
+    return "unknown"
+
+
+def _wifi_state_app_bucket(state_type: int, state_value: int) -> str:
+    if state_type == 1 and state_value != 0:
+        return "wifi_connection_failed"
+    if state_type in (2, 3) and state_value != 0:
+        return "connection_failed"
+    if state_type == 1 and state_value == 0:
+        return "router_connected"
+    if state_type == 2 and state_value == 0:
+        return "mqtt_secret_obtained"
+    if state_type == 3 and state_value == 0:
+        return "success"
+    return "unknown"
+
+
 def _classify_wifi_state(state_type: int, state_value: int) -> str:
     """Classify WifiStateBean states observed in the official app."""
+    if state_type == 1 and state_value == 0:
+        return "router_connected"
+    if state_type == 1 and state_value != 0:
+        return "router_connect_failed"
+    if state_type == 2 and state_value == 0:
+        return "mqtt_secret_obtained"
+    if state_type == 2 and state_value != 0:
+        return "mqtt_secret_failed"
     if state_type == 3 and state_value == 0:
-        return "network_config_success"
+        return "mqtt_connected"
+    if state_type == 3 and state_value != 0:
+        return "mqtt_connect_failed"
     if state_type == 0 and state_value == 0:
         return "idle_or_no_progress"
     if state_type == 0 and state_value == 1:
@@ -1154,6 +1283,59 @@ def _classify_wifi_state(state_type: int, state_value: int) -> str:
     if state_type == 0 and state_value == 16:
         return "transient_step_16"
     return "unknown"
+
+
+def _is_cfg_net_success_state(decoded_wifi_state: dict[str, Any] | None) -> bool:
+    if decoded_wifi_state is None:
+        return False
+    return decoded_wifi_state.get("type") == 3 and decoded_wifi_state.get("state") == 0
+
+
+def _cfg_net_failure_reason(network_status: dict[str, Any] | None) -> str:
+    if not network_status:
+        return "cfg_net_local_success_not_observed"
+
+    for key, value in network_status.items():
+        if not key.startswith("0x35:"):
+            continue
+        if not isinstance(value, dict):
+            continue
+        wifi_state = value.get("wifi_state") or value.get("wifi_state_prefix")
+        if not isinstance(wifi_state, dict):
+            continue
+
+        state_type = wifi_state.get("type")
+        state_value = wifi_state.get("state")
+        fail_code = wifi_state.get("fail_code")
+        if not isinstance(state_type, int) or not isinstance(state_value, int):
+            continue
+        if state_type == 3 and state_value == 0:
+            continue
+
+        stage = _wifi_state_stage_name(state_type)
+        meaning = _classify_wifi_state(state_type, state_value)
+        if isinstance(fail_code, int):
+            return f"cfg_net_failed_{fail_code}_{stage}_{meaning}"
+        return f"cfg_net_failed_type{state_type}_state{state_value}_{stage}_{meaning}"
+
+    return "cfg_net_local_success_not_observed"
+
+
+def _network_status_has_cfg_net_success(network_status: dict[str, Any] | None) -> bool:
+    if not network_status:
+        return False
+
+    for key, value in network_status.items():
+        if not key.startswith("0x35:"):
+            continue
+        if not isinstance(value, dict):
+            continue
+        if _is_cfg_net_success_state(value.get("wifi_state")):
+            return True
+        if _is_cfg_net_success_state(value.get("wifi_state_prefix")):
+            return True
+
+    return False
 
 
 def _diff_module_blob_words(left: bytes, right: bytes) -> dict[str, Any]:
@@ -1714,7 +1896,8 @@ class EcoflowBleProvisioner:
         bssid: str | None = None,
         channel: int | None = None,
         https_url: str | None = None,
-        ) -> dict[str, Any]:
+        observe_timeout: float = _POST_PROVISION_OBSERVE_SEC,
+    ) -> dict[str, Any]:
         payload = _build_network_message_payload(
             ssid=ssid,
             password=password,
@@ -1740,7 +1923,7 @@ class EcoflowBleProvisioner:
             packets = await self._await_packets(timeout=5)
         except BleRecoveryError:
             _LOGGER.debug("No immediate BLE provision response for %s", self._serial_number)
-            return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
+            return await self._observe_post_provision_packets(timeout=observe_timeout)
 
         for response in packets:
             _LOGGER.debug(
@@ -1752,7 +1935,7 @@ class EcoflowBleProvisioner:
                 response.payload.hex(),
             )
 
-        return await self._observe_post_provision_packets(timeout=_POST_PROVISION_OBSERVE_SEC)
+        return await self._observe_post_provision_packets(timeout=observe_timeout)
 
     async def provision_wifi_cfg_net(
         self,
@@ -1760,6 +1943,7 @@ class EcoflowBleProvisioner:
         ssid: str,
         password: str,
         https_url: str | None = None,
+        observe_timeout: float = _CFG_NET_OBSERVE_SEC,
     ) -> dict[str, Any]:
         payload = _build_cfg_net_device_list_payload(
             device_sns=[self._serial_number],
@@ -2231,40 +2415,71 @@ class EcoflowBleProvisioner:
             ],
         }
 
-    async def disable_auto_follow_for_current_wifi(self, fallback_ssid: str | None = None, *, forget_current_wifi: bool = False) -> dict[str, Any]:
+    async def disable_auto_follow_for_current_wifi(
+        self,
+        fallback_ssid: str | None = None,
+        *,
+        forget_current_wifi: bool = False,
+        forget_all_known_wifi: bool = False,
+    ) -> dict[str, Any]:
         packets = await self.query_ap_follow_info_list()
         decoded_entries = [
             _decode_ap_follow_info_list(packet.payload)
             for packet in packets
             if packet.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET
         ]
-        latest = next((item for item in decoded_entries if item), None) or {}
+        decoded_entries = [item for item in decoded_entries if item]
+        latest = decoded_entries[-1] if decoded_entries else {}
         connected_entry = latest.get("connected_entry")
+        all_entries = latest.get("entries") if isinstance(latest, dict) else None
 
-        ssid = None
-        if isinstance(connected_entry, dict):
-            candidate_ssid = connected_entry.get("ssid")
-            if isinstance(candidate_ssid, str) and candidate_ssid:
-                ssid = candidate_ssid
+        target_ssids: list[str] = []
 
-        if not ssid and fallback_ssid:
-            ssid = fallback_ssid.strip()
+        def add_target(candidate: Any) -> None:
+            if not isinstance(candidate, str):
+                return
+            normalized = candidate.strip()
+            if normalized and normalized not in target_ssids:
+                target_ssids.append(normalized)
 
-        if not ssid:
-            raise BleRecoveryError("no_connected_ap_follow_entry")
+        if forget_all_known_wifi and isinstance(all_entries, list):
+            for entry in all_entries:
+                if isinstance(entry, dict):
+                    add_target(entry.get("ssid"))
 
-        # A missing ACK here does not mean the command was ignored; for these packets we
-        # preserve both the requested SSID and any observed follow-up packets for debugging.
-        set_result = await self.set_ap_follow_info(ssid=ssid, follow_switch=0)
-        delete_result = None
-        if forget_current_wifi:
-            delete_result = await self.delete_ap_follow_info(ssid=ssid)
+        if not target_ssids and isinstance(connected_entry, dict):
+            add_target(connected_entry.get("ssid"))
+
+        if not target_ssids and fallback_ssid:
+            add_target(fallback_ssid)
+
+        if not target_ssids:
+            raise BleRecoveryError("no_ap_follow_entries")
+
+        per_ssid_results: list[dict[str, Any]] = []
+        for ssid in target_ssids:
+            set_result = await self.set_ap_follow_info(ssid=ssid, follow_switch=0)
+            delete_result = None
+            if forget_current_wifi or forget_all_known_wifi:
+                delete_result = await self.delete_ap_follow_info(ssid=ssid)
+            per_ssid_results.append(
+                {
+                    "ssid": ssid,
+                    "set_result": set_result,
+                    "delete_result": delete_result,
+                }
+            )
+
+        primary = per_ssid_results[0]
         return {
             "connected_entry": connected_entry,
+            "entries": all_entries,
             "fallback_ssid": fallback_ssid,
-            "used_ssid": ssid,
-            "set_result": set_result,
-            "delete_result": delete_result,
+            "used_ssid": primary["ssid"],
+            "acted_on_ssids": target_ssids,
+            "set_result": primary["set_result"],
+            "delete_result": primary["delete_result"],
+            "per_ssid_results": per_ssid_results,
         }
 
     async def _observe_post_provision_packets(self, timeout: float) -> dict[str, Any]:
@@ -2456,7 +2671,131 @@ class EcoflowBleRecoveryManager:
                 channel=channel,
             )
 
-    async def async_disable_auto_follow_current_wifi(self, sn: str, *, reboot_after_disable: bool = False, forget_current_wifi: bool = False) -> dict[str, Any]:
+    async def async_disable_auto_follow_current_wifi(
+        self,
+        sn: str,
+        *,
+        reboot_after_disable: bool = False,
+        forget_current_wifi: bool = False,
+        forget_all_known_wifi: bool = False,
+    ) -> dict[str, Any]:
+        lock = self._locks.setdefault(sn, asyncio.Lock())
+        if lock.locked():
+            raise BleRecoveryError("recovery_in_progress")
+
+        async with lock:
+            device = self._device(sn)
+            if device is None:
+                raise BleRecoveryError("unknown_device")
+
+            state = self._state(sn)
+            state.in_progress = True
+            state.last_stage = "disable_ap_follow_prepare"
+            state.last_error = None
+
+            fallback_ssid = device.device_data.options.ble_wifi_ssid or state.learned_ssid or self._extract_wifi_ssid(device.data.params)
+            if not fallback_ssid:
+                raise BleRecoveryError("missing_wifi_ssid")
+
+            mqtt_result: dict[str, Any] | None = None
+            provisioner: EcoflowBleProvisioner | None = None
+            try:
+                if bool(device.data.online) and getattr(self._client, "mqtt_client", None) is not None and self._client.mqtt_client.is_connected():
+                    state.last_stage = "disable_ap_follow_online"
+                    json_command = _build_online_ap_follow_set_json_command(sn, ssid=fallback_ssid, follow_switch=0)
+                    self._client.publish_set_message(sn, json_command)
+                    await asyncio.sleep(1)
+                    binary_command = _build_online_ap_follow_set_binary_command(sn, ssid=fallback_ssid, follow_switch=0)
+                    self._client.publish_set_message(sn, binary_command)
+                    mqtt_result = {
+                        "path": "mqtt_set_topic",
+                        "used_ssid": fallback_ssid,
+                        "forget_current_wifi_requested": forget_current_wifi,
+                        "forget_all_known_wifi_requested": forget_all_known_wifi,
+                        "json_command": json_command,
+                        "binary_wrapper": {
+                            "dest": f"0x{_AUTH_HEADER_DST:02X}",
+                            "cmd_set": f"0x{_AP_FOLLOW_INFO_LIST_CMD_SET:02X}",
+                            "cmd_id": f"0x{_AP_FOLLOW_INFO_SET_CMD_ID:02X}",
+                            "version": 0x13,
+                        },
+                        "delete_transport_confirmed": False,
+                    }
+
+                discovery = self._find_device_discovery(sn)
+                if discovery is None:
+                    if mqtt_result is None or reboot_after_disable:
+                        raise BleRecoveryError("ble_device_not_found")
+                    result = {
+                        "mqtt_command": mqtt_result,
+                        "fallback_ssid": fallback_ssid,
+                        "reboot_after_disable": {"requested": False},
+                    }
+                    state.last_result = "ap_follow_disabled"
+                    state.last_network_status = {
+                        "disabled_auto_follow": result,
+                    }
+                    return result
+                else:
+                    provisioner = EcoflowBleProvisioner(
+                        discovery.device,
+                        sn,
+                        str(getattr(self._client, "user_id", "")).strip(),
+                        encrypt_type=_encrypt_type_from_advertisement(discovery.advertisement),
+                        packet_version=_RIVER2_PACKET_VERSION,
+                        timeout=20,
+                    )
+                    if mqtt_result is None:
+                        state.last_stage = "disable_ap_follow_connect"
+                        await provisioner.connect()
+                        state.last_stage = "disable_ap_follow_auth"
+                        await provisioner.authenticate()
+                        state.last_stage = "disable_ap_follow_ble_fallback"
+                        result = await provisioner.disable_auto_follow_for_current_wifi(
+                            fallback_ssid=fallback_ssid,
+                            forget_current_wifi=forget_current_wifi,
+                            forget_all_known_wifi=forget_all_known_wifi,
+                        )
+                    else:
+                        result = {
+                            "mqtt_command": mqtt_result,
+                            "fallback_ssid": fallback_ssid,
+                        }
+
+                    if reboot_after_disable:
+                        if provisioner is None:
+                            raise BleRecoveryError("ble_device_not_found")
+                        if provisioner._client is None:
+                            state.last_stage = "disable_ap_follow_connect"
+                            await provisioner.connect()
+                            state.last_stage = "disable_ap_follow_auth"
+                            await provisioner.authenticate()
+                        state.last_stage = "disable_ap_follow_reboot"
+                        reboot_result = await provisioner.reboot_device(request_id=20_000)
+                        result["reboot_after_disable"] = {"requested": True, "restart_required": reboot_result}
+                    else:
+                        result["reboot_after_disable"] = {"requested": False}
+
+                    if mqtt_result is not None and "mqtt_command" not in result:
+                        result["mqtt_command"] = mqtt_result
+
+                    state.last_result = "ap_follow_disabled"
+                    state.last_network_status = {
+                        "disabled_auto_follow": result,
+                    }
+                    return result
+
+                raise BleRecoveryError("ble_device_not_found")
+            except Exception as err:
+                state.last_result = "failed"
+                state.last_error = str(err)
+                raise
+            finally:
+                if provisioner is not None:
+                    await provisioner.disconnect()
+                state.in_progress = False
+
+    async def async_query_current_wifi(self, sn: str) -> dict[str, Any]:
         lock = self._locks.setdefault(sn, asyncio.Lock())
         if lock.locked():
             raise BleRecoveryError("recovery_in_progress")
@@ -2481,30 +2820,52 @@ class EcoflowBleRecoveryManager:
 
             state = self._state(sn)
             state.in_progress = True
-            state.last_stage = "disable_ap_follow_connect"
+            state.last_stage = "query_current_wifi_connect"
             state.last_error = None
 
             try:
                 await provisioner.connect()
-                state.last_stage = "disable_ap_follow_auth"
+                state.last_stage = "query_current_wifi_auth"
                 await provisioner.authenticate()
-                state.last_stage = "disable_ap_follow"
-                fallback_ssid = device.device_data.options.ble_wifi_ssid or state.learned_ssid or self._extract_wifi_ssid(device.data.params)
-                result = await provisioner.disable_auto_follow_for_current_wifi(
-                    fallback_ssid=fallback_ssid,
-                    forget_current_wifi=forget_current_wifi,
-                )
-                if reboot_after_disable:
-                    state.last_stage = "disable_ap_follow_reboot"
-                    reboot_result = await provisioner.reboot_device(request_id=20_000)
-                    result["reboot_after_disable"] = {"requested": True, "restart_required": reboot_result}
-                else:
-                    result["reboot_after_disable"] = {"requested": False}
-                state.last_result = "ap_follow_disabled"
-                state.last_network_status = {
-                    "disabled_auto_follow": result,
+                state.last_stage = "query_current_wifi_probe"
+                ap_follow_packets = await provisioner.query_ap_follow_info_list()
+                pd_wifi_info_packets = await provisioner.query_pd_wifi_info()
+
+                ap_follow = [
+                    _decode_ap_follow_info_list(packet.payload)
+                    for packet in ap_follow_packets
+                    if packet.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET
+                ]
+                ap_follow = [item for item in ap_follow if item]
+                latest_ap_follow = ap_follow[-1] if ap_follow else None
+
+                pd_wifi_info = []
+                for packet in pd_wifi_info_packets:
+                    pd_wifi_info.append(
+                        {
+                            "cmd_id": packet.cmd_id,
+                            "seq": packet.seq.hex(),
+                            "decoded_words": _decode_module_blob_words(packet.payload),
+                            "raw": packet.payload.hex(),
+                        }
+                    )
+
+                probe = {
+                    "source": _discovery_source(discovery),
+                    "address": _discovery_address(discovery),
+                    "name": _discovery_name(discovery),
+                    "rssi": _discovery_rssi(discovery),
+                    "ap_follow": latest_ap_follow,
+                    "pd_wifi_info": pd_wifi_info,
                 }
-                return result
+                existing = state.last_network_status if isinstance(state.last_network_status, dict) else {}
+                state.last_network_status = {
+                    **existing,
+                    "current_wifi_probe": probe,
+                }
+                state.last_stage = "query_current_wifi_success"
+                state.last_result = "current_wifi_probed"
+                return probe
             except Exception as err:
                 state.last_result = "failed"
                 state.last_error = str(err)
@@ -3006,141 +3367,46 @@ class EcoflowBleRecoveryManager:
                                 recovery_https_url,
                                 exc_info=True,
                             )
+                    state.last_stage = "provision"
+                    observed_network_status = await provisioner.provision_wifi(
+                        ssid=target_ssid,
+                        password=target_password,
+                        bssid=attempt_bssid,
+                        channel=attempt_channel,
+                        https_url=recovery_https_url,
+                        observe_timeout=_POST_PROVISION_OBSERVE_SEC,
+                    )
+                    if observed_network_status:
+                        state.last_network_status = observed_network_status
+
                     state.last_stage = "provision_cfg_net"
                     observed_network_status = await provisioner.provision_wifi_cfg_net(
                         ssid=target_ssid,
                         password=target_password,
                         https_url=recovery_https_url,
+                        observe_timeout=_CFG_NET_OBSERVE_SEC,
                     )
-                    saw_cfg_net_status = any(key.startswith("0x35:") for key in observed_network_status)
-                    if saw_cfg_net_status:
+                    if observed_network_status:
+                        state.last_network_status = observed_network_status
+
+                    cfg_net_success = _network_status_has_cfg_net_success(observed_network_status)
+                    if cfg_net_success:
                         _LOGGER.info(
-                            "BLE recovery cfg-net packet sent for %s strategy=%s observed_network_status=%s",
+                            "BLE recovery cfg-net succeeded for %s strategy=%s observed_network_status=%s",
                             sn,
                             strategy,
                             observed_network_status,
                         )
                     else:
-                        _LOGGER.info(
-                            "BLE recovery cfg-net packet for %s strategy=%s produced no 0x35 wifi-state, falling back to legacy provisioning",
-                            sn,
-                            strategy,
-                        )
-                        state.last_stage = "provision"
-                        observed_network_status = await provisioner.provision_wifi(
-                            ssid=target_ssid,
-                            password=target_password,
-                            bssid=attempt_bssid,
-                            channel=attempt_channel,
-                            https_url=recovery_https_url,
-                        )
-                        _LOGGER.info("BLE recovery legacy provision packet sent for %s strategy=%s", sn, strategy)
-                    if observed_network_status:
-                        state.last_network_status = observed_network_status
-                    if (
-                        recovery_mqtt_info is not None
-                        and recovery_mqtt_server
-                        and recovery_mqtt_info.client_id
-                        and recovery_mqtt_info.username
-                        and recovery_mqtt_info.password
-                    ):
-                        state.last_stage = "set_mqtt"
-                        restart_required = await provisioner.provision_mqtt_config(
-                            request_id=dhodm_request_id,
-                            server=recovery_mqtt_server,
-                            client_id=recovery_mqtt_info.client_id,
-                            username=recovery_mqtt_info.username,
-                            password=recovery_mqtt_info.password,
-                            topic_prefix=f"/shelly/thing/property/post/{sn}",
-                            ssl_ca="ca.pem",
-                        )
-                        dhodm_request_id += 1
-                        _LOGGER.info(
-                            "BLE recovery MQTT config sent for %s strategy=%s restart_required=%s",
-                            sn,
-                            strategy,
-                            restart_required,
-                        )
-                        state.last_stage = "set_rpc_udp"
-                        restart_required = await provisioner.configure_rpc_udp(request_id=dhodm_request_id)
-                        dhodm_request_id += 1
-                        _LOGGER.info(
-                            "BLE recovery Sys.SetConfig sent for %s strategy=%s restart_required=%s",
-                            sn,
-                            strategy,
-                            restart_required,
-                        )
-                        state.last_stage = "set_ble"
-                        restart_required = await provisioner.enable_ble_config(request_id=dhodm_request_id)
-                        dhodm_request_id += 1
-                        _LOGGER.info(
-                            "BLE recovery BLE.SetConfig sent for %s strategy=%s restart_required=%s",
-                            sn,
-                            strategy,
-                            restart_required,
-                        )
-                        state.last_stage = "reboot"
-                        restart_required = await provisioner.reboot_device(request_id=dhodm_request_id)
-                        dhodm_request_id += 1
-                        _LOGGER.info(
-                            "BLE recovery Shelly.Reboot sent for %s strategy=%s restart_required=%s",
-                            sn,
-                            strategy,
-                            restart_required,
-                        )
-                        await asyncio.sleep(5)
-                        state.last_stage = "probe_status"
-                        await provisioner.request_wifi_status(request_id=dhodm_request_id)
-                        dhodm_request_id += 1
-                        await provisioner.request_mqtt_status(request_id=dhodm_request_id)
-                        dhodm_request_id += 1
-                        ap_follow_info_packets = await provisioner.query_ap_follow_info_list()
-                        pd_wifi_info_packets = await provisioner.query_pd_wifi_info()
-                        probed_network_status = await provisioner._observe_post_provision_packets(timeout=8)
-                        pd_status_raw: bytes | None = None
-                        pd_status_entry = probed_network_status.get("0x02")
-                        if isinstance(pd_status_entry, dict):
-                            pd_status_raw_hex = pd_status_entry.get("raw")
-                            if isinstance(pd_status_raw_hex, str):
-                                try:
-                                    pd_status_raw = bytes.fromhex(pd_status_raw_hex)
-                                except ValueError:
-                                    pd_status_raw = None
-                        if ap_follow_info_packets:
-                            probed_network_status["_ap_follow_info"] = [
-                                {
-                                    "cmd_set": packet.cmd_set,
-                                    "cmd_id": packet.cmd_id,
-                                    "seq": packet.seq.hex(),
-                                    "decoded": _decode_ap_follow_info_list(packet.payload),
-                                    "raw": packet.payload.hex(),
-                                }
-                                for packet in ap_follow_info_packets
-                            ]
-                        if pd_wifi_info_packets:
-                            probed_network_status["_pd_wifi_info"] = [
-                                {
-                                    "cmd_id": packet.cmd_id,
-                                    "seq": packet.seq.hex(),
-                                    "decoded_words": _decode_module_blob_words(packet.payload),
-                                    "diff_vs_pd_status": (
-                                        _diff_module_blob_words(packet.payload, pd_status_raw)
-                                        if pd_status_raw is not None
-                                        else None
-                                    ),
-                                    "raw": packet.payload.hex(),
-                                }
-                                for packet in pd_wifi_info_packets
-                            ]
-                        if probed_network_status:
-                            state.last_network_status = probed_network_status
                         _LOGGER.warning(
-                            "BLE recovery post-config status probe for %s strategy=%s network_status=%s",
+                            "BLE recovery cfg-net did not reach device-reported success for %s strategy=%s observed_network_status=%s",
                             sn,
                             strategy,
-                            probed_network_status,
+                            observed_network_status,
                         )
-                        if (
+                        state.last_error = _cfg_net_failure_reason(observed_network_status)
+                        return False
+                    if (
                             not (state.last_device_key_info or {}).get("is_success")
                             and hasattr(self._client, "bound_device_encrypted")
                         ):
