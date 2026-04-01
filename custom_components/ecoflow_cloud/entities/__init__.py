@@ -97,8 +97,9 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         enabled: bool = True,
         auto_enable: bool = False,
         diagnostic: Optional[bool] = None,
+        entity_key: str | None = None,
     ):
-        super().__init__(client, device, title, mqtt_key)
+        super().__init__(client, device, title, entity_key or mqtt_key)
 
         self.__mqtt_key = mqtt_key
         self._mqtt_key_adopted = self._adopt_json_key(mqtt_key)
@@ -308,8 +309,9 @@ class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):
         enabled: bool = True,
         auto_enable: bool = False,
         diagnostic: Optional[bool] = None,
+        entity_key: str | None = None,
     ):
-        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic)
+        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic, entity_key)
         coordinator_data = getattr(self.coordinator, "data", None)
         data_holder = getattr(coordinator_data, "data_holder", None)
         is_online = self._sensor_data_is_fresh() if data_holder is not None else True

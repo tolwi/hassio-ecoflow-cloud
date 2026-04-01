@@ -52,8 +52,14 @@ class River2Max(BaseInternalDevice):
             ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE),
             InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
             OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER).with_energy(),
-            InMilliampSensorEntity(client, self, "inv.dcInAmp", const.SOLAR_IN_CURRENT),
-            InVoltSensorEntity(client, self, "inv.dcInVol", const.SOLAR_IN_VOLTAGE),
+            # River 2 reports live PV telemetry under mppt.*; inv.dcIn* stays at 0
+            # even while solar input power is non-zero.
+            InMilliampSensorEntity(
+                client, self, "mppt.inAmp", const.SOLAR_IN_CURRENT, entity_key="inv.dcInAmp"
+            ),
+            InMilliVoltSensorEntity(
+                client, self, "mppt.inVol", const.SOLAR_IN_VOLTAGE, entity_key="inv.dcInVol"
+            ),
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER).with_energy(),
             OutWattsSensorEntity(client, self, "inv.outputWatts", const.AC_OUT_POWER).with_energy(),
             InMilliVoltSensorEntity(client, self, "inv.acInVol", const.AC_IN_VOLT),
