@@ -18,10 +18,10 @@ from custom_components.ecoflow_cloud.sensor import (
     CyclesSensorEntity,
     InMilliampSensorEntity,
     InMilliVoltSensorEntity,
-    InVoltSensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
     MilliVoltSensorEntity,
+    MiscSensorEntity,
     OutMilliVoltSensorEntity,
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
@@ -69,6 +69,13 @@ class River2Max(BaseInternalDevice):
             OutWattsSensorEntity(client, self, "pd.carWatts", const.DC_OUT_POWER),
             OutWattsSensorEntity(client, self, "pd.typec1Watts", const.TYPEC_OUT_POWER),
             OutWattsSensorEntity(client, self, "pd.usb1Watts", const.USB_OUT_POWER),
+            # River 2 family exposes only the user-facing 12V/car output toggle.
+            # These mppt.* fields are still useful diagnostics for understanding
+            # which DC path is active and whether the internal 24V rail is alive,
+            # but they are not a confirmed switchable 24V output like Delta Pro 3.
+            MiscSensorEntity(client, self, "mppt.chgType", "DC Mode State", diagnostic=True),
+            MiscSensorEntity(client, self, "mppt.faultCode", "MPPT Fault Code", diagnostic=True),
+            MiscSensorEntity(client, self, "mppt.dc24vState", "24V Rail State", diagnostic=True),
             # OutWattsSensorEntity(client, self, "pd.usb2Watts", const.USB_2_OUT_POWER),
             RemainSensorEntity(client, self, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, self, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
