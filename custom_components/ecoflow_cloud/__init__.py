@@ -70,6 +70,7 @@ OPTS_BLE_RECOVERY_TIMEOUT_SEC: Final = "ble_recovery_timeout_sec"
 OPTS_BLE_RECOVERY_COOLDOWN_SEC: Final = "ble_recovery_cooldown_sec"
 SERVICE_RECOVER_WIFI_VIA_BLE: Final = "recover_wifi_via_ble"
 SERVICE_DISABLE_AUTO_FOLLOW_CURRENT_WIFI_VIA_BLE: Final = "disable_auto_follow_current_wifi_via_ble"
+SERVICE_QUERY_CURRENT_WIFI_VIA_BLE: Final = "query_current_wifi_via_ble"
 SERVICE_ATTR_SERIAL_NUMBER: Final = "serial_number"
 SERVICE_ATTR_SSID: Final = "ssid"
 SERVICE_ATTR_PASSWORD: Final = "password"
@@ -279,9 +280,33 @@ async def _async_handle_disable_auto_follow_current_wifi_via_ble(
     )
 
 
+async def _async_handle_query_current_wifi_via_ble(hass: HomeAssistant, call: ServiceCall) -> None:
+    serial_number = call.data.get(SERVICE_ATTR_SERIAL_NUMBER)
+    if serial_number is None and call.data.get(CONF_DEVICE_ID):
+        serial_number = _resolve_sn_from_device_id(hass, call.data[CONF_DEVICE_ID])
+
+    if not serial_number:
+        raise HomeAssistantError("Provide serial_number or device_id for EcoFlow BLE Wi-Fi query")
+
+    client = _find_client_for_serial(hass, serial_number)
+    if client is None or serial_number not in client.devices:
+        raise HomeAssistantError(f"EcoFlow device not found for serial number: {serial_number}")
+
+    if client.ble_recovery_manager is None:
+        raise HomeAssistantError("BLE Wi-Fi recovery manager is not initialized")
+
+    device = client.devices[serial_number]
+    if not client.ble_recovery_manager.supports_device(device.device_data):
+        raise HomeAssistantError(f"BLE Wi-Fi recovery is not supported for {serial_number}")
+
+    await client.ble_recovery_manager.async_query_current_wifi(serial_number)
+
+
 def _async_register_services(hass: HomeAssistant) -> None:
-    if hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_RECOVER_WIFI_VIA_BLE) and hass.services.has_service(
-        ECOFLOW_DOMAIN, SERVICE_DISABLE_AUTO_FOLLOW_CURRENT_WIFI_VIA_BLE
+    if (
+        hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_RECOVER_WIFI_VIA_BLE)
+        and hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_DISABLE_AUTO_FOLLOW_CURRENT_WIFI_VIA_BLE)
+        and hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_QUERY_CURRENT_WIFI_VIA_BLE)
     ):
         return
 
@@ -325,6 +350,24 @@ def _async_register_services(hass: HomeAssistant) -> None:
             SERVICE_DISABLE_AUTO_FOLLOW_CURRENT_WIFI_VIA_BLE,
             _handle_disable,
             schema=disable_schema,
+        )
+
+    query_schema = vol.Schema(
+        {
+            vol.Optional(SERVICE_ATTR_SERIAL_NUMBER): str,
+            vol.Optional(CONF_DEVICE_ID): str,
+        }
+    )
+
+    async def _handle_query(call: ServiceCall) -> None:
+        await _async_handle_query_current_wifi_via_ble(hass, call)
+
+    if not hass.services.has_service(ECOFLOW_DOMAIN, SERVICE_QUERY_CURRENT_WIFI_VIA_BLE):
+        hass.services.async_register(
+            ECOFLOW_DOMAIN,
+            SERVICE_QUERY_CURRENT_WIFI_VIA_BLE,
+            _handle_query,
+            schema=query_schema,
         )
 
 

@@ -2513,6 +2513,85 @@ class EcoflowBleRecoveryManager:
                 await provisioner.disconnect()
                 state.in_progress = False
 
+    async def async_query_current_wifi(self, sn: str) -> dict[str, Any]:
+        lock = self._locks.setdefault(sn, asyncio.Lock())
+        if lock.locked():
+            raise BleRecoveryError("recovery_in_progress")
+
+        async with lock:
+            device = self._device(sn)
+            if device is None:
+                raise BleRecoveryError("unknown_device")
+
+            discovery = self._find_device_discovery(sn)
+            if discovery is None:
+                raise BleRecoveryError("ble_device_not_found")
+
+            provisioner = EcoflowBleProvisioner(
+                discovery.device,
+                sn,
+                str(getattr(self._client, "user_id", "")).strip(),
+                encrypt_type=_encrypt_type_from_advertisement(discovery.advertisement),
+                packet_version=_RIVER2_PACKET_VERSION,
+                timeout=20,
+            )
+
+            state = self._state(sn)
+            state.in_progress = True
+            state.last_stage = "query_current_wifi_connect"
+            state.last_error = None
+
+            try:
+                await provisioner.connect()
+                state.last_stage = "query_current_wifi_auth"
+                await provisioner.authenticate()
+                state.last_stage = "query_current_wifi_probe"
+                ap_follow_packets = await provisioner.query_ap_follow_info_list()
+                pd_wifi_info_packets = await provisioner.query_pd_wifi_info()
+
+                ap_follow = [
+                    _decode_ap_follow_info_list(packet.payload)
+                    for packet in ap_follow_packets
+                    if packet.cmd_set == _AP_FOLLOW_INFO_LIST_CMD_SET
+                ]
+                ap_follow = [item for item in ap_follow if item]
+                latest_ap_follow = ap_follow[-1] if ap_follow else None
+
+                pd_wifi_info = []
+                for packet in pd_wifi_info_packets:
+                    pd_wifi_info.append(
+                        {
+                            "cmd_id": packet.cmd_id,
+                            "seq": packet.seq.hex(),
+                            "decoded_words": _decode_module_blob_words(packet.payload),
+                            "raw": packet.payload.hex(),
+                        }
+                    )
+
+                probe = {
+                    "source": _discovery_source(discovery),
+                    "address": _discovery_address(discovery),
+                    "name": _discovery_name(discovery),
+                    "rssi": _discovery_rssi(discovery),
+                    "ap_follow": latest_ap_follow,
+                    "pd_wifi_info": pd_wifi_info,
+                }
+                existing = state.last_network_status if isinstance(state.last_network_status, dict) else {}
+                state.last_network_status = {
+                    **existing,
+                    "current_wifi_probe": probe,
+                }
+                state.last_stage = "query_current_wifi_success"
+                state.last_result = "current_wifi_probed"
+                return probe
+            except Exception as err:
+                state.last_result = "failed"
+                state.last_error = str(err)
+                raise
+            finally:
+                await provisioner.disconnect()
+                state.in_progress = False
+
     def _state(self, sn: str) -> BleRecoveryState:
         return self._states.setdefault(sn, BleRecoveryState())
 

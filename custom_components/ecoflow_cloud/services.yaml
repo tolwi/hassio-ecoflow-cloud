@@ -65,3 +65,21 @@ disable_auto_follow_current_wifi_via_ble:
       description: Delete the remembered Wi-Fi entry for the current SSID via BLE before rebooting, to force a fresh provisioning cycle.
       selector:
         boolean:
+
+
+query_current_wifi_via_ble:
+  name: Query Current Wi-Fi via BLE
+  description: Query the current Wi-Fi/AP-follow status from a supported EcoFlow device over BLE and store the result in diagnostics.
+  fields:
+    serial_number:
+      name: Serial number
+      description: EcoFlow serial number to inspect.
+      example: R62XXXXXXXXXXX
+      selector:
+        text:
+    device_id:
+      name: Device
+      description: Home Assistant device ID for the EcoFlow device.
+      selector:
+        device:
+          integration: ecoflow_cloud
