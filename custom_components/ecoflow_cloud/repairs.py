@@ -48,16 +48,16 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
         if user_input and OPTS_BLE_WIFI_SSID in user_input:
             ssid = user_input[OPTS_BLE_WIFI_SSID].strip()
             password = user_input[OPTS_BLE_WIFI_PASSWORD].strip()
-            bssid = user_input[OPTS_BLE_WIFI_BSSID].strip()
-            channel = int(user_input[OPTS_BLE_WIFI_CHANNEL] or 0) or None
+            bssid = str(user_input.get(OPTS_BLE_WIFI_BSSID, "") or "").strip()
+            channel = int(user_input.get(OPTS_BLE_WIFI_CHANNEL, 0) or 0) or None
             if not ssid or not password:
                 return self.async_show_form(
                     step_id="init",
                     data_schema=self._schema(
                         ssid=user_input[OPTS_BLE_WIFI_SSID],
                         password=user_input[OPTS_BLE_WIFI_PASSWORD],
-                        bssid=user_input[OPTS_BLE_WIFI_BSSID],
-                        channel=user_input[OPTS_BLE_WIFI_CHANNEL],
+                        bssid=str(user_input.get(OPTS_BLE_WIFI_BSSID, "") or ""),
+                        channel=int(user_input.get(OPTS_BLE_WIFI_CHANNEL, 0) or 0),
                     ),
                     errors={"base": "missing_credentials"},
                 )
@@ -95,8 +95,8 @@ class BleWifiCredentialsRepairFlow(RepairsFlow):
                 ): selector.TextSelector(
                     selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
                 ),
-                vol.Required(OPTS_BLE_WIFI_BSSID, default=bssid): selector.TextSelector(),
-                vol.Required(OPTS_BLE_WIFI_CHANNEL, default=channel): int,
+                vol.Optional(OPTS_BLE_WIFI_BSSID, default=bssid): selector.TextSelector(),
+                vol.Optional(OPTS_BLE_WIFI_CHANNEL, default=channel): int,
             }
         )
 

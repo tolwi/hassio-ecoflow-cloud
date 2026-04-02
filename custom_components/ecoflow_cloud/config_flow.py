@@ -505,8 +505,8 @@ class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
                 )] = selector.TextSelector(
                     selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
                 )
-                schema[vol.Required(OPTS_BLE_WIFI_BSSID, default=device_options.ble_wifi_bssid)] = selector.TextSelector()
-                schema[vol.Required(OPTS_BLE_WIFI_CHANNEL, default=device_options.ble_wifi_channel or 0)] = int
+                schema[vol.Optional(OPTS_BLE_WIFI_BSSID, default=device_options.ble_wifi_bssid)] = selector.TextSelector()
+                schema[vol.Optional(OPTS_BLE_WIFI_CHANNEL, default=device_options.ble_wifi_channel or 0)] = int
                 schema[vol.Required(
                     OPTS_BLE_RECOVERY_TIMEOUT_SEC,
                     default=device_options.ble_recovery_timeout_sec or DEFAULT_BLE_RECOVERY_TIMEOUT_SEC,
