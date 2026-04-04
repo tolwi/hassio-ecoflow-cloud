@@ -1224,6 +1224,26 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
+
+<details><summary> SMART_PLUG <i>(sensors: 5, switches: 1, sliders: 2)</i> </summary>
+<p>
+
+*Sensors*
+- Temperature
+- Volts
+- Current
+- Power
+- Status
+
+*Switches*
+- On
+
+*Sliders (numbers)*
+- Brightness
+- Max Power
+
+</p></details>
+
 <details><summary> STREAM_AC <i>(sensors: 39)</i> </summary>
 <p>
 
