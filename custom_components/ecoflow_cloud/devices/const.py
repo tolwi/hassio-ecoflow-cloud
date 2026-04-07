@@ -451,3 +451,29 @@ SMART_BACKUP_MODE_OPTIONS = {
     "Self-powered" : 2,
     "Scheduled tasks": 3
 }
+
+# Alternator 800W
+ALTERNATOR_OPERATION_MODE_OPTIONS = {
+    "Charge": 1,
+    "Battery Maintenance": 2,
+    "Reverse Charge": 3,
+}
+
+ALTERNATOR_IN_POWER = "Alternator In Power"
+ALTERNATOR_STATION_POWER = "Station Power"
+ALTERNATOR_RATED_POWER = "Alternator Rated Power"
+ALTERNATOR_BAT_SOC = "Station Battery Charge"
+ALTERNATOR_CAR_BAT_VOLT = "Car Battery Voltage"
+ALTERNATOR_TEMP = "Alternator Temperature"
+ALTERNATOR_WIFI_RSSI = "WiFi Signal Strength"
+ALTERNATOR_CHARGE_REMAINING = "Charge Remaining Time"
+ALTERNATOR_DISCHARGE_REMAINING = "Discharge Remaining Time"
+ALTERNATOR_START_VOLTAGE = "Car Battery Start Voltage"
+ALTERNATOR_POWER_LIMIT = "Charging Power Limit"
+ALTERNATOR_CHARGE_CURRENT_LIMIT = "Charge Current Limit"
+ALTERNATOR_REVERSE_CHARGE_CURRENT_LIMIT = "Reverse Charge Current Limit"
+ALTERNATOR_CHARGE_CURRENT_MAX = "Charge Current Max"
+ALTERNATOR_REVERSE_CHARGE_CURRENT_MAX = "Reverse Charge Current Max"
+ALTERNATOR_OPERATION_MODE = "Operation Mode"
+ALTERNATOR_ENABLED = "Charging Enabled"
+ALTERNATOR_CABLE_LENGTH = "Extension Cable Length"

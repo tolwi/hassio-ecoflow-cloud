@@ -1362,6 +1362,42 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
+<details><summary> ALTERNATOR_CHARGER_800W <i>(sensors: 17, switches: 1, sliders: 4, selects: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Alternator In Power
+- Station Power
+- Station Battery Charge
+- Car Battery Voltage
+- Alternator Temperature
+- Charge Remaining Time
+- Discharge Remaining Time
+- Status
+- Alternator Rated Power  _(disabled)_
+- Charging Power Limit  _(disabled)_
+- WiFi Signal Strength  _(disabled)_
+- Alternator Status Code  _(disabled)_
+- Operation Mode  _(disabled)_
+- Charge Current Limit  _(disabled)_
+- Reverse Charge Current Limit  _(disabled)_
+- Charge Current Max  _(disabled)_
+- Reverse Charge Current Max  _(disabled)_
+
+*Switches*
+- Charging Enabled
+
+*Sliders (numbers)*
+- Charge Current Limit
+- Reverse Charge Current Limit
+- Car Battery Start Voltage
+- Extension Cable Length  _(disabled)_
+
+*Selects*
+- Operation Mode
+
+</p></details>
+
 ### Devices available with public_api
 <details><summary> DELTA Max (API) <i>(sensors: 70, switches: 7, sliders: 5)</i> </summary>
 <p>
