@@ -155,7 +155,7 @@ class _CurrentLimitEntity(BaseNumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         if self._command:
-            self.send_set_message(float(value), self.command_dict(float(value)))
+            self.send_set_message(float(value), self.command_dict(float(value))) # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------
