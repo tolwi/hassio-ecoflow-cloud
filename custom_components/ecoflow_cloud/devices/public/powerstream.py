@@ -29,8 +29,8 @@ from custom_components.ecoflow_cloud.sensor import (
     LevelSensorEntity,
     MilliampSensorEntity,
     MiscSensorEntity,
+    QuotaScheduledStatusSensorEntity,
     RemainSensorEntity,
-    StatusSensorEntity,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -193,5 +193,6 @@ class PowerStream(BaseDevice):
         res = to_plain(res)
         return res
 
-    def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return StatusSensorEntity(client, self)
+    def _status_sensor(self, client: EcoflowApiClient) -> QuotaScheduledStatusSensorEntity:
+        # Keep quota fallback active even while MQTT stream is sparse.
+        return QuotaScheduledStatusSensorEntity(client, self, 60)
