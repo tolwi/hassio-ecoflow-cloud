@@ -16,6 +16,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 
 from google.protobuf.json_format import MessageToDict
+from google.protobuf.message import Message as ProtoMessageRaw
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
@@ -136,7 +137,7 @@ class SmartPlug3CommandMessage(PrivateAPIMessageProtocol):
 
     def __init__(
         self,
-        payload: Message,
+        payload: ProtoMessageRaw,
         packet: pb2.SendSmartPlugHeaderMsg,
     ):
         self._packet = packet
@@ -156,7 +157,7 @@ class SmartPlug3CommandMessage(PrivateAPIMessageProtocol):
         return {type(self._packet).__name__: result}
 
 
-def _create_send_header_message(cmd_id: int, device_sn: str, payload: Message):
+def _create_send_header_message(cmd_id: int, device_sn: str, payload: ProtoMessageRaw):
     packet = pb2.SendSmartPlugHeaderMsg()
     msg = packet.msg.add()
 
