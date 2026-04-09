@@ -49,9 +49,11 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 from ..devices.registry import device_by_product
 
                 device_list = list(device_by_product.keys())
+                device_list.sort(key=len, reverse=True)
                 for devicetype in device_list:
                     if "deviceName" in device and device["deviceName"].lower().startswith(devicetype.lower()):
                         product_name = devicetype
+                        break
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
             result.append(self.__create_device_info(sn, device_name, product_name, status))
