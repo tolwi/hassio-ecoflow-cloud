@@ -103,6 +103,8 @@ class EcoflowMQTTClient:
                     _LOGGER.debug(f"Message for {sn} and Topic {message.topic} : {message.payload.hex()}")
         except UnicodeDecodeError as error:
             _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
+        except Exception:
+            _LOGGER.error("Unexpected error processing MQTT message on topic %s", message.topic, exc_info=True)
 
     def stop(self):
         self.__client.unsubscribe(self.__target_topics())
@@ -117,9 +119,9 @@ class EcoflowMQTTClient:
             info = self.__client.publish(topic, message, 1)
             _LOGGER.debug("Sending " + str(message) + " :" + str(info) + "(" + str(info.is_published()) + ")")
         except RuntimeError as error:
-            _LOGGER.error(error, "Error on topic " + topic + " and message " + str(message))
+            _LOGGER.error("Error on topic %s and message %s: %s", topic, message, error)
         except Exception as error:
-            _LOGGER.debug(error, "Error on topic " + topic + " and message " + str(message))
+            _LOGGER.debug("Error on topic %s and message %s: %s", topic, message, error)
 
     def __target_topics(self) -> list[str]:
         topics = []
