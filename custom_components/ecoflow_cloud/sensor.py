@@ -749,12 +749,9 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
     @callback
     def _calc_difference(self) -> None:
         """Calculate the difference."""
-        if (
-            self._states.get(self._input_sensor.entity_id) is STATE_UNKNOWN
-            or self._states.get(self._output_sensor.entity_id) is STATE_UNKNOWN
-        ):
+        input_val = self._states.get(self._input_sensor.entity_id)
+        output_val = self._states.get(self._output_sensor.entity_id)
+        if input_val is None or output_val is None or input_val is STATE_UNKNOWN or output_val is STATE_UNKNOWN:
             self._difference = None
             return
-        self._difference = float(self._states[self._output_sensor.entity_id]) - float(
-            self._states[self._input_sensor.entity_id]
-        )
+        self._difference = float(output_val) - float(input_val)        
