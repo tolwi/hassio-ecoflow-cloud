@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import ssl
-import time
 from typing import Any
 
 from homeassistant.core import callback
@@ -95,7 +94,6 @@ class EcoflowMQTTClient:
         self.connected = False
         if reason_code.is_failure:
             self.__log_with_reason("disconnect", client, userdata, reason_code)
-            time.sleep(5)
 
     @callback
     def _on_message(self, client, userdata, message: MQTTMessage):
