@@ -157,6 +157,9 @@ class MinGenStartLevelEntity(LevelEntity):
 class MaxGenStopLevelEntity(LevelEntity):
     _attr_icon = "mdi:engine-off"
 
+class MaxWattsEntity(LevelEntity):
+    _attr_icon = "mdi:power-plug-off"
+
 
 class SetTempEntity(ValueUpdateEntity):
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
