@@ -1,9 +1,14 @@
+import asyncio
+import json
+
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.storage import Store
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
@@ -185,6 +190,30 @@ class SmartHomePanel(BaseDevice):
 
     def flat_json(self):
         return False
+
+    def configure(self, hass: HomeAssistant):
+        super().configure(hass)
+        self._hass = hass
+        self._store: Store[dict] = Store(hass, 1, f"ecoflow_cloud.{self.device_info.sn}.timetask")
+
+    async def async_restore_state(self):
+        data = await self._store.async_load()
+        if data and "timeTask" in data:
+            self.data.params["timeTask"] = data["timeTask"]
+
+    def update_data(self, raw_data: bytes, data_type: str) -> bool:
+        try:
+            payload = raw_data.decode("utf-8", errors="ignore")
+            if "timeTask" in payload:
+                parsed = json.loads(payload)
+                if "params" in parsed and "timeTask" in parsed["params"]:
+                    asyncio.run_coroutine_threadsafe(
+                        self._store.async_save({"timeTask": parsed["params"]["timeTask"]}),
+                        self._hass.loop,
+                    )
+        except Exception:
+            pass
+        return super().update_data(raw_data, data_type)
 
     @classmethod
     def _get_scheduled_charge_params(cls, params: dict) -> dict:

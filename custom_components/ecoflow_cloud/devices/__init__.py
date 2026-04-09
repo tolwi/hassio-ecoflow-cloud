@@ -130,6 +130,10 @@ class BaseDevice(ABC):
     def flat_json(self) -> bool:
         return True
 
+    async def async_restore_state(self):
+        """Restore persisted device state on startup. Override in subclasses."""
+        pass
+
     def extract_quota_data(self, message: JSONDict) -> PreparedData | None:
         return None
 

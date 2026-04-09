@@ -1224,6 +1224,26 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
+
+<details><summary> SMART_PLUG <i>(sensors: 5, switches: 1, sliders: 2)</i> </summary>
+<p>
+
+*Sensors*
+- Temperature
+- Volts
+- Current
+- Power
+- Status
+
+*Switches*
+- On
+
+*Sliders (numbers)*
+- Brightness
+- Max Power
+
+</p></details>
+
 <details><summary> STREAM_AC <i>(sensors: 39)</i> </summary>
 <p>
 
@@ -1359,6 +1379,42 @@ For information on how to add, remove, and configure devices, please refer to th
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
+
+</p></details>
+
+<details><summary> ALTERNATOR_CHARGER_800W <i>(sensors: 17, switches: 1, sliders: 4, selects: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Alternator In Power
+- Station Power
+- Station Battery Charge
+- Car Battery Voltage
+- Alternator Temperature
+- Charge Remaining Time
+- Discharge Remaining Time
+- Status
+- Alternator Rated Power  _(disabled)_
+- Charging Power Limit  _(disabled)_
+- WiFi Signal Strength  _(disabled)_
+- Alternator Status Code  _(disabled)_
+- Operation Mode  _(disabled)_
+- Charge Current Limit  _(disabled)_
+- Reverse Charge Current Limit  _(disabled)_
+- Charge Current Max  _(disabled)_
+- Reverse Charge Current Max  _(disabled)_
+
+*Switches*
+- Charging Enabled
+
+*Sliders (numbers)*
+- Charge Current Limit
+- Reverse Charge Current Limit
+- Car Battery Start Voltage
+- Extension Cable Length  _(disabled)_
+
+*Selects*
+- Operation Mode
 
 </p></details>
 
