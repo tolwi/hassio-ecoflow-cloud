@@ -8,7 +8,7 @@ import voluptuous as vol
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
-    OptionsFlowWithConfigEntry,
+    OptionsFlow,
 )
 from homeassistant.core import callback
 from homeassistant.helpers import device_registry as dr
@@ -428,20 +428,25 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> EcoflowOptionsFlow:
-        return EcoflowOptionsFlow(config_entry)
+        return EcoflowOptionsFlow()
 
 
-class EcoflowOptionsFlow(OptionsFlowWithConfigEntry):
-    def __init__(self, config_entry: ConfigEntry) -> None:
-        super().__init__(config_entry)
-        self.devices: dict[str, DeviceData] = extract_devices(config_entry)
+class EcoflowOptionsFlow(OptionsFlow):
+    def __init__(self) -> None:
+        # HA 2024.12+: config_entry is auto-injected by the framework after __init__.
+        # Device extraction is deferred to async_step_init.
+        self.devices: dict[str, DeviceData] = {}
         self.device_selector = {}
-        for _, device in self.devices.items():
-            self.device_selector[f"{device.name} ({device.sn})"] = device
-
         self.selected_device = None
 
+    def _ensure_devices_loaded(self) -> None:
+        if not self.device_selector:
+            self.devices = extract_devices(self.config_entry)
+            for _, device in self.devices.items():
+                self.device_selector[f"{device.name} ({device.sn})"] = device
+
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
+        self._ensure_devices_loaded()
         if user_input is None:
             return self.async_show_form(
                 step_id="init",
