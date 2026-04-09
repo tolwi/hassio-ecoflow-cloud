@@ -58,7 +58,7 @@
 - Wireless Warning Code (`20_1.wirelessWarnCode`)   _(disabled)_
 - LED Brightness (`20_1.invBrightness`)   _(disabled)_
 - Heartbeat Frequency (`20_1.heartbeatFrequency`)   _(disabled)_
-- Status
+- Status (Scheduled)
 
 *Sliders (numbers)*
 - Min Discharge Level (`20_1.lowerLimit` -> `{"sn": "SN", "cmdCode": "WN511_SET_BAT_LOWER_PACK", "params": {"lowerLimit": "VALUE"}}` [0 - 30])

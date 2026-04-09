@@ -1,5 +1,41 @@
 ## Current state
 ### Devices available with private_api
+<details><summary> ALTERNATOR <i>(sensors: 17, switches: 1, sliders: 4, selects: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Alternator In Power
+- Station Power
+- Alternator Rated Power  _(disabled)_
+- Charging Power Limit  _(disabled)_
+- Station Battery Charge
+- Discharge Remaining Time
+- Charge Remaining Time
+- Car Battery Voltage
+- Alternator Temperature
+- WiFi Signal Strength  _(disabled)_
+- Alternator Status Code  _(disabled)_
+- Operation Mode  _(disabled)_
+- Charge Current Limit  _(disabled)_
+- Reverse Charge Current Limit  _(disabled)_
+- Charge Current Max  _(disabled)_
+- Reverse Charge Current Max  _(disabled)_
+- Status
+
+*Switches*
+- Charging Enabled 
+
+*Sliders (numbers)*
+- Charge Current Limit 
+- Reverse Charge Current Limit 
+- Car Battery Start Voltage 
+- Extension Cable Length 
+
+*Selects*
+- Operation Mode 
+
+</p></details>
+
 <details><summary> DELTA_2 <i>(sensors: 47, switches: 8, sliders: 6, selects: 5)</i> </summary>
 <p>
 
@@ -129,6 +165,80 @@
 - Min Discharge Level 
 - AC Charging Power 
 - Backup Reserve Level 
+
+*Selects*
+- DC (12V) Charge Current 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+- DC (12V) Timeout 
+
+</p></details>
+
+<details><summary> DELTA_3_1500 <i>(sensors: 44, switches: 8, sliders: 4, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- AC In Power (energy:  _[Device Name]_ AC In  Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- AC In Volts
+- AC Out Volts
+- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- DC Out Power
+- Type-C (1) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Slave Battery Level  _(auto)_
+- Slave Design Capacity  _(disabled)_
+- Slave Full Capacity  _(disabled)_
+- Slave Remain Capacity  _(disabled)_
+- Slave State of Health
+- Slave Battery Temperature  _(auto)_
+- Slave Min Cell Temperature  _(disabled)_
+- Slave Max Cell Temperature  _(disabled)_
+- Slave Battery Volts  _(disabled)_
+- Slave Min Cell Volts  _(disabled)_
+- Slave Max Cell Volts  _(disabled)_
+- Slave Cycles  _(auto)_
+- Slave In Power  _(auto)_
+- Slave Out Power  _(auto)_
+- Status
+
+*Switches*
+- Beeper 
+- USB Enabled 
+- AC Always On 
+- Prio Solar Charging 
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+- Backup Reserve Enabled 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- Backup Reserve Level 
+- AC Charging Power 
 
 *Selects*
 - DC (12V) Charge Current 
@@ -1190,6 +1300,25 @@
 
 </p></details>
 
+<details><summary> SMART_PLUG <i>(sensors: 5, switches: 1, sliders: 2)</i> </summary>
+<p>
+
+*Sensors*
+- Temperature
+- Volts
+- Current
+- Power
+- Status
+
+*Switches*
+- On 
+
+*Sliders (numbers)*
+- Brightness 
+- Max Power 
+
+</p></details>
+
 <details><summary> STREAM_AC <i>(sensors: 39)</i> </summary>
 <p>
 
@@ -1920,7 +2049,7 @@
 - Wireless Warning Code  _(disabled)_
 - LED Brightness  _(disabled)_
 - Heartbeat Frequency  _(disabled)_
-- Status
+- Status (Scheduled)
 
 *Sliders (numbers)*
 - Min Discharge Level 
@@ -2488,7 +2617,7 @@
 
 </p></details>
 
-<details><summary> Smart Home Panel (API) <i>(sensors: 30, binary_sensors: 1, switches: 3, sliders: 2)</i> </summary>
+<details><summary> Smart Home Panel (API) <i>(sensors: 30, binary_sensors: 1, switches: 4, sliders: 4, selects: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2528,12 +2657,18 @@
 
 *Switches*
 - EPS Mode 
+- Scheduled Charge 
 - Battery 1 Charge 
 - Battery 2 Charge 
 
 *Sliders (numbers)*
 - Min Discharge Level 
 - Max Charge Level 
+- Scheduled Charge Battery Level 
+- Scheduled Charge Power 
+
+*Selects*
+- Scheduled Charge Battery 
 
 </p></details>
 
@@ -2635,7 +2770,7 @@
 - mpptPv2.pwr
 - mpptPv2.amp
 - mpptPv2.vol
-- Status
+- Status (Scheduled)
 
 </p></details>
 

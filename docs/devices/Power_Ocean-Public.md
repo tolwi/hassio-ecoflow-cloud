@@ -23,6 +23,6 @@
 - mpptPv2.pwr (`96_1.mpptHeartBeat[0].mpptPv[1].pwr`)
 - mpptPv2.amp (`96_1.mpptHeartBeat[0].mpptPv[1].amp`)
 - mpptPv2.vol (`96_1.mpptHeartBeat[0].mpptPv[1].vol`)
-- Status
+- Status (Scheduled)
 
 
