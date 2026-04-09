@@ -4,6 +4,7 @@ from typing import Type
 from custom_components.ecoflow_cloud.devices import BaseDevice, DiagnosticDevice
 
 from custom_components.ecoflow_cloud.devices.internal import (
+    alternator as internal_alternator,
     delta2 as internal_delta2,
     delta2_max as internal_delta2_max,
     delta3 as internal_delta3,
@@ -22,6 +23,7 @@ from custom_components.ecoflow_cloud.devices.internal import (
     river_mini as internal_river_mini,
     river_pro as internal_river_pro,
     smart_meter as internal_smart_meter,
+    smart_plug as internal_smart_plug,
     stream_ac as internal_stream_ac,
     wave2 as internal_wave2,
 )
@@ -50,6 +52,7 @@ from custom_components.ecoflow_cloud.devices.public import (
 
 devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]](
     {
+        "ALTERNATOR": internal_alternator.Alternator,
         "DELTA_2": internal_delta2.Delta2,
         "DELTA_3": internal_delta3.Delta3,
         "DELTA_3_1500": internal_delta3_1500.Delta31500,
@@ -69,6 +72,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "GLACIER": internal_glacier.Glacier,
         "WAVE_2": internal_wave2.Wave2,
         "SMART_METER": internal_smart_meter.SmartMeter,
+        "SMART_PLUG": internal_smart_plug.SmartPlug,
         "STREAM_AC": internal_stream_ac.StreamAC,
         "STREAM_PRO": internal_stream_ac.StreamAC,
         "STREAM_ULTRA": internal_stream_ac.StreamAC,

@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+message SmartPlugHeader {
+    bytes pdata = 1;
+    int32 src = 2;
+    int32 dest = 3;
+    int32 dSrc = 4;
+    int32 dDest = 5;
+    int32 encType = 6;
+    int32 checkType = 7;
+    int32 cmdFunc = 8;
+    int32 cmdId = 9;
+    int32 dataLen = 10;
+    int32 needAck = 11;
+    int32 isAck = 12;
+    int32 seq = 14;
+    int32 productId = 15;
+    int32 version = 16;
+    int32 payloadVer = 17;
+    optional int32 timeSnap = 18;
+    optional int32 isRwCmd = 19;
+    optional int32 isQueue = 20;
+    optional int32 ackType = 21;
+    optional string code = 22;
+    optional string from = 23;
+    optional string moduleSn = 24;
+    optional string deviceSn = 25;
+    optional string srcSn = 26;
+    optional string destSn = 27;
+}
+
+message SendSmartPlugHeaderMsg {
+    repeated SmartPlugHeader msg = 1;
+}
+
+// SmartPlugHeader.pdata payload when cmd_func=2 and cmd_id=1.
+message WnPlugHeartbeatPack {
+    optional int32 errCode = 1;
+    optional int32 warnCode = 2;
+    optional uint32 country = 3;
+    optional uint32 town = 4;
+    optional int32 maxCur = 5;
+    optional int32 temp = 6;
+    optional int32 freq = 7;
+    optional int32 current = 8;
+    optional int32 volt = 9;
+    optional int32 watts = 10;
+    optional bool switchSta = 11;
+    optional int32 brightness = 12;
+    optional int32 maxWatts = 13;
+    optional int32 heartbeatFrequency = 14;
+    optional int32 meshEnable = 15;
+    optional uint32 resetReason = 16;
+    optional uint32 rtcResetReason = 17;
+    optional uint32 resetCount = 18;
+    optional uint32 runTime = 19;
+    optional uint32 lanState = 20;
+    optional uint32 stackFree = 21;
+    optional uint32 stackMinFree = 22;
+    optional uint32 meshId = 23;
+    optional uint32 meshLevel = 24;
+    optional uint32 selfMac = 25;
+    optional uint32 parentMac = 26;
+    optional int32 otaDlErr = 27;
+    optional int32 otaDlTlsErr = 28;
+    optional int32 staIpAddr = 29;
+    optional int32 matterFabric = 30;
+    optional uint32 geneNum = 31;
+    optional uint32 consNum = 32;
+    optional uint32 geneWatt = 33;
+    optional uint32 consWatt = 34;
+    optional int32 wifiErr = 35;
+    optional int32 wifiErrTime = 36;
+    optional int32 mqttErr = 37;
+    optional int32 mqttErrTime = 38;
+    optional int32 selfEmsSwitch = 39;
+    optional int32 parentWifiRssi = 40;
+    optional int32 insightsSwitch = 41;
+    optional int32 rssiThreshold = 42;
+    optional int32 rssiVariance = 43;
+    optional uint32 utcTime = 44;
+    optional int32 timeZone = 45;
+    optional int32 dstTime = 46;
+}
+
+// SmartPlugHeader.pdata payload when cmd_func=2 and cmd_id=129.
+message WnPlugSwitchMessage {
+    bool switchSta = 1;
+}
+
+// SmartPlugHeader.pdata payload when cmd_func=2 and cmd_id=130.
+message WnBrightnessPack {
+    int32 brightness = 1;
+}
+
+// SmartPlugHeader.pdata payload when cmd_func=2 and cmd_id=137.
+message WnMaxWattsPack {
+    int32 maxWatts = 1;
+}
+
+// SmartPlugHeader.pdata payload when cmd_func=2 and cmd_id=2.
+message WnTimetaskReadMessage {
+    optional WnTimetaskSetMessage task1 = 1;
+    optional WnTimetaskSetMessage task2 = 2;
+    optional WnTimetaskSetMessage task3 = 3;
+    optional WnTimetaskSetMessage task4 = 4;
+    optional WnTimetaskSetMessage task5 = 5;
+    optional WnTimetaskSetMessage task6 = 6;
+    optional WnTimetaskSetMessage task7 = 7;
+    optional WnTimetaskSetMessage task8 = 8;
+    optional WnTimetaskSetMessage task9 = 9;
+    optional WnTimetaskSetMessage task10 = 10;
+    optional WnTimetaskSetMessage task11 = 11;
+}
+
+message WnTimetaskSetMessage {
+    uint32 taskIndex = 1;
+    WnTimeRangeStrategy timeRange = 2;
+    uint32 type = 3;
+    optional int32 dstTime = 4;
+}
+
+message WnTimetaskDelMessage {
+    uint32 taskIndex = 1;
+}
+
+message WnTimeRangeStrategy {
+    uint32 isConfig = 1;
+    uint32 isEnable = 2;
+    uint32 timeMode = 3;
+    uint32 timeData = 4;
+    WnTimeRtcData startTime = 5;
+    WnTimeRtcData stopTime = 6;
+}
+
+message WnTimeRtcData {
+    optional int32 week = 1;
+    optional int32 sec = 2;
+    optional int32 min = 3;
+    optional int32 hour = 4;
+    optional int32 day = 5;
+    optional int32 month = 6;
+    optional int32 year = 7;
+}
+
+enum CmdFunc {
+    CMD_FUNC_NONE = 0;
+    CMD_FUNC_WN_SMART_PLUG = 2;
+}
+
+enum WnCmdId {
+    CMD_ID_NONE = 0;
+    CMD_ID_DATA = 1;
+    CMD_ID_TIMER_AUTOMATION_READ = 2;
+    CMD_ID_CHANGE_SWITCH_STATUS = 129;
+    CMD_ID_SET_BRIGHTNESS = 130;
+    CMD_ID_SET_MAX_WATTS = 137;
+}

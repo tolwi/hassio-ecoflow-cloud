@@ -229,6 +229,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # is used for entity setup.
     await api_client.quota_all(None)
 
+    for device in api_client.devices.values():
+        await device.async_restore_state()
+
     # Forward entry setup to the platforms to set up the entities
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
 

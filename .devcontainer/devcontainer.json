@@ -1,7 +1,7 @@
 {
   "image": "dcbr/hass-custom-devcontainer",
   "postCreateCommand": "sudo -E container setup",
-  "postStartCommand": "if [ -f /workspace/.devcontainer/.env ]; then set -a && . /workspace/.devcontainer/.env && set +a && python3 /workspace/.devcontainer/setup_ecoflow_config.py; fi && sudo -E container launch",
+  "postStartCommand": "if [ -f /workspace/.devcontainer/.env ]; then set -a && . /workspace/.devcontainer/.env && set +a && sudo -E python3 /workspace/.devcontainer/setup_ecoflow_config.py; fi && sudo -E container launch",
   "appPort": ["8123:8123", "7357:4357"],
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind"
