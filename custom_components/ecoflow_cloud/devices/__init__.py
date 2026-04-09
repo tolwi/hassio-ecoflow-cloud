@@ -55,6 +55,7 @@ class EcoflowDeviceInfo:
 @dataclasses.dataclass
 class EcoflowBroadcastDataHolder:
     data_holder: EcoflowDataHolder
+    received_time: datetime.datetime
     changed: bool
 
 
@@ -69,7 +70,11 @@ class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataH
             hass,
             _LOGGER,
             name="Ecoflow update coordinator",
-            always_update=True,
+            # Let DataUpdateCoordinator suppress updates when the returned
+            # EcoflowBroadcastDataHolder is equal to the previous one.
+            # This avoids waking every entity on every tick when no new data
+            # has arrived.
+            always_update=False,
             update_interval=datetime.timedelta(seconds=max(refresh_period, 5)),
         )
         self.holder = holder
@@ -78,8 +83,16 @@ class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataH
     async def _async_update_data(self) -> EcoflowBroadcastDataHolder:
         received_time = self.holder.last_received_time()
         changed = self.__last_broadcast < received_time
+        _LOGGER.debug(
+            "Coordinator update check: last_broadcast=%s received_time=%s changed=%s",
+            self.__last_broadcast,
+            received_time,
+            changed,
+        )
         self.__last_broadcast = received_time
-        return EcoflowBroadcastDataHolder(self.holder, changed)
+        # Include received_time in the coordinator data so DataUpdateCoordinator
+        # can detect updates even though the holder object identity is stable.
+        return EcoflowBroadcastDataHolder(self.holder, received_time, changed)
 
 
 class BaseDevice(ABC):
