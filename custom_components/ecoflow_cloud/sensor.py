@@ -407,6 +407,7 @@ class InAmpSensorEntity(AmpSensorEntity):
 
 class InRawAmpSolarSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:solar-power"
+    _attr_suggested_display_precision = 2
 
 class OutMilliampSensorEntity(MilliampSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
