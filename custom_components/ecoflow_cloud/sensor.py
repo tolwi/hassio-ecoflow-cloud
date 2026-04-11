@@ -383,6 +383,11 @@ class OutVoltSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
 
 
+class InRawVoltSolarSensorEntity(VoltSensorEntity):
+    _attr_icon = "mdi:solar-power"
+    _attr_suggested_display_precision = 0
+
+
 class InVoltSolarSensorEntity(VoltSensorEntity):
     _attr_icon = "mdi:solar-power"
 
