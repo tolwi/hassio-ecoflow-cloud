@@ -108,10 +108,10 @@ class DeltaPro3(BaseInternalDevice):
             OutVoltDcSensorEntity(client, self, "pow_get_24v_vol", "24V DC Output Voltage"),
             InRawWattsSolarSensorEntity(client, self, "pow_get_pv_h", "Solar High Voltage Input Power"),
             InRawWattsSolarSensorEntity(client, self, "pow_get_pv_l", "Solar Low Voltage Input Power"),
-            InVoltSolarSensorEntity(client, self, "pow_get_pv_h_vol", "Solar HV Input Voltage"),
-            InVoltSolarSensorEntity(client, self, "pow_get_pv_l_vol", "Solar LV Input Voltage"),
-            InMilliampSolarSensorEntity(client, self, "pow_get_pv_h_amp", "Solar HV Input Current"),
-            InMilliampSolarSensorEntity(client, self, "pow_get_pv_l_amp", "Solar LV Input Current"),
+            VoltSensorEntity(client, self, "plug_in_info_pv_h_vol", "Solar HV Input Voltage"),
+            VoltSensorEntity(client, self, "plug_in_info_pv_l_vol", "Solar LV Input Voltage"),
+            AmpSensorEntity(client, self, "plug_in_info_pv_h_amp", "Solar HV Input Current"),
+            AmpSensorEntity(client, self, "plug_in_info_pv_l_amp", "Solar LV Input Current"),
             OutWattsSensorEntity(client, self, "pow_get_qcusb1", const.USB_QC_1_OUT_POWER),
             OutWattsSensorEntity(client, self, "pow_get_qcusb2", const.USB_QC_2_OUT_POWER),
             OutWattsSensorEntity(client, self, "pow_get_typec1", const.TYPEC_1_OUT_POWER),
@@ -126,8 +126,8 @@ class DeltaPro3(BaseInternalDevice):
             # Note: accuChgEnergy and accuDsgEnergy are in Wh, multiply by 0.001 for kWh display
             # These fields do not exist in DisplayPropertyUpload - they come from BMSHeartBeatReport
             # Using camelCase to match upstream pattern (see stream_ac.py)
-            InEnergySensorEntity(client, self, "accuChgEnergy", "Total Charge Energy"),
-            OutEnergySensorEntity(client, self, "accuDsgEnergy", "Total Discharge Energy"),
+            InEnergySensorEntity(client, self, "accu_chg_energy", "Total Charge Energy"),
+            OutEnergySensorEntity(client, self, "accu_dsg_energy", "Total Discharge Energy"),
             # Note: The following fields do not exist in any Delta Pro 3 protobuf messages:
             # - pow_in_sum_energy (Total Input Energy)
             # - pow_out_sum_energy (Total Output Energy)
