@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import logging
 import ssl
-import time
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from homeassistant.core import callback
 from paho.mqtt.client import Client, ConnectFlags, DisconnectFlags, MQTTMessage, PayloadType
@@ -89,6 +88,8 @@ class EcoflowMQTTClient:
             # when there is a broken pipe error.
             return
         self.connected = False
+        if reason_code.is_failure:
+            self.__log_with_reason("disconnect", client, userdata, reason_code)
 
         # Handle both paho-mqtt v1 (3 args) and v2 (5 args) callback styles
         if reason_code is None:
@@ -105,31 +106,12 @@ class EcoflowMQTTClient:
     def _on_message(self, client, userdata, message: MQTTMessage):
         try:
             for sn, device in self.__devices.items():
-                try:
-                    if device.update_data(message.payload, message.topic):
-                        _LOGGER.debug(
-                            "Message for %s and Topic %s : %s",
-                            sn,
-                            message.topic,
-                            message.payload.hex(),
-                        )
-                except UnicodeDecodeError as error:
-                    _LOGGER.error(
-                        "UnicodeDecodeError for device %s topic %s: %s. Ignoring message.",
-                        sn,
-                        message.topic,
-                        error,
-                    )
-                except Exception:
-                    # Any uncaught exception here risks killing the MQTT loop thread and
-                    # silently stopping all subsequent updates.
-                    _LOGGER.exception(
-                        "Unhandled exception processing MQTT message for device %s topic %s",
-                        sn,
-                        message.topic,
-                    )
+                if device.update_data(message.payload, message.topic):
+                    _LOGGER.debug(f"Message for {sn} and Topic {message.topic} : {message.payload.hex()}")
+        except UnicodeDecodeError as error:
+            _LOGGER.error(f"UnicodeDecodeError: {error}. Ignoring message and waiting for the next one.")
         except Exception:
-            _LOGGER.exception("Unhandled exception in MQTT on_message callback")
+            _LOGGER.error("Unexpected error processing MQTT message on topic %s", message.topic, exc_info=True)
 
     def stop(self):
         self.__client.unsubscribe(self.__target_topics())
@@ -144,9 +126,9 @@ class EcoflowMQTTClient:
             info = self.__client.publish(topic, message, 1)
             _LOGGER.debug("Sending " + str(message) + " :" + str(info) + "(" + str(info.is_published()) + ")")
         except RuntimeError as error:
-            _LOGGER.error(error, "Error on topic " + topic + " and message " + str(message))
+            _LOGGER.error("Error on topic %s and message %s: %s", topic, message, error)
         except Exception as error:
-            _LOGGER.debug(error, "Error on topic " + topic + " and message " + str(message))
+            _LOGGER.debug("Error on topic %s and message %s: %s", topic, message, error)
 
     def __target_topics(self) -> list[str]:
         topics = []
