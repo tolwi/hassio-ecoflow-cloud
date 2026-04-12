@@ -41,9 +41,7 @@ class EcoflowMQTTClient:
         self.__client.on_message = self._on_message
         self.__client.on_socket_close = self._on_socket_close
 
-        _LOGGER.info(
-            f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}"
-        )
+        _LOGGER.info(f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}")
         self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, keepalive=15)
         self.__client.loop_start()
 
@@ -66,9 +64,7 @@ class EcoflowMQTTClient:
         _LOGGER.info(f"MQTT Socket disconnection : {str(sock)}")
 
     @callback
-    def _on_connect(
-        self, client: Client, userdata: Any, flags: ConnectFlags, rc: ReasonCode, properties: Properties | None = None
-    ):
+    def _on_connect(self, client: Client, userdata: Any, flags: ConnectFlags, rc: ReasonCode, properties: Properties | None = None):
         if rc == 0:
             self.connected = True
             target_topics = [(topic, 1) for topic in self.__target_topics()]
@@ -82,9 +78,9 @@ class EcoflowMQTTClient:
         self,
         client: Client,
         userdata: Any,
-        disconnect_flags: DisconnectFlags,
-        reason_code: ReasonCode,
-        properties: Properties | None,
+        disconnect_flags_or_rc: None | DisconnectFlags | int | ReasonCode = None,
+        reason_code: ReasonCode | None = None,
+        properties: Properties | None = None,
     ) -> None:
         if not self.connected:
             # from homeassistant/components/mqtt/client.py
@@ -94,6 +90,17 @@ class EcoflowMQTTClient:
         self.connected = False
         if reason_code.is_failure:
             self.__log_with_reason("disconnect", client, userdata, reason_code)
+
+        # Handle both paho-mqtt v1 (3 args) and v2 (5 args) callback styles
+        if reason_code is None:
+            # v1 style: disconnect_flags_or_rc is actually the return code
+            rc = disconnect_flags_or_rc
+            if rc is not None and rc != 0:
+                _LOGGER.error(f"MQTT disconnect: rc={rc} ({self.__mqtt_info.client_id}) - {userdata}")
+        else:
+            # v2 style: we have DisconnectFlags and ReasonCode
+            if reason_code.is_failure:
+                self.__log_with_reason("disconnect", client, userdata, reason_code)
 
     @callback
     def _on_message(self, client, userdata, message: MQTTMessage):
