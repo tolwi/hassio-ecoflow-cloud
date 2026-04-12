@@ -79,22 +79,25 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         return device
 
     async def quota_all(self, device_sn: str | None):
-        if not device_sn:
-            target_devices = list(self.devices)
-            # update all statuses
+        target_devices = [device_sn] if device_sn else list(self.devices)
+
+        # Always fetch the authoritative online status from the device list.
+        # The quota endpoint returns cached data even for offline devices, so we
+        # cannot infer online/offline from whether data is present.
+        online_by_sn: dict[str, bool] = {}
+        try:
             devices = await self.fetch_all_available_devices()
             for device in devices:
-                if device.sn in self.devices:
-                    status = device.status == 1
-                    self.devices[device.sn].data.add_data(PreparedData(status, None, None))
-        else:
-            target_devices = [device_sn]
+                online_by_sn[device.sn] = device.status == 1
+        except Exception as exception:
+            _LOGGER.error("Error fetching device list for status: %s", exception)
 
         for sn in target_devices:
+            is_online = online_by_sn.get(sn)  # None means device list fetch failed
             try:
                 raw = await self.call_api("/device/quota/all", {"sn": sn})
-                if "data" in raw:
-                    self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw))
+                params = {"params": raw["data"]} if raw.get("data") and is_online else None
+                self.devices[sn].data.add_data(PreparedData(is_online, params, raw))
             except Exception as exception:
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Error retrieving %s", sn)

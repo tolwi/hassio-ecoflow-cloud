@@ -410,9 +410,11 @@ class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
     _attr_suggested_display_precision = 2
 
+
 class InRawAmpSolarSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:solar-power"
     _attr_suggested_display_precision = 2
+
 
 class OutMilliampSensorEntity(MilliampSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
@@ -513,7 +515,10 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
         changed = self._actualize_status() or changed
 
         if changed:
-            self.coordinator.data.data_holder.online = self._online == _OnlineStatus.ONLINE
+            if self._online != _OnlineStatus.ASSUME_OFFLINE:
+                self.coordinator.data.data_holder.online = self._online == _OnlineStatus.ONLINE
+            # assume_offline: leave data_holder.online untouched to avoid
+            # resetting sensor values during transient API gaps
 
             if self._device.device_data.options.verbose_status_mode or self._online in {
                 _OnlineStatus.ONLINE,
@@ -762,4 +767,4 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
         if input_val is None or output_val is None or input_val is STATE_UNKNOWN or output_val is STATE_UNKNOWN:
             self._difference = None
             return
-        self._difference = float(output_val) - float(input_val)        
+        self._difference = float(output_val) - float(input_val)
