@@ -31,7 +31,6 @@ from custom_components.ecoflow_cloud.sensor import (
     MiscSensorEntity,
     QuotaScheduledStatusSensorEntity,
     RemainSensorEntity,
-    StatusSensorEntity,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -98,7 +97,6 @@ class PowerStream(BaseDevice):
             MiscSensorEntity(client, self, "20_1.wirelessWarnCode", "Wireless Warning Code", False),
             MiscSensorEntity(client, self, "20_1.invBrightness", "LED Brightness", False),
             MiscSensorEntity(client, self, "20_1.heartbeatFrequency", "Heartbeat Frequency", False),
-            StatusSensorEntity(client, self),
             self._status_sensor(client),
         ]
 
