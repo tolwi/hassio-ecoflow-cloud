@@ -29,7 +29,11 @@ from custom_components.ecoflow_cloud.sensor import (
     StatusSensorEntity,
     TempSensorEntity,
 )
-from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
+from custom_components.ecoflow_cloud.switch import (
+    BeeperEntity,
+    BypassBanSwitch,
+    EnabledEntity,
+)
 
 
 class Delta31500ChargingStateSensorEntity(ChargingStateSensorEntity):
@@ -254,6 +258,19 @@ class Delta31500(BaseInternalDevice):
                     "operateType": "watthConfig",
                     "params": {"bpPowerSoc": value * 50, "minChgSoc": 0, "isConfig": value, "minDsgSoc": 0},
                 },
+            ),
+            BypassBanSwitch(
+                client,
+                self,
+                "pd.reserved",
+                const.GRID_BYPASS,
+                lambda value: {
+                    "moduleType": 1,
+                    "operateType": "bypassBan",
+                    "params": {"banBypassEn": int(value)},
+                },
+                enableValue=1,
+                disableValue=0,
             ),
         ]
 
