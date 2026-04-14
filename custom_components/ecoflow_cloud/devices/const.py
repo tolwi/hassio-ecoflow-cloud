@@ -268,6 +268,7 @@ XBOOST_ENABLED = "X-Boost Enabled"
 AC_ALWAYS_ENABLED = "AC Always On"
 PV_PRIO = "Prio Solar Charging"
 BP_ENABLED = "Backup Reserve Enabled"
+GRID_BYPASS = "Grid Bypass"
 AUTO_FAN_SPEED = "Auto Fan Speed"
 AC_SLOW_CHARGE = "AC Slow Charging"
 

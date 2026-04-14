@@ -202,3 +202,27 @@ class InvertedBeeperEntity(EnabledEntity):
             return "mdi:volume-high"
         else:
             return "mdi:volume-mute"
+
+
+class BypassBanSwitch(EnabledEntity):
+    """Grid-bypass switch controlled by the EcoFlow ``bypassBan`` command.
+
+    Used by devices that do not publish the bypass flag as a scalar in
+    push telemetry, but mirror it as index ``[1]`` of an array-valued
+    quota field (e.g. ``pd.reserved`` on DELTA 3 1500). The second
+    element of the array is interpreted as the bypass state:
+
+      0 -> grid bypass enabled  (battery charges from AC input)
+      1 -> grid bypass disabled (battery runs standalone, no charging)
+
+    When the switch is ON, the grid bypass is disabled (matching the
+    "Disable grid bypass" toggle in the EcoFlow mobile app).
+    """
+
+    def _update_value(self, val: Any) -> bool:
+        if isinstance(val, list) and len(val) >= 2:
+            new_state = val[1] == 1
+            if self._attr_is_on != new_state:
+                self._attr_is_on = new_state
+                return True
+        return False
