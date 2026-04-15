@@ -45,7 +45,11 @@ from custom_components.ecoflow_cloud.sensor import (
     TempSensorEntity,
     VoltSensorEntity,
 )
-from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
+from custom_components.ecoflow_cloud.switch import (
+    BeeperEntity,
+    BypassBanScalarSwitch,
+    EnabledEntity,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -106,6 +110,192 @@ def _create_delta3_proto_command(field_name: str, value: int, device_sn: str, da
     message.pdata = pdata
 
     return Delta3CommandMessage(payload, packet)
+
+
+def _create_delta3_bypass_ban_command(value: int, device_sn: str) -> "Delta3CommandMessage":
+    """Create a protobuf command for bypassBan / ban_bypass_en on DELTA 3.
+
+    Field 26 of ``Delta3SetCommand`` — discovered via MQTT sniffing, not
+    yet defined in the generated ``ef_delta3_pb2`` schema, so the pdata
+    is crafted manually as a 3-byte varint encoding:
+
+      tag   = (26 << 3) | 0 = 208 -> varint "d0 01"
+      value = 0 or 1              (1 byte varint)
+
+    Semantics match DELTA 3 1500 ``banBypassEn``:
+      value=0 -> grid bypass enabled  (battery charges from AC input)
+      value=1 -> grid bypass disabled (battery runs standalone, no charging)
+    """
+    pdata = bytes([0xD0, 0x01, 1 if value else 0])
+
+    packet = delta3_pb2.Delta3SendHeaderMsg()
+    message = packet.msg.add()
+    message.src = 32
+    message.dest = 2
+    message.d_src = 1
+    message.d_dest = 1
+    message.cmd_func = 254
+    message.cmd_id = 17
+    message.need_ack = 1
+    message.seq = Message.gen_seq()
+    message.product_id = 1
+    message.version = 19
+    message.payload_ver = 1
+    message.device_sn = device_sn
+    message.data_len = len(pdata)
+    message.pdata = pdata
+
+    # Empty Delta3SetCommand as "payload" placeholder for MessageToDict
+    # logging in Delta3CommandMessage.to_dict. The real wire bytes live
+    # in packet.msg[0].pdata.
+    dummy_payload = delta3_pb2.Delta3SetCommand()
+    return Delta3CommandMessage(dummy_payload, packet)
+
+
+def _create_delta3_ac_charging_power_command(value: int, device_sn: str) -> "Delta3CommandMessage":
+    """Create a protobuf command for AC charging power on DELTA 3.
+
+    The EcoFlow DELTA 3 firmware silently ignores SET commands that only
+    carry field 54 (``plug_in_info_ac_in_chg_pow_max``), even though the
+    proto declares field 54 as the standalone attribute for this setting.
+    Capturing traffic from the mobile app shows the app always sends
+    field 54 together with ``field 125 = 0`` — an undeclared companion
+    field that appears to act as a commit/apply flag. Without it, the
+    device ACKs the command but does not actually update its internal
+    setpoint, so tolwi's generic ``_create_delta3_proto_command`` path
+    is read-only for this entity.
+
+    Field 125 is not declared in the generated ``ef_delta3_pb2`` schema,
+    so pdata is crafted manually. The resulting wire bytes match the
+    app's captured packets exactly: ``b0 03 <value_varint> e8 07 00``.
+    """
+    def _encode_varint(v: int) -> bytes:
+        out = bytearray()
+        while True:
+            byte = v & 0x7F
+            v >>= 7
+            if v:
+                out.append(byte | 0x80)
+            else:
+                out.append(byte)
+                break
+        return bytes(out)
+
+    # Field 54 varint tag: (54 << 3) | 0 = 432 -> varint "b0 03"
+    # Field 125 varint tag: (125 << 3) | 0 = 1000 -> varint "e8 07"
+    pdata = bytes([0xB0, 0x03]) + _encode_varint(int(value)) + bytes([0xE8, 0x07, 0x00])
+
+    packet = delta3_pb2.Delta3SendHeaderMsg()
+    message = packet.msg.add()
+    message.src = 32
+    message.dest = 2
+    message.d_src = 1
+    message.d_dest = 1
+    message.cmd_func = 254
+    message.cmd_id = 17
+    message.need_ack = 1
+    message.seq = Message.gen_seq()
+    message.product_id = 1
+    message.version = 19
+    message.payload_ver = 1
+    message.device_sn = device_sn
+    message.data_len = len(pdata)
+    message.pdata = pdata
+
+    # Empty Delta3SetCommand as placeholder payload for logging.
+    dummy_payload = delta3_pb2.Delta3SetCommand()
+    return Delta3CommandMessage(dummy_payload, packet)
+
+
+def _extract_proto_varint_field(data: bytes, target_field: int) -> int | None:
+    """Extract a single varint field from raw protobuf bytes by tag number.
+
+    Used to read fields that are present on the wire but not declared in
+    the generated ``ef_delta3_pb2`` schema (e.g. field 146 =
+    ``ban_bypass_en`` in ``Delta3DisplayPropertyUpload``).
+
+    Returns the int value or ``None`` if the field is not present.
+    """
+    pos = 0
+    n = len(data)
+    while pos < n:
+        # Read tag varint
+        tag = 0
+        shift = 0
+        while pos < n:
+            b = data[pos]
+            pos += 1
+            tag |= (b & 0x7F) << shift
+            if not (b & 0x80):
+                break
+            shift += 7
+        fn = tag >> 3
+        wt = tag & 0x7
+        if wt == 0:  # varint
+            v = 0
+            shift = 0
+            while pos < n:
+                b = data[pos]
+                pos += 1
+                v |= (b & 0x7F) << shift
+                if not (b & 0x80):
+                    break
+                shift += 7
+            if fn == target_field:
+                return v
+        elif wt == 1:  # 64-bit
+            pos += 8
+        elif wt == 2:  # length-delimited
+            length = 0
+            shift = 0
+            while pos < n:
+                b = data[pos]
+                pos += 1
+                length |= (b & 0x7F) << shift
+                if not (b & 0x80):
+                    break
+                shift += 7
+            pos += length
+        elif wt == 5:  # 32-bit
+            pos += 4
+        else:
+            return None
+    return None
+
+
+def _create_delta3_get_quota_command() -> "Delta3CommandMessage":
+    """Build a protobuf 'get all' request that fetches the full device snapshot.
+
+    Mirrors the EcoFlow mobile app behavior when opening the device page:
+    publishes a ``Delta3SendHeaderMsg`` containing a single empty
+    ``Delta3Header`` with only ``src``/``dest``/``seq``/``from`` set. The
+    device firmware interprets this as "send everything you have" and
+    replies on the ``thing/property/get_reply`` topic with a multi-header
+    snapshot (Display + Runtime + BMS + CMS reports).
+
+    This is the only path that delivers sparse-delta-only fields like
+    ``ban_bypass_en`` (Display field 146) at HA startup, without waiting
+    for the user to toggle the bypass from the app or from HA.
+
+    Tolwi's ``PrivateAPIClient.quota_all`` calls
+    :meth:`Delta3.get_quota_message` during integration setup
+    (``custom_components/ecoflow_cloud/__init__.py``), so the snapshot is
+    fetched automatically on every HA restart.
+    """
+    packet = delta3_pb2.Delta3SendHeaderMsg()
+    header = packet.msg.add()
+    header.src = 32
+    header.dest = 32
+    header.seq = Message.gen_seq()
+    # ``from`` is a Python reserved word; Delta3Header field 23 is named
+    # "from" in the proto, so we set it via setattr.
+    setattr(header, "from", "HomeAssistant")
+
+    # Empty Delta3SetCommand acts as a placeholder payload for
+    # Delta3CommandMessage.to_dict() diagnostics. The wire payload is
+    # the serialized packet, which contains no pdata for this request.
+    dummy_payload = delta3_pb2.Delta3SetCommand()
+    return Delta3CommandMessage(dummy_payload, packet)
 
 
 def _create_delta3_energy_backup_command(energy_backup_en: int | None, energy_backup_start_soc: int, device_sn: str):
@@ -261,10 +451,10 @@ class Delta3(BaseInternalDevice):
                 self,
                 "plug_in_info_ac_in_chg_pow_max",
                 const.AC_CHARGING_POWER,
-                50,
-                305,
-                lambda value: _create_delta3_proto_command(
-                    "plug_in_info_ac_in_chg_pow_max", int(value), device.device_data.sn
+                100,
+                1500,
+                lambda value: _create_delta3_ac_charging_power_command(
+                    int(value), device.device_data.sn
                 ),
             ),
             BatteryBackupLevel(
@@ -340,6 +530,17 @@ class Delta3(BaseInternalDevice):
                     params.get("energy_backup_start_soc", 5) if params else 5,
                     device.device_data.sn,
                 ),
+            ),
+            BypassBanScalarSwitch(
+                client,
+                self,
+                "ban_bypass_en",
+                const.GRID_BYPASS,
+                lambda value, params=None: _create_delta3_bypass_ban_command(
+                    int(value), device.device_data.sn
+                ),
+                enableValue=1,
+                disableValue=0,
             ),
         ]
 
@@ -420,6 +621,75 @@ class Delta3(BaseInternalDevice):
             "params": flat_dict or {},
             "all_fields": decoded_data or {},
         }
+
+    @override
+    def get_quota_message(self) -> "Delta3CommandMessage":
+        """Return the protobuf 'get all' request used by quota_all().
+
+        The base ``BaseInternalDevice`` returns a JSON ``latestQuotas``
+        message which the protobuf-only DELTA 3 firmware silently ignores.
+        Overriding here lets HA proactively fetch the full device snapshot
+        at integration setup (and on every quota refresh), populating
+        sparse-delta-only fields such as ``ban_bypass_en`` before the
+        first user interaction.
+        """
+        return _create_delta3_get_quota_command()
+
+    @override
+    def _prepare_data_get_reply_topic(self, raw_data: bytes) -> PreparedData:
+        """Decode a multi-header ``thing/property/get_reply`` snapshot.
+
+        EcoFlow's get_reply contains a full state dump as a
+        ``Delta3HeaderMessage`` with several headers (Display, Runtime,
+        BMS heartbeat, CMS heartbeat). The base class ``_prepare_data``
+        path only handles a single header, so this override iterates
+        every header, decodes it via :meth:`_decode_message_by_type`,
+        and merges the resulting dicts.
+
+        This is the path that delivers ``ban_bypass_en`` (Display field
+        146) right after HA setup, without requiring the user to open
+        the EcoFlow mobile app or toggle anything.
+        """
+        try:
+            import base64
+
+            try:
+                raw_data = base64.b64decode(raw_data, validate=True)
+            except Exception as e:
+                _LOGGER.debug("[Delta3] get_reply base64 decode failed: %s", e)
+
+            header_msg = delta3_pb2.Delta3HeaderMessage()
+            header_msg.ParseFromString(raw_data)
+        except Exception as e:
+            _LOGGER.debug("[Delta3] get_reply parse failed: %s", e)
+            return PreparedData(None, None, {"proto": raw_data.hex()})
+
+        merged: dict[str, Any] = {}
+        for header in header_msg.header:
+            try:
+                header_info = {
+                    "src": getattr(header, "src", 0),
+                    "encType": getattr(header, "enc_type", 0),
+                    "seq": getattr(header, "seq", 0),
+                    "cmdFunc": getattr(header, "cmd_func", 0),
+                    "cmdId": getattr(header, "cmd_id", 0),
+                }
+                pdata = getattr(header, "pdata", b"")
+                if not pdata:
+                    continue
+                decoded_pdata = self._perform_xor_decode(pdata, header_info)
+                decoded = self._decode_message_by_type(decoded_pdata, header_info)
+                if decoded:
+                    merged.update(decoded)
+            except Exception as e:
+                _LOGGER.debug("[Delta3] get_reply header decode failed: %s", e)
+                continue
+
+        if not merged:
+            return PreparedData(None, None, {"proto": raw_data.hex()})
+
+        flat = self._flatten_dict(merged)
+        return PreparedData(None, {"params": flat, "all_fields": merged}, {"proto": raw_data.hex()})
 
     def _decode_header_message(self, raw_data: bytes) -> dict[str, Any] | None:
         """Decode HeaderMessage and extract header info."""
@@ -508,7 +778,16 @@ class Delta3(BaseInternalDevice):
             if cmd_func == 254 and cmd_id == 21:
                 msg_display_upload = delta3_pb2.Delta3DisplayPropertyUpload()
                 msg_display_upload.ParseFromString(pdata)
-                return self._protobuf_to_dict(msg_display_upload)
+                result = self._protobuf_to_dict(msg_display_upload)
+                # Inject ban_bypass_en (proto field 146) which is not declared
+                # in the tolwi ef_delta3.proto schema. The device only sends
+                # this field when the bypass state changes (push delta) or in
+                # full snapshots (get_reply), so its absence in a delta must
+                # not overwrite the previously known value.
+                ban_bypass = _extract_proto_varint_field(pdata, 146)
+                if ban_bypass is not None:
+                    result["ban_bypass_en"] = ban_bypass
+                return result
 
             elif cmd_func == 254 and cmd_id == 22:
                 msg_runtime_upload = delta3_pb2.Delta3RuntimePropertyUpload()
