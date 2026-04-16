@@ -9,8 +9,7 @@ import time
 
 import aiohttp
 
-from ..device_data import DeviceData
-from ..devices import DiagnosticDevice, EcoflowDeviceInfo
+from ..devices import EcoflowDeviceInfo
 from . import EcoflowApiClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -59,33 +58,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                         break
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
-            result.append(self.__create_device_info(sn, device_name, product_name, status))
+            result.append(self._create_device_info(sn, device_name, product_name, status))
 
         return result
 
-    def configure_device(self, device_data: DeviceData, api_devices_info: dict[str, Any] | None = None):
-        # Extract device SN and look up current status from API
-        sn = device_data.parent.sn if device_data.parent is not None else device_data.sn
-        status = -1
-        if api_devices_info and sn in api_devices_info:
-            status = api_devices_info[sn].status
-
-        if device_data.parent is not None:
-            info = self.__create_device_info(device_data.parent.sn, device_data.name, device_data.parent.device_type, status)
-        else:
-            info = self.__create_device_info(device_data.sn, device_data.name, device_data.device_type, status)
-
+    def _device_registry(self) -> dict[str, Any]:
         from custom_components.ecoflow_cloud.devices.registry import device_by_product
-
-        if device_data.device_type in device_by_product:
-            device = device_by_product[device_data.device_type](info, device_data)
-        elif device_data.parent is not None and device_data.parent.device_type in device_by_product:
-            device = device_by_product[device_data.parent.device_type](info, device_data)
-        else:
-            device = DiagnosticDevice(info, device_data)
-
-        self.add_device(device)
-        return device
+        return device_by_product
 
     async def quota_all(self, device_sn: str | None):
         target_devices = [device_sn] if device_sn else list(self.devices)
@@ -130,7 +109,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             )
             return json_resp
 
-    def __create_device_info(
+    def _create_device_info(
         self, device_sn: str, device_name: str, device_type: str, status: int = -1
     ) -> EcoflowDeviceInfo:
         return EcoflowDeviceInfo(

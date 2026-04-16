@@ -45,8 +45,38 @@ class EcoflowApiClient(ABC):
         pass
 
     @abstractmethod
-    def configure_device(self, device_data: DeviceData, api_devices_info: dict[str, Any] | None = None):
+    def _create_device_info(
+        self, device_sn: str, device_name: str, device_type: str, status: int = -1
+    ) -> Any:
         pass
+
+    @abstractmethod
+    def _device_registry(self) -> dict[str, Any]:
+        pass
+
+    def configure_device(self, device_data: DeviceData, api_devices_info: dict[str, Any] | None = None):
+        sn = device_data.parent.sn if device_data.parent is not None else device_data.sn
+        status = -1
+        if api_devices_info and sn in api_devices_info:
+            status = api_devices_info[sn].status
+
+        if device_data.parent is not None:
+            info = self._create_device_info(device_data.parent.sn, device_data.name, device_data.parent.device_type, status)
+        else:
+            info = self._create_device_info(device_data.sn, device_data.name, device_data.device_type, status)
+
+        from ..devices import DiagnosticDevice
+
+        registry = self._device_registry()
+        if device_data.device_type in registry:
+            device = registry[device_data.device_type](info, device_data)
+        elif device_data.parent is not None and device_data.parent.device_type in registry:
+            device = registry[device_data.parent.device_type](info, device_data)
+        else:
+            device = DiagnosticDevice(info, device_data)
+
+        self.add_device(device)
+        return device
 
     def add_device(self, device):
         self.devices[device.device_data.sn] = device

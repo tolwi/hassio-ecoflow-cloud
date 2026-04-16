@@ -7,8 +7,7 @@ from typing import Any
 import aiohttp
 from homeassistant.util import uuid
 
-from ..device_data import DeviceData
-from ..devices import DiagnosticDevice, EcoflowDeviceInfo
+from ..devices import EcoflowDeviceInfo
 from . import EcoflowApiClient, EcoflowException
 
 _LOGGER = logging.getLogger(__name__)
@@ -80,29 +79,11 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         for sn, device in target_devices.items():
             self.send_get_message(sn, device.get_quota_message())
 
-    def configure_device(self, device_data: DeviceData, api_devices_info: dict = None):
-        # Private API doesn't use initial status from device list, as it relies on MQTT status topic
-        if device_data.parent is not None:
-            info = self.__create_device_info(device_data.parent.sn, device_data.name, device_data.parent.device_type)
-        else:
-            info = self.__create_device_info(device_data.sn, device_data.name, device_data.device_type)
-
+    def _device_registry(self) -> dict[str, Any]:
         from ..devices.registry import devices
+        return devices
 
-        if device_data.device_type in devices:
-            device = devices[device_data.device_type](info, device_data)
-        elif device_data.parent is not None and device_data.parent.device_type in devices:
-            # this can be problematic if a parent chain is recursive (so a parent has a parent again)
-            # the current data structure alows this, but it is not supported here.
-            device = devices[device_data.parent.device_type](info, device_data)
-        else:
-            device = DiagnosticDevice(info, device_data)
-
-        self.add_device(device)
-
-        return device
-
-    def __create_device_info(
+    def _create_device_info(
         self, device_sn: str, device_name: str, device_type: str, status: int = -1
     ) -> EcoflowDeviceInfo:
         return EcoflowDeviceInfo(
