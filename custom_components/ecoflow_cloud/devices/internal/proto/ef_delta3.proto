@@ -220,6 +220,7 @@ message Delta3SetCommand {
     optional int32 dev_standby_time = 13;                 // Device standby timeout (min)
     optional int32 lcd_light = 14;                        // LCD brightness
     optional int32 cfg_dc12v_out_open = 18;               // DC 12V output enable (0/1)
+    optional int32 cfg_usb_open = 19;                     // USB output enable (0/1) - discovered via MQTT sniffing
     optional int32 xboost_en = 25;                        // X-Boost enable (0/1)
     optional int32 cms_max_chg_soc = 33;                  // Max charge SOC (%)
     optional int32 cms_min_dsg_soc = 34;                  // Min discharge SOC (%)
@@ -245,6 +246,7 @@ message Delta3SetReply {
     optional int32 dev_standby_time = 13;                 // Device standby timeout
     optional int32 lcd_light = 14;                        // LCD brightness
     optional int32 cfg_dc12v_out_open = 18;               // DC 12V output state
+    optional int32 cfg_usb_open = 19;                     // USB output state - discovered via MQTT sniffing
     optional int32 xboost_en = 25;                        // X-Boost state
     optional int32 cms_max_chg_soc = 33;                  // Max charge SOC
     optional int32 cms_min_dsg_soc = 34;                  // Min discharge SOC
