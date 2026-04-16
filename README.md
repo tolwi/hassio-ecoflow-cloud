@@ -1024,7 +1024,7 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 2, selects: 1)</i> </summary>
+<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 2, boxes: 1, selects: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -1098,6 +1098,9 @@ For information on how to add, remove, and configure devices, please refer to th
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
+
+*Boxes (numbers)*
+- Custom Load Power
 
 *Selects*
 - Power supply mode 
