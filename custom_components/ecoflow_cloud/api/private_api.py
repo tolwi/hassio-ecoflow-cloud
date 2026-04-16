@@ -80,7 +80,8 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         for sn, device in target_devices.items():
             self.send_get_message(sn, device.get_quota_message())
 
-    def configure_device(self, device_data: DeviceData):
+    def configure_device(self, device_data: DeviceData, api_devices_info: dict = None):
+        # Private API doesn't use initial status from device list, as it relies on MQTT status topic
         if device_data.parent is not None:
             info = self.__create_device_info(device_data.parent.sn, device_data.name, device_data.parent.device_type)
         else:

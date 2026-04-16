@@ -45,7 +45,7 @@ class EcoflowApiClient(ABC):
         pass
 
     @abstractmethod
-    def configure_device(self, device_data: DeviceData):
+    def configure_device(self, device_data: DeviceData, api_devices_info: dict[str, Any] | None = None):
         pass
 
     def add_device(self, device):

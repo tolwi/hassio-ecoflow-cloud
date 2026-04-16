@@ -1,3 +1,5 @@
+from typing import Any
+
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 import hashlib
 import hmac
@@ -40,6 +42,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
     async def fetch_all_available_devices(self) -> list[EcoflowDeviceInfo]:
         _LOGGER.info("Requesting all devices")
         response = await self.call_api("/device/list")
+        _LOGGER.info(f"Received devices: \n {response}")
         result = list()
         for device in response["data"]:
             _LOGGER.debug(str(device))
@@ -60,11 +63,17 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
         return result
 
-    def configure_device(self, device_data: DeviceData):
+    def configure_device(self, device_data: DeviceData, api_devices_info: dict[str, Any] | None = None):
+        # Extract device SN and look up current status from API
+        sn = device_data.parent.sn if device_data.parent is not None else device_data.sn
+        status = -1
+        if api_devices_info and sn in api_devices_info:
+            status = api_devices_info[sn].status
+
         if device_data.parent is not None:
-            info = self.__create_device_info(device_data.parent.sn, device_data.name, device_data.parent.device_type)
+            info = self.__create_device_info(device_data.parent.sn, device_data.name, device_data.parent.device_type, status)
         else:
-            info = self.__create_device_info(device_data.sn, device_data.name, device_data.device_type)
+            info = self.__create_device_info(device_data.sn, device_data.name, device_data.device_type, status)
 
         from custom_components.ecoflow_cloud.devices.registry import device_by_product
 
@@ -79,22 +88,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         return device
 
     async def quota_all(self, device_sn: str | None):
-        if not device_sn:
-            target_devices = list(self.devices)
-            # update all statuses
-            devices = await self.fetch_all_available_devices()
-            for device in devices:
-                if device.sn in self.devices:
-                    status = device.status == 1
-                    self.devices[device.sn].data.add_data(PreparedData(status, None, None))
-        else:
-            target_devices = [device_sn]
+        target_devices = [device_sn] if device_sn else list(self.devices)
 
         for sn in target_devices:
             try:
                 raw = await self.call_api("/device/quota/all", {"sn": sn})
                 if "data" in raw:
-                    self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw))
+                    self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw, False))
             except Exception as exception:
                 _LOGGER.error(exception, exc_info=True)
                 _LOGGER.error("Error retrieving %s", sn)

@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any, Protocol, TypeVar
 
 import jsonpath_ng.ext as jp
 from homeassistant.util import dt
@@ -27,6 +27,17 @@ class PreparedData:
     online: bool | None
     params: dict[str, Any] | None
     raw_data: dict[str, Any] | None
+    is_auto: bool = True
+
+
+class DataStatusCallback(Protocol):
+    def on_explicit_status(self, online: bool) -> None: ...
+    def on_data_received(self) -> None: ...
+
+
+class _NoOpStatusCallback:
+    def on_explicit_status(self, online: bool) -> None: pass
+    def on_data_received(self) -> None: pass
 
 
 class EcoflowDataHolder:
@@ -34,8 +45,9 @@ class EcoflowDataHolder:
         self,
         module_sn: str | None = None,
         collect_raw: bool = False,
+        status_callback: DataStatusCallback | None = None,
     ):
-        self.online = True
+        self._status_callback: DataStatusCallback = status_callback or _NoOpStatusCallback()
         self.module_sn = module_sn
 
         self.params = dict[str, Any]()
@@ -107,11 +119,13 @@ class EcoflowDataHolder:
 
     def __accept_prepared_data(self, data: PreparedData, raw_data_acceptor: Callable[[dict[str, Any]], None]):
         if data.online is not None:
-            self.online = data.online
+            self._status_callback.on_explicit_status(data.online)
 
         if data.params is not None:
             self.__update_params(data.params)
-            self.online = True
+            # Only auto-mark online for MQTT messages; API data doesn't prove device is online
+            if data.is_auto:
+                self._status_callback.on_data_received()
 
         if self.__collect_raw and data.raw_data is not None:
             raw_data_acceptor(data.raw_data)

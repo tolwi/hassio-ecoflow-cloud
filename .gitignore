@@ -10,3 +10,4 @@ setup.cfg
 tests
 .devcontainer/.env
 tools
+mise.local.toml

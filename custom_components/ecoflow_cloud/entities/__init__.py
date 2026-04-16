@@ -14,10 +14,8 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .. import ECOFLOW_DOMAIN
 from ..api import EcoflowApiClient, Message
-from ..devices import (
-    BaseDevice,
-    EcoflowDeviceUpdateCoordinator,
-)
+from ..devices import BaseDevice
+from ..devices.data_coordinator import DeviceDataCoordinator
 
 
 class EcoFlowAbstractEntity(Entity):
@@ -78,7 +76,7 @@ class EcoFlowAbstractEntity(Entity):
         return self
 
 
-class EcoFlowAbstractDataEntity(EcoFlowAbstractEntity, CoordinatorEntity[EcoflowDeviceUpdateCoordinator]):
+class EcoFlowAbstractDataEntity(EcoFlowAbstractEntity, CoordinatorEntity[DeviceDataCoordinator]):
     _attr_should_poll = False
 
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, title: str, key: str):
@@ -144,7 +142,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
     def _handle_coordinator_update(self) -> None:
         if self.coordinator.data.changed:
             self._updated(self.coordinator.data.data_holder.params)
-        elif not self.coordinator.data.data_holder.online:  # Device is offline
+        elif not self._device.status_tracker.is_online:  # Device is offline
             # Reset sensors that should reset to default values
             if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
                 self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)

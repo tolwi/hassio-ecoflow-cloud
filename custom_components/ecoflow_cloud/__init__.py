@@ -27,6 +27,7 @@ _PLATFORMS = {
 
 ATTR_STATUS_SN = "SN"
 ATTR_STATUS_UPDATES = "status_request_count"
+ATTR_DATA_UPDATES = "data_update_count"
 ATTR_STATUS_LAST_UPDATE = "status_last_update"
 ATTR_STATUS_DATA_LAST_UPDATE = "data_last_update"
 ATTR_MQTT_CONNECTED = "mqtt_connected"
@@ -60,6 +61,8 @@ OPTS_VERBOSE_STATUS_MODE: Final = "verbose_status_mode"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 5
 DEFAULT_ASSUME_OFFLINE_SEC: Final = 300  # 5 minutes
+
+_STATUS_COORDINATOR_KEY = "__status_coordinator"
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
@@ -200,8 +203,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         _LOGGER.warning("Failed to connect to EcoFlow API: %s", ex)
         raise ConfigEntryNotReady(f"Connection failed: {ex}") from ex
 
+    # Fetch current device statuses from API
+    try:
+        api_devices = await api_client.fetch_all_available_devices()
+        api_devices_map = {d.sn: d for d in api_devices}
+    except Exception as ex:
+        _LOGGER.warning("Failed to fetch device statuses: %s", ex)
+        api_devices_map = None
+
     for sn, device_data in devices_list.items():
-        device = api_client.configure_device(device_data)
+        device = api_client.configure_device(device_data, api_devices_map)
         device.configure(hass)
 
     await hass.async_add_executor_job(api_client.start)
@@ -217,6 +228,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # Forward entry setup to the platforms to set up the entities
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
 
+    # Register with the global status coordinator
+    from .devices.status_coordinator import DeviceStatusCoordinator
+
+    if _STATUS_COORDINATOR_KEY not in hass.data[ECOFLOW_DOMAIN]:
+        hass.data[ECOFLOW_DOMAIN][_STATUS_COORDINATOR_KEY] = DeviceStatusCoordinator(hass)
+
+    coordinator: DeviceStatusCoordinator = hass.data[ECOFLOW_DOMAIN][_STATUS_COORDINATOR_KEY]
+    coordinator.register(entry.entry_id, api_client)
+    await coordinator.async_request_refresh()
+
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
     return True
@@ -225,6 +246,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     if not await hass.config_entries.async_unload_platforms(entry, _PLATFORMS):
         return False
+
+    # Unregister from the global status coordinator
+    coordinator = hass.data[ECOFLOW_DOMAIN].get(_STATUS_COORDINATOR_KEY)
+    if coordinator is not None:
+        coordinator.unregister(entry.entry_id)
+        if coordinator.empty:
+            hass.data[ECOFLOW_DOMAIN].pop(_STATUS_COORDINATOR_KEY)
 
     client = hass.data[ECOFLOW_DOMAIN].pop(entry.entry_id)
     client.stop()
