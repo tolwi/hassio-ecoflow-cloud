@@ -119,12 +119,13 @@ def _create_delta3_bypass_ban_command(value: int, device_sn: str) -> "Delta3Comm
     yet defined in the generated ``ef_delta3_pb2`` schema, so the pdata
     is crafted manually as a 3-byte varint encoding:
 
-      tag   = (26 << 3) | 0 = 208 -> varint "d0 01"
-      value = 0 or 1              (1 byte varint)
+        tag   = (26 << 3) | 0 = 208 -> varint "d0 01"
+        value = 0 or 1              (1 byte varint)
 
     Semantics match DELTA 3 1500 ``banBypassEn``:
-      value=0 -> grid bypass enabled  (battery charges from AC input)
-      value=1 -> grid bypass disabled (battery runs standalone, no charging)
+
+        value=0 -> grid bypass enabled  (battery charges from AC input)
+        value=1 -> grid bypass disabled (battery runs standalone, no charging)
     """
     pdata = bytes([0xD0, 0x01, 1 if value else 0])
 

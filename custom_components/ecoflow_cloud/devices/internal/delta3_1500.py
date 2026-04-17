@@ -45,14 +45,14 @@ class Delta31500ChargingStateSensorEntity(ChargingStateSensorEntity):
     than the generic class assumes. MQTT sniffing (bypass toggle test)
     confirmed:
 
-    * 0 → discharging (battery supplying loads — this is the normal
-      "bypass ON" state for DELTA 3 1500: the grid is disconnected and
-      loads are fed by the battery)
-    * 1 → unused (assumed idle; not observed on the wire because the
-      1500 is rarely truly idle — mapping follows the EcoFlow JSON API
-      convention where "1" is the leftover state)
-    * 2 → charging (AC-IN feeding the battery, verified during bypass
-      OFF test with BMS amp going from -3 A to +3.4 A)
+    * 0 -> discharging (battery supplying loads — this is the normal
+        "bypass ON" state for DELTA 3 1500: the grid is disconnected and
+        loads are fed by the battery)
+    * 1 -> unused (assumed idle; not observed on the wire because the
+        1500 is rarely truly idle — mapping follows the EcoFlow JSON API
+        convention where "1" is the leftover state)
+    * 2 -> charging (AC-IN feeding the battery, verified during bypass
+        OFF test with BMS amp going from -3 A to +3.4 A)
     """
 
     def _update_value(self, val: Any) -> bool:

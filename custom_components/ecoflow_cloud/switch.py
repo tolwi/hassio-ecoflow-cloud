@@ -241,8 +241,8 @@ class BypassBanSwitch(EnabledEntity):
     quota field (e.g. ``pd.reserved`` on DELTA 3 1500). The second
     element of the array is interpreted as the bypass state:
 
-      0 -> grid bypass enabled  (battery charges from AC input)
-      1 -> grid bypass disabled (battery runs standalone, no charging)
+        0 -> grid bypass enabled  (battery charges from AC input)
+        1 -> grid bypass disabled (battery runs standalone, no charging)
 
     When the switch is ON, the grid bypass is disabled (matching the
     "Disable grid bypass" toggle in the EcoFlow mobile app).
