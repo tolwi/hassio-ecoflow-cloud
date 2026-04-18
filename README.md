@@ -1156,6 +1156,86 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
+<details><summary> GLACIER_CLASSIC <i>(sensors: 52, binary_sensors: 2, switches: 5, sliders: 4, selects: 2)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- Battery Level
+- Battery Charging State
+- Fan Level
+- Total In Power
+- Total Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Battery Remaining Time  _(disabled)_
+- Cycles
+- Battery Temperature
+- Min MOS Temperature  _(disabled)_
+- Max MOS Temperature  _(disabled)_
+- Left Temperature  _(disabled)_
+- Right Temperature  _(disabled)_
+- Combined Temperature  _(disabled)_
+- Battery Pack Temperature  _(disabled)_
+- Input Voltage  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Battery Current  _(disabled)_
+- Target Charge Current  _(disabled)_
+- Actual Battery SOC  _(disabled)_
+- Battery SOC Delta  _(disabled)_
+- Target Battery SOC  _(disabled)_
+- Screen Off Time  _(disabled)_
+- Device Standby Time  _(disabled)_
+- Runtime Full Upload Period  _(disabled)_
+- Runtime Incremental Upload Period  _(disabled)_
+- Display Full Upload Period  _(disabled)_
+- Display Incremental Upload Period  _(disabled)_
+- BMS Fault Code  _(disabled)_
+- BMS Error Code  _(disabled)_
+- PD Error Code  _(disabled)_
+- All Error Code  _(disabled)_
+- All BMS Fault  _(disabled)_
+- BQ System Status Register  _(disabled)_
+- BMS Serial  _(disabled)_
+- Main BMS Serial  _(disabled)_
+- BMS Hardware Version  _(disabled)_
+- BMS Warning State  _(disabled)_
+- Open BMS Index  _(disabled)_
+- Max Available Modules  _(disabled)_
+- Temperature Unit  _(disabled)_
+- Temperature Unit Raw  _(disabled)_
+- Power Source  _(disabled)_
+- Status
+- Protobuf Debug  _(disabled)_
+
+*Binary sensors*
+- Dual Zone Mode
+- Lid Status
+
+*Switches*
+- Beeper
+- Eco Mode
+- Child Lock
+- Simple Mode
+- Temperature Alert
+
+*Sliders (numbers)*
+- Left Set Temperature
+- Right Set Temperature
+- Max Charge Level
+- Min Discharge Level
+
+*Selects*
+- Battery Protection
+- Device Standby Time
+
+</p></details>
+
 <details><summary> WAVE_2 <i>(sensors: 27, sliders: 1, selects: 4)</i> </summary>
 <p>
 
