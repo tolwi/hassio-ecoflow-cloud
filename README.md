@@ -1202,6 +1202,45 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
+<details><summary> WAVE_3 <i>(sensors: 17, switches: 2, sliders: 1, selects: 3, climate: 1)</i> </summary>
+<p>
+
+*Sensors*
+- AC Input Power
+- AC Output Power
+- Battery Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Main Battery Level
+- Power Off Delay Remaining
+- Self Consumption Power
+- Solar Input Power
+- Total In Power
+- Total Out Power
+- Water Level
+- Ambient Temperature
+- BMS Error Code
+- Condenser Temp
+- Evaporator Temp
+- Indoor Supply Air Temp
+
+*Switches*
+- Beeper 
+- Manual Drainage 
+
+*Sliders (numbers)*
+- Screen Brightness 
+
+*Selects*
+- Screen Timeout 
+- Device Timeout 
+- Auto-Off Timer 
+
+*Climate*
+- Climate
+
+</p></details>
+
 <details><summary> SMART_METER <i>(sensors: 18)</i> </summary>
 <p>
 
