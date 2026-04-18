@@ -199,29 +199,36 @@ class Wave3(BaseInternalDevice):
 
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
+            # Power Entities
             InWattsSensorEntity(client, self, "pow_in_sum_w", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, self, "pow_out_sum_w", const.TOTAL_OUT_POWER),
-            WattsSensorEntity(client, self, "pow_get_ac", "AC Output Power"),
-            InWattsSensorEntity(client, self, "pow_get_ac_in", "AC Input Power"),
-            WattsSensorEntity(client, self, "pow_get_bms", "Battery Power"),
-            InWattsSensorEntity(client, self, "pow_get_pv", "Solar Input Power"),
-            WattsSensorEntity(client, self, "pow_get_self_consume", "Self Consumption Power"),
+            WattsSensorEntity(client, self, "pow_get_ac", const.AC_OUT_POWER),
+            InWattsSensorEntity(client, self, "pow_get_ac_in", const.AC_IN_POWER),
+            WattsSensorEntity(client, self, "pow_get_bms", const.DC_BATTERY_POWER),
+            InWattsSensorEntity(client, self, "pow_get_pv", const.SOLAR_IN_POWER),
+            WattsSensorEntity(client, self, "pow_get_self_consume", const.SELF_CONSUMPTION_POWER, False),
+
+            # Battery and Water Entities
             LevelSensorEntity(client, self, "bms_batt_soc", const.MAIN_BATTERY_LEVEL),
-            LevelSensorEntity(client, self, "condensate_water_level", "Water Level"),
+            LevelSensorEntity(client, self, "condensate_water_level", const.WATER_LEVEL),
             RemainSensorEntity(client, self, "bms_dsg_rem_time", const.DISCHARGE_REMAINING_TIME),
             RemainSensorEntity(client, self, "bms_chg_rem_time", const.CHARGE_REMAINING_TIME),
-            RemainSensorEntity(client, self, "power_off_delay_remaining", "Power Off Delay Remaining"),
-            TempSensorEntity(client, self, "temp_ambient", "Ambient Temperature"),
-            TempSensorEntity(client, self, "temp_indoor_supply_air", "Indoor Supply Air Temp"),
-            TempSensorEntity(client, self, "temp_condenser", "Condenser Temp"),
-            TempSensorEntity(client, self, "temp_evaporator", "Evaporator Temp"),
-            MiscSensorEntity(client, self, "bms_err_code", "BMS Error Code"),
+            RemainSensorEntity(client, self, "power_off_delay_remaining", const.POWER_OFF_DELAY_REMAINING_TIME),
+
+            # Temperature Entities
+            TempSensorEntity(client, self, "temp_ambient", const.AMBIENT_TEMPERATURE),
+            TempSensorEntity(client, self, "temp_indoor_supply_air", const.INDOOR_SUPPLY_AIR_TEMP, False),
+            TempSensorEntity(client, self, "temp_condenser", const.CONDENSER_TEMP, False),
+            TempSensorEntity(client, self, "temp_evaporator", const.EVAPORATOR_TEMP, False),
+
+            # Diagnostics
+            MiscSensorEntity(client, self, "bms_err_code", "BMS Error Code", False),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         sn = self.device_info.sn
         return [
-            LevelEntity(client, self, "lcd_light", "Screen Brightness", 0, 100,
+            LevelEntity(client, self, "lcd_light", const.SCREEN_BRIGHTNESS, 0, 100,
                         lambda v: _create_wave3_command(sn, lcdLight=int(v))),
         ]
 
@@ -230,20 +237,20 @@ class Wave3(BaseInternalDevice):
         return [
             BeeperEntity(client, self, "en_beep", const.BEEPER,
                          lambda v: _create_wave3_command(sn, enBeep=0 if v else 1)),
-            BeeperEntity(client, self, "drainage_mode", "Manual Drainage",
+            BeeperEntity(client, self, "drainage_mode", const.MANUAL_DRAINAGE,
                          lambda v: _create_wave3_command(sn, cfg_drainage_mode=1 if v else 0))
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         sn = self.device_info.sn
         return [
-            DictSelectEntity(client, self, "screen_off_time", "Screen Timeout",
+            DictSelectEntity(client, self, "screen_off_time", const.SCREEN_TIMEOUT,
                              {"Nie": 0, "10 s": 10, "30 s": 30, "1 min": 60, "5 min": 300, "10 min": 600},
                              lambda v: _create_wave3_command(sn, screenOffTime=int(v))),
-            DictSelectEntity(client, self, "dev_standby_time", "Device Timeout",
+            DictSelectEntity(client, self, "dev_standby_time", const.UNIT_TIMEOUT,
                              {"Nie": 0, "30 min": 30, "1 hr": 60, "2 hr": 120, "4 hr": 240, "6 hr": 360, "12 hr": 720, "24 hr": 1440},
                              lambda v: _create_wave3_command(sn, devStandbyTime=int(v))),
-            DictSelectEntity(client, self, "power_off_delay_set", "Auto-Off Timer",
+            DictSelectEntity(client, self, "power_off_delay_set", const.AUTO_OFF_TIMEOUT,
                              {"Nie": 0, "30 min": 30, "1 hr": 60, "2 hr": 120, "3 hr": 180, "4 hr": 240, "6 hr": 360, "8 hr": 480, "12 hr": 720, "24 hr": 1440},
                              lambda v: _create_wave3_command(sn, cfg_power_off_delay_set=int(v))),
         ]
@@ -320,19 +327,16 @@ class Wave3ClimateEntity(ClimateEntity):
 
     @property
     def target_temperature(self) -> Optional[float]:
-        # Blendet den Temperatur-Wert in Modi ohne Temperatursteuerung für das Frontend aus
         if self.hvac_mode in (HVACMode.DRY, HVACMode.FAN_ONLY, HVACMode.HEAT_COOL):
             return None
         return self._params().get("current_temp_set", 22.0)
 
     @property
     def target_temperature_high(self) -> Optional[float]:
-        # Fallback auf 24 °C, falls MQTT Wert noch nicht vorliegt
         return self._params().get("current_temp_upper", 24.0)
 
     @property
     def target_temperature_low(self) -> Optional[float]:
-        # Fallback auf 20 °C, falls MQTT Wert noch nicht vorliegt
         return self._params().get("current_temp_lower", 20.0)
 
     @property
@@ -341,7 +345,6 @@ class Wave3ClimateEntity(ClimateEntity):
 
     @property
     def target_humidity(self) -> Optional[float]:
-        # Fallback auf 50%, falls MQTT Wert noch nicht vorliegt
         return self._params().get("current_humi_set", 50.0)
 
     @property
