@@ -237,8 +237,8 @@ class Wave3(BaseInternalDevice):
         return [
             BeeperEntity(client, self, "en_beep", const.BEEPER,
                          lambda v: _create_wave3_command(sn, enBeep=0 if v else 1)),
-            BeeperEntity(client, self, "drainage_mode", const.MANUAL_DRAINAGE,
-                         lambda v: _create_wave3_command(sn, cfg_drainage_mode=1 if v else 0))
+            SwitchEntity(client, self, "drainage_mode", const.MANUAL_DRAINAGE,
+                         lambda v: _create_wave3_command(sn, cfg_drainage_mode=1 if v else 0)).attr("icon", "mdi:water-pump")
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
