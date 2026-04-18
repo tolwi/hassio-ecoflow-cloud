@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+message GlacierClassicStatusTail {
+  optional uint32 f1 = 1;
+  optional uint32 f2 = 2;
+  optional uint32 f3 = 3;
+  optional uint32 f4 = 4;
+  optional uint32 f5 = 5;
+  optional uint32 f6 = 6;
+  optional uint32 f7 = 7;
+  optional uint32 f8 = 8;
+  optional uint32 f9 = 9;
+  optional uint32 f10 = 10;
+}
+
+message GlacierClassicTelemetryFields {
+  optional uint32 f1 = 1;
+  optional uint32 f2 = 2;
+  optional uint32 f3 = 3;
+  optional uint32 f4 = 4;
+  optional uint32 f5 = 5;
+  optional uint32 f6 = 6;
+  optional uint32 f7 = 7;
+  optional uint32 f8 = 8;
+  optional uint32 f9 = 9;
+  optional uint32 f10 = 10;
+  optional uint32 f11 = 11;
+  optional uint32 f12 = 12;
+  optional uint32 f13 = 13;
+  optional uint32 f14 = 14;
+  optional float  f15 = 15;
+  optional bytes  f16 = 16;
+  optional uint32 f17 = 17;
+  optional uint32 f18 = 18;
+  optional uint32 f19 = 19;
+  optional uint32 f20 = 20;
+  optional uint32 f21 = 21;
+  optional uint32 f22 = 22;
+  optional uint32 f23 = 23;
+  optional uint32 f24 = 24;
+  optional uint32 f25 = 25;
+}
+
+message GlacierClassicTelemetryInner {
+  optional GlacierClassicTelemetryFields fields = 1;
+  optional GlacierClassicStatusTail trailing = 2;
+}
+
+message GlacierClassicTelemetryOuter {
+  optional GlacierClassicTelemetryInner inner = 1;
+}
+
+message GlacierClassicDevice {
+  optional GlacierClassicTelemetryOuter telemetry = 1;
+}
