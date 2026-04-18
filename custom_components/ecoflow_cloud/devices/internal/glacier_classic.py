@@ -303,13 +303,13 @@ class GlacierClassicTemperatureSensorEntity(TempSensorEntity):
     def _is_fahrenheit(self) -> bool:
         return _normalize_temp_unit(self._device.data.params.get("pd.tmpUnit")) == "fahrenheit"
 
-    def _current_unit(self) -> str:
+    def _current_unit(self) -> UnitOfTemperature:
         if self._is_fahrenheit():
             return UnitOfTemperature.FAHRENHEIT
         return UnitOfTemperature.CELSIUS
 
     @property
-    def native_unit_of_measurement(self) -> str | None:
+    def native_unit_of_measurement(self) -> UnitOfTemperature | None:
         return self._current_unit()
 
     def _update_value(self, val: Any) -> bool:
@@ -325,13 +325,13 @@ class GlacierClassicTemperatureSensorEntity(TempSensorEntity):
 
 
 class GlacierClassicSetTempEntity(SetTempEntity):
-    def _current_unit(self) -> str:
+    def _current_unit(self) -> UnitOfTemperature:
         if _normalize_temp_unit(self._device.data.params.get("pd.tmpUnit")) == "fahrenheit":
             return UnitOfTemperature.FAHRENHEIT
         return UnitOfTemperature.CELSIUS
 
     @property
-    def native_unit_of_measurement(self) -> str | None:
+    def native_unit_of_measurement(self) -> UnitOfTemperature | None:
         return self._current_unit()
 
     def _update_value(self, val: Any) -> bool:
@@ -396,11 +396,15 @@ class InvertedMiscBinarySensorEntity(MiscBinarySensorEntity):
 
 
 class GlacierClassicPrimaryTemperatureSensorEntity(GlacierClassicTemperatureSensorEntity):
-    _attr_entity_category = None
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._attr_entity_category = None  # type: ignore[assignment]
 
 
 class GlacierClassicControlSetTempEntity(GlacierClassicSetTempEntity):
-    _attr_entity_category = None
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._attr_entity_category = None  # type: ignore[assignment]
 
 
 class GlacierClassicCommandMessage(PrivateAPIMessageProtocol):
@@ -491,6 +495,7 @@ def _decode_message(data: bytes, spec: dict[int, Any]) -> dict[str, Any]:
             kind = field_spec[1]
             repeated = len(field_spec) > 2 and bool(field_spec[2])
 
+        value: Any
         if wire_type == WIRE_VARINT:
             raw_value, offset = _read_varint(data, offset)
             if kind == "int32":
