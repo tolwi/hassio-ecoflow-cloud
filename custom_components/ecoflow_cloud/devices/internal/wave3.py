@@ -33,7 +33,7 @@ from custom_components.ecoflow_cloud.sensor import (
     InWattsSensorEntity,
     OutWattsSensorEntity,
 )
-from custom_components.ecoflow_cloud.switch import BeeperEntity
+from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 from .proto import wave3_pb2
 
 _LOGGER = logging.getLogger(__name__)
@@ -234,11 +234,17 @@ class Wave3(BaseInternalDevice):
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         sn = self.device_info.sn
+
+        drainage_switch = EnabledEntity(
+            client, self, "drainage_mode", const.MANUAL_DRAINAGE,
+            lambda v: _create_wave3_command(sn, cfg_drainage_mode=1 if v else 0), enableValue=1, disableValue=0
+        )
+        drainage_switch._attr_icon = "mdi:water-pump"
+
         return [
             BeeperEntity(client, self, "en_beep", const.BEEPER,
                          lambda v: _create_wave3_command(sn, enBeep=0 if v else 1)),
-            SwitchEntity(client, self, "drainage_mode", const.MANUAL_DRAINAGE,
-                         lambda v: _create_wave3_command(sn, cfg_drainage_mode=1 if v else 0)).attr("icon", "mdi:water-pump")
+            drainage_switch
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
