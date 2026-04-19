@@ -56,14 +56,14 @@ class Wave3CommandMessage(PrivateAPIMessageProtocol):
         return {"Wave3CommandMessage": self._payload.hex()}
 
 
-def _create_wave3_command(device_sn: str, **kwargs) -> Optional[Wave3CommandMessage]:
+def _create_wave3_command(device_sn: str, **kwargs: Any) -> Wave3CommandMessage | None:
     try:
         cw = wave3_pb2.ConfigWrite()
         for key, value in kwargs.items():
             try:
                 setattr(cw, key, value)
             except AttributeError:
-                pass
+                _LOGGER.debug("Wave3: Unknown protobuf attribute '%s' ignored.", key)
 
         pdata_bytes = cw.SerializeToString()
 
@@ -86,13 +86,13 @@ def _create_wave3_command(device_sn: str, **kwargs) -> Optional[Wave3CommandMess
             try:
                 setattr(h, attr, val)
             except AttributeError:
-                pass
+                _LOGGER.debug("Wave3: Unknown header attribute '%s' ignored.", attr)
 
         h.pdata = pdata_bytes
         return Wave3CommandMessage(msg.SerializeToString())
 
     except Exception as exc:
-        _LOGGER.error("Wave3 ConfigWrite error: %s", exc)
+        _LOGGER.exception("Wave3 ConfigWrite error: %s", exc)
         return None
 
 
@@ -301,12 +301,13 @@ class Wave3ClimateEntity(ClimateEntity):
             return self._device.data.params
         return {}
 
-    def _send(self, msg: Optional[Wave3CommandMessage], opt_state: dict[str, Any] = None) -> None:
-        if msg:
-            try:
-                self._client.send_set_message(self._device.device_info.sn, opt_state or {}, msg)
-            except Exception as e:
-                _LOGGER.error("Wave3 MQTT send error: %s", e)
+    def _send(self, msg: Wave3CommandMessage | None, opt_state: dict[str, Any] | None = None) -> None:
+        if not msg:
+            return
+        try:
+            self._client.send_set_message(self._device.device_info.sn, opt_state or {}, msg)
+        except Exception as e:
+            _LOGGER.exception("Wave3 MQTT send error: %s", e)
 
     @property
     def supported_features(self) -> ClimateEntityFeature:
@@ -355,7 +356,15 @@ class Wave3ClimateEntity(ClimateEntity):
 
     @property
     def hvac_mode(self) -> HVACMode:
-        mode_val = self._params().get("wave_operating_mode", 0)
+        params = self._params()
+
+        sys_pause = params.get("sys_pause", params.get("cfg_sys_pause", False))
+        main_power = params.get("main_power", params.get("cfg_main_power", True))
+
+        if sys_pause in (1, True) or main_power in (0, False):
+            return HVACMode.OFF
+
+        mode_val = params.get("wave_operating_mode", 0)
         return self._ECOFLOW_MODE_MAP.get(mode_val, HVACMode.OFF)
 
     @property
@@ -373,11 +382,19 @@ class Wave3ClimateEntity(ClimateEntity):
     def set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         sn = self._device.device_info.sn
         if hvac_mode == HVACMode.OFF:
-            opt_state = {"wave_operating_mode": 0}
+            opt_state = {
+                "wave_operating_mode": 0,
+                "sys_pause": True,
+                "main_power": False
+            }
             self._send(_create_wave3_command(sn, cfg_sys_pause=True), opt_state)
         else:
             mode_id = next((k for k, v in self._ECOFLOW_MODE_MAP.items() if v == hvac_mode), 1)
-            opt_state = {"wave_operating_mode": mode_id}
+            opt_state = {
+                "wave_operating_mode": mode_id,
+                "sys_pause": False,
+                "main_power": True
+            }
             self._send(_create_wave3_command(sn, cfg_main_power=True, cfg_wave_operating_mode=mode_id), opt_state)
         self.schedule_update_ha_state()
 
@@ -417,7 +434,8 @@ class Wave3ClimateEntity(ClimateEntity):
         self.schedule_update_ha_state()
 
     def turn_on(self) -> None:
-        self._send(_create_wave3_command(self._device.device_info.sn, cfg_main_power=True))
+        opt_state = {"sys_pause": False, "main_power": True}
+        self._send(_create_wave3_command(self._device.device_info.sn, cfg_main_power=True), opt_state)
         self.schedule_update_ha_state()
 
     def turn_off(self) -> None:
