@@ -19,6 +19,11 @@ The quickest way to install this integration is via [HACS](https://github.com/ha
 2. Restart Home Assistant
 3. Once restart is done, use `Add Integration` → `EcoflowCloud`.
 
+### 🌍 Regional API Hosts (Important for European Users)
+EcoFlow strictly separates accounts by region. If you encounter the error `Account doesn't exist or incorrect password` during the integration setup, verify your `api_host` setting:
+- **Global / US:** `api.ecoflow.com` (Default)
+- **Europe:** `api-e.ecoflow.com`
+
 ### Manual installation options
 - Install as a [custom repository](https://github.com/tolwi/hassio-ecoflow-cloud) via [HACS](https://github.com/hacs/integration)
 - Manually download and extract to the custom_components directory
