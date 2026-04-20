@@ -202,6 +202,31 @@ class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:power-plug"
 
+    @property
+    def extra_state_attributes(self):
+        attrs = dict(super().extra_state_attributes or {})
+        params = self._device.data.params
+        attrs.update(
+            {
+                "chg_line_plug_in_flag": params.get(
+                    "pd.chgLinePlugInFlag", params.get("bms_emsStatus.chgLinePlugInFlag")
+                ),
+                "ac_in_volts": params.get("pd.acInVolts", params.get("runtime.plug_in_info_ac_in_vol")),
+                "input_volts": params.get("pd.inputVolts"),
+                "pv_flag": params.get("pd.pvFlag"),
+                "pv_type": params.get("pd.pvType"),
+                "dcp_in_flag": params.get("pd.dcpInFlag"),
+                "cms_chg_state": params.get("bms_emsStatus.chgState"),
+                "battery_in_watts": params.get("bms_bmsStatus.inWatts"),
+                "battery_out_watts": params.get("bms_bmsStatus.outWatts"),
+                "runtime_ac_in_vol": params.get("runtime.plug_in_info_ac_in_vol"),
+                "runtime_payload": {
+                    "plug_in_info_ac_in_vol": params.get("runtime.plug_in_info_ac_in_vol"),
+                },
+            }
+        )
+        return attrs
+
     def _updated(self, data: dict[str, Any]):
         line_plugged = int(
             data.get("pd.chgLinePlugInFlag", data.get("bms_emsStatus.chgLinePlugInFlag", 0)) or 0
