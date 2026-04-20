@@ -200,28 +200,6 @@ class GlacierClassicTemperatureUnitSensorEntity(MiscSensorEntity):
         return super()._update_value(label)
 
 
-class GlacierClassicScreenTimeoutSensorEntity(MiscSensorEntity):
-    """Sensor that exposes the human-readable screen timeout."""
-
-    _attr_entity_category = EntityCategory.CONFIG
-
-    _timeout_labels = {
-        0: "Never",
-        10: "10 sec",
-        30: "30 sec",
-        60: "1 min",
-        300: "5 min",
-        600: "10 min",
-    }
-
-    def __init__(self, client: EcoflowApiClient, device: BaseInternalDevice, title: str):
-        super().__init__(client, device, "pd.blTime", title)
-
-    def _update_value(self, val: Any) -> bool:
-        seconds = int(val)
-        return super()._update_value(self._timeout_labels.get(seconds, f"{seconds} sec"))
-
-
 class InvertedMiscBinarySensorEntity(MiscBinarySensorEntity):
     """Binary sensor entity with inverted device semantics."""
 
@@ -353,7 +331,7 @@ class GlacierClassic(BaseInternalDevice):
             LevelSensorEntity(client, self, "bms_bmsStatus.actSoc", "Actual Battery SOC", False),
             LevelSensorEntity(client, self, "bms_bmsStatus.diffSoc", "Battery SOC Delta", False),
             LevelSensorEntity(client, self, "bms_bmsStatus.targetSoc", "Target Battery SOC", False),
-            GlacierClassicScreenTimeoutSensorEntity(client, self, const.SCREEN_TIMEOUT),
+            MiscSensorEntity(client, self, "pd.blTime", "Screen Off Time").with_category(EntityCategory.CONFIG),
             MiscSensorEntity(client, self, "pd.devStandbyTime", "Device Standby Time", False),
             MiscSensorEntity(
                 client,
