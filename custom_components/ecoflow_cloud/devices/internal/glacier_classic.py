@@ -487,7 +487,7 @@ class GlacierClassic(BaseInternalDevice):
                 lambda value: _create_glacier_classic_proto_command(
                     "simpleMode", value, device.device_data.sn
                 ),
-            ),
+            ).with_category(EntityCategory.CONFIG),
             EnabledEntity(
                 client,
                 self,
