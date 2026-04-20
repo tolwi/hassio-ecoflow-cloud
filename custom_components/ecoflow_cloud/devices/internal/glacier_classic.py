@@ -196,73 +196,6 @@ class GlacierClassicTemperatureUnitSensorEntity(MiscSensorEntity):
         return super()._update_value(label)
 
 
-class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
-    """Derived power source sensor based on the current plug-in flags."""
-
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_icon = "mdi:power-plug"
-
-    def _debug_attributes(self, params: dict[str, Any]) -> dict[str, Any]:
-        return {
-            "chg_line_plug_in_flag": params.get(
-                "pd.chgLinePlugInFlag", params.get("bms_emsStatus.chgLinePlugInFlag")
-            ),
-            "ac_in_volts": params.get("pd.acInVolts", params.get("runtime.plug_in_info_ac_in_vol")),
-            "input_volts": params.get("pd.inputVolts"),
-            "pv_flag": params.get("pd.pvFlag"),
-            "pv_type": params.get("pd.pvType"),
-            "dcp_in_flag": params.get("pd.dcpInFlag"),
-            "cms_chg_state": params.get("bms_emsStatus.chgState"),
-            "battery_in_watts": params.get("bms_bmsStatus.inWatts"),
-            "battery_out_watts": params.get("bms_bmsStatus.outWatts"),
-            "runtime_ac_in_vol": params.get("runtime.plug_in_info_ac_in_vol"),
-            "cms_raw_chg_disable_cond": params.get("debugPower.cms.chg_disable_cond"),
-            "cms_raw_dsg_disable_cond": params.get("debugPower.cms.dsg_disable_cond"),
-            "cms_raw_sys_chg_dsg_state": params.get("debugPower.cms.sys_chg_dsg_state"),
-            "cms_raw_ems_heartbeat_ver": params.get("debugPower.cms.ems_heartbeat_ver"),
-            "display_raw_errcode": params.get("debugPower.display.errcode"),
-            "display_raw_sys_status": params.get("debugPower.display.sys_status"),
-            "display_raw_pow_in_sum_w": params.get("debugPower.display.pow_in_sum_w"),
-            "display_raw_pow_out_sum_w": params.get("debugPower.display.pow_out_sum_w"),
-            "display_raw_pv_flag": params.get("debugPower.display.plug_in_info_pv_flag"),
-            "display_raw_pv_type": params.get("debugPower.display.plug_in_info_pv_type"),
-            "display_raw_dcp_in_flag": params.get("debugPower.display.plug_in_info_dcp_in_flag"),
-            "display_raw_input_volt777": params.get("debugPower.display.input_volt777"),
-            "runtime_raw_plug_in_info_ac_in_vol": params.get("debugPower.runtime.plug_in_info_ac_in_vol"),
-        }
-
-    @property
-    def extra_state_attributes(self):
-        attrs = dict(super().extra_state_attributes or {})
-        attrs.update(self._debug_attributes(self._device.data.params))
-        return attrs
-
-    def _updated(self, data: dict[str, Any]):
-        previous_attrs = getattr(self, "_last_debug_attributes", None)
-        current_attrs = self._debug_attributes(data)
-        line_plugged = int(
-            data.get("pd.chgLinePlugInFlag", data.get("bms_emsStatus.chgLinePlugInFlag", 0)) or 0
-        )
-        ac_input_voltage = float(data.get("pd.acInVolts", data.get("runtime.plug_in_info_ac_in_vol", 0)) or 0)
-        pv_flag = int(data.get("pd.pvFlag", 0) or 0)
-        pv_type = int(data.get("pd.pvType", 0) or 0)
-        dcp_flag = int(data.get("pd.dcpInFlag", 0) or 0)
-        if ac_input_voltage > 0:
-            value = "ac"
-        elif dcp_flag:
-            value = "dc"
-        elif pv_flag and pv_type == 0:
-            value = "solar"
-        elif line_plugged == 0:
-            value = "none"
-        else:
-            value = "none"
-        self._last_debug_attributes = current_attrs
-        if self._attr_native_value != value or previous_attrs != current_attrs:
-            self._attr_native_value = value
-            self.schedule_update_ha_state()
-
-
 class InvertedMiscBinarySensorEntity(MiscBinarySensorEntity):
     """Binary sensor entity with inverted device semantics."""
 
@@ -439,7 +372,6 @@ class GlacierClassic(BaseInternalDevice):
             MiscSensorEntity(client, self, "diag.maxAvailableNum", "Max Available Modules", False),
             GlacierClassicTemperatureUnitSensorEntity(client, self, "pd.tmpUnit", "Temperature Unit", False),
             MiscSensorEntity(client, self, "pd.tmpUnit", "Temperature Unit Raw", False),
-            GlacierClassicPowerSourceSensorEntity(client, self, "pd.powerSource", "Power Source", False),
             QuotaStatusSensorEntity(client, self),
             GlacierClassicDebugSensorEntity(client, self),
         ]
@@ -576,6 +508,7 @@ class GlacierClassic(BaseInternalDevice):
         return [
             InvertedMiscBinarySensorEntity(client, self, "pd.flagTwoZone", "Dual Zone Mode"),
             MiscBinarySensorEntity(client, self, "pd.lidStatus", "Lid Status").with_device_class("door"),
+            MiscBinarySensorEntity(client, self, "pd.pvFlag", "External Supply Connected").with_device_class("plug"),
         ]
 
     @override
@@ -839,26 +772,13 @@ class GlacierClassic(BaseInternalDevice):
         return self._flatten_dict(result)
 
     def _map_cms(self, payload: dict[str, Any]) -> dict[str, Any]:
-        result: dict[str, Any] = {"bms_emsStatus": {}, "debugPower": {"cms": {}}}
+        result: dict[str, Any] = {"bms_emsStatus": {}}
         v1p0 = payload.get("v1p0", {})
         if not isinstance(v1p0, dict):
             return {}
         ems = result["bms_emsStatus"]
-        debug_cms = result["debugPower"]["cms"]
-        for key in (
-            "chg_disable_cond",
-            "dsg_disable_cond",
-            "chg_line_plug_in_flag",
-            "sys_chg_dsg_state",
-            "ems_heartbeat_ver",
-        ):
-            if key in v1p0:
-                debug_cms[key] = v1p0[key]
         if "chg_state" in v1p0:
             ems["chgState"] = int(v1p0["chg_state"])
-        if "chg_line_plug_in_flag" in v1p0:
-            ems["chgLinePlugInFlag"] = int(v1p0["chg_line_plug_in_flag"])
-            result.setdefault("pd", {})["chgLinePlugInFlag"] = int(v1p0["chg_line_plug_in_flag"])
         if "fan_level" in v1p0:
             ems["fanLvl"] = int(v1p0["fan_level"])
         if "max_charge_soc" in v1p0:
@@ -886,23 +806,10 @@ class GlacierClassic(BaseInternalDevice):
         return self._flatten_dict(result)
 
     def _map_display(self, payload: dict[str, Any]) -> dict[str, Any]:
-        result: dict[str, Any] = {"pd": {}, "bms_emsStatus": {}, "bms_bmsStatus": {}, "debugPower": {"display": {}}}
+        result: dict[str, Any] = {"pd": {}, "bms_emsStatus": {}, "bms_bmsStatus": {}}
         pd = result["pd"]
         ems = result["bms_emsStatus"]
         bms = result["bms_bmsStatus"]
-        debug_display = result["debugPower"]["display"]
-        for key in (
-            "errcode",
-            "sys_status",
-            "pow_in_sum_w",
-            "pow_out_sum_w",
-            "plug_in_info_pv_flag",
-            "plug_in_info_pv_type",
-            "plug_in_info_dcp_in_flag",
-            "input_volt777",
-        ):
-            if key in payload:
-                debug_display[key] = payload[key]
         if "en_beep" in payload:
             pd["beepEn"] = int(payload["en_beep"])
         if "screen_off_time" in payload:
@@ -973,13 +880,11 @@ class GlacierClassic(BaseInternalDevice):
         return {key: value for key, value in flattened.items() if value != {}}
 
     def _map_runtime(self, payload: dict[str, Any]) -> dict[str, Any]:
-        result: dict[str, Any] = {"pd": {}, "runtime": {}, "debugPower": {"runtime": {}}}
-        debug_runtime = result["debugPower"]["runtime"]
+        result: dict[str, Any] = {"pd": {}, "runtime": {}}
         if "plug_in_info_ac_in_vol" in payload:
             ac_in_volts = round(float(payload["plug_in_info_ac_in_vol"]), 2)
             result["pd"]["acInVolts"] = ac_in_volts
             result["pd"]["inputVolts"] = ac_in_volts
-            debug_runtime["plug_in_info_ac_in_vol"] = payload["plug_in_info_ac_in_vol"]
         for key, value in payload.items():
             if key != "plug_in_info_ac_in_vol":
                 result["runtime"][key] = value
