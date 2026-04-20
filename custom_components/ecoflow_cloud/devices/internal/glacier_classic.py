@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import base64
 import logging
 import time
-from collections.abc import Sequence
-from typing import Any, override
+from typing import Any, cast, override
 
 from google.protobuf.json_format import MessageToDict
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -93,6 +93,8 @@ def _normalize_temp_unit(raw_value: Any) -> str | None:
 
 
 class GlacierClassicDebugSensorEntity(MiscSensorEntity):
+    """Debug sensor that exposes decoded packet details as attributes."""
+
     def __init__(self, client: EcoflowApiClient, device: BaseInternalDevice):
         super().__init__(client, device, "debug.packet_ts", "Protobuf Debug", enabled=False)
 
@@ -107,6 +109,8 @@ class GlacierClassicDebugSensorEntity(MiscSensorEntity):
 
 
 class GlacierClassicChargingStateSensorEntity(BaseSensorEntity):
+    """Sensor for battery charging state."""
+
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:battery-charging"
 
@@ -127,6 +131,8 @@ class GlacierClassicChargingStateSensorEntity(BaseSensorEntity):
 
 
 class GlacierClassicTemperatureSensorEntity(TempSensorEntity):
+    """Temperature sensor that tracks the device-reported unit."""
+
     def _is_fahrenheit(self) -> bool:
         return _normalize_temp_unit(self._device.data.params.get("pd.tmpUnit")) == "fahrenheit"
 
@@ -152,6 +158,8 @@ class GlacierClassicTemperatureSensorEntity(TempSensorEntity):
 
 
 class GlacierClassicSetTempEntity(SetTempEntity):
+    """Setpoint entity that tracks the device-reported unit."""
+
     def _current_unit(self) -> UnitOfTemperature:
         if _normalize_temp_unit(self._device.data.params.get("pd.tmpUnit")) == "fahrenheit":
             return UnitOfTemperature.FAHRENHEIT
@@ -172,7 +180,10 @@ class GlacierClassicSetTempEntity(SetTempEntity):
         if previous_unit != self._attr_native_unit_of_measurement:
             self.schedule_update_ha_state()
 
+
 class GlacierClassicTemperatureUnitSensorEntity(MiscSensorEntity):
+    """Sensor that exposes the human-readable temperature unit."""
+
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def _update_value(self, val: Any) -> bool:
@@ -187,6 +198,8 @@ class GlacierClassicTemperatureUnitSensorEntity(MiscSensorEntity):
 
 
 class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
+    """Derived power source sensor based on the current plug-in flags."""
+
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:power-plug"
 
@@ -212,6 +225,8 @@ class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
 
 
 class InvertedMiscBinarySensorEntity(MiscBinarySensorEntity):
+    """Binary sensor entity with inverted device semantics."""
+
     def _update_value(self, val: Any) -> bool:
         self._attr_is_on = not bool(val)
         return True
@@ -220,16 +235,18 @@ class InvertedMiscBinarySensorEntity(MiscBinarySensorEntity):
 class GlacierClassicPrimaryTemperatureSensorEntity(GlacierClassicTemperatureSensorEntity):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._attr_entity_category = None  # type: ignore[assignment]
+        self._attr_entity_category = cast(Any, None)
 
 
 class GlacierClassicControlSetTempEntity(GlacierClassicSetTempEntity):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._attr_entity_category = None  # type: ignore[assignment]
+        self._attr_entity_category = cast(Any, None)
 
 
 class GlacierClassicCommandMessage(PrivateAPIMessageProtocol):
+    """Message wrapper for Glacier Classic protobuf commands."""
+
     def __init__(
         self,
         payload: glacier_classic_pb2.GlacierClassicSetCommand,
@@ -251,13 +268,19 @@ class GlacierClassicCommandMessage(PrivateAPIMessageProtocol):
         return {type(self._packet).__name__: result}
 
 
-def _create_glacier_classic_command(field_name: str, value: int | float, device_sn: str):
+def _create_glacier_classic_proto_command(field_name: str, value: int | float, device_sn: str):
+    """Create a protobuf command for Glacier Classic."""
+
     proto_field_name, value_kind = CONFIG_WRITE_FIELDS[field_name]
     payload = glacier_classic_pb2.GlacierClassicSetCommand()
-    if value_kind == "float":
-        setattr(payload, proto_field_name, float(value))
-    else:
-        setattr(payload, proto_field_name, int(value))
+    try:
+        if value_kind == "float":
+            setattr(payload, proto_field_name, float(value))
+        else:
+            setattr(payload, proto_field_name, int(value))
+    except AttributeError:
+        _LOGGER.error("Unknown Glacier Classic set field: %s", field_name)
+        return None
     pdata = payload.SerializeToString()
 
     packet = glacier_classic_pb2.GlacierClassicSendHeaderMsg()
@@ -281,8 +304,10 @@ def _create_glacier_classic_command(field_name: str, value: int | float, device_
 
 
 class GlacierClassic(BaseInternalDevice):
+    """EcoFlow Glacier Classic device implementation using protobuf decoding."""
+
     @override
-    def sensors(self, client: EcoflowApiClient) -> Sequence[SensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             LevelSensorEntity(client, self, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
             .attr("bms_bmsStatus.socPrecise", "Battery SOC Precise", 0)
@@ -381,7 +406,8 @@ class GlacierClassic(BaseInternalDevice):
         ]
 
     @override
-    def numbers(self, client: EcoflowApiClient) -> Sequence[NumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
+        device = self
         return [
             GlacierClassicControlSetTempEntity(
                 client,
@@ -390,8 +416,8 @@ class GlacierClassic(BaseInternalDevice):
                 "Left Set Temperature",
                 -20,
                 20,
-                lambda value: _create_glacier_classic_command(
-                    "setPointLeft", int(value), self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "setPointLeft", int(value), device.device_data.sn
                 ),
             ),
             GlacierClassicControlSetTempEntity(
@@ -401,8 +427,8 @@ class GlacierClassic(BaseInternalDevice):
                 "Right Set Temperature",
                 -20,
                 20,
-                lambda value: _create_glacier_classic_command(
-                    "setPointRight", int(value), self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "setPointRight", int(value), device.device_data.sn
                 ),
             ),
             MaxBatteryLevelEntity(
@@ -412,8 +438,8 @@ class GlacierClassic(BaseInternalDevice):
                 const.MAX_CHARGE_LEVEL,
                 50,
                 100,
-                lambda value: _create_glacier_classic_command(
-                    "cmsMaxChgSoc", int(value), self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "cmsMaxChgSoc", int(value), device.device_data.sn
                 ),
             ),
             MinBatteryLevelEntity(
@@ -423,22 +449,23 @@ class GlacierClassic(BaseInternalDevice):
                 const.MIN_DISCHARGE_LEVEL,
                 0,
                 50,
-                lambda value: _create_glacier_classic_command(
-                    "cmsMinDsgSoc", int(value), self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "cmsMinDsgSoc", int(value), device.device_data.sn
                 ),
             ),
         ]
 
     @override
-    def switches(self, client: EcoflowApiClient) -> Sequence[SwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
+        device = self
         return [
             InvertedBeeperEntity(
                 client,
                 self,
                 "pd.beepEn",
                 const.BEEPER,
-                lambda value: _create_glacier_classic_command(
-                    "enBeep", value, self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "enBeep", value, device.device_data.sn
                 ),
             ),
             EnabledEntity(
@@ -446,8 +473,8 @@ class GlacierClassic(BaseInternalDevice):
                 self,
                 "pd.coolMode",
                 "Eco Mode",
-                lambda value: _create_glacier_classic_command(
-                    "coolingMode", value, self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "coolingMode", value, device.device_data.sn
                 ),
             ),
             EnabledEntity(
@@ -455,8 +482,8 @@ class GlacierClassic(BaseInternalDevice):
                 self,
                 "pd.childLock",
                 "Child Lock",
-                lambda value: _create_glacier_classic_command(
-                    "childLock", value, self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "childLock", value, device.device_data.sn
                 ),
             ),
             EnabledEntity(
@@ -464,8 +491,8 @@ class GlacierClassic(BaseInternalDevice):
                 self,
                 "pd.simpleMode",
                 "Simple Mode",
-                lambda value: _create_glacier_classic_command(
-                    "simpleMode", value, self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "simpleMode", value, device.device_data.sn
                 ),
             ),
             EnabledEntity(
@@ -473,14 +500,15 @@ class GlacierClassic(BaseInternalDevice):
                 self,
                 "pd.tempAlert",
                 "Temperature Alert",
-                lambda value: _create_glacier_classic_command(
-                    "tempAlert", value, self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "tempAlert", value, device.device_data.sn
                 ),
             ).with_category(EntityCategory.CONFIG),
         ]
 
     @override
-    def selects(self, client: EcoflowApiClient) -> Sequence[SelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
+        device = self
         return [
             DictSelectEntity(
                 client,
@@ -488,8 +516,8 @@ class GlacierClassic(BaseInternalDevice):
                 "pd.powerPbLevel",
                 "Battery Protection",
                 BATTERY_PROTECTION_OPTIONS,
-                lambda value: _create_glacier_classic_command(
-                    "batProtect", value, self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "batProtect", value, device.device_data.sn
                 ),
             ),
             DictSelectEntity(
@@ -498,26 +526,31 @@ class GlacierClassic(BaseInternalDevice):
                 "pd.devStandbyTime",
                 "Device Standby Time",
                 DEVICE_STANDBY_OPTIONS,
-                lambda value: _create_glacier_classic_command(
-                    "devStandbyTime", value, self.device_data.sn
+                lambda value: _create_glacier_classic_proto_command(
+                    "devStandbyTime", value, device.device_data.sn
                 ),
             ),
         ]
 
     @override
-    def binary_sensors(self, client: EcoflowApiClient) -> Sequence[BinarySensorEntity]:
+    def binary_sensors(self, client: EcoflowApiClient) -> list[BinarySensorEntity]:
         return [
             InvertedMiscBinarySensorEntity(client, self, "pd.flagTwoZone", "Dual Zone Mode"),
             MiscBinarySensorEntity(client, self, "pd.lidStatus", "Lid Status").with_device_class("door"),
         ]
 
     @override
-    def buttons(self, client: EcoflowApiClient) -> Sequence[ButtonEntity]:
+    def buttons(self, client: EcoflowApiClient) -> list[ButtonEntity]:
         return []
 
     def _decode_header_message(self, raw_data: bytes) -> dict[str, Any] | None:
         """Decode HeaderMessage and extract header info."""
         try:
+            try:
+                raw_data = base64.b64decode(raw_data, validate=True)
+            except Exception as e:
+                _LOGGER.debug("[GlacierClassic] base64 decode failed: %s", e)
+
             header_msg = glacier_classic_pb2.GlacierClassicSendHeaderMsg()
             header_msg.ParseFromString(raw_data)
             if not header_msg.msg:
@@ -545,6 +578,27 @@ class GlacierClassic(BaseInternalDevice):
         except Exception as e:
             _LOGGER.debug("[GlacierClassic] Failed to parse header message: %s", e)
             return None
+
+    def _build_header_info(self, header_obj: Any) -> dict[str, Any]:
+        """Build a header metadata dictionary for a single message frame."""
+
+        return {
+            "src": getattr(header_obj, "src", 0),
+            "dest": getattr(header_obj, "dest", 0),
+            "dSrc": getattr(header_obj, "d_src", 0),
+            "dDest": getattr(header_obj, "d_dest", 0),
+            "encType": getattr(header_obj, "enc_type", 0),
+            "checkType": getattr(header_obj, "check_type", 0),
+            "cmdFunc": getattr(header_obj, "cmd_func", 0),
+            "cmdId": getattr(header_obj, "cmd_id", 0),
+            "dataLen": getattr(header_obj, "data_len", 0),
+            "needAck": getattr(header_obj, "need_ack", 0),
+            "seq": getattr(header_obj, "seq", 0),
+            "productId": getattr(header_obj, "product_id", 0),
+            "version": getattr(header_obj, "version", 0),
+            "payloadVer": getattr(header_obj, "payload_ver", 0),
+            "header_obj": header_obj,
+        }
 
     def _extract_payload_data(self, header_obj: Any) -> bytes | None:
         """Extract payload bytes from header."""
@@ -575,19 +629,25 @@ class GlacierClassic(BaseInternalDevice):
     def _protobuf_to_dict(self, protobuf_obj: Any) -> dict[str, Any]:
         return MessageToDict(protobuf_obj, preserving_proto_field_name=True)
 
-    def _decode_message_by_type(
-        self, pdata: bytes, header_info: dict[str, Any]
-    ) -> tuple[str, dict[str, Any]]:
-        """Decode protobuf message based on cmdFunc/cmdId."""
+    def _get_packet_type(self, header_info: dict[str, Any]) -> tuple[str, type[Any] | None]:
+        """Look up the protobuf type for a packet header."""
+
         cmd_func = header_info.get("cmdFunc", 0)
         cmd_id = header_info.get("cmdId", 0)
-        packet_name, packet_type = PACKET_TYPES.get((cmd_func, cmd_id), ("Unknown", None))
+        return PACKET_TYPES.get((cmd_func, cmd_id), ("Unknown", None))
+
+    def _decode_message_by_type(self, pdata: bytes, header_info: dict[str, Any]) -> dict[str, Any]:
+        """Decode protobuf message based on cmdFunc/cmdId."""
+
+        cmd_func = header_info.get("cmdFunc", 0)
+        cmd_id = header_info.get("cmdId", 0)
+        packet_name, packet_type = self._get_packet_type(header_info)
         if packet_type is None:
-            return packet_name, {}
+            return {}
         try:
             payload = packet_type()
             payload.ParseFromString(pdata)
-            return packet_name, self._protobuf_to_dict(payload)
+            return self._protobuf_to_dict(payload)
         except Exception:
             _LOGGER.debug(
                 "[GlacierClassic] Failed to parse packet cmd_func=%s cmd_id=%s",
@@ -595,7 +655,41 @@ class GlacierClassic(BaseInternalDevice):
                 cmd_id,
                 exc_info=True,
             )
-            return packet_name, {}
+            return {}
+
+    def _map_packet_data(self, packet_name: str, packet_data: dict[str, Any]) -> dict[str, Any]:
+        """Map a decoded protobuf packet into the legacy entity key space."""
+
+        if packet_name == "BMSHeartBeatReport":
+            return self._map_bms(packet_data)
+        if packet_name == "CMSHeartBeatReport":
+            return self._map_cms(packet_data)
+        if packet_name in {"DisplayPropertyUpload", "ConfigWriteAck"}:
+            return self._map_display(packet_data)
+        if packet_name == "RuntimePropertyUpload":
+            return self._map_runtime(packet_data)
+        return {}
+
+    def _create_debug_payload(
+        self,
+        raw_data: bytes,
+        packet_ts: int,
+        decoded_packets: list[dict[str, Any]],
+        error: str | None = None,
+    ) -> dict[str, Any]:
+        """Create the flattened debug payload stored in params."""
+
+        debug_data: dict[str, Any] = {
+            "packet_ts": packet_ts,
+            "raw_hex": raw_data.hex(),
+        }
+        if error is not None:
+            debug_data["error"] = error
+        else:
+            debug_data["message_count"] = len(decoded_packets)
+            debug_data["messages"] = str(decoded_packets)
+
+        return self._flatten_dict({"debug": debug_data})
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
@@ -610,19 +704,14 @@ class GlacierClassic(BaseInternalDevice):
 
             header_msg = header_info["header_msg"]
             for header in header_msg.msg:
-                current_header_info = {
-                    "src": getattr(header, "src", 0),
-                    "encType": getattr(header, "enc_type", 0),
-                    "seq": getattr(header, "seq", 0),
-                    "cmdFunc": getattr(header, "cmd_func", 0),
-                    "cmdId": getattr(header, "cmd_id", 0),
-                }
+                current_header_info = self._build_header_info(header)
                 pdata = self._extract_payload_data(header)
                 if not pdata:
                     continue
 
                 decoded_pdata = self._perform_xor_decode(pdata, current_header_info)
-                packet_name, packet_data = self._decode_message_by_type(decoded_pdata, current_header_info)
+                packet_name, _ = self._get_packet_type(current_header_info)
+                packet_data = self._decode_message_by_type(decoded_pdata, current_header_info)
 
                 cmd_func = int(current_header_info["cmdFunc"] or 0)
                 cmd_id = int(current_header_info["cmdId"] or 0)
@@ -638,40 +727,12 @@ class GlacierClassic(BaseInternalDevice):
                         "raw_hex": decoded_pdata.hex(),
                     }
                 )
-                if packet_name == "BMSHeartBeatReport":
-                    flat_dict.update(self._map_bms(packet_data))
-                elif packet_name == "CMSHeartBeatReport":
-                    flat_dict.update(self._map_cms(packet_data))
-                elif packet_name in {"DisplayPropertyUpload", "ConfigWriteAck"}:
-                    flat_dict.update(self._map_display(packet_data))
-                elif packet_name == "RuntimePropertyUpload":
-                    flat_dict.update(self._map_runtime(packet_data))
+                flat_dict.update(self._map_packet_data(packet_name, packet_data))
 
-            flat_dict.update(
-                self._flatten_dict(
-                    {
-                        "debug": {
-                            "packet_ts": packet_ts,
-                            "raw_hex": raw_data.hex(),
-                            "message_count": len(decoded_packets),
-                            "messages": str(decoded_packets),
-                        }
-                    }
-                )
-            )
+            flat_dict.update(self._create_debug_payload(raw_data, packet_ts, decoded_packets))
         except Exception:
             _LOGGER.warning("[GlacierClassic] Data processing failed", exc_info=True)
-            flat_dict.update(
-                self._flatten_dict(
-                    {
-                        "debug": {
-                            "packet_ts": packet_ts,
-                            "raw_hex": raw_data.hex(),
-                            "error": "decode_failed",
-                        }
-                    }
-                )
-            )
+            flat_dict.update(self._create_debug_payload(raw_data, packet_ts, decoded_packets, "decode_failed"))
         return {"params": flat_dict, "all_fields": {"packets": decoded_packets}}
 
     def _map_bms(self, payload: dict[str, Any]) -> dict[str, Any]:
