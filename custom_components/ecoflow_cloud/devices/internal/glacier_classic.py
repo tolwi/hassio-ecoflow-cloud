@@ -202,42 +202,44 @@ class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:power-plug"
 
+    def _debug_attributes(self, params: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "chg_line_plug_in_flag": params.get(
+                "pd.chgLinePlugInFlag", params.get("bms_emsStatus.chgLinePlugInFlag")
+            ),
+            "ac_in_volts": params.get("pd.acInVolts", params.get("runtime.plug_in_info_ac_in_vol")),
+            "input_volts": params.get("pd.inputVolts"),
+            "pv_flag": params.get("pd.pvFlag"),
+            "pv_type": params.get("pd.pvType"),
+            "dcp_in_flag": params.get("pd.dcpInFlag"),
+            "cms_chg_state": params.get("bms_emsStatus.chgState"),
+            "battery_in_watts": params.get("bms_bmsStatus.inWatts"),
+            "battery_out_watts": params.get("bms_bmsStatus.outWatts"),
+            "runtime_ac_in_vol": params.get("runtime.plug_in_info_ac_in_vol"),
+            "cms_raw_chg_disable_cond": params.get("debugPower.cms.chg_disable_cond"),
+            "cms_raw_dsg_disable_cond": params.get("debugPower.cms.dsg_disable_cond"),
+            "cms_raw_sys_chg_dsg_state": params.get("debugPower.cms.sys_chg_dsg_state"),
+            "cms_raw_ems_heartbeat_ver": params.get("debugPower.cms.ems_heartbeat_ver"),
+            "display_raw_errcode": params.get("debugPower.display.errcode"),
+            "display_raw_sys_status": params.get("debugPower.display.sys_status"),
+            "display_raw_pow_in_sum_w": params.get("debugPower.display.pow_in_sum_w"),
+            "display_raw_pow_out_sum_w": params.get("debugPower.display.pow_out_sum_w"),
+            "display_raw_pv_flag": params.get("debugPower.display.plug_in_info_pv_flag"),
+            "display_raw_pv_type": params.get("debugPower.display.plug_in_info_pv_type"),
+            "display_raw_dcp_in_flag": params.get("debugPower.display.plug_in_info_dcp_in_flag"),
+            "display_raw_input_volt777": params.get("debugPower.display.input_volt777"),
+            "runtime_raw_plug_in_info_ac_in_vol": params.get("debugPower.runtime.plug_in_info_ac_in_vol"),
+        }
+
     @property
     def extra_state_attributes(self):
         attrs = dict(super().extra_state_attributes or {})
-        params = self._device.data.params
-        attrs.update(
-            {
-                "chg_line_plug_in_flag": params.get(
-                    "pd.chgLinePlugInFlag", params.get("bms_emsStatus.chgLinePlugInFlag")
-                ),
-                "ac_in_volts": params.get("pd.acInVolts", params.get("runtime.plug_in_info_ac_in_vol")),
-                "input_volts": params.get("pd.inputVolts"),
-                "pv_flag": params.get("pd.pvFlag"),
-                "pv_type": params.get("pd.pvType"),
-                "dcp_in_flag": params.get("pd.dcpInFlag"),
-                "cms_chg_state": params.get("bms_emsStatus.chgState"),
-                "battery_in_watts": params.get("bms_bmsStatus.inWatts"),
-                "battery_out_watts": params.get("bms_bmsStatus.outWatts"),
-                "runtime_ac_in_vol": params.get("runtime.plug_in_info_ac_in_vol"),
-                "cms_raw_chg_disable_cond": params.get("debugPower.cms.chg_disable_cond"),
-                "cms_raw_dsg_disable_cond": params.get("debugPower.cms.dsg_disable_cond"),
-                "cms_raw_sys_chg_dsg_state": params.get("debugPower.cms.sys_chg_dsg_state"),
-                "cms_raw_ems_heartbeat_ver": params.get("debugPower.cms.ems_heartbeat_ver"),
-                "display_raw_errcode": params.get("debugPower.display.errcode"),
-                "display_raw_sys_status": params.get("debugPower.display.sys_status"),
-                "display_raw_pow_in_sum_w": params.get("debugPower.display.pow_in_sum_w"),
-                "display_raw_pow_out_sum_w": params.get("debugPower.display.pow_out_sum_w"),
-                "display_raw_pv_flag": params.get("debugPower.display.plug_in_info_pv_flag"),
-                "display_raw_pv_type": params.get("debugPower.display.plug_in_info_pv_type"),
-                "display_raw_dcp_in_flag": params.get("debugPower.display.plug_in_info_dcp_in_flag"),
-                "display_raw_input_volt777": params.get("debugPower.display.input_volt777"),
-                "runtime_raw_plug_in_info_ac_in_vol": params.get("debugPower.runtime.plug_in_info_ac_in_vol"),
-            }
-        )
+        attrs.update(self._debug_attributes(self._device.data.params))
         return attrs
 
     def _updated(self, data: dict[str, Any]):
+        previous_attrs = getattr(self, "_last_debug_attributes", None)
+        current_attrs = self._debug_attributes(data)
         line_plugged = int(
             data.get("pd.chgLinePlugInFlag", data.get("bms_emsStatus.chgLinePlugInFlag", 0)) or 0
         )
@@ -255,7 +257,8 @@ class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
             value = "none"
         else:
             value = "none"
-        if self._attr_native_value != value:
+        self._last_debug_attributes = current_attrs
+        if self._attr_native_value != value or previous_attrs != current_attrs:
             self._attr_native_value = value
             self.schedule_update_ha_state()
 
