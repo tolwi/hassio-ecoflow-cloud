@@ -203,18 +203,23 @@ class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
     _attr_icon = "mdi:power-plug"
 
     def _updated(self, data: dict[str, Any]):
+        line_plugged = int(
+            data.get("pd.chgLinePlugInFlag", data.get("bms_emsStatus.chgLinePlugInFlag", 0)) or 0
+        )
         ac_input_voltage = float(data.get("pd.acInVolts", data.get("runtime.plug_in_info_ac_in_vol", 0)) or 0)
         pv_flag = int(data.get("pd.pvFlag", 0) or 0)
         pv_type = int(data.get("pd.pvType", 0) or 0)
         dcp_flag = int(data.get("pd.dcpInFlag", 0) or 0)
-        if ac_input_voltage > 0:
-            value = "ac"
-        elif pv_flag:
-            value = "solar" if pv_type == 0 else f"solar_{pv_type}"
+        if not line_plugged:
+            value = "none"
         elif dcp_flag:
             value = "dc"
+        elif pv_flag and pv_type == 0:
+            value = "solar"
+        elif ac_input_voltage > 0:
+            value = "ac"
         else:
-            value = "none"
+            value = "ac"
         if self._attr_native_value != value:
             self._attr_native_value = value
             self.schedule_update_ha_state()
@@ -803,6 +808,9 @@ class GlacierClassic(BaseInternalDevice):
         ems = result["bms_emsStatus"]
         if "chg_state" in v1p0:
             ems["chgState"] = int(v1p0["chg_state"])
+        if "chg_line_plug_in_flag" in v1p0:
+            ems["chgLinePlugInFlag"] = int(v1p0["chg_line_plug_in_flag"])
+            result.setdefault("pd", {})["chgLinePlugInFlag"] = int(v1p0["chg_line_plug_in_flag"])
         if "fan_level" in v1p0:
             ems["fanLvl"] = int(v1p0["fan_level"])
         if "max_charge_soc" in v1p0:
