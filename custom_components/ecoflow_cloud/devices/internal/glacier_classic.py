@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 import logging
 import time
 from typing import Any, cast, override
@@ -546,11 +545,6 @@ class GlacierClassic(BaseInternalDevice):
     def _decode_header_message(self, raw_data: bytes) -> dict[str, Any] | None:
         """Decode HeaderMessage and extract header info."""
         try:
-            try:
-                raw_data = base64.b64decode(raw_data, validate=True)
-            except Exception as e:
-                _LOGGER.debug("[GlacierClassic] base64 decode failed: %s", e)
-
             header_msg = glacier_classic_pb2.GlacierClassicSendHeaderMsg()
             header_msg.ParseFromString(raw_data)
             if not header_msg.msg:
