@@ -19,7 +19,8 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import UnitOfTemperature, ATTR_TEMPERATURE
-from typing import Any, Optional
+from typing import Any, Optional, override
+from google.protobuf.json_format import MessageToDict
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import PrivateAPIMessageProtocol
@@ -65,15 +66,27 @@ _PRESET_TO_SUBMODE: dict[str, int] = {PRESET_NONE: 0, PRESET_BOOST: 2, PRESET_SL
 
 
 class Wave3CommandMessage(PrivateAPIMessageProtocol):
-    def __init__(self, payload: bytes):
+    def __init__(
+        self,
+        payload: wave3_pb2.Wave3ConfigWrite,
+        packet: wave3_pb2.Wave3SetMessage,
+    ):
         self._payload = payload
+        self._packet = packet
 
+    @override
     def to_mqtt_payload(self) -> bytes:
-        return self._payload
+        return self._packet.SerializeToString()
 
+    @override
     def to_dict(self) -> dict:
-        return {"Wave3CommandMessage": self._payload.hex()}
+        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
 
+        result = MessageToDict(self._packet, preserving_proto_field_name=True)
+        if "header" in result:
+            result["header"]["pdata"] = {type(self._payload).__name__: payload_dict}
+            result["header"].pop("seq", None)
+        return {type(self._packet).__name__: result}
 
 def _create_wave3_command(device_sn: str, **kwargs: Any) -> Wave3CommandMessage | dict[str, Any]:
     try:
@@ -108,7 +121,7 @@ def _create_wave3_command(device_sn: str, **kwargs: Any) -> Wave3CommandMessage 
                 _LOGGER.debug("Wave3: Unknown header attribute '%s' ignored.", attr)
 
         h.pdata = pdata_bytes
-        return Wave3CommandMessage(msg.SerializeToString())
+        return Wave3CommandMessage(cw, msg)
 
     except Exception as exc:
         _LOGGER.exception("Wave3 ConfigWrite error: %s", exc)
