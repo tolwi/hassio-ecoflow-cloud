@@ -1,9 +1,11 @@
 from .devices.internal.proto import (
     ef_alternator_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
+    ef_delta3_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
     ef_dp3_iobroker_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
     ef_river3_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
-    powerstream_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
-    stream_ac_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
     ef_smartmeter_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
+    powerstream_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
     smartplug_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
+    stream_ac_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
+    wave3_pb2,  # noqa: F401 # pyright: ignore[reportUnusedImport]
 )

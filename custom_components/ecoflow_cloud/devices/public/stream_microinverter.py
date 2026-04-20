@@ -16,12 +16,23 @@ from custom_components.ecoflow_cloud.sensor import (
     VoltSensorEntity,
     WattsSensorEntity,
 )
+from custom_components.ecoflow_cloud.devices.public.stream_pv_helpers import (
+    StreamPvWattsSensorEntity,
+)
 
 
 class StreamMicroinveter(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             WattsSensorEntity(client, self, "gridConnectionPower", const.STREAM_POWER_AC),
+            # Per-PV mapping is firmware-dependent. See stream_ac.py comment
+            # and issues #582/#584. Both variants are registered with
+            # auto_enable=True so the integration stays firmware-agnostic.
+            #
+            # New-firmware path (computed amp x vol via StreamPvWattsSensorEntity)
+            StreamPvWattsSensorEntity(client, self, "plugInInfoPvAmp", const.STREAM_POWER_PV_1, False, True),
+            StreamPvWattsSensorEntity(client, self, "plugInInfoPv2Amp", const.STREAM_POWER_PV_2, False, True),
+            # Legacy-firmware path (powGetPv* keys)
             WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True),
             WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False, True),
             VoltSensorEntity(client, self, "gridConnectionVol", const.STREAM_POWER_VOL, False),

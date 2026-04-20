@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Callable
 
 from homeassistant.components.number import NumberEntity
@@ -5,7 +6,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 
-from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.api import EcoflowApiClient, Message
 from custom_components.ecoflow_cloud.device_data import DeviceData
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo, const
 from custom_components.ecoflow_cloud.number import AcChargingPowerInAmpereEntity
@@ -29,7 +30,80 @@ from custom_components.ecoflow_cloud.sensor import (
     RemainSensorEntity,
     TempSensorEntity,
 )
-from custom_components.ecoflow_cloud.switch import BitMaskEnableEntity, EnabledEntity
+from custom_components.ecoflow_cloud.switch import EnabledEntity
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class BitMaskEnableEntity(EnabledEntity):
+    """Bitmask switch specific to the PowerKit DC distribution panel.
+
+    The panel exposes its 6 DC channel switches as a single 6-bit
+    bitmask integer. Each switch owns one bit, LSB = switch 1.
+
+    Read path: the incoming int is rendered as a 6-bit binary string,
+    reversed, and indexed by ``switchNumber - 1`` to get the per-switch
+    state.
+
+    Write path: commands use an offset of 128 (`10000000`) to toggle a
+    bit ON, and the raw ``switchNumber - 1`` index to toggle it OFF.
+    Only valid for the 6-switch PowerKit DC panel layout.
+    """
+
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        switchKey: str,
+        title: str,
+        command: Callable[[str, int], dict[str, Any] | Message],
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ):
+        """
+        Init the bitmask switsch
+
+        :param str switchKey: The key that should be formatted
+        like that: `maintopic.sn.subtopic.switchnumber`
+        Switchnumber is 1 based, not zero based!
+        :param str title: The switch name used in the has UI.
+        :param str command: a Lambda that accepts as a first
+        parameter the sn (serial number) and a a second parameter the value (precalculated bitmask).
+        :param bool enabled: defines if this switch is enabled by default
+        :param bool auto_enable: defines if this switch is enabled by default
+        """
+        # TODO: We don't know right now a good solution to the problem of lambda overloading
+
+        splittedKey = switchKey.split(".")
+        self.switchNumber = int(splittedKey[-1])
+        self.bitmask = "000000"
+        mqtt_key = ".".join(splittedKey[:-1])
+        super().__init__(
+            client,
+            device,
+            mqtt_key,
+            title,
+            lambda value: command(device.device_data.sn, value),
+            enabled,
+            auto_enable,
+        )
+        self._attr_unique_id = self._gen_unique_id(self._device.device_data.sn, switchKey)
+
+    def _update_value(self, val: Any) -> bool:
+        self.bitmask = ("{0:06b}".format(val))[::-1]
+        self._attr_is_on = bool(int(self.bitmask[self.switchNumber - 1]))
+        _LOGGER.debug(
+            "Updating switch " + str(self._attr_unique_id) + " with value " + str(val) + " to " + str(self._attr_is_on)
+        )
+        return True
+
+    def turn_on(self, **kwargs: Any) -> None:
+        if self._command:
+            self.send_set_message(1, self.command_dict(128 + (self.switchNumber - 1)))
+
+    def turn_off(self, **kwargs: Any) -> None:
+        if self._command:
+            self.send_set_message(0, self.command_dict((self.switchNumber - 1)))
 
 
 class PowerKit(BaseDevice):

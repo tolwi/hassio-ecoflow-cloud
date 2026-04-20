@@ -2,6 +2,8 @@
 
 *Sensors*
 - Power AC (`gridConnectionPower`)
+- Power PV 1 (`pvWatts_plugInInfoPvAmp`)   _(auto)_
+- Power PV 2 (`pvWatts_plugInInfoPv2Amp`)   _(auto)_
 - Power PV 1 (`powGetPv`)   _(auto)_
 - Power PV 2 (`powGetPv2`)   _(auto)_
 - Power Volts (`gridConnectionVol`)   _(disabled)_

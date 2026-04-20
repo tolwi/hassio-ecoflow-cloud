@@ -175,7 +175,7 @@
 
 </p></details>
 
-<details><summary> DELTA_3_1500 <i>(sensors: 44, switches: 8, sliders: 4, selects: 5)</i> </summary>
+<details><summary> DELTA_3_1500 <i>(sensors: 44, switches: 9, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -233,6 +233,7 @@
 - X-Boost Enabled 
 - DC (12V) Enabled 
 - Backup Reserve Enabled 
+- Grid Bypass 
 
 *Sliders (numbers)*
 - Max Charge Level 
@@ -1100,7 +1101,7 @@
 
 </p></details>
 
-<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 2, selects: 1)</i> </summary>
+<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 3, selects: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -1152,7 +1153,7 @@
 - Inverter Error Code  _(disabled)_
 - Inverter Warning Code  _(disabled)_
 - Inverter Status  _(disabled)_
-- Other Loads
+- Custom Load Power
 - Smart Plug Loads
 - Rated Power
 - Lower Battery Limit  _(disabled)_
@@ -1174,6 +1175,7 @@
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
+- Custom Load Power 
 
 *Selects*
 - Power supply mode 
@@ -1272,6 +1274,42 @@
 - Main mode 
 - Remote startup/shutdown 
 - Sub-mode 
+
+</p></details>
+
+<details><summary> WAVE_3 <i>(sensors: 17, switches: 2, sliders: 1, selects: 3)</i> </summary>
+<p>
+
+*Sensors*
+- Total In Power
+- Total Out Power
+- AC Out Power
+- AC In Power
+- DC Battery Power
+- Solar In Power
+- Self Consumption Power  _(disabled)_
+- Main Battery Level
+- Water Level
+- Discharge Remaining Time
+- Charge Remaining Time
+- Power Off Delay Remaining
+- Ambient Temperature
+- Indoor Supply Air Temp  _(disabled)_
+- Condenser Temp  _(disabled)_
+- Evaporator Temp  _(disabled)_
+- BMS Error Code  _(disabled)_
+
+*Switches*
+- Beeper 
+- Auto Drain 
+
+*Sliders (numbers)*
+- Screen Brightness 
+
+*Selects*
+- Screen Timeout 
+- Unit Timeout 
+- Auto-Off Timeout 
 
 </p></details>
 
@@ -2040,7 +2078,7 @@
 - Inverter Error Code  _(disabled)_
 - Inverter Warning Code  _(disabled)_
 - Inverter Status  _(disabled)_
-- Other Loads
+- Custom Load Power
 - Smart Plug Loads
 - Rated Power
 - Lower Battery Limit  _(disabled)_
@@ -2055,7 +2093,7 @@
 - Min Discharge Level 
 - Max Charge Level 
 - Brightness 
-- Custom load power settings 
+- Custom Load Power 
 
 *Selects*
 - Power supply mode 
@@ -2424,7 +2462,7 @@
 
 </p></details>
 
-<details><summary> Stream AC (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream AC (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2453,6 +2491,18 @@
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV3 Volts  _(auto)_
+- Power PV4 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Power PV3 In Amps  _(auto)_
+- Power PV4 In Amps  _(auto)_
 - Power PV Sum
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
@@ -2482,7 +2532,7 @@
 
 </p></details>
 
-<details><summary> Stream PRO (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream PRO (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2511,6 +2561,18 @@
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV3 Volts  _(auto)_
+- Power PV4 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Power PV3 In Amps  _(auto)_
+- Power PV4 In Amps  _(auto)_
 - Power PV Sum
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
@@ -2540,7 +2602,7 @@
 
 </p></details>
 
-<details><summary> Stream Ultra (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream Ultra (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2569,6 +2631,18 @@
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV3 Volts  _(auto)_
+- Power PV4 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Power PV3 In Amps  _(auto)_
+- Power PV4 In Amps  _(auto)_
 - Power PV Sum
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
@@ -2598,11 +2672,13 @@
 
 </p></details>
 
-<details><summary> Stream Microinverter (API) <i>(sensors: 12)</i> </summary>
+<details><summary> Stream Microinverter (API) <i>(sensors: 14)</i> </summary>
 <p>
 
 *Sensors*
 - Power AC
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
 - Power PV 1  _(auto)_
 - Power PV 2  _(auto)_
 - Power Volts  _(disabled)_

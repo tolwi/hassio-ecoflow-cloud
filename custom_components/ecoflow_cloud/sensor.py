@@ -1,8 +1,7 @@
-import enum
 import logging
 import re
 import struct
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any, Mapping, OrderedDict, override
 
 from homeassistant.components.integration.sensor import IntegrationSensor  # pyright: ignore[reportMissingImports]
@@ -36,10 +35,13 @@ from homeassistant.helpers.event import async_track_state_change_event  # pyrigh
 from homeassistant.util import dt  # pyright: ignore[reportMissingImports]
 
 from . import (
+    ATTR_DATA_UPDATES,
     ATTR_MQTT_CONNECTED,
     ATTR_QUOTA_REQUESTS,
     ATTR_STATUS_DATA_LAST_UPDATE,
+    ATTR_STATUS_LAST_UPDATE,
     ATTR_STATUS_SN,
+    ATTR_STATUS_UPDATES,
     ECOFLOW_DOMAIN,
 )
 from .api import EcoflowApiClient
@@ -473,14 +475,7 @@ class DecihertzSensorEntity(FrequencySensorEntity):
         return super()._update_value(int(val) / 10)
 
 
-class _OnlineStatus(enum.Enum):
-    UNKNOWN = enum.auto()
-    ASSUME_OFFLINE = enum.auto()
-    OFFLINE = enum.auto()
-    ONLINE = enum.auto()
-
-
-class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
+class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: ignore[misc]
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
@@ -489,79 +484,79 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
         device: BaseDevice,
         title: str = "Status",
         key: str = "status",
+        poll_when_silent: bool = False,
+        scheduled_refresh_sec: int | None = None,
     ):
+        from .devices.status_tracker import OnlineStatus
+
         super().__init__(client, device, title, key)
         self._attr_force_update = False
-        self.assume_offline_period_sec = device.device_data.options.assume_offline_sec
-        self.force_offline_period_sec = self.assume_offline_period_sec * 3
+        self._tracker = device.status_tracker
+        self._prev_status: OnlineStatus | None = None
+        self._poll_when_silent = poll_when_silent
+        self._scheduled_refresh_sec = scheduled_refresh_sec
+        self._last_poll = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self._last_scheduled = dt.utcnow()
+        self._poll_count = 0
 
-        self._online = _OnlineStatus.UNKNOWN
-        self._last_update = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
         self._attrs = OrderedDict[str, Any]()
         self._attrs[ATTR_STATUS_SN] = self._device.device_info.sn
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = None
         self._attrs[ATTR_MQTT_CONNECTED] = None
+        if poll_when_silent or scheduled_refresh_sec is not None:
+            self._attrs[ATTR_QUOTA_REQUESTS] = 0
 
     def _handle_coordinator_update(self) -> None:
-        changed = False
-        update_time = self.coordinator.data.data_holder.last_received_time()
-        if self._last_update < update_time:
-            self._last_update = max(update_time, self._last_update)
-            self._actualize_attributes()
-            changed = True
+        from .devices.status_tracker import OnlineStatus
 
-        changed = self._actualize_status() or changed
+        status = self._tracker.status
+        changed = status != self._prev_status
+
+        # Active polling when device goes silent
+        if self._poll_when_silent and status == OnlineStatus.ASSUME_OFFLINE:
+            if (dt.utcnow() - self._last_poll).total_seconds() >= self._tracker.assume_offline_sec:
+                self.hass.async_create_background_task(
+                    self._client.quota_all(self._device.device_info.sn),
+                    f"get quota {self._device.device_info.sn}",
+                )
+                self._last_poll = dt.utcnow()
+                self._poll_count += 1
+                self._attrs[ATTR_QUOTA_REQUESTS] = self._poll_count
+                changed = True
+
+        # Scheduled periodic refresh regardless of status
+        if self._scheduled_refresh_sec is not None:
+            if (dt.utcnow() - self._last_scheduled).total_seconds() > self._scheduled_refresh_sec:
+                self.hass.async_create_background_task(
+                    self._client.quota_all(self._device.device_info.sn), "get quota"
+                )
+                self._last_scheduled = dt.utcnow()
+                self._poll_count += 1
+                self._attrs[ATTR_QUOTA_REQUESTS] = self._poll_count
+                _LOGGER.debug("Reload quota for device %s", self._device.device_info.sn)
+                changed = True
 
         if changed:
-            self.coordinator.data.data_holder.online = self._online == _OnlineStatus.ONLINE
-
-            if self._device.device_data.options.verbose_status_mode or self._online in {
-                _OnlineStatus.ONLINE,
-                _OnlineStatus.OFFLINE,
-            }:
+            self._prev_status = status
+            if status.online is not None or self._device.device_data.options.verbose_status_mode:
+                self._attr_native_value = status.label
+                self._actualize_attributes()
                 self.schedule_update_ha_state()
 
-    def _actualize_status(self) -> bool:
-        changed = False
-        time_since_update = (dt.utcnow() - self._last_update).total_seconds()
-        is_fresh = time_since_update < self.assume_offline_period_sec
-        # some device does not produce explicit offline status to data_holder.online
-        # so need to consider forcing online = False after some attempts while ASSUME_OFFLINE
-        is_disconnected = time_since_update > self.force_offline_period_sec
-        online_data = self.coordinator.data.data_holder.online
-
-        target_status = self._online
-        target_value = self._attr_native_value
-
-        if not online_data:
-            target_status = _OnlineStatus.OFFLINE
-            target_value = "offline"
-        elif is_disconnected:
-            target_status = _OnlineStatus.OFFLINE
-            target_value = "offline"
-        elif not is_fresh:
-            target_status = _OnlineStatus.ASSUME_OFFLINE
-            target_value = "assume_offline"
-        else:
-            target_status = _OnlineStatus.ONLINE
-            target_value = "online"
-
-        if self._online != target_status:
-            self._online = target_status
-            self._attr_native_value = target_value
-            self._actualize_attributes()
-            changed = True
-
-        return changed
+    def _format_age(self, timestamp: datetime | None) -> str | None:
+        if timestamp is None:
+            return None
+        age = (dt.utcnow() - timestamp).total_seconds()
+        if age < self._tracker.assume_offline_sec:
+            return f"< {self._tracker.assume_offline_sec} sec"
+        return str(timestamp)
 
     def _actualize_attributes(self):
-        if self._online == _OnlineStatus.ONLINE:
-            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = f"< {self.assume_offline_period_sec} sec"
-        elif self._online == _OnlineStatus.ASSUME_OFFLINE:
-            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = f"< {self.force_offline_period_sec} sec"
-        else:
-            self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._last_update
-
+        self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = self._format_age(self._tracker.last_data_time)
+        self._attrs[ATTR_STATUS_LAST_UPDATE] = self._format_age(self._tracker._explicit_status_last_time)
+        if self._device.device_data.options.verbose_status_mode:
+            self._attrs[ATTR_STATUS_UPDATES] = self._tracker._explicit_status_count
+            self._attrs[ATTR_DATA_UPDATES] = self._tracker._data_received_count
         self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
 
     @property
@@ -570,7 +565,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
 
 
 class QuotaStatusSensorEntity(StatusSensorEntity):
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    """StatusSensorEntity that polls quota when device goes silent."""
 
     def __init__(
         self,
@@ -579,49 +574,15 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
         title: str = "Status",
         key: str = "status",
     ):
-        super().__init__(client, device, title, key)
-        self._attrs[ATTR_QUOTA_REQUESTS] = 0
-        self._last_quota_req = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
-
-    @override
-    def _actualize_status(self) -> bool:
-        changed = False
-
-        # 1. Update status via parent using time-based logic
-        status_changed = super()._actualize_status()
-        changed = changed or status_changed
-
-        # 2. Handle Quota Requests (only if silent / assume offline)
-        if self._online == _OnlineStatus.ASSUME_OFFLINE:
-            time_since_req = (dt.utcnow() - self._last_quota_req).total_seconds()
-            if time_since_req >= self.assume_offline_period_sec:
-                self.hass.async_create_background_task(
-                    self._client.quota_all(self._device.device_info.sn), f"get quota {self._device.device_info.sn}"
-                )
-                self._last_quota_req = dt.utcnow()
-                self._attrs[ATTR_QUOTA_REQUESTS] += 1
-                changed = True
-
-        return changed
+        super().__init__(client, device, title, key, poll_when_silent=True)
 
 
 class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
+    """QuotaStatusSensorEntity with additional periodic scheduled refresh."""
+
     def __init__(self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int = 3600):
         super().__init__(client, device, "Status (Scheduled)", "status.scheduled")
-        self.assume_offline_period_sec: int = reload_delay
-        self._quota_last_update = dt.utcnow()
-
-    def _actualize_status(self) -> bool:
-        changed = super()._actualize_status()
-        quota_diff = dt.as_timestamp(dt.utcnow()) - dt.as_timestamp(self._quota_last_update)
-        # if delay passed, reload quota
-        if quota_diff > (self.assume_offline_period_sec):
-            self._quota_last_update = dt.utcnow()
-            self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
-            self._attrs[ATTR_QUOTA_REQUESTS] = self._attrs[ATTR_QUOTA_REQUESTS] + 1
-            _LOGGER.debug("Reload quota for device %s", self._device.device_info.sn)
-            changed = True
-        return changed
+        self._scheduled_refresh_sec = reload_delay
 
 
 class IntegralEnergySensorEntity(IntegrationSensor):

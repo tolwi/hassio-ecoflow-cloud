@@ -1,5 +1,4 @@
 import dataclasses
-import datetime
 import json
 import logging
 from abc import ABC, abstractmethod
@@ -13,13 +12,14 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import JSONDict, JSONMessage, Message
 from custom_components.ecoflow_cloud.device_data import DeviceData
 from custom_components.ecoflow_cloud.devices.data_holder import EcoflowDataHolder, PreparedData
+from custom_components.ecoflow_cloud.devices.data_coordinator import DeviceDataCoordinator
+from custom_components.ecoflow_cloud.devices.status_tracker import StatusTracker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,57 +52,32 @@ class EcoflowDeviceInfo:
         return [t for t in topics if t is not None]
 
 
-@dataclasses.dataclass
-class EcoflowBroadcastDataHolder:
-    data_holder: EcoflowDataHolder
-    changed: bool
-
-
 class NoQuotaMessageError(Exception):
     pass
-
-
-class EcoflowDeviceUpdateCoordinator(DataUpdateCoordinator[EcoflowBroadcastDataHolder]):
-    def __init__(self, hass, holder: EcoflowDataHolder, refresh_period: int) -> None:
-        """Initialize the coordinator."""
-        super().__init__(
-            hass,
-            _LOGGER,
-            name="Ecoflow update coordinator",
-            always_update=True,
-            update_interval=datetime.timedelta(seconds=max(refresh_period, 5)),
-        )
-        self.holder = holder
-        self.__last_broadcast = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
-
-    async def _async_update_data(self) -> EcoflowBroadcastDataHolder:
-        received_time = self.holder.last_received_time()
-        changed = self.__last_broadcast < received_time
-        self.__last_broadcast = received_time
-        return EcoflowBroadcastDataHolder(self.holder, changed)
 
 
 class BaseDevice(ABC):
     def __init__(self, device_info: EcoflowDeviceInfo, device_data: DeviceData):
         super().__init__()
-        self.coordinator: EcoflowDeviceUpdateCoordinator
+        self.coordinator: DeviceDataCoordinator
         self.device_info: EcoflowDeviceInfo = device_info
         self.power_step: int = device_data.options.power_step
         self.device_data: DeviceData = device_data
 
-        if self.device_data.parent is not None:
-            self.data = EcoflowDataHolder(
-                self.device_data.sn,
-                self.device_data.options.diagnostic_mode,
-            )
-        else:
-            self.data = EcoflowDataHolder(
-                None,
-                self.device_data.options.diagnostic_mode,
-            )
+        self.status_tracker = StatusTracker(
+            self.device_data.options.assume_offline_sec,
+            device_info.status,
+        )
+
+        module_sn = self.device_data.sn if self.device_data.parent is not None else None
+        self.data = EcoflowDataHolder(
+            module_sn,
+            self.device_data.options.diagnostic_mode,
+            status_callback=self.status_tracker,
+        )
 
     def configure(self, hass: HomeAssistant):
-        self.coordinator = EcoflowDeviceUpdateCoordinator(hass, self.data, self.device_data.options.refresh_period)
+        self.coordinator = DeviceDataCoordinator(hass, self.data, self.device_data.options.refresh_period)
 
     @staticmethod
     def default_charging_power_step() -> int:

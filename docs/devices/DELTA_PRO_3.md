@@ -31,10 +31,10 @@
 - 24V DC Output Voltage (`pow_get_24v_vol`)
 - Solar High Voltage Input Power (`pow_get_pv_h`)
 - Solar Low Voltage Input Power (`pow_get_pv_l`)
-- Solar HV Input Voltage (`pow_get_pv_h_vol`)
-- Solar LV Input Voltage (`pow_get_pv_l_vol`)
-- Solar HV Input Current (`pow_get_pv_h_amp`)
-- Solar LV Input Current (`pow_get_pv_l_amp`)
+- Solar HV Input Voltage (`plug_in_info_pv_h_vol`)
+- Solar LV Input Voltage (`plug_in_info_pv_l_vol`)
+- Solar HV Input Current (`plug_in_info_pv_h_amp`)
+- Solar LV Input Current (`plug_in_info_pv_l_amp`)
 - USB QC (1) Out Power (`pow_get_qcusb1`)
 - USB QC (2) Out Power (`pow_get_qcusb2`)
 - Type-C (1) Out Power (`pow_get_typec1`)
@@ -45,8 +45,8 @@
 - AC Output Frequency (`ac_out_freq`)
 - Max Charge SOC Setting (`cms_max_chg_soc`)
 - Min Discharge SOC Setting (`cms_min_dsg_soc`)
-- Total Charge Energy (`accuChgEnergy`)
-- Total Discharge Energy (`accuDsgEnergy`)
+- Total Charge Energy (`accu_chg_energy`)
+- Total Discharge Energy (`accu_dsg_energy`)
 - Status
 
 *Switches*

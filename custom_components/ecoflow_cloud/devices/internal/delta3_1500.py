@@ -31,7 +31,6 @@ from custom_components.ecoflow_cloud.sensor import (
 )
 from custom_components.ecoflow_cloud.switch import (
     BeeperEntity,
-    BypassBanSwitch,
     EnabledEntity,
 )
 
@@ -62,6 +61,27 @@ class Delta31500ChargingStateSensorEntity(ChargingStateSensorEntity):
             return super(ChargingStateSensorEntity, self)._update_value("unused")
         elif val == 2:
             return super(ChargingStateSensorEntity, self)._update_value("charging")
+class BypassBanSwitch(EnabledEntity):
+    """Grid-bypass switch controlled by the EcoFlow ``bypassBan`` command.
+
+    DELTA 3 1500 does not publish the bypass flag as a scalar in push
+    telemetry; instead it mirrors it as index ``[1]`` of the
+    ``pd.reserved`` array-valued quota field. The second element of
+    the array is interpreted as the bypass state:
+
+      0 -> grid bypass enabled  (battery charges from AC input)
+      1 -> grid bypass disabled (battery runs standalone, no charging)
+
+    When the switch is ON, the grid bypass is disabled (matching the
+    "Disable grid bypass" toggle in the EcoFlow mobile app).
+    """
+
+    def _update_value(self, val: Any) -> bool:
+        if isinstance(val, list) and len(val) >= 2:
+            new_state = val[1] == 1
+            if self._attr_is_on != new_state:
+                self._attr_is_on = new_state
+                return True
         return False
 
 

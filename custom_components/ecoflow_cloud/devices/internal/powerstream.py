@@ -19,6 +19,7 @@ from custom_components.ecoflow_cloud.devices.internal import to_lower_camel_case
 from custom_components.ecoflow_cloud.devices.internal.proto import AddressId
 from custom_components.ecoflow_cloud.devices.internal.proto import powerstream_pb2 as powerstream
 from custom_components.ecoflow_cloud.number import (
+    DeciChargingPowerEntity,
     MaxBatteryLevelEntity,
     MinBatteryLevelEntity,
 )
@@ -203,7 +204,7 @@ class PowerStream(BaseInternalDevice):
             MiscSensorEntity(client, self, "20_1.invErrCode", "Inverter Error Code", False),
             MiscSensorEntity(client, self, "20_1.invWarnCode", "Inverter Warning Code", False),
             MiscSensorEntity(client, self, "20_1.invStatue", "Inverter Status", False),
-            DeciwattsSensorEntity(client, self, "20_1.permanentWatts", "Other Loads"),
+            DeciwattsSensorEntity(client, self, "20_1.permanentWatts", const.CUSTOM_LOAD_POWER),
             DeciwattsSensorEntity(client, self, "20_1.dynamicWatts", "Smart Plug Loads"),
             DeciwattsSensorEntity(client, self, "20_1.ratedPower", "Rated Power"),
             MiscSensorEntity(client, self, "20_1.lowerLimit", "Lower Battery Limit", False),
@@ -232,14 +233,14 @@ class PowerStream(BaseInternalDevice):
                 "254_32.watthFromBattery",
                 "From Battery Today Energy Total",
                 enabled=True,
-            ),
+            ).with_icon("mdi:battery-arrow-down-outline"),
             ResettingOutEnergySensorEntity(
                 client,
                 self,
                 "254_32.watthToBattery",
                 "To Battery Today Energy Total",
                 enabled=True,
-            ),
+            ).with_icon("mdi:battery-arrow-up"),
             ResettingOutEnergySensorEntity(
                 client,
                 self,
@@ -314,6 +315,19 @@ class PowerStream(BaseInternalDevice):
                     payload=powerstream.PowerStreamBatLowerPack(lower_limit=value),
                 ),
             ),
+            DeciChargingPowerEntity(
+                client,
+                self,
+                "20_1.permanentWatts",
+                const.CUSTOM_LOAD_POWER,
+                0,
+                800,
+                lambda value: PowerStreamCommandMessage(
+                    device_sn=self.device_info.sn,
+                    command=Command.PERMANENT_WATTS_PACK,
+                    payload=powerstream.PowerStreamPermanentWattsPack(permanent_watts=value),
+                ),
+            ).with_icon("mdi:transmission-tower-export"),
         ]
 
     @override

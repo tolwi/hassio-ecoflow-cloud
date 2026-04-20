@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 from typing import Any, List
 from unittest.mock import Mock
 
@@ -34,6 +35,8 @@ logger = logging.getLogger(__name__)
 MARKER_VALUE = 6666
 OUTPUT_DIR = "devices"
 SUMMARY_FILENAME = "summary.md"
+README_FILENAME = "../README.md"
+README_MARKER = "## Current state"
 
 # Device test configuration constants
 DEVICE_SN = "SN"
@@ -177,9 +180,9 @@ class DocumentationGenerator:
 
         return ", ".join(parts)
 
-    def render_brief_summary(self, hass: HomeAssistant):
-        """Generate brief summary documentation."""
-        content_summary = "## Current state\n"
+    def render_brief_summary(self, hass: HomeAssistant) -> str:
+        """Generate brief summary documentation and write it to summary.md."""
+        content_summary = f"{README_MARKER}\n"
         content_summary += "### Devices available with private_api\n"
 
         for dt, dev in devices.items():
@@ -223,6 +226,30 @@ class DocumentationGenerator:
         with open(SUMMARY_FILENAME, "w+", encoding="utf-8") as f_summary:
             f_summary.write(content_summary)
             f_summary.write("\n")
+
+        return content_summary
+
+    def update_readme(self, summary_content: str) -> None:
+        """Replace the '## Current state' section of the README with the generated summary.
+
+        Matches from the marker up to the next top-level '## ' heading or EOF,
+        so sections added below 'Current state' in the future are preserved.
+        """
+        with open(README_FILENAME, "r", encoding="utf-8") as f:
+            readme = f.read()
+
+        pattern = re.compile(
+            rf"^{re.escape(README_MARKER)}\n.*?(?=^## |\Z)",
+            re.DOTALL | re.MULTILINE,
+        )
+        if not pattern.search(readme):
+            raise ValueError(f"Marker '{README_MARKER}' not found in {README_FILENAME}")
+
+        new_readme = pattern.sub(summary_content.rstrip() + "\n\n", readme)
+        with open(README_FILENAME, "w", encoding="utf-8") as f:
+            f.write(new_readme)
+
+        logger.info("Updated '%s' section in %s", README_MARKER, README_FILENAME)
 
     def update_full_summary(self, hass: HomeAssistant):
         """Generate full device documentation."""
@@ -444,7 +471,8 @@ if __name__ == "__main__":
         generator = DocumentationGenerator()
 
         generator.update_full_summary(hass)
-        generator.render_brief_summary(hass)
+        summary_content = generator.render_brief_summary(hass)
+        generator.update_readme(summary_content)
 
         print("Generate docs finished !")
 

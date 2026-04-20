@@ -114,6 +114,7 @@ POWER_SUPPLY_PRIORITY_OPTIONS = {
     "Prioritize power supply": 0,
     "Prioritize power storage": 1
 }
+CUSTOM_LOAD_POWER = "Custom Load Power"
 
 UTC_TIMEZONE = "Timezone"
 UTC_TIMEZONE_ID = "Timezone name"
@@ -340,8 +341,12 @@ STREAM_POWER_PV_3 = "Power PV 3"
 STREAM_POWER_PV_4 = "Power PV 4"
 STREAM_IN_AMPS_PV_1 = "Power PV1 In Amps"
 STREAM_IN_AMPS_PV_2 = "Power PV2 In Amps"
+STREAM_IN_AMPS_PV_3 = "Power PV3 In Amps"
+STREAM_IN_AMPS_PV_4 = "Power PV4 In Amps"
 STREAM_IN_VOL_PV_1 = "Power PV1 Volts"
 STREAM_IN_VOL_PV_2 = "Power PV2 Volts"
+STREAM_IN_VOL_PV_3 = "Power PV3 Volts"
+STREAM_IN_VOL_PV_4 = "Power PV4 Volts"
 STREAM_POWER_PV_SUM = "Power PV Sum"
 STREAM_GET_SYS_LOAD = "Power Sys Load" # powGetSysLoad
 STREAM_GET_SYS_LOAD_FROM_BP = "Power Sys Load From Battery" # powGetSysLoadFromBp
@@ -479,3 +484,15 @@ ALTERNATOR_REVERSE_CHARGE_CURRENT_MAX = "Reverse Charge Current Max"
 ALTERNATOR_OPERATION_MODE = "Operation Mode"
 ALTERNATOR_ENABLED = "Charging Enabled"
 ALTERNATOR_CABLE_LENGTH = "Extension Cable Length"
+
+# Wave 3
+SELF_CONSUMPTION_POWER = "Self Consumption Power"
+WATER_LEVEL = "Water Level"
+POWER_OFF_DELAY_REMAINING_TIME = "Power Off Delay Remaining"
+AMBIENT_TEMPERATURE = "Ambient Temperature"
+INDOOR_SUPPLY_AIR_TEMP = "Indoor Supply Air Temp"
+CONDENSER_TEMP = "Condenser Temp"
+EVAPORATOR_TEMP = "Evaporator Temp"
+SCREEN_BRIGHTNESS = "Screen Brightness"
+AUTO_DRAINAGE = "Auto Drain"
+AUTO_OFF_TIMEOUT = "Auto-Off Timeout"
