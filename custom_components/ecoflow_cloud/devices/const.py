@@ -114,6 +114,7 @@ POWER_SUPPLY_PRIORITY_OPTIONS = {
     "Prioritize power supply": 0,
     "Prioritize power storage": 1
 }
+CUSTOM_LOAD_POWER = "Custom Load Power"
 
 UTC_TIMEZONE = "Timezone"
 UTC_TIMEZONE_ID = "Timezone name"
