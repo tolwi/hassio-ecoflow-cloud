@@ -515,6 +515,55 @@ class GlacierClassic(BaseInternalDevice):
     def buttons(self, client: EcoflowApiClient) -> Sequence[ButtonEntity]:
         return []
 
+    def _decode_header_message(self, raw_data: bytes) -> dict[str, Any] | None:
+        """Decode HeaderMessage and extract header info."""
+        try:
+            header_msg = glacier_classic_pb2.GlacierClassicSendHeaderMsg()
+            header_msg.ParseFromString(raw_data)
+            if not header_msg.msg:
+                return None
+
+            header = header_msg.msg[0]
+            return {
+                "src": getattr(header, "src", 0),
+                "dest": getattr(header, "dest", 0),
+                "dSrc": getattr(header, "d_src", 0),
+                "dDest": getattr(header, "d_dest", 0),
+                "encType": getattr(header, "enc_type", 0),
+                "checkType": getattr(header, "check_type", 0),
+                "cmdFunc": getattr(header, "cmd_func", 0),
+                "cmdId": getattr(header, "cmd_id", 0),
+                "dataLen": getattr(header, "data_len", 0),
+                "needAck": getattr(header, "need_ack", 0),
+                "seq": getattr(header, "seq", 0),
+                "productId": getattr(header, "product_id", 0),
+                "version": getattr(header, "version", 0),
+                "payloadVer": getattr(header, "payload_ver", 0),
+                "header_obj": header,
+                "header_msg": header_msg,
+            }
+        except Exception as e:
+            _LOGGER.debug("[GlacierClassic] Failed to parse header message: %s", e)
+            return None
+
+    def _extract_payload_data(self, header_obj: Any) -> bytes | None:
+        """Extract payload bytes from header."""
+        try:
+            pdata = getattr(header_obj, "pdata", b"")
+            return bytes(pdata) if pdata else None
+        except Exception as e:
+            _LOGGER.debug("[GlacierClassic] Failed to extract payload data: %s", e)
+            return None
+
+    def _perform_xor_decode(self, pdata: bytes, header_info: dict[str, Any]) -> bytes:
+        """Perform XOR decoding if required by header info."""
+        enc_type = header_info.get("encType", 0)
+        src = header_info.get("src", 0)
+        seq = header_info.get("seq", 0)
+        if enc_type == 1 and src != 32:
+            return self._xor_decode_pdata(pdata, seq)
+        return pdata
+
     def _xor_decode_pdata(self, pdata: bytes, seq: int) -> bytes:
         if not pdata:
             return b""
@@ -526,7 +575,12 @@ class GlacierClassic(BaseInternalDevice):
     def _protobuf_to_dict(self, protobuf_obj: Any) -> dict[str, Any]:
         return MessageToDict(protobuf_obj, preserving_proto_field_name=True)
 
-    def _decode_payload(self, cmd_func: int, cmd_id: int, pdata: bytes) -> tuple[str, dict[str, Any]]:
+    def _decode_message_by_type(
+        self, pdata: bytes, header_info: dict[str, Any]
+    ) -> tuple[str, dict[str, Any]]:
+        """Decode protobuf message based on cmdFunc/cmdId."""
+        cmd_func = header_info.get("cmdFunc", 0)
+        cmd_id = header_info.get("cmdId", 0)
         packet_name, packet_type = PACKET_TYPES.get((cmd_func, cmd_id), ("Unknown", None))
         if packet_type is None:
             return packet_name, {}
@@ -545,56 +599,80 @@ class GlacierClassic(BaseInternalDevice):
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
+        """Prepare Glacier Classic data by decoding protobuf and flattening fields."""
         packet_ts = int(time.time())
-        params: dict[str, Any] = {}
+        flat_dict: dict[str, Any] = {}
         decoded_packets: list[dict[str, Any]] = []
         try:
-            header_msg = glacier_classic_pb2.GlacierClassicSendHeaderMsg()
-            header_msg.ParseFromString(raw_data)
+            header_info = self._decode_header_message(raw_data)
+            if not header_info:
+                return super()._prepare_data(raw_data)
+
+            header_msg = header_info["header_msg"]
             for header in header_msg.msg:
-                cmd_func = int(getattr(header, "cmd_func", 0) or 0)
-                cmd_id = int(getattr(header, "cmd_id", 0) or 0)
-                pdata = bytes(getattr(header, "pdata", b""))
+                current_header_info = {
+                    "src": getattr(header, "src", 0),
+                    "encType": getattr(header, "enc_type", 0),
+                    "seq": getattr(header, "seq", 0),
+                    "cmdFunc": getattr(header, "cmd_func", 0),
+                    "cmdId": getattr(header, "cmd_id", 0),
+                }
+                pdata = self._extract_payload_data(header)
                 if not pdata:
                     continue
-                enc_type = int(getattr(header, "enc_type", 0) or 0)
-                src = int(getattr(header, "src", 0) or 0)
-                seq = int(getattr(header, "seq", 0) or 0)
-                if enc_type == 1 and src != 32:
-                    pdata = self._xor_decode_pdata(pdata, seq)
-                packet_name, packet_data = self._decode_payload(cmd_func, cmd_id, pdata)
+
+                decoded_pdata = self._perform_xor_decode(pdata, current_header_info)
+                packet_name, packet_data = self._decode_message_by_type(decoded_pdata, current_header_info)
+
+                cmd_func = int(current_header_info["cmdFunc"] or 0)
+                cmd_id = int(current_header_info["cmdId"] or 0)
                 header_dict = self._protobuf_to_dict(header)
                 header_dict.pop("pdata", None)
-                decoded_packets.append({
-                    "cmd_func": cmd_func,
-                    "cmd_id": cmd_id,
-                    "name": packet_name,
-                    "header": header_dict,
-                    "data": packet_data,
-                    "raw_hex": pdata.hex(),
-                })
+                decoded_packets.append(
+                    {
+                        "cmd_func": cmd_func,
+                        "cmd_id": cmd_id,
+                        "name": packet_name,
+                        "header": header_dict,
+                        "data": packet_data,
+                        "raw_hex": decoded_pdata.hex(),
+                    }
+                )
                 if packet_name == "BMSHeartBeatReport":
-                    params.update(self._map_bms(packet_data))
+                    flat_dict.update(self._map_bms(packet_data))
                 elif packet_name == "CMSHeartBeatReport":
-                    params.update(self._map_cms(packet_data))
+                    flat_dict.update(self._map_cms(packet_data))
                 elif packet_name in {"DisplayPropertyUpload", "ConfigWriteAck"}:
-                    params.update(self._map_display(packet_data))
+                    flat_dict.update(self._map_display(packet_data))
                 elif packet_name == "RuntimePropertyUpload":
-                    params.update(self._map_runtime(packet_data))
-            params.update(self._flatten_dict({"debug": {
-                "packet_ts": packet_ts,
-                "raw_hex": raw_data.hex(),
-                "message_count": len(decoded_packets),
-                "messages": str(decoded_packets),
-            }}))
+                    flat_dict.update(self._map_runtime(packet_data))
+
+            flat_dict.update(
+                self._flatten_dict(
+                    {
+                        "debug": {
+                            "packet_ts": packet_ts,
+                            "raw_hex": raw_data.hex(),
+                            "message_count": len(decoded_packets),
+                            "messages": str(decoded_packets),
+                        }
+                    }
+                )
+            )
         except Exception:
             _LOGGER.warning("[GlacierClassic] Data processing failed", exc_info=True)
-            params.update(self._flatten_dict({"debug": {
-                "packet_ts": packet_ts,
-                "raw_hex": raw_data.hex(),
-                "error": "decode_failed",
-            }}))
-        return {"params": params, "all_fields": {"packets": decoded_packets}}
+            flat_dict.update(
+                self._flatten_dict(
+                    {
+                        "debug": {
+                            "packet_ts": packet_ts,
+                            "raw_hex": raw_data.hex(),
+                            "error": "decode_failed",
+                        }
+                    }
+                )
+            )
+        return {"params": flat_dict, "all_fields": {"packets": decoded_packets}}
 
     def _map_bms(self, payload: dict[str, Any]) -> dict[str, Any]:
         result: dict[str, Any] = {"bms_bmsStatus": {}}
