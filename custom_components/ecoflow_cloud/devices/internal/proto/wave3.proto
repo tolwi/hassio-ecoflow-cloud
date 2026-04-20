@@ -1,0 +1,412 @@
+syntax = "proto3";
+
+package wave3;
+
+message AppRuquestBpEuLawData {
+  optional string pack_sn = 1;
+  optional uint32 app_to_bms_launch_date = 2;
+  optional uint32 app_launch_date_set_type = 3;
+  optional uint32 app_to_bms_reset_flag = 4;
+  optional uint32 bms_data_upload_en = 5;
+}
+
+message ConfigReadAck {
+  optional uint32 cfg_utc_time = 6;
+  optional int32 cfg_utc_timezone = 7;
+  optional GetAllTimeTaskReadck get_time_task_list = 41;
+  optional TimeTaskItemV2List read_time_task_v2_list = 129;
+  optional uint32 get_pd_firm_ver = 144;
+  optional uint32 get_iot_firm_ver = 145;
+  optional uint32 get_mppt_firm_ver = 146;
+  optional uint32 get_llc_firm_ver = 147;
+  optional uint32 get_inv_firm_ver = 148;
+  optional uint32 get_bms_firm_ver = 149;
+}
+
+message ConfigRead {
+  repeated uint32 action_id = 1;
+}
+
+message ResvInfo {
+  repeated uint32 resv_info = 1;
+}
+
+enum WAVE3_TIME_TASK_MODE {
+  TIME_TASK_MODE_RESV = 0;
+  TIME_TASK_MODE_PER_WEEK = 1;
+  TIME_TASK_MODE_ONCE = 2;
+}
+
+enum WAVE3_TIME_TASK_TYPE {
+  TIME_TASK_TYPE_AC_CHG = 0;
+  TIME_TASK_TYPE_AC_DSG = 1;
+  TIME_TASK_TYPE_AC2_DSG = 2;
+  TIME_TASK_TYPE_DC_CHG = 3;
+  TIME_TASK_TYPE_DC2_CHG = 4;
+  TIME_TASK_TYPE_DC_DSG = 5;
+  TIME_TASK_TYPE_OIL_ON = 6;
+  TIME_TASK_TYPE_OIL_OFF = 7;
+  TIME_TASK_TYPE_USB_CHG = 8;
+  TIME_TASK_TYPE_USB_DSG = 9;
+}
+
+enum WAVE3_TIME_TASK_DETAIL_TYPE {
+  TIME_TASK_DETAIL_IDLE = 0;
+  TIME_TASK_DETAIL_POW = 1;
+  TIME_TASK_DETAIL_TEMP = 2;
+  TIME_TASK_DETAIL_LEVEL = 3;
+}
+
+message TimeTaskParamDetail {
+  optional WAVE3_TIME_TASK_DETAIL_TYPE type = 1;
+  optional float val = 2;
+}
+
+message TimeTaskItemV2 {
+  optional uint32 task_index = 1;
+  optional bool is_cfg = 2;
+  optional bool is_enable = 3;
+  optional uint32 conflict_flag = 4;
+  optional WAVE3_TIME_TASK_MODE time_mode = 5;
+  optional uint32 time_param = 6;
+  optional uint32 time_table = 7;
+  optional WAVE3_TIME_TASK_TYPE task_type = 8;
+  optional uint32 task_param = 9;
+  repeated TimeTaskParamDetail task_param_detail = 10;
+}
+
+message TimeTaskItemV2List {
+  repeated TimeTaskItemV2 time_task = 1;
+}
+
+message RuntimePropertyUpload {
+  optional float temp_pcs_dc = 26;
+  optional float temp_pcs_ac = 27;
+  optional float plug_in_info_ac_in_vol = 68;
+  optional float plug_in_info_bms_vol = 169;
+  optional int32 pd_mppt_comm_err = 172;
+  optional int32 pd_llc_comm_err = 173;
+  optional int32 pd_bms_comm_err = 174;
+  optional int32 pd_iot_comm_err = 175;
+  optional uint32 pd_firm_ver = 176;
+  optional uint32 iot_firm_ver = 177;
+  optional uint32 mppt_firm_ver = 178;
+  optional uint32 llc_firm_ver = 179;
+  optional float plug_in_info_ac_in_amp = 223;
+  optional uint32 bms_firm_ver = 241;
+  optional float bms_batt_vol = 244;
+  optional float bms_batt_amp = 245;
+  optional uint32 bms_bal_state = 246;
+  optional uint32 bms_full_cap = 247;
+  optional uint32 bms_remain_cap = 249;
+  optional uint32 bms_alm_state = 250;
+  optional uint32 bms_pro_state = 251;
+  optional uint32 bms_flt_state = 252;
+  optional uint32 bms_err_code = 253;
+  optional uint32 bms_min_cell_vol = 256;
+  optional uint32 bms_max_cell_vol = 257;
+  optional float cms_batt_vol = 264;
+  optional float cms_batt_amp = 265;
+  optional float cms_chg_req_vol = 266;
+  optional float cms_chg_req_amp = 267;
+  optional uint32 bms_overload_icon = 276;
+  optional uint32 bms_warn_icon = 277;
+  optional uint32 bms_high_temp_icon = 278;
+  optional uint32 bms_low_temp_icon = 279;
+  optional uint32 bms_limit_icon = 280;
+  optional uint32 bms_alm_state_2 = 291;
+  optional uint32 bms_pro_state_2 = 292;
+  optional int32 display_property_full_upload_period = 293;
+  optional int32 display_property_incremental_upload_period = 294;
+  optional int32 runtime_property_full_upload_period = 295;
+  optional int32 runtime_property_incremental_upload_period = 296;
+  optional float temp_pv = 379;
+  optional float plug_in_info_pv_vol = 380;
+  optional float plug_in_info_pv_amp = 381;
+  optional float plug_in_info_dcp_vol = 443;
+  optional float plug_in_info_dcp_amp = 448;
+  optional float temp_indoor_return_air = 493;
+  optional float temp_outdoor_ambient = 495;
+  optional float temp_condenser = 496;
+  optional float temp_evaporator = 499;
+  optional float temp_compressor_discharge = 503;
+}
+
+enum USER_TEMP_UNIT_TYPE {
+  USER_TEMP_UNIT_NONE = 0;
+  USER_TEMP_UNIT_C = 1;
+  USER_TEMP_UNIT_F = 2;
+}
+
+message DevErrcodeList {
+  repeated uint32 dev_errcode = 1;
+}
+
+message WaveOperatingModeParamItem {
+  optional uint32 submode = 1;
+  optional uint32 airflow_speed = 2;
+  optional float temp_set = 3;
+  optional float humi_set = 4;
+  optional float temp_thermostatic_upper_limit = 5;
+  optional float temp_thermostatic_lower_limit = 6;
+}
+
+message WaveOperatingModeParamList {
+  repeated WaveOperatingModeParamItem list_info = 1;
+}
+
+message DisplayPropertyUpload {
+   optional uint32 errcode = 1;
+   optional float pow_in_sum_w = 3;
+   optional float pow_out_sum_w = 4;
+   optional uint32 lcd_light = 5;
+   optional float pow_get_qcusb1 = 9;
+   optional float pow_get_typec1 = 11;
+   optional uint32 flow_info_qcusb1 = 13;
+   optional uint32 flow_info_typec1 = 15;
+   optional uint32 dev_standby_time = 17;
+   optional uint32 screen_off_time = 18;
+   optional uint32 pcs_fan_level = 30;
+   optional uint32 flow_info_ac2dc = 45;
+   optional uint32 flow_info_ac_in = 47;
+   optional float pow_get_ac = 53;
+   optional float pow_get_ac_in = 54;
+   optional uint32 plug_in_info_ac_in_flag = 61;
+   optional uint32 plug_in_info_ac_in_feq = 62;
+   optional TimeTaskItemV2 current_time_task_v2_item = 126;
+   optional int32 utc_timezone = 133;
+   optional string utc_timezone_id = 134;
+   optional bool utc_set_mode = 135;
+   optional uint32 bms_err_code = 140;
+   optional uint32 flow_info_bms_dsg = 152;
+   optional uint32 flow_info_bms_chg = 153;
+   optional float pow_get_bms = 158;
+   optional bool en_beep = 195;
+   optional bool plug_in_info_ac_charger_flag = 202;
+   optional uint32 plug_in_info_ac_in_chg_pow_max = 209;
+   optional uint32 dev_sleep_state = 212;
+   optional uint32 pd_err_code = 213;
+   optional uint32 plug_in_info_ac_out_dsg_pow_max = 238;
+   optional float bms_batt_soc = 242;
+   optional float bms_batt_soh = 243;
+   optional uint32 bms_design_cap = 248;
+   optional uint32 bms_dsg_rem_time = 254;
+   optional uint32 bms_chg_rem_time = 255;
+   optional int32 bms_min_cell_temp = 258;
+   optional int32 bms_max_cell_temp = 259;
+   optional int32 bms_min_mos_temp = 260;
+   optional int32 bms_max_mos_temp = 261;
+   optional float cms_batt_soc = 262;
+   optional float cms_batt_soh = 263;
+   optional uint32 cms_dsg_rem_time = 268;
+   optional uint32 cms_chg_rem_time = 269;
+   optional uint32 cms_max_chg_soc = 270;
+   optional uint32 cms_min_dsg_soc = 271;
+   optional uint32 cms_bms_run_state = 275;
+   optional uint32 bms_chg_dsg_state = 281;
+   optional uint32 cms_chg_dsg_state = 282;
+   optional uint32 time_task_conflict_flag = 285;
+   optional uint32 time_task_change_cnt = 286;
+   optional uint32 plug_in_info_pv_dc_amp_max = 356;
+   optional uint32 flow_info_pv = 360;
+   optional float pow_get_pv = 361;
+   optional uint32 plug_in_info_pv_type = 363;
+   optional bool plug_in_info_pv_charger_flag = 364;
+   optional uint32 plug_in_info_pv_chg_amp_max = 365;
+   optional uint32 plug_in_info_pv_chg_vol_max = 366;
+   optional string bms_main_sn = 392;
+   optional uint32 flow_info_dcp_in = 423;
+   optional uint32 flow_info_dcp_out = 424;
+   optional float pow_get_dcp = 425;
+   optional bool plug_in_info_dcp_in_flag = 426;
+   optional uint32 plug_in_info_dcp_type = 427;
+   optional uint32 plug_in_info_dcp_detail = 428;
+   optional uint32 plug_in_info_dcp_dsg_chg_type = 431;
+   optional ResvInfo plug_in_info_dcp_resv = 432;
+   optional string plug_in_info_dcp_sn = 433;
+   optional uint32 plug_in_info_dcp_firm_ver = 434;
+   optional bool plug_in_info_dcp_charger_flag = 435;
+   optional uint32 plug_in_info_dcp_run_state = 436;
+   optional uint32 plug_in_info_dcp_err_code = 438;
+   optional uint32 plug_in_info_ac_in_chg_hal_pow_max = 458;
+   optional float temp_ambient = 484;
+   optional float humi_ambient = 485;
+   optional uint32 wave_operating_mode = 486;
+   optional float temp_indoor_supply_air = 494;
+   optional float condensate_water_level = 504;
+   optional bool in_drainage = 505;
+   optional uint32 drainage_mode = 506;
+   optional uint32 mood_light_mode = 507;
+   optional uint32 lcd_show_temp_type = 508;
+   optional bool en_pet_care = 509;
+   optional float temp_pet_care_warning = 510;
+   optional USER_TEMP_UNIT_TYPE user_temp_unit = 512;
+   optional bool pet_care_warning = 513;
+   optional WaveOperatingModeParamList wave_mode_info = 514;
+   optional DevErrcodeList dev_errcode_list = 627;
+   optional float pow_get_self_consume = 777;
+   optional uint32 power_off_delay_set = 778;
+   optional uint32 power_off_delay_remaining = 779;
+}
+
+message SetTimeTaskWrite {
+  optional uint32 task_index = 1;
+  optional bool is_valid = 2;
+  optional bool is_cfg = 3;
+  optional bool is_enable = 4;
+  optional uint32 conflict_flag = 5;
+  optional uint32 type = 6;
+  optional uint32 time_mode = 7;
+  optional uint32 time_param = 8;
+  repeated uint32 time_table = 9;
+}
+
+message SetTimeTaskWriteAck {
+  optional uint32 task_index = 1;
+  optional uint32 type = 2;
+  optional uint32 sta = 3;
+}
+
+message GetAllTimeTaskReadck {
+  repeated SetTimeTaskWrite time_task = 1;
+}
+
+message CfgBmsPushWrite {
+  optional bool bms_heartbeap_open = 1;
+  optional bool bms_health_open = 2;
+  optional uint32 bms_heartbeap_freq = 3;
+  optional uint32 bms_health_freq = 4;
+}
+
+message CfgBmsPushWriteAck {
+  optional bool bms_heartbeap_open = 1;
+  optional bool bms_health_open = 2;
+}
+
+message ConfigWrite {
+    optional int32 cfgPowerOff = 3;
+    optional bool cfg_main_power = 4;
+    optional uint32 cfg_utc_time = 6;
+    optional int32 cfg_utc_timezone = 7;
+    optional int32 enBeep = 9;
+    optional int32 screenOffTime = 12;
+    optional int32 devStandbyTime = 13;
+    optional int32 lcdLight = 14;
+    optional int32 cmsMaxChgSoc = 33;
+    optional int32 cmsMinDsgSoc = 34;
+
+    optional uint32 cfg_soc_cali = 31;
+    optional CfgBmsPushWrite cfg_bms_push = 32;
+    optional SetTimeTaskWrite set_time_task = 39;
+    optional uint32 cfg_plug_in_info_ac_in_chg_pow_max = 54;
+    optional int32 cfg_display_property_full_upload_period = 67;
+    optional int32 cfg_display_property_incremental_upload_period = 68;
+    optional int32 cfg_runtime_property_full_upload_period = 69;
+    optional int32 cfg_runtime_property_incremental_upload_period = 70;
+    optional bool active_display_property_full_upload = 71;
+    optional bool active_runtime_property_full_upload = 72;
+    optional uint32 cfg_plug_in_info_pv_dc_amp_max = 87;
+    optional TimeTaskItemV2 cfg_time_task_v2_item = 127;
+    optional uint32 active_selected_time_task_v2 = 128;
+    optional string cfg_utc_timezone_id = 135;
+    optional bool cfg_utc_set_mode = 136;
+    optional uint32 cfg_wave_operating_mode = 153;
+    optional uint32 cfg_wave_operating_submode = 154;
+    optional uint32 cfg_airflow_speed = 155;
+    optional float cfg_temp_set = 156;
+    optional float cfg_humi_set = 157;
+    optional float cfg_temp_thermostatic_upper_limit = 158;
+    optional float cfg_temp_thermostatic_lower_limit = 159;
+    optional uint32 cfg_drainage_mode = 160;
+    optional uint32 cfg_mood_light_mode = 161;
+    optional uint32 cfg_lcd_show_temp_type = 162;
+    optional bool cfg_en_pet_care = 163;
+    optional float cfg_temp_pet_care_warning = 164;
+    optional USER_TEMP_UNIT_TYPE cfg_user_temp_unit = 166;
+    optional bool cfg_sys_pause = 172;
+    optional uint32 cfg_power_off_delay_set = 209;
+}
+
+message ConfigWriteAck {
+    optional int32 actionId = 1;
+    optional bool configOk = 2;
+    optional int32 cfgPowerOff = 3;
+    optional bool cfg_main_power = 4;
+    optional uint32 cfg_utc_time = 6;
+    optional int32 cfg_utc_timezone = 7;
+    optional int32 enBeep = 9;
+    optional int32 screenOffTime = 12;
+    optional int32 devStandbyTime = 13;
+    optional int32 lcdLight = 14;
+    optional int32 cmsMaxChgSoc = 33;
+    optional int32 cmsMinDsgSoc = 34;
+
+    optional uint32 cfg_soc_cali = 31;
+    optional CfgBmsPushWriteAck cfg_bms_push = 32;
+    optional SetTimeTaskWriteAck set_time_task = 39;
+    optional uint32 cfg_plug_in_info_ac_in_chg_pow_max = 54;
+    optional int32 cfg_display_property_full_upload_period = 67;
+    optional int32 cfg_display_property_incremental_upload_period = 68;
+    optional int32 cfg_runtime_property_full_upload_period = 69;
+    optional int32 cfg_runtime_property_incremental_upload_period = 70;
+    optional bool active_display_property_full_upload = 71;
+    optional bool active_runtime_property_full_upload = 72;
+    optional uint32 cfg_plug_in_info_pv_dc_amp_max = 87;
+    optional TimeTaskItemV2 cfg_time_task_v2_item = 127;
+    optional uint32 active_selected_time_task_v2 = 128;
+    optional string cfg_utc_timezone_id = 135;
+    optional bool cfg_utc_set_mode = 136;
+    optional uint32 cfg_wave_operating_mode = 153;
+    optional uint32 cfg_wave_operating_submode = 154;
+    optional uint32 cfg_airflow_speed = 155;
+    optional float cfg_temp_set = 156;
+    optional float cfg_humi_set = 157;
+    optional float cfg_temp_thermostatic_upper_limit = 158;
+    optional float cfg_temp_thermostatic_lower_limit = 159;
+    optional uint32 cfg_drainage_mode = 160;
+    optional uint32 cfg_mood_light_mode = 161;
+    optional uint32 cfg_lcd_show_temp_type = 162;
+    optional bool cfg_en_pet_care = 163;
+    optional float cfg_temp_pet_care_warning = 164;
+    optional USER_TEMP_UNIT_TYPE cfg_user_temp_unit = 166;
+    optional bool cfg_sys_pause = 172;
+    optional uint32 cfg_power_off_delay_set = 209;
+}
+
+message set_dp3 {
+    optional DisplayPropertyUpload DisplayPropertyUpload = 1;
+    optional RuntimePropertyUpload RuntimePropertyUpload = 2;
+    optional ConfigWriteAck ConfigWriteAck = 3;
+    optional ConfigReadAck ConfigReadAck = 4;
+}
+
+message setMessage {
+    optional setHeader header = 1;
+}
+
+message setHeader {
+    optional bytes pdata = 1;
+    optional int32 src = 2;
+    optional int32 dest = 3;
+    optional int32 d_src = 4;
+    optional int32 d_dest = 5;
+    optional int32 enc_type = 6;
+    optional int32 check_type = 7;
+    optional int32 cmd_func = 8;
+    optional int32 cmd_id = 9;
+    optional int32 data_len = 10;
+    optional int32 need_ack = 11;
+    optional int32 is_ack = 12;
+    optional int32 seq = 14;
+    optional int32 product_id = 15;
+    optional int32 version = 16;
+    optional int32 payload_ver = 17;
+    optional int32 time_snap = 18;
+    optional int32 is_rw_cmd = 19;
+    optional int32 is_queue = 20;
+    optional int32 ack_type = 21;
+    optional string code = 22;
+    optional string from = 23;
+    optional string module_sn = 24;
+    optional string device_sn = 25;
+}
