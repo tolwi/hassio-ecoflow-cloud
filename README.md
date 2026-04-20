@@ -1029,7 +1029,7 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 2, boxes: 1, selects: 1)</i> </summary>
+<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 2, boxes: 1, selects: 1, buttons: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -1109,6 +1109,9 @@ For information on how to add, remove, and configure devices, please refer to th
 
 *Selects*
 - Power supply mode 
+
+*Buttons*
+- Trigger Full Sync
 
 </p></details>
 
@@ -1272,7 +1275,7 @@ For information on how to add, remove, and configure devices, please refer to th
 </p></details>
 
 
-<details><summary> SMART_PLUG <i>(sensors: 5, switches: 1, sliders: 2)</i> </summary>
+<details><summary> SMART_PLUG <i>(sensors: 5, switches: 1, sliders: 2, buttons: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -1288,6 +1291,9 @@ For information on how to add, remove, and configure devices, please refer to th
 *Sliders (numbers)*
 - Brightness
 - Max Power
+
+*Buttons*
+- Trigger Full Sync
 
 </p></details>
 

@@ -5,6 +5,7 @@ from typing import Any, NamedTuple, cast, override
 
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message as ProtoMessageRaw
+from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
@@ -13,6 +14,7 @@ from homeassistant.util import dt
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import JSONDict, Message, PrivateAPIMessageProtocol
+from custom_components.ecoflow_cloud.button import GetMessageButtonEntity
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.internal import to_lower_camel_case
@@ -69,6 +71,7 @@ class Command(enum.Enum):
     SET_BAT_UPPER = CommandFuncAndId(func=20, id=133)
     SET_BRIGHTNESS = CommandFuncAndId(func=20, id=135)
     SET_FEED_PROTECT = CommandFuncAndId(func=20, id=143)
+    GET_HEARTBEAT = CommandFuncAndId(func=0, id=0)
     RATED_POWER = CommandFuncAndId(func=20, id=146)
 
     PLATFORM_WATTH = CommandFuncAndId(func=254, id=32)
@@ -294,7 +297,7 @@ class PowerStream(BaseInternalDevice):
                 self,
                 "20_1.upperLimit",
                 const.MAX_CHARGE_LEVEL,
-                50,
+                0,
                 100,
                 lambda value: PowerStreamCommandMessage(
                     device_sn=self.device_info.sn,
@@ -308,7 +311,7 @@ class PowerStream(BaseInternalDevice):
                 "20_1.lowerLimit",
                 const.MIN_DISCHARGE_LEVEL,
                 0,
-                30,
+                100,
                 lambda value: PowerStreamCommandMessage(
                     device_sn=self.device_info.sn,
                     command=Command.SET_BAT_LOWER,
@@ -328,6 +331,21 @@ class PowerStream(BaseInternalDevice):
                     payload=powerstream.PowerStreamPermanentWattsPack(permanent_watts=value),
                 ),
             ).with_icon("mdi:transmission-tower-export"),
+        ]
+
+    def buttons(self, client: EcoflowApiClient) -> list[ButtonEntity]:
+        return [
+            GetMessageButtonEntity(
+                client,
+                self,
+                "fullsync",
+                const.TRIGGER_FULL_SYNC,
+                lambda _: PowerStreamCommandMessage(
+                    device_sn=self.device_info.sn,
+                    command=Command.GET_HEARTBEAT,
+                    payload=None,
+                ),
+            ),
         ]
 
     @override

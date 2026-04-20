@@ -22,17 +22,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         async_add_entities([ReconnectButtonEntity(client, device)])
 
 
-class EnabledButtonEntity(BaseButtonEntity):
+class SetMessageButtonEntity(BaseButtonEntity):
     def press(self, **kwargs: Any) -> None:
         if self._command:
             self.send_set_message(0, self.command_dict(0))
 
-
-class DisabledButtonEntity(BaseButtonEntity):
-    async def async_press(self, **kwargs: Any) -> None:
+class GetMessageButtonEntity(BaseButtonEntity):
+    def press(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_set_message(0, self.command_dict(0))
-
+            self.send_get_message(self.command_dict(0))
 
 class ReconnectButtonEntity(ButtonEntity, EcoFlowAbstractEntity):
     def __init__(self, client: EcoflowApiClient, device):

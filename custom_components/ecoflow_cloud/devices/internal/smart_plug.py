@@ -10,6 +10,7 @@
 import logging
 from typing import Any, override
 
+from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
@@ -20,7 +21,9 @@ from google.protobuf.message import Message as ProtoMessageRaw
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
+from custom_components.ecoflow_cloud.button import GetMessageButtonEntity
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.number import BrightnessLevelEntity, MaxWattsEntity
 from custom_components.ecoflow_cloud.devices.internal.proto import AddressId
 import custom_components.ecoflow_cloud.devices.internal.proto.smartplug_pb2 as pb2
@@ -82,6 +85,23 @@ class SmartPlug(BaseInternalDevice):
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
 
+    def buttons(self, client: EcoflowApiClient) -> list[ButtonEntity]:
+        return [
+            GetMessageButtonEntity(
+                client,
+                self,
+                "fullsync",
+                const.TRIGGER_FULL_SYNC,
+                lambda _: _create_heartbeat_message(),
+            ),
+        ]
+
+    def _prepare_data_get_reply_topic(self, raw_data: bytes) -> PreparedData:
+        data = self._prepare_data(raw_data)
+        if "params" in data:
+            return PreparedData(None, data, data)
+        return super()._prepare_data_get_reply_topic(raw_data)
+
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         try:
             _LOGGER.debug(f"Processing {len(raw_data)} bytes of raw data")
@@ -132,12 +152,12 @@ class SmartPlug(BaseInternalDevice):
         _LOGGER.debug(f"result: {result}")
         return result
 
-class SmartPlug3CommandMessage(PrivateAPIMessageProtocol):
+class SmartPlugCommandMessage(PrivateAPIMessageProtocol):
     """Message wrapper for SmartPlug protobuf commands."""
 
     def __init__(
         self,
-        payload: ProtoMessageRaw,
+        payload: ProtoMessageRaw | None,
         packet: pb2.SendSmartPlugHeaderMsg,
     ):
         self._packet = packet
@@ -149,13 +169,26 @@ class SmartPlug3CommandMessage(PrivateAPIMessageProtocol):
 
     @override
     def to_dict(self) -> dict:
+        if self._payload is None:
+            return {}
+
         payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
+        packet_dict = MessageToDict(self._packet, preserving_proto_field_name=True)
 
-        result = MessageToDict(self._packet, preserving_proto_field_name=True)
-        result["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}
-        result["msg"][0].pop("seq", None)
-        return {type(self._packet).__name__: result}
+        packet_dict["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}
+        packet_dict["msg"][0].pop("seq", None)
+        return {type(self._packet).__name__: packet_dict}
 
+def _create_heartbeat_message() -> SmartPlugCommandMessage:
+    packet = pb2.SendSmartPlugHeaderMsg()
+    msg = packet.msg.add()
+
+    msg.src = AddressId.APP
+    msg.dest = AddressId.APP
+    msg.seq = Message.gen_seq()
+    setattr(msg, "from", "Android")
+
+    return SmartPlugCommandMessage(None, packet)
 
 def _create_send_header_message(cmd_id: int, device_sn: str, payload: ProtoMessageRaw):
     packet = pb2.SendSmartPlugHeaderMsg()
@@ -171,7 +204,7 @@ def _create_send_header_message(cmd_id: int, device_sn: str, payload: ProtoMessa
     msg.seq = Message.gen_seq()
     msg.deviceSn = device_sn
 
-    return SmartPlug3CommandMessage(payload, packet)
+    return SmartPlugCommandMessage(payload, packet)
 
 
 def _create_change_switch_status_message(value: int, device_sn: str):

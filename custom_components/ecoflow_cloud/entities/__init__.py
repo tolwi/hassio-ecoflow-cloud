@@ -227,6 +227,9 @@ class EcoFlowBaseCommandEntity[_CommandArg](EcoFlowDictEntity):
     def send_set_message(self, target_value: Any, command: dict | Message):
         self._client.send_set_message(self._device.device_info.sn, {self._mqtt_key_adopted: target_value}, command)
 
+    def send_get_message(self, command: dict | Message):
+        self._client.send_get_message(self._device.device_info.sn, command)
+
 
 class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity[int]):
     _attr_entity_category = EntityCategory.CONFIG
