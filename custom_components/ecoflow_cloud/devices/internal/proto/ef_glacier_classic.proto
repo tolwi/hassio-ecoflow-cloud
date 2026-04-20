@@ -1,0 +1,175 @@
+syntax = "proto3";
+
+message GlacierClassicHeader {
+  optional bytes pdata = 1;
+  optional int32 src = 2;
+  optional int32 dest = 3;
+  optional int32 d_src = 4;
+  optional int32 d_dest = 5;
+  optional int32 enc_type = 6;
+  optional int32 check_type = 7;
+  optional int32 cmd_func = 8;
+  optional int32 cmd_id = 9;
+  optional int32 data_len = 10;
+  optional int32 need_ack = 11;
+  optional int32 is_ack = 12;
+  optional int32 seq = 14;
+  optional int32 product_id = 15;
+  optional int32 version = 16;
+  optional int32 payload_ver = 17;
+  optional int32 time_snap = 18;
+  optional int32 is_rw_cmd = 19;
+  optional int32 is_queue = 20;
+  optional int32 ack_type = 21;
+  optional string code = 22;
+  optional string from = 23;
+  optional string module_sn = 24;
+  optional string device_sn = 25;
+}
+
+message GlacierClassicSendHeaderMsg {
+  repeated GlacierClassicHeader msg = 1;
+}
+
+message GlacierClassicBMSHeartBeatReport {
+  optional uint32 num = 1;
+  optional uint32 cell_id = 3;
+  optional uint32 err_code = 4;
+  optional uint32 sys_ver = 5;
+  optional uint32 soc = 6;
+  optional uint32 vol = 7;
+  optional int32 amp = 8;
+  optional int32 temp = 9;
+  optional uint32 open_bms_flag = 10;
+  optional uint32 design_cap = 11;
+  optional uint32 remain_cap = 12;
+  optional uint32 full_cap = 13;
+  optional uint32 cycles = 14;
+  optional uint32 soh = 15;
+  optional uint32 max_cell_vol = 16;
+  optional uint32 min_cell_vol = 17;
+  optional int32 max_cell_temp = 18;
+  optional int32 min_cell_temp = 19;
+  optional int32 max_mos_temp = 20;
+  optional int32 min_mos_temp = 21;
+  optional uint32 bms_fault = 22;
+  optional uint32 bq_sys_stat_reg = 23;
+  optional uint32 tag_chg_amp = 24;
+  optional float f32_show_soc = 25;
+  optional uint32 input_watts = 26;
+  optional uint32 output_watts = 27;
+  optional uint32 remain_time = 28;
+  optional uint32 mos_state = 29;
+  optional uint32 balance_state = 30;
+  optional uint32 max_vol_diff = 31;
+  optional uint32 cell_series_num = 32;
+  repeated uint32 cell_vol = 33;
+  repeated int32 cell_temp = 35;
+  optional string hw_ver = 36;
+  optional string bms_sn = 39;
+  optional float act_soc = 42;
+  optional float diff_soc = 43;
+  optional float target_soc = 44;
+  optional uint32 all_err_code = 48;
+  optional uint32 all_bms_fault = 49;
+  optional string pack_sn = 81;
+  optional uint32 water_in_flag = 82;
+}
+
+message GlacierClassicCMSHeartBeatV1P0 {
+  optional uint32 chg_state = 1;
+  optional uint32 chg_cmd = 2;
+  optional uint32 dsg_cmd = 3;
+  optional uint32 chg_amp = 5;
+  optional uint32 fan_level = 6;
+  optional uint32 max_charge_soc = 7;
+  optional uint32 bms_model = 8;
+  optional uint32 lcd_show_soc = 9;
+  optional uint32 open_ups_flag = 10;
+  optional uint32 bms_warning_state = 11;
+  optional uint32 chg_remain_time = 12;
+  optional uint32 dsg_remain_time = 13;
+  optional uint32 ems_is_normal_flag = 14;
+  optional float f32_lcd_show_soc = 15;
+  repeated uint32 bms_is_connt = 16;
+  optional uint32 max_available_num = 17;
+  optional uint32 open_bms_idx = 18;
+  optional uint32 para_vol_min = 19;
+  optional uint32 para_vol_max = 20;
+  optional uint32 min_dsg_soc = 21;
+  optional uint32 min_open_oil_eb_soc = 22;
+  optional uint32 max_close_oil_eb_soc = 23;
+}
+
+message GlacierClassicCMSHeartBeatV1P3 {
+  optional uint32 chg_disable_cond = 1;
+  optional uint32 dsg_disable_cond = 2;
+  optional uint32 chg_line_plug_in_flag = 3;
+  optional uint32 sys_chg_dsg_state = 4;
+  optional uint32 ems_heartbeat_ver = 5;
+}
+
+message GlacierClassicCMSHeartBeatReport {
+  optional GlacierClassicCMSHeartBeatV1P0 v1p0 = 1;
+  optional GlacierClassicCMSHeartBeatV1P3 v1p3 = 2;
+}
+
+message GlacierClassicDisplayPropertyUpload {
+  optional uint32 errcode = 1;
+  optional uint32 sys_status = 2;
+  optional float pow_in_sum_w = 3;
+  optional float pow_out_sum_w = 4;
+  optional uint32 dev_standby_time = 17;
+  optional uint32 screen_off_time = 18;
+  optional uint32 bat_temp102 = 102;
+  optional uint32 bms_err_code = 140;
+  optional uint32 en_beep = 195;
+  optional uint32 pd_err_code = 213;
+  optional float cms_batt_soc = 262;
+  optional uint32 cms_dsg_rem_time = 268;
+  optional uint32 cms_chg_rem_time = 269;
+  optional uint32 cms_max_chg_soc = 270;
+  optional uint32 cms_min_dsg_soc = 271;
+  optional uint32 cms_chg_dsg_state = 282;
+  optional uint32 cms_batt_design_cap = 288;
+  optional uint32 plug_in_info_pv_flag = 362;
+  optional uint32 plug_in_info_pv_type = 363;
+  optional string bms_main_sn = 392;
+  optional uint32 plug_in_info_dcp_in_flag = 426;
+  optional uint32 temp_unit = 512;
+  optional float set_point_left = 736;
+  optional float set_point_right = 737;
+  optional uint32 child_lock = 738;
+  optional uint32 simple_mode = 739;
+  optional uint32 bat_protect = 740;
+  optional uint32 cooling_mode = 741;
+  optional float temp_monitor_left = 742;
+  optional float temp_monitor_right = 743;
+  optional uint32 lid_status = 744;
+  optional uint32 zone_status = 745;
+  optional uint32 temp_alert = 748;
+  optional float input_volt777 = 777;
+}
+
+message GlacierClassicRuntimePropertyUpload {
+  optional float plug_in_info_ac_in_vol = 68;
+  optional int32 display_property_full_upload_period = 293;
+  optional int32 display_property_incremental_upload_period = 294;
+  optional int32 runtime_property_full_upload_period = 295;
+  optional int32 runtime_property_incremental_upload_period = 296;
+}
+
+message GlacierClassicSetCommand {
+  optional int32 en_beep = 9;
+  optional int32 dev_standby_time = 13;
+  optional int32 cms_max_chg_soc = 33;
+  optional int32 cms_min_dsg_soc = 34;
+  optional int32 standby = 172;
+  optional float set_point_left = 226;
+  optional float set_point_right = 227;
+  optional uint32 child_lock = 228;
+  optional uint32 simple_mode = 229;
+  optional uint32 bat_protect = 230;
+  optional uint32 cooling_mode = 231;
+  optional uint32 temp_alert = 234;
+}
