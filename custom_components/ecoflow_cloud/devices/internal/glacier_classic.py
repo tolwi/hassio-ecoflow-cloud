@@ -214,6 +214,9 @@ class GlacierClassicScreenTimeoutSensorEntity(MiscSensorEntity):
         600: "10 min",
     }
 
+    def __init__(self, client: EcoflowApiClient, device: BaseInternalDevice, title: str):
+        super().__init__(client, device, "pd.blTime", title)
+
     def _update_value(self, val: Any) -> bool:
         seconds = int(val)
         return super()._update_value(self._timeout_labels.get(seconds, f"{seconds} sec"))
@@ -350,7 +353,7 @@ class GlacierClassic(BaseInternalDevice):
             LevelSensorEntity(client, self, "bms_bmsStatus.actSoc", "Actual Battery SOC", False),
             LevelSensorEntity(client, self, "bms_bmsStatus.diffSoc", "Battery SOC Delta", False),
             LevelSensorEntity(client, self, "bms_bmsStatus.targetSoc", "Target Battery SOC", False),
-            GlacierClassicScreenTimeoutSensorEntity(client, self, "pd.blTime", const.SCREEN_TIMEOUT),
+            GlacierClassicScreenTimeoutSensorEntity(client, self, const.SCREEN_TIMEOUT),
             MiscSensorEntity(client, self, "pd.devStandbyTime", "Device Standby Time", False),
             MiscSensorEntity(
                 client,
