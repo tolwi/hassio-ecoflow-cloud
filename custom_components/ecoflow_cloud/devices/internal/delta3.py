@@ -692,14 +692,6 @@ class Delta3(BaseInternalDevice):
                 msg_display_upload = delta3_pb2.Delta3DisplayPropertyUpload()
                 msg_display_upload.ParseFromString(pdata)
                 result = self._protobuf_to_dict(msg_display_upload)
-                # Inject ban_bypass_en (proto field 146) which is not declared
-                # in the tolwi ef_delta3.proto schema. The device only sends
-                # this field when the bypass state changes (push delta) or in
-                # full snapshots (get_reply), so its absence in a delta must
-                # not overwrite the previously known value.
-                ban_bypass = _extract_proto_varint_field(pdata, 146)
-                if ban_bypass is not None:
-                    result["ban_bypass_en"] = ban_bypass
                 # Derive AC / DC / USB output enable state from flow_info_*
                 # fields. The DELTA 3 firmware never sends cfg_ac_out_open,
                 # cfg_dc12v_out_open or cfg_usb_open in telemetry or get_reply
