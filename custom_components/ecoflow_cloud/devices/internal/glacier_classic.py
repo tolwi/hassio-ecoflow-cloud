@@ -204,17 +204,14 @@ class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
 
     def _updated(self, data: dict[str, Any]):
         ac_input_voltage = float(data.get("pd.acInVolts", data.get("runtime.plug_in_info_ac_in_vol", 0)) or 0)
-        input_voltage = float(data.get("pd.inputVolts", 0) or 0)
         pv_flag = int(data.get("pd.pvFlag", 0) or 0)
         pv_type = int(data.get("pd.pvType", 0) or 0)
         dcp_flag = int(data.get("pd.dcpInFlag", 0) or 0)
-        if pv_flag:
-            value = "solar" if pv_type == 0 else f"solar_{pv_type}"
-        elif ac_input_voltage > 0:
+        if ac_input_voltage > 0:
             value = "ac"
+        elif pv_flag:
+            value = "solar" if pv_type == 0 else f"solar_{pv_type}"
         elif dcp_flag:
-            value = "dc"
-        elif input_voltage > 0:
             value = "dc"
         else:
             value = "none"
