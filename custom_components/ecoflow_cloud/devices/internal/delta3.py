@@ -112,46 +112,6 @@ def _create_delta3_proto_command(field_name: str, value: int, device_sn: str, da
     return Delta3CommandMessage(payload, packet)
 
 
-def _create_delta3_bypass_ban_command(value: int, device_sn: str) -> "Delta3CommandMessage":
-    """Create a protobuf command for bypassBan / ban_bypass_en on DELTA 3.
-
-    Field 26 of ``Delta3SetCommand`` — discovered via MQTT sniffing, not
-    yet defined in the generated ``ef_delta3_pb2`` schema, so the pdata
-    is crafted manually as a 3-byte varint encoding:
-
-      tag   = (26 << 3) | 0 = 208 -> varint "d0 01"
-      value = 0 or 1              (1 byte varint)
-
-    Semantics match DELTA 3 1500 ``banBypassEn``:
-      value=0 -> grid bypass enabled  (battery charges from AC input)
-      value=1 -> grid bypass disabled (battery runs standalone, no charging)
-    """
-    pdata = bytes([0xD0, 0x01, 1 if value else 0])
-
-    packet = delta3_pb2.Delta3SendHeaderMsg()
-    message = packet.msg.add()
-    message.src = 32
-    message.dest = 2
-    message.d_src = 1
-    message.d_dest = 1
-    message.cmd_func = 254
-    message.cmd_id = 17
-    message.need_ack = 1
-    message.seq = Message.gen_seq()
-    message.product_id = 1
-    message.version = 19
-    message.payload_ver = 1
-    message.device_sn = device_sn
-    message.data_len = len(pdata)
-    message.pdata = pdata
-
-    # Empty Delta3SetCommand as "payload" placeholder for MessageToDict
-    # logging in Delta3CommandMessage.to_dict. The real wire bytes live
-    # in packet.msg[0].pdata.
-    dummy_payload = delta3_pb2.Delta3SetCommand()
-    return Delta3CommandMessage(dummy_payload, packet)
-
-
 def _create_delta3_ac_charging_power_command(value: int, device_sn: str) -> "Delta3CommandMessage":
     """Create a protobuf command for AC charging power on DELTA 3.
 
@@ -205,62 +165,6 @@ def _create_delta3_ac_charging_power_command(value: int, device_sn: str) -> "Del
     # Empty Delta3SetCommand as placeholder payload for logging.
     dummy_payload = delta3_pb2.Delta3SetCommand()
     return Delta3CommandMessage(dummy_payload, packet)
-
-
-def _extract_proto_varint_field(data: bytes, target_field: int) -> int | None:
-    """Extract a single varint field from raw protobuf bytes by tag number.
-
-    Used to read fields that are present on the wire but not declared in
-    the generated ``ef_delta3_pb2`` schema (e.g. field 146 =
-    ``ban_bypass_en`` in ``Delta3DisplayPropertyUpload``).
-
-    Returns the int value or ``None`` if the field is not present.
-    """
-    pos = 0
-    n = len(data)
-    while pos < n:
-        # Read tag varint
-        tag = 0
-        shift = 0
-        while pos < n:
-            b = data[pos]
-            pos += 1
-            tag |= (b & 0x7F) << shift
-            if not (b & 0x80):
-                break
-            shift += 7
-        fn = tag >> 3
-        wt = tag & 0x7
-        if wt == 0:  # varint
-            v = 0
-            shift = 0
-            while pos < n:
-                b = data[pos]
-                pos += 1
-                v |= (b & 0x7F) << shift
-                if not (b & 0x80):
-                    break
-                shift += 7
-            if fn == target_field:
-                return v
-        elif wt == 1:  # 64-bit
-            pos += 8
-        elif wt == 2:  # length-delimited
-            length = 0
-            shift = 0
-            while pos < n:
-                b = data[pos]
-                pos += 1
-                length |= (b & 0x7F) << shift
-                if not (b & 0x80):
-                    break
-                shift += 7
-            pos += length
-        elif wt == 5:  # 32-bit
-            pos += 4
-        else:
-            return None
-    return None
 
 
 def _create_delta3_get_quota_command() -> "Delta3CommandMessage":
@@ -536,8 +440,8 @@ class Delta3(BaseInternalDevice):
                 self,
                 "ban_bypass_en",
                 const.GRID_BYPASS,
-                lambda value, params=None: _create_delta3_bypass_ban_command(
-                    int(value), device.device_data.sn
+                lambda value, params=None: _create_delta3_proto_command(
+                    "ban_bypass_en", int(value), device.device_data.sn
                 ),
                 enableValue=1,
                 disableValue=0,
@@ -778,16 +682,7 @@ class Delta3(BaseInternalDevice):
             if cmd_func == 254 and cmd_id == 21:
                 msg_display_upload = delta3_pb2.Delta3DisplayPropertyUpload()
                 msg_display_upload.ParseFromString(pdata)
-                result = self._protobuf_to_dict(msg_display_upload)
-                # Inject ban_bypass_en (proto field 146) which is not declared
-                # in the tolwi ef_delta3.proto schema. The device only sends
-                # this field when the bypass state changes (push delta) or in
-                # full snapshots (get_reply), so its absence in a delta must
-                # not overwrite the previously known value.
-                ban_bypass = _extract_proto_varint_field(pdata, 146)
-                if ban_bypass is not None:
-                    result["ban_bypass_en"] = ban_bypass
-                return result
+                return self._protobuf_to_dict(msg_display_upload)
 
             elif cmd_func == 254 and cmd_id == 22:
                 msg_runtime_upload = delta3_pb2.Delta3RuntimePropertyUpload()
