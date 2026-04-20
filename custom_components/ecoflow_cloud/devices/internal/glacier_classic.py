@@ -210,16 +210,16 @@ class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
         pv_flag = int(data.get("pd.pvFlag", 0) or 0)
         pv_type = int(data.get("pd.pvType", 0) or 0)
         dcp_flag = int(data.get("pd.dcpInFlag", 0) or 0)
-        if not line_plugged:
-            value = "none"
+        if ac_input_voltage > 0:
+            value = "ac"
         elif dcp_flag:
             value = "dc"
         elif pv_flag and pv_type == 0:
             value = "solar"
-        elif ac_input_voltage > 0:
-            value = "ac"
+        elif line_plugged == 0:
+            value = "none"
         else:
-            value = "ac"
+            value = "none"
         if self._attr_native_value != value:
             self._attr_native_value = value
             self.schedule_update_ha_state()
