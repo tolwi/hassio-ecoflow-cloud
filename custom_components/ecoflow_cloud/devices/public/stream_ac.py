@@ -10,6 +10,7 @@ from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
 from custom_components.ecoflow_cloud.number import BatteryBackupLevel
 from custom_components.ecoflow_cloud.sensor import (
+    AmpSensorEntity,
     CapacitySensorEntity,
     CumulativeCapacitySensorEntity,
     CyclesSensorEntity,
@@ -23,6 +24,9 @@ from custom_components.ecoflow_cloud.sensor import (
     TempSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
+)
+from custom_components.ecoflow_cloud.devices.public.stream_pv_helpers import (
+    StreamPvWattsSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
@@ -178,6 +182,22 @@ class StreamAC(BaseDevice):
             # "powConsumptionMeasurement": 2,
             # "powGetBpCms": 1915.0862,
             WattsSensorEntity(client, self, "powGetBpCms", const.STREAM_POWER_BATTERY),
+            # Per-PV power, voltage, current (Stream Ultra / Ultra X / AC Pro).
+            # Per-PV reporting depends on the firmware version installed:
+            #   - Firmware <  1.0.1.88: powGetPv / powGetPv2..4 emitted, per-PV
+            #     watts are correct, plugInInfoPv*Amp returns 0.
+            #   - Firmware >= 1.0.1.88: powGetPv* returns 0, per-PV data lives
+            #     in plugInInfoPv{,2,3,4}Amp + plugInInfoPv{,2,3,4}Vol instead.
+            # See issues #582, #584. To stay firmware-agnostic we register BOTH
+            # mapping variants with auto_enable=True. HA enables whichever set
+            # first sees a non-zero value.
+            #
+            # New-firmware path (computed amp x vol via StreamPvWattsSensorEntity)
+            StreamPvWattsSensorEntity(client, self, "plugInInfoPvAmp", const.STREAM_POWER_PV_1, False, True),
+            StreamPvWattsSensorEntity(client, self, "plugInInfoPv2Amp", const.STREAM_POWER_PV_2, False, True),
+            StreamPvWattsSensorEntity(client, self, "plugInInfoPv3Amp", const.STREAM_POWER_PV_3, False, True),
+            StreamPvWattsSensorEntity(client, self, "plugInInfoPv4Amp", const.STREAM_POWER_PV_4, False, True),
+            # Legacy-firmware path (powGetPv* keys)
             # "powGetPv": 0.0,
             WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True),
             # "powGetPv2": 0.0,
@@ -186,6 +206,15 @@ class StreamAC(BaseDevice):
             WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False, True),
             # "powGetPv4": 0.0,
             WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
+            # Per-PV voltage + current (emitted by all Stream firmware versions)
+            VoltSensorEntity(client, self, "plugInInfoPvVol", const.STREAM_IN_VOL_PV_1, False, True),
+            VoltSensorEntity(client, self, "plugInInfoPv2Vol", const.STREAM_IN_VOL_PV_2, False, True),
+            VoltSensorEntity(client, self, "plugInInfoPv3Vol", const.STREAM_IN_VOL_PV_3, False, True),
+            VoltSensorEntity(client, self, "plugInInfoPv4Vol", const.STREAM_IN_VOL_PV_4, False, True),
+            AmpSensorEntity(client, self, "plugInInfoPvAmp", const.STREAM_IN_AMPS_PV_1, False, True),
+            AmpSensorEntity(client, self, "plugInInfoPv2Amp", const.STREAM_IN_AMPS_PV_2, False, True),
+            AmpSensorEntity(client, self, "plugInInfoPv3Amp", const.STREAM_IN_AMPS_PV_3, False, True),
+            AmpSensorEntity(client, self, "plugInInfoPv4Amp", const.STREAM_IN_AMPS_PV_4, False, True),
             # "powGetPvSum": 2051.3975,
             WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM),
             # "powGetSchuko1": 0.0,
