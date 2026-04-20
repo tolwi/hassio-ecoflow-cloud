@@ -49,7 +49,7 @@
 - Inverter Error Code (`20_1.invErrCode`)   _(disabled)_
 - Inverter Warning Code (`20_1.invWarnCode`)   _(disabled)_
 - Inverter Status (`20_1.invStatue`)   _(disabled)_
-- Other Loads (`20_1.permanentWatts`)
+- Custom Load Power (`20_1.permanentWatts`)
 - Smart Plug Loads (`20_1.dynamicWatts`)
 - Rated Power (`20_1.ratedPower`)
 - Lower Battery Limit (`20_1.lowerLimit`)   _(disabled)_
@@ -71,6 +71,7 @@
 *Sliders (numbers)*
 - Max Charge Level (`20_1.upperLimit` -> `{"PowerStreamSendHeaderMsg": {"msg": [{"pdata": {"PowerStreamBatUpperPack": {"upper_limit": 6666}}, "src": 32, "dest": 53, "d_src": 1, "d_dest": 1, "check_type": 3, "cmd_func": 20, "cmd_id": 133, "data_len": 3, "need_ack": 1, "version": 19, "payload_ver": 1, "from_": "HomeAssistant", "device_sn": "SN"}]}}` [50 - 100])
 - Min Discharge Level (`20_1.lowerLimit` -> `{"PowerStreamSendHeaderMsg": {"msg": [{"pdata": {"PowerStreamBatLowerPack": {"lower_limit": 6666}}, "src": 32, "dest": 53, "d_src": 1, "d_dest": 1, "check_type": 3, "cmd_func": 20, "cmd_id": 132, "data_len": 3, "need_ack": 1, "version": 19, "payload_ver": 1, "from_": "HomeAssistant", "device_sn": "SN"}]}}` [0 - 30])
+- Custom Load Power (`20_1.permanentWatts` -> `{"PowerStreamSendHeaderMsg": {"msg": [{"pdata": {"PowerStreamPermanentWattsPack": {"permanent_watts": 6666}}, "src": 32, "dest": 53, "d_src": 1, "d_dest": 1, "check_type": 3, "cmd_func": 20, "cmd_id": 129, "data_len": 3, "need_ack": 1, "version": 19, "payload_ver": 1, "from_": "HomeAssistant", "device_sn": "SN"}]}}` [0 - 800])
 
 *Selects*
 - Power supply mode (`20_1.supplyPriority` -> `{"PowerStreamSendHeaderMsg": {"msg": [{"pdata": {"PowerStreamSupplyPriorityPack": {"supply_priority": 6666}}, "src": 32, "dest": 53, "d_src": 1, "d_dest": 1, "check_type": 3, "cmd_func": 20, "cmd_id": 130, "data_len": 3, "need_ack": 1, "version": 19, "payload_ver": 1, "from_": "HomeAssistant", "device_sn": "SN"}]}}` [Prioritize power supply (0), Prioritize power storage (1)])

@@ -39,6 +39,42 @@ For information on how to add, remove, and configure devices, please refer to th
 
 ## Current state
 ### Devices available with private_api
+<details><summary> ALTERNATOR <i>(sensors: 17, switches: 1, sliders: 4, selects: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Alternator In Power
+- Station Power
+- Alternator Rated Power  _(disabled)_
+- Charging Power Limit  _(disabled)_
+- Station Battery Charge
+- Discharge Remaining Time
+- Charge Remaining Time
+- Car Battery Voltage
+- Alternator Temperature
+- WiFi Signal Strength  _(disabled)_
+- Alternator Status Code  _(disabled)_
+- Operation Mode  _(disabled)_
+- Charge Current Limit  _(disabled)_
+- Reverse Charge Current Limit  _(disabled)_
+- Charge Current Max  _(disabled)_
+- Reverse Charge Current Max  _(disabled)_
+- Status
+
+*Switches*
+- Charging Enabled 
+
+*Sliders (numbers)*
+- Charge Current Limit 
+- Reverse Charge Current Limit 
+- Car Battery Start Voltage 
+- Extension Cable Length 
+
+*Selects*
+- Operation Mode 
+
+</p></details>
+
 <details><summary> DELTA_2 <i>(sensors: 47, switches: 8, sliders: 6, selects: 5)</i> </summary>
 <p>
 
@@ -168,6 +204,81 @@ For information on how to add, remove, and configure devices, please refer to th
 - Min Discharge Level 
 - AC Charging Power 
 - Backup Reserve Level 
+
+*Selects*
+- DC (12V) Charge Current 
+- Screen Timeout 
+- Unit Timeout 
+- AC Timeout 
+- DC (12V) Timeout 
+
+</p></details>
+
+<details><summary> DELTA_3_1500 <i>(sensors: 44, switches: 9, sliders: 4, selects: 5)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- AC In Power (energy:  _[Device Name]_ AC In  Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- AC In Volts
+- AC Out Volts
+- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- DC Out Power
+- Type-C (1) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- Inv Out Temperature
+- Cycles
+- Battery Temperature
+- Min Cell Temperature  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Slave Battery Level  _(auto)_
+- Slave Design Capacity  _(disabled)_
+- Slave Full Capacity  _(disabled)_
+- Slave Remain Capacity  _(disabled)_
+- Slave State of Health
+- Slave Battery Temperature  _(auto)_
+- Slave Min Cell Temperature  _(disabled)_
+- Slave Max Cell Temperature  _(disabled)_
+- Slave Battery Volts  _(disabled)_
+- Slave Min Cell Volts  _(disabled)_
+- Slave Max Cell Volts  _(disabled)_
+- Slave Cycles  _(auto)_
+- Slave In Power  _(auto)_
+- Slave Out Power  _(auto)_
+- Status
+
+*Switches*
+- Beeper 
+- USB Enabled 
+- AC Always On 
+- Prio Solar Charging 
+- AC Enabled 
+- X-Boost Enabled 
+- DC (12V) Enabled 
+- Backup Reserve Enabled 
+- Grid Bypass 
+
+*Sliders (numbers)*
+- Max Charge Level 
+- Min Discharge Level 
+- Backup Reserve Level 
+- AC Charging Power 
 
 *Selects*
 - DC (12V) Charge Current 
@@ -1029,7 +1140,7 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 2, boxes: 1, selects: 1)</i> </summary>
+<details><summary> POWERSTREAM <i>(sensors: 63, switches: 1, sliders: 3, selects: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -1081,7 +1192,7 @@ For information on how to add, remove, and configure devices, please refer to th
 - Inverter Error Code  _(disabled)_
 - Inverter Warning Code  _(disabled)_
 - Inverter Status  _(disabled)_
-- Other Loads
+- Custom Load Power
 - Smart Plug Loads
 - Rated Power
 - Lower Battery Limit  _(disabled)_
@@ -1103,9 +1214,7 @@ For information on how to add, remove, and configure devices, please refer to th
 *Sliders (numbers)*
 - Max Charge Level 
 - Min Discharge Level 
-
-*Boxes (numbers)*
-- Custom Load Power
+- Custom Load Power 
 
 *Selects*
 - Power supply mode 
@@ -1207,42 +1316,39 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> WAVE_3 <i>(sensors: 17, switches: 2, sliders: 1, selects: 3, climate: 1)</i> </summary>
+<details><summary> WAVE_3 <i>(sensors: 17, switches: 2, sliders: 1, selects: 3)</i> </summary>
 <p>
 
 *Sensors*
-- AC Input Power
-- AC Output Power
-- Battery Power
-- Charge Remaining Time
-- Discharge Remaining Time
-- Main Battery Level
-- Power Off Delay Remaining
-- Self Consumption Power
-- Solar Input Power
 - Total In Power
 - Total Out Power
+- AC Out Power
+- AC In Power
+- DC Battery Power
+- Solar In Power
+- Self Consumption Power  _(disabled)_
+- Main Battery Level
 - Water Level
+- Discharge Remaining Time
+- Charge Remaining Time
+- Power Off Delay Remaining
 - Ambient Temperature
-- BMS Error Code
-- Condenser Temp
-- Evaporator Temp
-- Indoor Supply Air Temp
+- Indoor Supply Air Temp  _(disabled)_
+- Condenser Temp  _(disabled)_
+- Evaporator Temp  _(disabled)_
+- BMS Error Code  _(disabled)_
 
 *Switches*
 - Beeper 
-- Manual Drainage 
+- Auto Drain 
 
 *Sliders (numbers)*
 - Screen Brightness 
 
 *Selects*
 - Screen Timeout 
-- Device Timeout 
-- Auto-Off Timer 
-
-*Climate*
-- Climate
+- Unit Timeout 
+- Auto-Off Timeout 
 
 </p></details>
 
@@ -1271,7 +1377,6 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-
 <details><summary> SMART_PLUG <i>(sensors: 5, switches: 1, sliders: 2)</i> </summary>
 <p>
 
@@ -1283,11 +1388,11 @@ For information on how to add, remove, and configure devices, please refer to th
 - Status
 
 *Switches*
-- On
+- On 
 
 *Sliders (numbers)*
-- Brightness
-- Max Power
+- Brightness 
+- Max Power 
 
 </p></details>
 
@@ -1426,42 +1531,6 @@ For information on how to add, remove, and configure devices, please refer to th
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
-
-</p></details>
-
-<details><summary> ALTERNATOR_CHARGER_800W <i>(sensors: 17, switches: 1, sliders: 4, selects: 1)</i> </summary>
-<p>
-
-*Sensors*
-- Alternator In Power
-- Station Power
-- Station Battery Charge
-- Car Battery Voltage
-- Alternator Temperature
-- Charge Remaining Time
-- Discharge Remaining Time
-- Status
-- Alternator Rated Power  _(disabled)_
-- Charging Power Limit  _(disabled)_
-- WiFi Signal Strength  _(disabled)_
-- Alternator Status Code  _(disabled)_
-- Operation Mode  _(disabled)_
-- Charge Current Limit  _(disabled)_
-- Reverse Charge Current Limit  _(disabled)_
-- Charge Current Max  _(disabled)_
-- Reverse Charge Current Max  _(disabled)_
-
-*Switches*
-- Charging Enabled
-
-*Sliders (numbers)*
-- Charge Current Limit
-- Reverse Charge Current Limit
-- Car Battery Start Voltage
-- Extension Cable Length  _(disabled)_
-
-*Selects*
-- Operation Mode
 
 </p></details>
 
@@ -2048,7 +2117,7 @@ For information on how to add, remove, and configure devices, please refer to th
 - Inverter Error Code  _(disabled)_
 - Inverter Warning Code  _(disabled)_
 - Inverter Status  _(disabled)_
-- Other Loads
+- Custom Load Power
 - Smart Plug Loads
 - Rated Power
 - Lower Battery Limit  _(disabled)_
@@ -2057,13 +2126,13 @@ For information on how to add, remove, and configure devices, please refer to th
 - Wireless Warning Code  _(disabled)_
 - LED Brightness  _(disabled)_
 - Heartbeat Frequency  _(disabled)_
-- Status
+- Status (Scheduled)
 
 *Sliders (numbers)*
 - Min Discharge Level 
 - Max Charge Level 
 - Brightness 
-- Custom load power settings 
+- Custom Load Power 
 
 *Selects*
 - Power supply mode 
@@ -2432,7 +2501,7 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> Stream AC (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream AC (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2461,6 +2530,18 @@ For information on how to add, remove, and configure devices, please refer to th
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV3 Volts  _(auto)_
+- Power PV4 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Power PV3 In Amps  _(auto)_
+- Power PV4 In Amps  _(auto)_
 - Power PV Sum
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
@@ -2490,7 +2571,7 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> Stream PRO (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream PRO (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2519,6 +2600,18 @@ For information on how to add, remove, and configure devices, please refer to th
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV3 Volts  _(auto)_
+- Power PV4 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Power PV3 In Amps  _(auto)_
+- Power PV4 In Amps  _(auto)_
 - Power PV Sum
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
@@ -2548,7 +2641,7 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> Stream Ultra (API) <i>(sensors: 41, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream Ultra (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2577,6 +2670,18 @@ For information on how to add, remove, and configure devices, please refer to th
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV3 Volts  _(auto)_
+- Power PV4 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Power PV3 In Amps  _(auto)_
+- Power PV4 In Amps  _(auto)_
 - Power PV Sum
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
@@ -2606,11 +2711,13 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> Stream Microinverter (API) <i>(sensors: 12)</i> </summary>
+<details><summary> Stream Microinverter (API) <i>(sensors: 14)</i> </summary>
 <p>
 
 *Sensors*
 - Power AC
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
 - Power PV 1  _(auto)_
 - Power PV 2  _(auto)_
 - Power Volts  _(disabled)_
@@ -2625,7 +2732,7 @@ For information on how to add, remove, and configure devices, please refer to th
 
 </p></details>
 
-<details><summary> Smart Home Panel (API) <i>(sensors: 30, binary_sensors: 1, switches: 3, sliders: 2)</i> </summary>
+<details><summary> Smart Home Panel (API) <i>(sensors: 30, binary_sensors: 1, switches: 4, sliders: 4, selects: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2665,12 +2772,18 @@ For information on how to add, remove, and configure devices, please refer to th
 
 *Switches*
 - EPS Mode 
+- Scheduled Charge 
 - Battery 1 Charge 
 - Battery 2 Charge 
 
 *Sliders (numbers)*
 - Min Discharge Level 
 - Max Charge Level 
+- Scheduled Charge Battery Level 
+- Scheduled Charge Power 
+
+*Selects*
+- Scheduled Charge Battery 
 
 </p></details>
 
@@ -2772,6 +2885,7 @@ For information on how to add, remove, and configure devices, please refer to th
 - mpptPv2.pwr
 - mpptPv2.amp
 - mpptPv2.vol
-- Status
+- Status (Scheduled)
 
 </p></details>
+
