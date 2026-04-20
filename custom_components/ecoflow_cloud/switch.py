@@ -105,3 +105,32 @@ class InvertedBeeperEntity(EnabledEntity):
             return "mdi:volume-high"
         else:
             return "mdi:volume-mute"
+
+
+class BypassBanScalarSwitch(EnabledEntity):
+    """Grid-bypass switch reading state from a scalar varint mirror.
+
+    Used by devices that expose the bypass state as a plain integer
+    field in push telemetry (in contrast to a switch that would read
+    an array index of a quota field).
+
+    On DELTA 3 (protobuf transport) the state arrives via
+    ``ban_bypass_en`` injected from field 146 of
+    ``Delta3DisplayPropertyUpload``. The device sends Display updates
+    both as deltas (when the bypass changes) and as full snapshots
+    (in response to ``thing/property/get`` requests issued at HA
+    integration setup), so the state is always live and never assumed.
+
+    Semantics: ON = grid bypass disabled, battery runs standalone (no
+    AC charging); OFF = grid bypass enabled, battery charges from AC
+    input. Matches the "Disable grid bypass" toggle in the EcoFlow
+    mobile app.
+    """
+
+    def _update_value(self, val: Any) -> bool:
+        if isinstance(val, (int, bool)):
+            new_state = bool(val)
+            if self._attr_is_on != new_state:
+                self._attr_is_on = new_state
+                return True
+        return False
