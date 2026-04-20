@@ -75,9 +75,9 @@ class Wave3CommandMessage(PrivateAPIMessageProtocol):
         return {"Wave3CommandMessage": self._payload.hex()}
 
 
-def _create_wave3_command(device_sn: str, **kwargs: Any) -> Wave3CommandMessage | None:
+def _create_wave3_command(device_sn: str, **kwargs: Any) -> Wave3CommandMessage | dict[str, Any]:
     try:
-        cw = wave3_pb2.ConfigWrite()
+        cw = wave3_pb2.Wave3ConfigWrite()
         for key, value in kwargs.items():
             try:
                 setattr(cw, key, value)
@@ -86,7 +86,7 @@ def _create_wave3_command(device_sn: str, **kwargs: Any) -> Wave3CommandMessage 
 
         pdata_bytes = cw.SerializeToString()
 
-        msg = wave3_pb2.setMessage()
+        msg = wave3_pb2.Wave3SetMessage()
         h = msg.header
 
         h.src = 32
@@ -112,14 +112,14 @@ def _create_wave3_command(device_sn: str, **kwargs: Any) -> Wave3CommandMessage 
 
     except Exception as exc:
         _LOGGER.exception("Wave3 ConfigWrite error: %s", exc)
-        return None
+        return {}
 
 
 class Wave3(BaseInternalDevice):
 
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         try:
-            msg = wave3_pb2.setMessage()
+            msg = wave3_pb2.Wave3SetMessage()
             msg.ParseFromString(raw_data)
 
             if not msg.HasField("header"):
@@ -145,28 +145,29 @@ class Wave3(BaseInternalDevice):
                 _write_sniffer_log(log_msg)
 
             result: dict[str, Any] = {}
+            msg_obj: Any
 
             if cmd_func == 254 and cmd_id in (1, 21):
-                msg_obj = wave3_pb2.DisplayPropertyUpload()
+                msg_obj = wave3_pb2.Wave3DisplayPropertyUpload()
                 msg_obj.ParseFromString(pdata_bytes)
                 for field, value in msg_obj.ListFields():
                     result[field.name] = value
                 self._extract_active_mode_params(msg_obj, result)
 
             elif cmd_func == 254 and cmd_id == 22:
-                msg_obj = wave3_pb2.RuntimePropertyUpload()
+                msg_obj = wave3_pb2.Wave3RuntimePropertyUpload()
                 msg_obj.ParseFromString(pdata_bytes)
                 for field, value in msg_obj.ListFields():
                     result[field.name] = value
 
             elif cmd_func == 254 and cmd_id == 18:
-                msg_obj = wave3_pb2.ConfigWriteAck()
+                msg_obj = wave3_pb2.Wave3ConfigWriteAck()
                 msg_obj.ParseFromString(pdata_bytes)
                 for field, value in msg_obj.ListFields():
                     result[field.name] = value
 
             else:
-                msg_obj = wave3_pb2.DisplayPropertyUpload()
+                msg_obj = wave3_pb2.Wave3DisplayPropertyUpload()
                 msg_obj.ParseFromString(pdata_bytes)
                 for field, value in msg_obj.ListFields():
                     result[field.name] = value
@@ -325,8 +326,8 @@ class Wave3ClimateEntity(ClimateEntity):
             return self._device.data.params
         return {}
 
-    def _send(self, msg: Wave3CommandMessage | None, opt_state: dict[str, Any] | None = None) -> None:
-        if not msg:
+    def _send(self, msg: Wave3CommandMessage | dict[str, Any], opt_state: dict[str, Any] | None = None) -> None:
+        if not isinstance(msg, Wave3CommandMessage):
             return
         try:
             self._client.send_set_message(self._device.device_info.sn, opt_state or {}, msg)
