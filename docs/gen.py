@@ -381,7 +381,7 @@ class MarkdownRenderer:
     def render_switch(self, sw: BaseSwitchEntity, brief: bool = False) -> str:
         """Render switch entity to markdown."""
         if brief:
-            return "- %s %s" % (sw.name, self.command_ro(sw))
+            return "- %s%s" % (sw.name, self.command_ro(sw))
         else:
             return "- %s (`%s` -> `%s`)" % (
                 sw.name,
@@ -392,7 +392,7 @@ class MarkdownRenderer:
     def render_number(self, sw: BaseNumberEntity, brief: bool = False) -> str:
         """Render number entity to markdown."""
         if brief:
-            return "- %s %s" % (sw.name, self.command_ro(sw))
+            return "- %s%s" % (sw.name, self.command_ro(sw))
         else:
             return "- %s (`%s` -> `%s` [%d - %d])" % (
                 sw.name,
@@ -405,7 +405,7 @@ class MarkdownRenderer:
     def render_select(self, sw: BaseSelectEntity, brief: bool = False) -> str:
         """Render select entity to markdown."""
         if brief:
-            return "- %s %s" % (sw.name, self.command_ro(sw))
+            return "- %s%s" % (sw.name, self.command_ro(sw))
         else:
             return "- %s (`%s` -> `%s` [%s])" % (
                 sw.name,
