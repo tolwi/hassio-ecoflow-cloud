@@ -408,7 +408,7 @@ class Delta3RuntimePropertyUpload(_message.Message):
     def __init__(self, ac_phase_type: _Optional[int] = ..., pcs_work_mode: _Optional[int] = ..., temp_pcs_dc: _Optional[float] = ..., temp_pcs_ac: _Optional[float] = ..., plug_in_info_ac_out_type: _Optional[int] = ..., plug_in_info_ac_out_freq: _Optional[int] = ..., plug_in_info_ac_out_vol: _Optional[float] = ..., plug_in_info_ac_in_vol: _Optional[float] = ..., plug_in_info_bms_vol: _Optional[float] = ..., pd_mppt_comm_err: _Optional[int] = ..., pd_llc_comm_err: _Optional[int] = ..., pd_bms_comm_err: _Optional[int] = ..., pd_iot_comm_err: _Optional[int] = ..., pd_firm_ver: _Optional[int] = ..., iot_firm_ver: _Optional[int] = ..., mppt_firm_ver: _Optional[int] = ..., plug_in_info_ac_in_amp: _Optional[float] = ..., plug_in_info_ac_out_amp: _Optional[float] = ..., llc_inv_firm_ver: _Optional[int] = ..., bms_firm_ver: _Optional[int] = ..., bms_batt_vol: _Optional[float] = ..., bms_batt_amp: _Optional[float] = ..., bms_bal_state: _Optional[int] = ..., bms_full_cap: _Optional[int] = ..., bms_remain_cap: _Optional[int] = ..., bms_alm_state: _Optional[int] = ..., bms_pro_state: _Optional[int] = ..., bms_flt_state: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., bms_min_cell_vol: _Optional[int] = ..., bms_max_cell_vol: _Optional[int] = ..., cms_batt_vol: _Optional[float] = ..., cms_batt_amp: _Optional[float] = ..., cms_chg_req_vol: _Optional[float] = ..., cms_chg_req_amp: _Optional[float] = ..., bms_overload_icon: _Optional[int] = ..., bms_warn_icon: _Optional[int] = ..., bms_high_temp_icon: _Optional[int] = ..., bms_low_temp_icon: _Optional[int] = ..., bms_limit_icon: _Optional[int] = ..., bms_alm_state_2: _Optional[int] = ..., bms_pro_state_2: _Optional[int] = ..., display_property_full_upload_period: _Optional[int] = ..., display_property_incremental_upload_period: _Optional[int] = ..., runtime_property_full_upload_period: _Optional[int] = ..., runtime_property_incremental_upload_period: _Optional[int] = ..., pv_vin_ref: _Optional[float] = ..., inv_main_fsmstate: _Optional[int] = ..., l1_main_fsmstate: _Optional[int] = ..., dcdc_chg_req_cur: _Optional[float] = ..., llc_recv_cms_chg_req_vol: _Optional[float] = ..., temp_pv: _Optional[float] = ..., plug_in_info_pv_vol: _Optional[float] = ..., plug_in_info_pv_amp: _Optional[float] = ..., plug_in_info_12v_vol: _Optional[float] = ..., plug_in_info_12v_amp: _Optional[float] = ..., llc_bat_vol: _Optional[float] = ..., llc_bat_cur: _Optional[float] = ..., llc_bus_vol: _Optional[float] = ..., plug_in_info_dcp_vol: _Optional[float] = ..., plug_in_info_dcp_amp: _Optional[float] = ...) -> None: ...
 
 class Delta3SetCommand(_message.Message):
-    __slots__ = ("cfg_power_off", "cfg_utc_time", "cfg_utc_timezone", "en_beep", "ac_standby_time", "dc_standby_time", "screen_off_time", "dev_standby_time", "lcd_light", "cfg_dc12v_out_open", "xboost_en", "ban_bypass_en", "cms_max_chg_soc", "cms_min_dsg_soc", "cfg_energy_backup", "plug_in_info_ac_in_chg_pow_max", "cfg_ac_out_open", "plug_in_info_pv_dc_amp_max", "cfg_led_mode", "pv_chg_type", "output_power_off_memory")
+    __slots__ = ("cfg_power_off", "cfg_utc_time", "cfg_utc_timezone", "en_beep", "ac_standby_time", "dc_standby_time", "screen_off_time", "dev_standby_time", "lcd_light", "cfg_dc12v_out_open", "cfg_usb_open", "xboost_en", "ban_bypass_en", "cms_max_chg_soc", "cms_min_dsg_soc", "cfg_energy_backup", "plug_in_info_ac_in_chg_pow_max", "cfg_ac_out_open", "plug_in_info_pv_dc_amp_max", "cfg_led_mode", "pv_chg_type", "output_power_off_memory")
     CFG_POWER_OFF_FIELD_NUMBER: _ClassVar[int]
     CFG_UTC_TIME_FIELD_NUMBER: _ClassVar[int]
     CFG_UTC_TIMEZONE_FIELD_NUMBER: _ClassVar[int]
@@ -419,6 +419,7 @@ class Delta3SetCommand(_message.Message):
     DEV_STANDBY_TIME_FIELD_NUMBER: _ClassVar[int]
     LCD_LIGHT_FIELD_NUMBER: _ClassVar[int]
     CFG_DC12V_OUT_OPEN_FIELD_NUMBER: _ClassVar[int]
+    CFG_USB_OPEN_FIELD_NUMBER: _ClassVar[int]
     XBOOST_EN_FIELD_NUMBER: _ClassVar[int]
     BAN_BYPASS_EN_FIELD_NUMBER: _ClassVar[int]
     CMS_MAX_CHG_SOC_FIELD_NUMBER: _ClassVar[int]
@@ -440,6 +441,7 @@ class Delta3SetCommand(_message.Message):
     dev_standby_time: int
     lcd_light: int
     cfg_dc12v_out_open: int
+    cfg_usb_open: int
     xboost_en: int
     ban_bypass_en: int
     cms_max_chg_soc: int
@@ -451,10 +453,10 @@ class Delta3SetCommand(_message.Message):
     cfg_led_mode: int
     pv_chg_type: int
     output_power_off_memory: int
-    def __init__(self, cfg_power_off: _Optional[int] = ..., cfg_utc_time: _Optional[int] = ..., cfg_utc_timezone: _Optional[int] = ..., en_beep: _Optional[int] = ..., ac_standby_time: _Optional[int] = ..., dc_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., lcd_light: _Optional[int] = ..., cfg_dc12v_out_open: _Optional[int] = ..., xboost_en: _Optional[int] = ..., ban_bypass_en: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cfg_energy_backup: _Optional[_Union[Delta3CfgEnergyBackup, _Mapping]] = ..., plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., cfg_ac_out_open: _Optional[int] = ..., plug_in_info_pv_dc_amp_max: _Optional[int] = ..., cfg_led_mode: _Optional[int] = ..., pv_chg_type: _Optional[int] = ..., output_power_off_memory: _Optional[int] = ...) -> None: ...
+    def __init__(self, cfg_power_off: _Optional[int] = ..., cfg_utc_time: _Optional[int] = ..., cfg_utc_timezone: _Optional[int] = ..., en_beep: _Optional[int] = ..., ac_standby_time: _Optional[int] = ..., dc_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., lcd_light: _Optional[int] = ..., cfg_dc12v_out_open: _Optional[int] = ..., cfg_usb_open: _Optional[int] = ..., xboost_en: _Optional[int] = ..., ban_bypass_en: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cfg_energy_backup: _Optional[_Union[Delta3CfgEnergyBackup, _Mapping]] = ..., plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., cfg_ac_out_open: _Optional[int] = ..., plug_in_info_pv_dc_amp_max: _Optional[int] = ..., cfg_led_mode: _Optional[int] = ..., pv_chg_type: _Optional[int] = ..., output_power_off_memory: _Optional[int] = ...) -> None: ...
 
 class Delta3SetReply(_message.Message):
-    __slots__ = ("action_id", "config_ok", "cfg_utc_time", "cfg_utc_timezone", "en_beep", "ac_standby_time", "dc_standby_time", "screen_off_time", "dev_standby_time", "lcd_light", "cfg_dc12v_out_open", "xboost_en", "ban_bypass_en", "cms_max_chg_soc", "cms_min_dsg_soc", "cfg_energy_backup", "plug_in_info_ac_in_chg_pow_max", "dc_out_open", "cfg_ac_out_open", "plug_in_info_pv_dc_amp_max", "cfg_led_mode", "pv_chg_type", "output_power_off_memory")
+    __slots__ = ("action_id", "config_ok", "cfg_utc_time", "cfg_utc_timezone", "en_beep", "ac_standby_time", "dc_standby_time", "screen_off_time", "dev_standby_time", "lcd_light", "cfg_dc12v_out_open", "cfg_usb_open", "xboost_en", "ban_bypass_en", "cms_max_chg_soc", "cms_min_dsg_soc", "cfg_energy_backup", "plug_in_info_ac_in_chg_pow_max", "dc_out_open", "cfg_ac_out_open", "plug_in_info_pv_dc_amp_max", "cfg_led_mode", "pv_chg_type", "output_power_off_memory")
     ACTION_ID_FIELD_NUMBER: _ClassVar[int]
     CONFIG_OK_FIELD_NUMBER: _ClassVar[int]
     CFG_UTC_TIME_FIELD_NUMBER: _ClassVar[int]
@@ -466,6 +468,7 @@ class Delta3SetReply(_message.Message):
     DEV_STANDBY_TIME_FIELD_NUMBER: _ClassVar[int]
     LCD_LIGHT_FIELD_NUMBER: _ClassVar[int]
     CFG_DC12V_OUT_OPEN_FIELD_NUMBER: _ClassVar[int]
+    CFG_USB_OPEN_FIELD_NUMBER: _ClassVar[int]
     XBOOST_EN_FIELD_NUMBER: _ClassVar[int]
     BAN_BYPASS_EN_FIELD_NUMBER: _ClassVar[int]
     CMS_MAX_CHG_SOC_FIELD_NUMBER: _ClassVar[int]
@@ -489,6 +492,7 @@ class Delta3SetReply(_message.Message):
     dev_standby_time: int
     lcd_light: int
     cfg_dc12v_out_open: int
+    cfg_usb_open: int
     xboost_en: int
     ban_bypass_en: int
     cms_max_chg_soc: int
@@ -501,7 +505,7 @@ class Delta3SetReply(_message.Message):
     cfg_led_mode: int
     pv_chg_type: int
     output_power_off_memory: int
-    def __init__(self, action_id: _Optional[int] = ..., config_ok: _Optional[bool] = ..., cfg_utc_time: _Optional[int] = ..., cfg_utc_timezone: _Optional[int] = ..., en_beep: _Optional[int] = ..., ac_standby_time: _Optional[int] = ..., dc_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., lcd_light: _Optional[int] = ..., cfg_dc12v_out_open: _Optional[int] = ..., xboost_en: _Optional[int] = ..., ban_bypass_en: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cfg_energy_backup: _Optional[_Union[Delta3CfgEnergyBackup, _Mapping]] = ..., plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., dc_out_open: _Optional[int] = ..., cfg_ac_out_open: _Optional[int] = ..., plug_in_info_pv_dc_amp_max: _Optional[int] = ..., cfg_led_mode: _Optional[int] = ..., pv_chg_type: _Optional[int] = ..., output_power_off_memory: _Optional[int] = ...) -> None: ...
+    def __init__(self, action_id: _Optional[int] = ..., config_ok: _Optional[bool] = ..., cfg_utc_time: _Optional[int] = ..., cfg_utc_timezone: _Optional[int] = ..., en_beep: _Optional[int] = ..., ac_standby_time: _Optional[int] = ..., dc_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., lcd_light: _Optional[int] = ..., cfg_dc12v_out_open: _Optional[int] = ..., cfg_usb_open: _Optional[int] = ..., xboost_en: _Optional[int] = ..., ban_bypass_en: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cfg_energy_backup: _Optional[_Union[Delta3CfgEnergyBackup, _Mapping]] = ..., plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., dc_out_open: _Optional[int] = ..., cfg_ac_out_open: _Optional[int] = ..., plug_in_info_pv_dc_amp_max: _Optional[int] = ..., cfg_led_mode: _Optional[int] = ..., pv_chg_type: _Optional[int] = ..., output_power_off_memory: _Optional[int] = ...) -> None: ...
 
 class Delta3CfgEnergyBackup(_message.Message):
     __slots__ = ("energy_backup_en", "energy_backup_start_soc")
