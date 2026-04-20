@@ -7,7 +7,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.button import EnabledButtonEntity
+from custom_components.ecoflow_cloud.button import SetMessageButtonEntity
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.number import SetTempEntity
 from custom_components.ecoflow_cloud.sensor import (
@@ -168,21 +168,21 @@ class Glacier(BaseInternalDevice):
 
     def buttons(self, client: EcoflowApiClient) -> list[ButtonEntity]:
         return [
-            EnabledButtonEntity(
+            SetMessageButtonEntity(
                 client,
                 self,
                 "smlice",
                 "Make Small Ice",
                 lambda value: {"moduleType": 1, "operateType": "iceMake", "params": {"enable": 1, "iceShape": 0}},
             ),
-            EnabledButtonEntity(
+            SetMessageButtonEntity(
                 client,
                 self,
                 "lrgice",
                 "Make Large Ice",
                 lambda value: {"moduleType": 1, "operateType": "iceMake", "params": {"enable": 1, "iceShape": 1}},
             ),
-            EnabledButtonEntity(
+            SetMessageButtonEntity(
                 client,
                 self,
                 "deice",
