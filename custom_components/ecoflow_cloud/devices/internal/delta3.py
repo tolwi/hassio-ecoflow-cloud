@@ -418,6 +418,15 @@ class Delta3(BaseInternalDevice):
             EnabledEntity(
                 client,
                 self,
+                "cfg_usb_open",
+                const.USB_ENABLED,
+                lambda value, params=None: _create_delta3_proto_command(
+                    "cfg_usb_open", 1 if value else 0, device.device_data.sn
+                ),
+            ),
+            EnabledEntity(
+                client,
+                self,
                 "output_power_off_memory",
                 const.AC_ALWAYS_ENABLED,
                 lambda value, params=None: _create_delta3_proto_command(
@@ -682,7 +691,44 @@ class Delta3(BaseInternalDevice):
             if cmd_func == 254 and cmd_id == 21:
                 msg_display_upload = delta3_pb2.Delta3DisplayPropertyUpload()
                 msg_display_upload.ParseFromString(pdata)
-                return self._protobuf_to_dict(msg_display_upload)
+                result = self._protobuf_to_dict(msg_display_upload)
+                # Derive AC / DC / USB output enable state from flow_info_*
+                # fields. The DELTA 3 firmware never sends cfg_ac_out_open,
+                # cfg_dc12v_out_open or cfg_usb_open in telemetry or get_reply
+                # snapshots, so without this derivation the corresponding HA
+                # switches stay "unknown" until the user toggles them.
+                # MQTT sniffing confirmed that flow_info_* == 14 iff the
+                # output is enabled (even with no load attached), and == 4
+                # iff disabled. Any other value (transient) is ignored so we
+                # don't overwrite a previously known state with a bad guess.
+                # The authoritative source remains the SetReply from the
+                # device (parsed via _prepare_data_set_reply_topic), which
+                # always wins because both updates merge into the same dict.
+                dc_flow = result.get("flow_info_12v")
+                if dc_flow == 14:
+                    result["cfg_dc12v_out_open"] = 1
+                elif dc_flow == 4:
+                    result["cfg_dc12v_out_open"] = 0
+
+                ac_flow = result.get("flow_info_ac_out")
+                if ac_flow == 14:
+                    result["cfg_ac_out_open"] = 1
+                elif ac_flow == 4:
+                    result["cfg_ac_out_open"] = 0
+
+                usb_flow_keys = (
+                    "flow_info_qcusb1",
+                    "flow_info_qcusb2",
+                    "flow_info_typec1",
+                    "flow_info_typec2",
+                )
+                usb_values = [result.get(k) for k in usb_flow_keys if k in result]
+                if usb_values:
+                    if any(v == 14 for v in usb_values):
+                        result["cfg_usb_open"] = 1
+                    elif all(v == 4 for v in usb_values):
+                        result["cfg_usb_open"] = 0
+                return result
 
             elif cmd_func == 254 and cmd_id == 22:
                 msg_runtime_upload = delta3_pb2.Delta3RuntimePropertyUpload()

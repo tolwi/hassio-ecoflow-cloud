@@ -35,6 +35,34 @@ from custom_components.ecoflow_cloud.switch import (
 )
 
 
+class Delta31500ChargingStateSensorEntity(ChargingStateSensorEntity):
+    """Charging state for DELTA 3 1500.
+
+    The firmware does not send ``bms_emsStatus.chgState`` (the field the
+    generic :class:`ChargingStateSensorEntity` reads), and the values it
+    does emit on ``bms_emsStatus.sysChgDsgState`` use a different mapping
+    than the generic class assumes. MQTT sniffing (bypass toggle test)
+    confirmed:
+
+    * 0 -> discharging (battery supplying loads — this is the normal
+        "bypass ON" state for DELTA 3 1500: the grid is disconnected and
+        loads are fed by the battery)
+    * 1 -> unused (assumed idle; not observed on the wire because the
+        1500 is rarely truly idle — mapping follows the EcoFlow JSON API
+        convention where "1" is the leftover state)
+    * 2 -> charging (AC-IN feeding the battery, verified during bypass
+        OFF test with BMS amp going from -3 A to +3.4 A)
+    """
+
+    def _update_value(self, val: Any) -> bool:
+        if val == 0:
+            return super(ChargingStateSensorEntity, self)._update_value("discharging")
+        elif val == 1:
+            return super(ChargingStateSensorEntity, self)._update_value("unused")
+        elif val == 2:
+            return super(ChargingStateSensorEntity, self)._update_value("charging")
+        return False
+
 class BypassBanSwitch(EnabledEntity):
     """Grid-bypass switch controlled by the EcoFlow ``bypassBan`` command.
 
@@ -71,7 +99,9 @@ class Delta31500(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False),
             LevelSensorEntity(client, self, "bms_bmsStatus.soh", const.SOH),
             LevelSensorEntity(client, self, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
-            ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE),
+            Delta31500ChargingStateSensorEntity(
+                client, self, "bms_emsStatus.sysChgDsgState", const.BATTERY_CHARGING_STATE
+            ),
             InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
             OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER).with_energy(),
             InWattsSensorEntity(client, self, "inv.inputWatts", const.AC_IN_POWER).with_energy(),
