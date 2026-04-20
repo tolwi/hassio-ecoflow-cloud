@@ -28,7 +28,6 @@ from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
     CapacitySensorEntity,
     CyclesSensorEntity,
-    FanSensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
     MilliVoltSensorEntity,
@@ -298,7 +297,6 @@ class GlacierClassic(BaseInternalDevice):
             GlacierClassicChargingStateSensorEntity(
                 client, self, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE
             ),
-            FanSensorEntity(client, self, "bms_emsStatus.fanLvl", "Fan Level"),
             InWattsSensorEntity(client, self, "bms_bmsStatus.inWatts", const.TOTAL_IN_POWER),
             OutWattsSensorEntity(client, self, "bms_bmsStatus.outWatts", const.TOTAL_OUT_POWER),
             RemainSensorEntity(client, self, "bms_emsStatus.chgRemain", const.CHARGE_REMAINING_TIME),
