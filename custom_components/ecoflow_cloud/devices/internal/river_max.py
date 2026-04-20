@@ -1,3 +1,6 @@
+import logging
+from typing import Any
+
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
@@ -5,6 +8,7 @@ from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.entities import BaseSwitchEntity
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity
 from custom_components.ecoflow_cloud.select import TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import (
@@ -24,7 +28,31 @@ from custom_components.ecoflow_cloud.sensor import (
     RemainSensorEntity,
     TempSensorEntity,
 )
-from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity, FanModeEntity
+from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class FanModeEntity(BaseSwitchEntity[int]):
+    """Auto fan-mode toggle specific to River Max.
+
+    River Max exposes ``inv.cfgFanMode`` with device-specific magic
+    values: ``1`` = auto mode ON, ``3`` = auto mode OFF. These values
+    carry no semantic meaning outside this device.
+    """
+
+    def _update_value(self, val: Any) -> bool:
+        _LOGGER.debug("Updating switch " + self._attr_unique_id + " to " + str(val))
+        self._attr_is_on = val == 1
+        return True
+
+    def turn_on(self, **kwargs: Any) -> None:
+        if self._command:
+            self.send_set_message(1, self.command_dict(1))
+
+    def turn_off(self, **kwargs: Any) -> None:
+        if self._command:
+            self.send_set_message(3, self.command_dict(3))
 
 
 class RiverMax(BaseInternalDevice):
