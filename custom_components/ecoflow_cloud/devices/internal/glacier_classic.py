@@ -350,7 +350,7 @@ class GlacierClassic(BaseInternalDevice):
             LevelSensorEntity(client, self, "bms_bmsStatus.actSoc", "Actual Battery SOC", False),
             LevelSensorEntity(client, self, "bms_bmsStatus.diffSoc", "Battery SOC Delta", False),
             LevelSensorEntity(client, self, "bms_bmsStatus.targetSoc", "Target Battery SOC", False),
-            GlacierClassicScreenTimeoutSensorEntity(client, self, "pd.blTime", const.SCREEN_TIMEOUT, False),
+            GlacierClassicScreenTimeoutSensorEntity(client, self, "pd.blTime", const.SCREEN_TIMEOUT),
             MiscSensorEntity(client, self, "pd.devStandbyTime", "Device Standby Time", False),
             MiscSensorEntity(
                 client,
