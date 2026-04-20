@@ -43,7 +43,12 @@ from custom_components.ecoflow_cloud.switch import EnabledEntity, InvertedBeeper
 
 _LOGGER = logging.getLogger(__name__)
 
-BATTERY_PROTECTION_OPTIONS = {"Low": 0, "Medium": 1, "High": 2}
+BATTERY_PROTECTION_OPTIONS = {
+    "Off": 0,
+    "Low": 3,
+    "Medium": 2,
+    "High": 1,
+}
 
 DEVICE_STANDBY_OPTIONS = {
     "30 min": 1800,
