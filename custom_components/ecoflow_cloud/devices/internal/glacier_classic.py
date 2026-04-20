@@ -23,7 +23,7 @@ from custom_components.ecoflow_cloud.devices.internal.proto import (
 )
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity, MinBatteryLevelEntity, SetTempEntity
-from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
+from custom_components.ecoflow_cloud.select import DictSelectEntity
 from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
     CapacitySensorEntity,
@@ -59,18 +59,8 @@ DEVICE_STANDBY_OPTIONS = {
     "Never": 0,
 }
 
-SCREEN_OFF_TIME_OPTIONS = {
-    "10 sec": 10,
-    "30 sec": 30,
-    "1 min": 60,
-    "5 min": 300,
-    "10 min": 600,
-    "Never": 0,
-}
-
 CONFIG_WRITE_FIELDS: dict[str, tuple[str, str]] = {
     "enBeep": ("en_beep", "int"),
-    "screenOffTime": ("screen_off_time", "int"),
     "devStandbyTime": ("dev_standby_time", "int"),
     "cmsMaxChgSoc": ("cms_max_chg_soc", "int"),
     "cmsMinDsgSoc": ("cms_min_dsg_soc", "int"),
@@ -210,6 +200,25 @@ class GlacierClassicTemperatureUnitSensorEntity(MiscSensorEntity):
         return super()._update_value(label)
 
 
+class GlacierClassicScreenTimeoutSensorEntity(MiscSensorEntity):
+    """Sensor that exposes the human-readable screen timeout."""
+
+    _attr_entity_category = EntityCategory.CONFIG
+
+    _timeout_labels = {
+        0: "Never",
+        10: "10 sec",
+        30: "30 sec",
+        60: "1 min",
+        300: "5 min",
+        600: "10 min",
+    }
+
+    def _update_value(self, val: Any) -> bool:
+        seconds = int(val)
+        return super()._update_value(self._timeout_labels.get(seconds, f"{seconds} sec"))
+
+
 class InvertedMiscBinarySensorEntity(MiscBinarySensorEntity):
     """Binary sensor entity with inverted device semantics."""
 
@@ -341,6 +350,7 @@ class GlacierClassic(BaseInternalDevice):
             LevelSensorEntity(client, self, "bms_bmsStatus.actSoc", "Actual Battery SOC", False),
             LevelSensorEntity(client, self, "bms_bmsStatus.diffSoc", "Battery SOC Delta", False),
             LevelSensorEntity(client, self, "bms_bmsStatus.targetSoc", "Target Battery SOC", False),
+            GlacierClassicScreenTimeoutSensorEntity(client, self, "pd.blTime", const.SCREEN_TIMEOUT, False),
             MiscSensorEntity(client, self, "pd.devStandbyTime", "Device Standby Time", False),
             MiscSensorEntity(
                 client,
@@ -511,16 +521,6 @@ class GlacierClassic(BaseInternalDevice):
                 DEVICE_STANDBY_OPTIONS,
                 lambda value: _create_glacier_classic_proto_command(
                     "devStandbyTime", value, device.device_data.sn
-                ),
-            ),
-            TimeoutDictSelectEntity(
-                client,
-                self,
-                "pd.blTime",
-                const.SCREEN_TIMEOUT,
-                SCREEN_OFF_TIME_OPTIONS,
-                lambda value: _create_glacier_classic_proto_command(
-                    "screenOffTime", value, device.device_data.sn
                 ),
             ),
         ]
