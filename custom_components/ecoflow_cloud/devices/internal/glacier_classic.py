@@ -220,9 +220,19 @@ class GlacierClassicPowerSourceSensorEntity(MiscSensorEntity):
                 "battery_in_watts": params.get("bms_bmsStatus.inWatts"),
                 "battery_out_watts": params.get("bms_bmsStatus.outWatts"),
                 "runtime_ac_in_vol": params.get("runtime.plug_in_info_ac_in_vol"),
-                "runtime_payload": {
-                    "plug_in_info_ac_in_vol": params.get("runtime.plug_in_info_ac_in_vol"),
-                },
+                "cms_raw_chg_disable_cond": params.get("debugPower.cms.chg_disable_cond"),
+                "cms_raw_dsg_disable_cond": params.get("debugPower.cms.dsg_disable_cond"),
+                "cms_raw_sys_chg_dsg_state": params.get("debugPower.cms.sys_chg_dsg_state"),
+                "cms_raw_ems_heartbeat_ver": params.get("debugPower.cms.ems_heartbeat_ver"),
+                "display_raw_errcode": params.get("debugPower.display.errcode"),
+                "display_raw_sys_status": params.get("debugPower.display.sys_status"),
+                "display_raw_pow_in_sum_w": params.get("debugPower.display.pow_in_sum_w"),
+                "display_raw_pow_out_sum_w": params.get("debugPower.display.pow_out_sum_w"),
+                "display_raw_pv_flag": params.get("debugPower.display.plug_in_info_pv_flag"),
+                "display_raw_pv_type": params.get("debugPower.display.plug_in_info_pv_type"),
+                "display_raw_dcp_in_flag": params.get("debugPower.display.plug_in_info_dcp_in_flag"),
+                "display_raw_input_volt777": params.get("debugPower.display.input_volt777"),
+                "runtime_raw_plug_in_info_ac_in_vol": params.get("debugPower.runtime.plug_in_info_ac_in_vol"),
             }
         )
         return attrs
@@ -826,11 +836,21 @@ class GlacierClassic(BaseInternalDevice):
         return self._flatten_dict(result)
 
     def _map_cms(self, payload: dict[str, Any]) -> dict[str, Any]:
-        result: dict[str, Any] = {"bms_emsStatus": {}}
+        result: dict[str, Any] = {"bms_emsStatus": {}, "debugPower": {"cms": {}}}
         v1p0 = payload.get("v1p0", {})
         if not isinstance(v1p0, dict):
             return {}
         ems = result["bms_emsStatus"]
+        debug_cms = result["debugPower"]["cms"]
+        for key in (
+            "chg_disable_cond",
+            "dsg_disable_cond",
+            "chg_line_plug_in_flag",
+            "sys_chg_dsg_state",
+            "ems_heartbeat_ver",
+        ):
+            if key in v1p0:
+                debug_cms[key] = v1p0[key]
         if "chg_state" in v1p0:
             ems["chgState"] = int(v1p0["chg_state"])
         if "chg_line_plug_in_flag" in v1p0:
@@ -863,10 +883,23 @@ class GlacierClassic(BaseInternalDevice):
         return self._flatten_dict(result)
 
     def _map_display(self, payload: dict[str, Any]) -> dict[str, Any]:
-        result: dict[str, Any] = {"pd": {}, "bms_emsStatus": {}, "bms_bmsStatus": {}}
+        result: dict[str, Any] = {"pd": {}, "bms_emsStatus": {}, "bms_bmsStatus": {}, "debugPower": {"display": {}}}
         pd = result["pd"]
         ems = result["bms_emsStatus"]
         bms = result["bms_bmsStatus"]
+        debug_display = result["debugPower"]["display"]
+        for key in (
+            "errcode",
+            "sys_status",
+            "pow_in_sum_w",
+            "pow_out_sum_w",
+            "plug_in_info_pv_flag",
+            "plug_in_info_pv_type",
+            "plug_in_info_dcp_in_flag",
+            "input_volt777",
+        ):
+            if key in payload:
+                debug_display[key] = payload[key]
         if "en_beep" in payload:
             pd["beepEn"] = int(payload["en_beep"])
         if "screen_off_time" in payload:
@@ -937,11 +970,13 @@ class GlacierClassic(BaseInternalDevice):
         return {key: value for key, value in flattened.items() if value != {}}
 
     def _map_runtime(self, payload: dict[str, Any]) -> dict[str, Any]:
-        result: dict[str, Any] = {"pd": {}, "runtime": {}}
+        result: dict[str, Any] = {"pd": {}, "runtime": {}, "debugPower": {"runtime": {}}}
+        debug_runtime = result["debugPower"]["runtime"]
         if "plug_in_info_ac_in_vol" in payload:
             ac_in_volts = round(float(payload["plug_in_info_ac_in_vol"]), 2)
             result["pd"]["acInVolts"] = ac_in_volts
             result["pd"]["inputVolts"] = ac_in_volts
+            debug_runtime["plug_in_info_ac_in_vol"] = payload["plug_in_info_ac_in_vol"]
         for key, value in payload.items():
             if key != "plug_in_info_ac_in_vol":
                 result["runtime"][key] = value
