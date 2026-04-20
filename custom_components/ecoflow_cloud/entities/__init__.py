@@ -257,7 +257,7 @@ class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity[int]):
             return False
 
 
-class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):
+class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):  # type: ignore[misc]
     _attr_default_value: Any = None
 
     def __init__(

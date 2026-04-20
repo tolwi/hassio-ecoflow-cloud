@@ -475,7 +475,7 @@ class DecihertzSensorEntity(FrequencySensorEntity):
         return super()._update_value(int(val) / 10)
 
 
-class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
+class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: ignore[misc]
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(
