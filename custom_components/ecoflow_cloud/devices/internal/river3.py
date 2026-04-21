@@ -6,6 +6,7 @@ from homeassistant.components.sensor import SensorEntity
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.api.message import Message
 from custom_components.ecoflow_cloud.api.message import PrivateAPIMessageProtocol
+import base64
 import logging
 import time
 from typing import Any, override
@@ -398,87 +399,59 @@ class River3(BaseInternalDevice):
             ),
         ]
 
+    def _decode_all_headers(self, raw_data: bytes) -> dict[str, Any]:
+        """Parse a multi-header protobuf message and merge all decoded payloads."""
+        try:
+            raw_data = base64.b64decode(raw_data, validate=True)
+        except Exception:
+            pass
+
+        header_msg = ef_river3_pb2.River3HeaderMessage()
+        header_msg.ParseFromString(raw_data)
+
+        if not header_msg.header:
+            return {}
+
+        merged: dict[str, Any] = {}
+        for header in header_msg.header:
+            try:
+                header_info = {
+                    "src": getattr(header, "src", 0),
+                    "encType": getattr(header, "enc_type", 0),
+                    "seq": getattr(header, "seq", 0),
+                    "cmdFunc": getattr(header, "cmd_func", 0),
+                    "cmdId": getattr(header, "cmd_id", 0),
+                }
+                pdata = getattr(header, "pdata", b"")
+                if not pdata:
+                    continue
+                decoded_pdata = self._perform_xor_decode(pdata, header_info)
+                decoded = self._decode_message_by_type(decoded_pdata, header_info)
+                if decoded:
+                    merged.update(decoded)
+            except Exception as e:
+                _LOGGER.debug("[River3] header decode failed: %s", e)
+                continue
+        return merged
+
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         """Prepare River 3 data by decoding protobuf and flattening fields."""
-        flat_dict: dict[str, Any] | None = None
-        decoded_data: dict[str, Any] | None = None
         try:
-            header_info = self._decode_header_message(raw_data)
-            if not header_info:
+            merged = self._decode_all_headers(raw_data)
+            if not merged:
                 return super()._prepare_data(raw_data)
 
-            pdata = self._extract_payload_data(header_info.get("header_obj"))
-            if not pdata:
-                return {}
+            # River 3 firmware doesn't send cfg_ac_out_open directly;
+            # derive it from output_power_off_memory when available.
+            if "cfg_ac_out_open" not in merged and "output_power_off_memory" in merged:
+                merged["cfg_ac_out_open"] = 1 if merged["output_power_off_memory"] else 0
 
-            decoded_pdata = self._perform_xor_decode(pdata, header_info)
-            decoded_data = self._decode_message_by_type(decoded_pdata, header_info)
-            if not decoded_data:
-                return {}
-
-            flat_dict = self._flatten_dict(decoded_data)
+            flat = self._flatten_dict(merged)
+            return {"params": flat, "all_fields": merged}
         except Exception as e:
             _LOGGER.debug(f"[River3] Data processing failed: {e}")
             return super()._prepare_data(raw_data)
-
-        return {
-            "params": flat_dict or {},
-            "all_fields": decoded_data or {},
-        }
-
-    def _decode_header_message(self, raw_data: bytes) -> dict[str, Any] | None:
-        """Decode HeaderMessage and extract header info."""
-        try:
-            import base64
-
-            try:
-                decoded_payload = base64.b64decode(raw_data, validate=True)
-                raw_data = decoded_payload
-            except Exception as e:
-                # If base64 decoding fails, proceed with the original raw_data (it may not be base64 encoded)
-                _LOGGER.debug("[River3] base64 decode failed: %s", e)
-
-            try:
-                header_msg = ef_river3_pb2.River3HeaderMessage()
-                header_msg.ParseFromString(raw_data)
-            except Exception as e:
-                _LOGGER.debug("[River3] Failed to parse header message: %s", e)
-                return None
-
-            if not header_msg.header:
-                return None
-
-            header = header_msg.header[0]
-            return {
-                "src": getattr(header, "src", 0),
-                "dest": getattr(header, "dest", 0),
-                "dSrc": getattr(header, "d_src", 0),
-                "dDest": getattr(header, "d_dest", 0),
-                "encType": getattr(header, "enc_type", 0),
-                "checkType": getattr(header, "check_type", 0),
-                "cmdFunc": getattr(header, "cmd_func", 0),
-                "cmdId": getattr(header, "cmd_id", 0),
-                "dataLen": getattr(header, "data_len", 0),
-                "needAck": getattr(header, "need_ack", 0),
-                "seq": getattr(header, "seq", 0),
-                "productId": getattr(header, "product_id", 0),
-                "version": getattr(header, "version", 0),
-                "payloadVer": getattr(header, "payload_ver", 0),
-                "header_obj": header,
-            }
-        except Exception as e:
-            _LOGGER.debug("[River3] Failed to decode header message: %s", e)
-            return None
-
-    def _extract_payload_data(self, header_obj: Any) -> bytes | None:
-        """Extract payload bytes from header."""
-        try:
-            pdata = getattr(header_obj, "pdata", b"")
-            return pdata if pdata else None
-        except Exception as e:
-            _LOGGER.debug("[River3] Failed to extract payload data: %s", e)
-            return None
 
     def _perform_xor_decode(self, pdata: bytes, header_info: dict[str, Any]) -> bytes:
         """Perform XOR decoding if required by header info."""
@@ -509,7 +482,6 @@ class River3(BaseInternalDevice):
         """
         cmd_func = header_info.get("cmdFunc", 0)
         cmd_id = header_info.get("cmdId", 0)
-
         try:
             if cmd_func == 254 and cmd_id == 21:
                 msg_display_upload = ef_river3_pb2.River3DisplayPropertyUpload()
@@ -645,14 +617,10 @@ class River3(BaseInternalDevice):
     def _prepare_data_set_reply_topic(self, raw_data: bytes) -> PreparedData:
         """Parse set/get reply data - try protobuf, fall back to quiet JSON."""
         try:
-            import base64
-
             try:
-                decoded_payload = base64.b64decode(raw_data, validate=True)
-                raw_data = decoded_payload
-            except Exception as e:
-                # If base64 decoding fails, proceed with the original raw_data (it may not be base64 encoded)
-                _LOGGER.debug("[River3] base64 decode failed: %s", e)
+                raw_data = base64.b64decode(raw_data, validate=True)
+            except Exception:
+                pass
 
             header_msg = ef_river3_pb2.River3HeaderMessage()
             header_msg.ParseFromString(raw_data)
