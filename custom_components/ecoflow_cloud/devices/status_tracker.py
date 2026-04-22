@@ -75,6 +75,10 @@ class StatusTracker:
         return self.status == OnlineStatus.ONLINE
 
     @property
+    def is_offline(self) -> bool:
+        return self.status == OnlineStatus.OFFLINE
+
+    @property
     def wants_status_poll(self) -> bool:
         """True when status is uncertain and an explicit poll would help clarify."""
         return self.status == OnlineStatus.ASSUME_OFFLINE
