@@ -108,6 +108,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         self._attr_available = enabled
         self.__attributes_mapping: dict[str, str] = {}
         self.__attrs = OrderedDict[str, Any]()
+        self._reset_done: bool = False
         if diagnostic is not None:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC if diagnostic else None
 
@@ -140,13 +141,22 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         # self.async_on_remove(d.dispose)
 
     def _handle_coordinator_update(self) -> None:
-        if self.coordinator.data.changed:
-            self._updated(self.coordinator.data.data_holder.params)
-        elif self._device.status_tracker.is_offline:  # Device is offline
-            # Reset sensors that should reset to default values
+        params = self.coordinator.data.data_holder.params
+        is_offline = self._device.status_tracker.is_offline
+
+        if is_offline and not self._reset_done:
             if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
-                self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
-                self._updated(self.coordinator.data.data_holder.params)
+                self._mqtt_key_expr.update(params, self._attr_default_value)
+                self._reset_done = True
+            # fall through to _updated() to publish the reset value
+        elif is_offline:
+            return  # already reset, ignore all ticks (including cached quota data) until back online
+        elif self._reset_done:
+            self._reset_done = False  # first tick back online — restore immediately
+        elif not self.coordinator.data.changed:
+            return  # online, no new data
+
+        self._updated(params)
 
     def _updated(self, data: dict[str, Any]):
         # update attributes
