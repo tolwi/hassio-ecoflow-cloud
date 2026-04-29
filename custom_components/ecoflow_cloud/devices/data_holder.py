@@ -108,6 +108,9 @@ class EcoflowDataHolder:
         self.__accept_prepared_data(data, self.set_status.append)
         self.set_status_time = dt.utcnow()
 
+    def mark_status_changed(self) -> None:
+        self.status_change_time = dt.utcnow()
+
     def add_data(self, data: PreparedData):
         if data.params is not None and self.module_sn is not None:
             if "moduleSn" not in data.params:

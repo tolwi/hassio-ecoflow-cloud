@@ -135,6 +135,7 @@ class DcModeStateSensorEntity(MiscSensorEntity):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._raw_code: int | None = None
+        self._configured_code: int | None = None
 
     def _runtime_mode(self) -> tuple[int | None, str | None]:
         params = self._device.data.params
@@ -189,8 +190,16 @@ class DcModeStateSensorEntity(MiscSensorEntity):
         if runtime_code is None:
             return
 
+        configured_code = params.get("mppt.cfgChgType")
+        if configured_code is not None:
+            configured_code = int(configured_code)
+
+        was_available = bool(self._attr_available)
         self._attr_available = True
-        if self._update_value(runtime_code):
+        updated = self._update_value(runtime_code)
+        configured_changed = configured_code != self._configured_code
+        self._configured_code = configured_code
+        if updated or configured_changed or not was_available:
             self.schedule_update_ha_state()
 
 
