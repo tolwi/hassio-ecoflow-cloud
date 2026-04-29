@@ -36,8 +36,11 @@ class DataStatusCallback(Protocol):
 
 
 class _NoOpStatusCallback:
-    def on_explicit_status(self, online: bool) -> None: pass
-    def on_data_received(self) -> None: pass
+    def on_explicit_status(self, online: bool) -> None:
+        pass
+
+    def on_data_received(self) -> None:
+        pass
 
 
 class EcoflowDataHolder:
@@ -66,10 +69,12 @@ class EcoflowDataHolder:
 
         self.set_status = BoundFifoList[dict[str, Any]]()
         self.set_status_time = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
+        self.status_change_time = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
 
     def last_received_time(self):
         return max(
             self.set_status_time,
+            self.status_change_time,
             self.set_params_time,
             # 1. get_reply can receive '"message": "The device is not online"'
             # 2. if device is online - get_reply message will update params, so param_time will be updated as well
@@ -120,6 +125,7 @@ class EcoflowDataHolder:
     def __accept_prepared_data(self, data: PreparedData, raw_data_acceptor: Callable[[dict[str, Any]], None]):
         if data.online is not None:
             self._status_callback.on_explicit_status(data.online)
+            self.status_change_time = dt.utcnow()
 
         if data.params is not None:
             self.__update_params(data.params)

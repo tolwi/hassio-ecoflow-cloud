@@ -46,6 +46,7 @@ from . import (
     ECOFLOW_DOMAIN,
 )
 from .api import EcoflowApiClient
+from .devices.data_coordinator import EcoflowBroadcastDataHolder
 from .devices import BaseDevice, const
 from .entities import (
     BaseSensorEntity,
@@ -693,6 +694,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
                 self._attr_native_value = status.label
                 self._actualize_attributes()
                 self.schedule_update_ha_state()
+            if status.online is not True:
+                self.coordinator.async_set_updated_data(EcoflowBroadcastDataHolder(self._device.data, False))
 
     def _schedule_mqtt_reconnect(self) -> bool:
         reconnect_count = self._client.schedule_mqtt_reconnect()
