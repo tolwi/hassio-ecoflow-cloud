@@ -124,6 +124,10 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
             return key
 
     @property
+    def available(self) -> bool:
+        return bool(self._attr_available) and not self._device.status_tracker.is_offline
+
+    @property
     def mqtt_key(self):
         return self.__mqtt_key
 
@@ -141,13 +145,19 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         # self.async_on_remove(d.dispose)
 
     def _handle_coordinator_update(self) -> None:
+        if self._device.status_tracker.is_offline:
+            self._mark_unavailable()
+            return
+
         if self.coordinator.data.changed:
             self._updated(self.coordinator.data.data_holder.params)
-        elif self._device.status_tracker.is_offline:  # Device is offline
-            # Reset sensors that should reset to default values
-            if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
-                self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
-                self._updated(self.coordinator.data.data_holder.params)
+
+    def _mark_unavailable(self) -> None:
+        if not self._attr_available:
+            return
+
+        self._attr_available = False
+        self.schedule_update_ha_state()
 
     def _updated(self, data: dict[str, Any]):
         # update attributes
