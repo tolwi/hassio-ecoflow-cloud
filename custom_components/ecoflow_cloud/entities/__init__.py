@@ -175,6 +175,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         # update value
         values = self._mqtt_key_expr.find(data)
         if len(values) == 1 or (len(values) > 1 and self._multiple_value_sum):
+            was_available = bool(self._attr_available)
             self._attr_available = True
             if self._auto_enable:
                 self._attr_entity_registry_enabled_default = True
@@ -184,7 +185,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
             if len(values) > 1 and self._multiple_value_sum:
                 for v in values[1:]:
                     total += v.value
-            if self._update_value(total):
+            if self._update_value(total) or not was_available:
                 self.schedule_update_ha_state()
 
     @property
