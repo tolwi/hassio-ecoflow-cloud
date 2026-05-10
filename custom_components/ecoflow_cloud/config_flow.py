@@ -178,6 +178,18 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         self.set_current_config_entry(self.hass.config_entries.async_get_entry(self.context["entry_id"]))
         return await self.async_step_user()
 
+    async def async_step_reauth(self, entry_data: dict[str, Any]) -> Any:
+        """Handle re-authentication when credentials are rejected."""
+        self.set_current_config_entry(self.hass.config_entries.async_get_entry(self.context["entry_id"]))
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(self, user_input: dict[str, Any] | None = None) -> Any:
+        if self.config_entry is None:
+            return self.async_abort(reason="reauth_failed")
+        if CONF_ACCESS_KEY in self.config_entry.data:
+            return await self.async_step_api(user_input)
+        return await self.async_step_manual(user_input)
+
     async def async_step_choose_type(self, user_input: dict[str, Any] | None = None):
         if self.config_entry:  # reconfig flow
             if CONF_ACCESS_KEY in self.config_entry.data:
