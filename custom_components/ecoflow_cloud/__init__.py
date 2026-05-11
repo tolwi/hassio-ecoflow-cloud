@@ -7,6 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import entity_registry as er
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 from .device_data import DeviceData, DeviceOptions
@@ -14,7 +15,7 @@ from .device_data import DeviceData, DeviceOptions
 _LOGGER = logging.getLogger(__name__)
 
 ECOFLOW_DOMAIN = "ecoflow_cloud"
-CONFIG_VERSION = 10
+CONFIG_VERSION = 11
 
 _PLATFORMS = {
     Platform.BINARY_SENSOR,
@@ -64,6 +65,23 @@ DEFAULT_REFRESH_PERIOD_SEC: Final = 5
 DEFAULT_ASSUME_OFFLINE_SEC: Final = 300  # 5 minutes
 
 _STATUS_COORDINATOR_KEY = "__status_coordinator"
+
+
+def _migrate_entity_unique_id(
+    hass: HomeAssistant,
+    platform: Platform,
+    old_unique_id: str,
+    new_unique_id: str,
+) -> bool:
+    registry = er.async_get(hass)
+    entity_id = registry.async_get_entity_id(platform, ECOFLOW_DOMAIN, old_unique_id)
+    if entity_id is None:
+        return False
+    if registry.async_get_entity_id(platform, ECOFLOW_DOMAIN, new_unique_id) is not None:
+        return False
+
+    registry.async_update_entity(entity_id, new_unique_id=new_unique_id)
+    return True
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
@@ -135,6 +153,24 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             device_options[OPTS_ASSUME_OFFLINE_SEC] = DEFAULT_ASSUME_OFFLINE_SEC
 
         updated = hass.config_entries.async_update_entry(config_entry, version=10, options=new_options)
+        _LOGGER.info("Config entries updated to version %d", config_entry.version)
+
+    if config_entry.version == 10:
+        if CONF_ACCESS_KEY in config_entry.data:
+            for sn, device_info in config_entry.data[CONF_DEVICE_LIST].items():
+                if device_info[CONF_DEVICE_TYPE] not in ("PowerStream", "Power Ocean"):
+                    continue
+
+                migrated = _migrate_entity_unique_id(
+                    hass,
+                    Platform.SENSOR,
+                    f"ecoflow-api-{sn}-status-scheduled",
+                    f"ecoflow-api-{sn}-status",
+                )
+                if migrated:
+                    _LOGGER.info("Migrated scheduled status entity unique ID for %s", sn)
+
+        updated = hass.config_entries.async_update_entry(config_entry, version=11)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
     return updated

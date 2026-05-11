@@ -2168,7 +2168,7 @@
 - Wireless Warning Code  _(disabled)_
 - LED Brightness  _(disabled)_
 - Heartbeat Frequency  _(disabled)_
-- Status (Scheduled)
+- Status
 
 *Sliders (numbers)*
 - Min Discharge Level
@@ -2927,8 +2927,7 @@
 - mpptPv2.pwr
 - mpptPv2.amp
 - mpptPv2.vol
-- Status (Scheduled)
+- Status
 
 </p></details>
-
 

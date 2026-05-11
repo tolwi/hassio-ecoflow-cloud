@@ -2207,7 +2207,7 @@ For information on how to add, remove, and configure devices, please refer to th
 - Wireless Warning Code  _(disabled)_
 - LED Brightness  _(disabled)_
 - Heartbeat Frequency  _(disabled)_
-- Status (Scheduled)
+- Status
 
 *Sliders (numbers)*
 - Min Discharge Level
@@ -2966,7 +2966,6 @@ For information on how to add, remove, and configure devices, please refer to th
 - mpptPv2.pwr
 - mpptPv2.amp
 - mpptPv2.vol
-- Status (Scheduled)
+- Status
 
 </p></details>
-
