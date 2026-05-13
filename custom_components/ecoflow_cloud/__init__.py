@@ -6,7 +6,7 @@ from typing import Final
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 from .device_data import DeviceData, DeviceOptions
@@ -203,6 +203,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         # Transient network issues - retry later
         _LOGGER.warning("Failed to connect to EcoFlow API: %s", ex)
         raise ConfigEntryNotReady(f"Connection failed: {ex}") from ex
+    except Exception as ex:
+        from .api import EcoflowAuthException
+
+        if isinstance(ex, EcoflowAuthException):
+            _LOGGER.error("EcoFlow credentials rejected: %s", ex)
+            raise ConfigEntryAuthFailed(str(ex)) from ex
+        _LOGGER.warning("EcoFlow login failed: %s", ex)
+        raise ConfigEntryNotReady(f"Login failed: {ex}") from ex
 
     # Fetch current device statuses from API
     try:
@@ -216,7 +224,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         device = api_client.configure_device(device_data, api_devices_map)
         device.configure(hass)
 
-    await hass.async_add_executor_job(api_client.start)
+    await hass.async_add_executor_job(api_client.start, hass, entry.entry_id)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
 
     # Must load all device data before configuring devices because the data
