@@ -568,8 +568,9 @@ class Delta3(BaseInternalDevice):
 
             try:
                 raw_data = base64.b64decode(raw_data, validate=True)
-            except Exception as e:
-                _LOGGER.debug("[Delta3] get_reply base64 decode failed: %s", e)
+            except Exception:
+                # Most payloads are raw protobuf, not base64; silent fall-through.
+                pass
 
             header_msg = delta3_pb2.Delta3HeaderMessage()
             header_msg.ParseFromString(raw_data)
@@ -612,9 +613,9 @@ class Delta3(BaseInternalDevice):
             try:
                 decoded_payload = base64.b64decode(raw_data, validate=True)
                 raw_data = decoded_payload
-            except Exception as e:
-                # If base64 decoding fails, proceed with the original raw_data (it may not be base64 encoded)
-                _LOGGER.debug("[Delta3] base64 decode failed: %s", e)
+            except Exception:
+                # Most payloads are raw protobuf, not base64; silent fall-through.
+                pass
 
             try:
                 header_msg = delta3_pb2.Delta3HeaderMessage()
@@ -832,9 +833,9 @@ class Delta3(BaseInternalDevice):
             try:
                 decoded_payload = base64.b64decode(raw_data, validate=True)
                 raw_data = decoded_payload
-            except Exception as e:
-                # If base64 decoding fails, proceed with the original raw_data (it may not be base64 encoded)
-                _LOGGER.debug("[Delta3] base64 decode failed: %s", e)
+            except Exception:
+                # Most payloads are raw protobuf, not base64; silent fall-through.
+                pass
 
             header_msg = delta3_pb2.Delta3SendHeaderMsg()
             header_msg.ParseFromString(raw_data)
