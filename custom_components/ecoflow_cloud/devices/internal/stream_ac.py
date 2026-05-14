@@ -10,6 +10,7 @@ from homeassistant.util import utcnow
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.number import BatteryBackupLevel
 from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
     CumulativeCapacitySensorEntity,
@@ -23,6 +24,7 @@ from custom_components.ecoflow_cloud.sensor import (
     TempSensorEntity,
     WattsSensorEntity,
 )
+from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -281,12 +283,107 @@ class StreamAC(BaseInternalDevice):
             # "waterInFlag": 0,
         ]
 
+    def _build_proto_command(self, field_num: int, value: int) -> bytes:
+        """Build a protobuf command payload for Stream AC internal API."""
+        import time
+        from .proto import stream_ac_pb2
+
+        def encode_varint(n):
+            result = bytearray()
+            while True:
+                bits = n & 0x7F
+                n >>= 7
+                if n:
+                    result.append(0x80 | bits)
+                else:
+                    result.append(bits)
+                    break
+            return bytes(result)
+
+        def encode_field(fnum, val):
+            return encode_varint((fnum << 3) | 0) + encode_varint(val)
+
+        pdata = encode_field(6, int(time.time())) + encode_field(field_num, value)
+
+        import random
+        header = stream_ac_pb2.StreamACHeader()
+        header.src = 32
+        header.dest = 2
+        header.d_src = 1
+        header.d_dest = 1
+        header.cmd_func = 254
+        header.cmd_id = 17
+        header.data_len = len(pdata)
+        header.need_ack = 1
+        header.seq = random.randint(100000000, 999999999)
+        header.product_id = 58
+        header.version = 3
+        header.payload_ver = 1
+        setattr(header, "from", "Android")
+        header.pdata = pdata
+
+        msg = stream_ac_pb2.StreamACSendHeaderMsg()
+        msg.msg.CopyFrom(header)
+        return msg.SerializeToString()
+
     # moduleWifiRssi
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
-        return []
+        return [
+            BatteryBackupLevel(
+                client,
+                self,
+                "backupReverseSoc",
+                const.BACKUP_RESERVE_LEVEL,
+                3,
+                95,
+                "cmsMinDsgSoc",
+                "cmsMaxChgSoc",
+                3,
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "cmdFunc": 254,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "dest": 2,
+                    "needAck": True,
+                    "params": {
+                        "cfgBackupReverseSoc": int(value),
+                    },
+                },
+            ),
+        ]
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
-        return []
+        from custom_components.ecoflow_cloud.switch import EnabledEntity
+
+        class ProtoEnabledEntity(EnabledEntity):
+            def __init__(self_, *args, field_num, enable_val, disable_val, **kwargs):
+                self_._field_num = field_num
+                self_._enable_val = enable_val
+                self_._disable_val = disable_val
+                super().__init__(*args, **kwargs)
+
+            def turn_on(self_, **kwargs):
+                raw = self._build_proto_command(self_._field_num, self_._enable_val)
+                client.mqtt_client.publish(self.device_info.set_topic, raw)
+
+            def turn_off(self_, **kwargs):
+                raw = self._build_proto_command(self_._field_num, self_._disable_val)
+                client.mqtt_client.publish(self.device_info.set_topic, raw)
+
+        return [
+            ProtoEnabledEntity(
+                client, self, "feedGridMode", const.STREAM_FEED_IN_CONTROL,
+                lambda value: {}, field_num=168, enable_val=1, disable_val=2,
+                enableValue=2, disableValue=1,
+            ),
+            ProtoEnabledEntity(
+                client, self, "relay2Onoff", const.MODE_AC1_ON,
+                lambda value: {}, field_num=380, enable_val=1, disable_val=0,
+                enableValue=True, disableValue=False,
+            ),
+        ]
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
