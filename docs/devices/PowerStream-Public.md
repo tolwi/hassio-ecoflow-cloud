@@ -58,7 +58,7 @@
 - Wireless Warning Code (`20_1.wirelessWarnCode`)   _(disabled)_
 - LED Brightness (`20_1.invBrightness`)   _(disabled)_
 - Heartbeat Frequency (`20_1.heartbeatFrequency`)   _(disabled)_
-- Status (Scheduled)
+- Status
 
 *Sliders (numbers)*
 - Min Discharge Level (`20_1.lowerLimit` -> `{"sn": "SN", "cmdCode": "WN511_SET_BAT_LOWER_PACK", "params": {"lowerLimit": "VALUE"}}` [0 - 30])
@@ -68,5 +68,4 @@
 
 *Selects*
 - Power supply mode (`20_1.supplyPriority` -> `{"sn": "SN", "cmdCode": "WN511_SET_SUPPLY_PRIORITY_PACK", "params": {"supplyPriority": "VALUE"}}` [Prioritize power supply (0), Prioritize power storage (1)])
-
 

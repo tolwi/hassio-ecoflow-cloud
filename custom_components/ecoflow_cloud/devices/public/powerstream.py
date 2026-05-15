@@ -195,4 +195,4 @@ class PowerStream(BaseDevice):
 
     def _status_sensor(self, client: EcoflowApiClient) -> QuotaScheduledStatusSensorEntity:
         # Keep quota fallback active even while MQTT stream is sparse.
-        return QuotaScheduledStatusSensorEntity(client, self, 60)
+        return QuotaScheduledStatusSensorEntity(client, self, 60, "Status", "status")

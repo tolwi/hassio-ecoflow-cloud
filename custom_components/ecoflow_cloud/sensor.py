@@ -580,8 +580,15 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
 class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
     """QuotaStatusSensorEntity with additional periodic scheduled refresh."""
 
-    def __init__(self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int = 3600):
-        super().__init__(client, device, "Status (Scheduled)", "status.scheduled")
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        reload_delay: int = 3600,
+        title: str = "Status (Scheduled)",
+        key: str = "status.scheduled",
+    ):
+        super().__init__(client, device, title, key)
         self._scheduled_refresh_sec = reload_delay
 
 
