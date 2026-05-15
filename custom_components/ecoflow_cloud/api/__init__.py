@@ -1,4 +1,5 @@
 import logging
+import time
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -31,6 +32,8 @@ class EcoflowApiClient(ABC):
         self.mqtt_info: EcoflowMqttInfo
         self.devices: dict[str, Any] = {}
         self.mqtt_client: EcoflowMQTTClient
+        self._mqtt_reconnect_last_attempt = 0.0
+        self._mqtt_reconnect_count = 0
 
     @abstractmethod
     async def login(self):
@@ -132,6 +135,22 @@ class EcoflowApiClient(ABC):
         from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient
 
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
+
+    def schedule_mqtt_reconnect(self, cooldown_sec: int = 60) -> int | None:
+        if self.mqtt_client.is_connected():
+            return None
+
+        now = time.monotonic()
+        if now - self._mqtt_reconnect_last_attempt < cooldown_sec:
+            return None
+
+        self._mqtt_reconnect_last_attempt = now
+        self._mqtt_reconnect_count += 1
+        return self._mqtt_reconnect_count
+
+    @property
+    def mqtt_reconnect_count(self) -> int:
+        return self._mqtt_reconnect_count
 
     def stop(self):
         _LOGGER.debug("Stopping MQTT client for %s", self.mqtt_info.client_id)
