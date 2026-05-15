@@ -33,6 +33,24 @@ Restart Home Assistant. Once restart is done, use `Add Integration` → `Ecoflow
 ## Device Management
 For information on how to add, remove, and configure devices, please refer to the [Device Management Documentation](docs/device_management.md).
 
+## EcoFlow API modes
+
+The integration supports two EcoFlow cloud API modes. They expose different data,
+so the same physical device can have different entities depending on the mode
+selected during setup.
+
+- `private_api` uses the same internal cloud endpoints as the EcoFlow app. It
+  usually exposes more telemetry and controls, but it is unofficial and can
+  change when EcoFlow updates app-side protocols.
+- `public_api` uses EcoFlow's public developer API. It is the safer default when
+  the device is supported there, but it can expose fewer fields, update some
+  values on a schedule, or report aggregate values differently from the app.
+
+If an entity is missing or behaves differently from the EcoFlow app, first check
+the device section below for the API mode you configured. When reporting a bug,
+include the API mode, device model, firmware version, and a diagnostic download
+from Home Assistant.
+
 ## Disclaimers
 
 ⚠️ Originally developed for personal use without a goal to cover all available device attributes
