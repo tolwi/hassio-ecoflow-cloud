@@ -80,8 +80,8 @@ class StatusTracker:
 
     @property
     def wants_status_poll(self) -> bool:
-        """True when status is uncertain and an explicit poll would help clarify."""
-        return self.status == OnlineStatus.ASSUME_OFFLINE
+        """True when status is uncertain or offline and an explicit poll would help clarify."""
+        return not self.is_online
 
     @property
     def last_data_time(self) -> datetime:
