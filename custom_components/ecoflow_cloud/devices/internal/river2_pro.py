@@ -16,6 +16,9 @@ from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
     ChargingStateSensorEntity,
     CyclesSensorEntity,
+    DcModeStateSensorEntity,
+    Ft307FaultCodeSensorEntity,
+    InMilliampSensorEntity,
     InMilliVoltSensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
@@ -54,10 +57,21 @@ class River2Pro(BaseInternalDevice):
             InMilliVoltSensorEntity(client, self, "inv.acInVol", const.AC_IN_VOLT),
             OutMilliVoltSensorEntity(client, self, "inv.invOutVol", const.AC_OUT_VOLT),
             InWattsSensorEntity(client, self, "pd.typecChaWatts", const.TYPE_C_IN_POWER),
+            InMilliampSensorEntity(client, self, "mppt.inAmp", const.SOLAR_IN_CURRENT, entity_key="inv.dcInAmp"),
+            InMilliVoltSensorEntity(client, self, "mppt.inVol", const.SOLAR_IN_VOLTAGE, entity_key="inv.dcInVol"),
             InWattsSensorEntity(client, self, "mppt.inWatts", const.SOLAR_IN_POWER).with_energy(),
             OutWattsSensorEntity(client, self, "pd.carWatts", const.DC_OUT_POWER),
             OutWattsSensorEntity(client, self, "pd.typec1Watts", const.TYPEC_OUT_POWER),
             OutWattsSensorEntity(client, self, "pd.usb1Watts", const.USB_OUT_POWER),
+            # River 2 family exposes only the user-facing 12V/car output toggle.
+            # These mppt.* fields are still useful diagnostics for understanding
+            # which DC path is active and whether the internal 24V rail is alive,
+            # but they are not a confirmed switchable 24V output like Delta Pro 3.
+            # Keep the configured-key unique ID so the runtime sensor does not respawn under a new entity ID.
+            DcModeStateSensorEntity(
+                client, self, "mppt.chgType", "DC Mode", diagnostic=True, entity_key="mppt.cfgChgType"
+            ),
+            Ft307FaultCodeSensorEntity(client, self, "mppt.faultCode", "MPPT Fault", diagnostic=True),
             # OutWattsSensorEntity(client, self, "pd.usb2Watts", const.USB_2_OUT_POWER),
             RemainSensorEntity(client, self, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, self, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),

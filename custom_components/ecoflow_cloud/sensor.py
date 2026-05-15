@@ -46,6 +46,7 @@ from . import (
     ECOFLOW_DOMAIN,
 )
 from .api import EcoflowApiClient
+from .devices.data_coordinator import EcoflowBroadcastDataHolder
 from .devices import BaseDevice, const
 from .entities import (
     BaseSensorEntity,
@@ -125,6 +126,161 @@ class FanSensorEntity(BaseSensorEntity):
 
 class MiscSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+
+class DcModeStateSensorEntity(MiscSensorEntity):
+    """Expose the live DC input mode without duplicating the config select."""
+
+    _attr_icon = "mdi:tune-variant"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._raw_code: int | None = None
+        self._configured_code: int | None = None
+
+    def _runtime_mode(self) -> tuple[int | None, str | None]:
+        params = self._device.data.params
+        runtime_code = params.get("mppt.chgType")
+        if runtime_code is None:
+            return None, None
+        runtime_code = int(runtime_code)
+        if runtime_code == 255:
+            return runtime_code, "No active DC input"
+        return runtime_code, const.DC_MODE_LABELS.get(runtime_code, f"Unknown ({runtime_code})")
+
+    @property
+    def icon(self) -> str | None:
+        if self._raw_code == 255:
+            return "mdi:power-plug-off-outline"
+        if self._raw_code == const.DC_MODE_OPTIONS["Solar Recharging"]:
+            return "mdi:solar-power"
+        if self._raw_code == const.DC_MODE_OPTIONS["Car Recharging"]:
+            return "mdi:car-electric"
+        if self._raw_code == const.DC_MODE_OPTIONS["Auto"]:
+            return "mdi:tune-variant"
+        return "mdi:help-circle-outline"
+
+    @property
+    def extra_state_attributes(self) -> Mapping[str, Any] | None:
+        attrs = dict(super().extra_state_attributes or {})
+        attrs["raw_code"] = self._raw_code
+        configured_code = self._device.data.params.get("mppt.cfgChgType")
+        if configured_code is not None:
+            configured_code = int(configured_code)
+        attrs["configured_code"] = configured_code
+        attrs["configured_mode"] = (
+            const.DC_MODE_LABELS.get(configured_code, f"Unknown ({configured_code})")
+            if configured_code is not None
+            else None
+        )
+        runtime_code, runtime_mode = self._runtime_mode()
+        attrs["runtime_code"] = runtime_code
+        attrs["runtime_mode"] = runtime_mode
+        return attrs
+
+    def _update_value(self, val: Any) -> bool:
+        runtime_code = int(val)
+        runtime_mode = self._runtime_mode()[1]
+        self._raw_code = runtime_code
+        label = runtime_mode or f"Unknown ({runtime_code})"
+        return super()._update_value(label)
+
+    def _updated(self, data: dict[str, Any]):
+        params = self._device.data.params
+        runtime_code = params.get("mppt.chgType")
+        if runtime_code is None:
+            return
+
+        configured_code = params.get("mppt.cfgChgType")
+        if configured_code is not None:
+            configured_code = int(configured_code)
+
+        was_available = bool(self._attr_available)
+        self._attr_available = True
+        updated = self._update_value(runtime_code)
+        configured_changed = configured_code != self._configured_code
+        self._configured_code = configured_code
+        if updated or configured_changed or not was_available:
+            self.schedule_update_ha_state()
+
+
+class Ft307FaultCodeSensorEntity(MiscSensorEntity):
+    """Decode the FT307 MPPT/DC fault bitmask into readable diagnostics."""
+
+    _attr_icon = "mdi:check-circle-outline"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._raw_code: int | None = None
+        self._active_faults: list[dict[str, Any]] = []
+        self._unknown_bits: int = 0
+        self._suppressed_faults: list[dict[str, Any]] = []
+
+    def _dc_input_is_effectively_idle(self) -> bool:
+        params = self._device.data.params
+        in_watts = int(params.get("mppt.inWatts", 0) or 0)
+        in_vol = int(params.get("mppt.inVol", 0) or 0)
+        in_amp = int(params.get("mppt.inAmp", 0) or 0)
+        return in_watts == 0 and in_vol < 5000 and in_amp < 100
+
+    @property
+    def icon(self) -> str | None:
+        if self._active_faults:
+            return "mdi:alert-octagon-outline"
+        if self._suppressed_faults:
+            return "mdi:minus-circle-outline"
+        return self._attr_icon
+
+    @property
+    def extra_state_attributes(self) -> Mapping[str, Any] | None:
+        attrs = dict(super().extra_state_attributes or {})
+        attrs["raw_code"] = self._raw_code
+        attrs["active_faults"] = self._active_faults
+        if self._suppressed_faults:
+            attrs["suppressed_faults"] = self._suppressed_faults
+        if self._unknown_bits:
+            attrs["unknown_bits"] = self._unknown_bits
+        return attrs
+
+    def _update_value(self, val: Any) -> bool:
+        code = int(val)
+        self._raw_code = code
+        self._active_faults = []
+        self._unknown_bits = 0
+        self._suppressed_faults = []
+
+        if code == 0:
+            return super()._update_value("No fault")
+
+        known_mask = 0
+        for bit, meta in sorted(const.FT307_FAULTS.items()):
+            known_mask |= bit
+            if not (code & bit):
+                continue
+            fault = {"bit": bit, "title": meta["title"], "hint": meta["hint"]}
+            if bit == 4096 and self._dc_input_is_effectively_idle():
+                self._suppressed_faults.append(fault)
+                continue
+            self._active_faults.append(fault)
+
+        self._unknown_bits = code & ~known_mask
+        if self._unknown_bits:
+            self._active_faults.append(
+                {
+                    "bit": self._unknown_bits,
+                    "title": f"Unknown fault bits (0x{self._unknown_bits:X})",
+                    "hint": None,
+                }
+            )
+
+        if not self._active_faults and self._suppressed_faults:
+            return super()._update_value("No active DC fault")
+        if len(self._active_faults) == 1:
+            label = self._active_faults[0]["title"]
+        else:
+            label = "; ".join(fault["title"] for fault in self._active_faults)
+
+        return super()._update_value(label)
 
 
 class LevelSensorEntity(BaseSensorEntity):
@@ -413,9 +569,11 @@ class InAmpSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:transmission-tower-import"
     _attr_suggested_display_precision = 2
 
+
 class InRawAmpSolarSensorEntity(AmpSensorEntity):
     _attr_icon = "mdi:solar-power"
     _attr_suggested_display_precision = 2
+
 
 class OutMilliampSensorEntity(MilliampSensorEntity):
     _attr_icon = "mdi:transmission-tower-export"
@@ -532,9 +690,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
         # Scheduled periodic refresh regardless of status
         if self._scheduled_refresh_sec is not None:
             if (dt.utcnow() - self._last_scheduled).total_seconds() > self._scheduled_refresh_sec:
-                self.hass.async_create_background_task(
-                    self._client.quota_all(self._device.device_info.sn), "get quota"
-                )
+                self.hass.async_create_background_task(self._client.quota_all(self._device.device_info.sn), "get quota")
                 self._last_scheduled = dt.utcnow()
                 self._poll_count += 1
                 self._attrs[ATTR_QUOTA_REQUESTS] = self._poll_count
@@ -547,6 +703,8 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
                 self._attr_native_value = status.label
                 self._actualize_attributes()
                 self.schedule_update_ha_state()
+            if status.online is not True:
+                self.coordinator.async_set_updated_data(EcoflowBroadcastDataHolder(self._device.data, False))
 
     def _schedule_mqtt_reconnect(self) -> bool:
         reconnect_count = self._client.schedule_mqtt_reconnect()
@@ -617,7 +775,7 @@ class IntegralEnergySensorEntity(IntegrationSensor):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_entity_registry_visible_default = False
 
     def __init__(self, base: WattsSensorEntity, enabled_default: bool = True):
@@ -751,4 +909,4 @@ class WattsDifferenceSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):
         if input_val is None or output_val is None or input_val is STATE_UNKNOWN or output_val is STATE_UNKNOWN:
             self._difference = None
             return
-        self._difference = float(output_val) - float(input_val)        
+        self._difference = float(output_val) - float(input_val)
