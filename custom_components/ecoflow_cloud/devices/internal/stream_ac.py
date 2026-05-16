@@ -328,8 +328,15 @@ class StreamAC(BaseInternalDevice):
 
     # moduleWifiRssi
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
+        outer_self = self
+
+        class ProtoBackupReserveEntity(BatteryBackupLevel):
+            async def async_set_native_value(self_, value: float):
+                raw = outer_self._build_proto_command(102, int(value))
+                client.mqtt_client.publish(outer_self.device_info.set_topic, raw)
+
         return [
-            BatteryBackupLevel(
+            ProtoBackupReserveEntity(
                 client,
                 self,
                 "backupReverseSoc",
@@ -339,18 +346,7 @@ class StreamAC(BaseInternalDevice):
                 "cmsMinDsgSoc",
                 "cmsMaxChgSoc",
                 3,
-                lambda value: {
-                    "sn": self.device_info.sn,
-                    "cmdId": 17,
-                    "cmdFunc": 254,
-                    "dirDest": 1,
-                    "dirSrc": 1,
-                    "dest": 2,
-                    "needAck": True,
-                    "params": {
-                        "cfgBackupReverseSoc": int(value),
-                    },
-                },
+                lambda value: {},
             ),
         ]
 
@@ -387,6 +383,49 @@ class StreamAC(BaseInternalDevice):
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
         return []
+
+    _MANUAL_FIELD_MAP: dict = {
+        380: ("relay2Onoff", bool),
+        461: ("backupReverseSoc", int),
+        1628: ("feedGridMode", int),
+    }
+
+    def _decode_manual_fields(self, pdata: bytes, raw: dict) -> None:
+        """Extract specific unmapped protobuf varint fields from raw pdata bytes."""
+
+        def decode_varint(data, pos):
+            result, shift = 0, 0
+            while pos < len(data):
+                b = data[pos]
+                pos += 1
+                result |= (b & 0x7F) << shift
+                if not (b & 0x80):
+                    return result, pos
+                shift += 7
+            return result, pos
+
+        pos = 0
+        while pos < len(pdata):
+            try:
+                tag, pos = decode_varint(pdata, pos)
+                field_num = tag >> 3
+                wire_type = tag & 0x7
+                if wire_type == 0:
+                    value, pos = decode_varint(pdata, pos)
+                    if field_num in self._MANUAL_FIELD_MAP:
+                        name, cast = self._MANUAL_FIELD_MAP[field_num]
+                        raw["params"][name] = cast(value)
+                elif wire_type == 2:
+                    length, pos = decode_varint(pdata, pos)
+                    pos += length
+                elif wire_type == 5:
+                    pos += 4
+                elif wire_type == 1:
+                    pos += 8
+                else:
+                    break
+            except Exception:
+                break
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
@@ -443,6 +482,8 @@ class StreamAC(BaseInternalDevice):
                     # paquet Champ_cmd50_3
                     if packet.msg.cmd_id > 0:
                         self._parsedata(packet, stream_ac2.StreamACChamp_cmd50_3(), raw)
+
+                    self._decode_manual_fields(packet.msg.pdata, raw)
 
                     _LOGGER.info("Found %u fields", len(raw["params"]))
 
