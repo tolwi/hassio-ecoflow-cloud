@@ -385,6 +385,7 @@ class StreamAC(BaseInternalDevice):
         return []
 
     _MANUAL_FIELD_MAP: dict = {
+        6: ("f32ShowSoc", int),
         380: ("relay2Onoff", bool),
         461: ("backupReverseSoc", int),
         1628: ("feedGridMode", int),
