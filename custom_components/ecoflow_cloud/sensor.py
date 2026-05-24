@@ -131,6 +131,7 @@ class LevelSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.BATTERY
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 2
 
 
 class RemainSensorEntity(BaseSensorEntity):
