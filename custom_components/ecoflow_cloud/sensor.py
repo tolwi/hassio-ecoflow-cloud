@@ -134,6 +134,14 @@ class LevelSensorEntity(BaseSensorEntity):
     _attr_suggested_display_precision = 2
 
 
+class BatteryLimitSensorEntity(BaseSensorEntity):
+    # Charge/discharge SoC limits are configuration thresholds, not the amount of
+    # charge left, so they must not use the BATTERY device class (HA defines that
+    # as "percentage of battery that is left").
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+
 class RemainSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.DURATION
     _attr_native_unit_of_measurement = UnitOfTime.MINUTES
