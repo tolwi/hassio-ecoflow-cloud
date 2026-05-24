@@ -32,6 +32,7 @@ from custom_components.ecoflow_cloud.sensor import (
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
     TempSensorEntity,
     WattsSensorEntity,
 )
@@ -52,7 +53,7 @@ class DeltaPro(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, self, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
-            LevelSensorEntity(client, self, "bmsMaster.soh", const.SOH),
+            StateOfHealthSensorEntity(client, self, "bmsMaster.soh", const.SOH),
             LevelSensorEntity(client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             LevelSensorEntity(client, self, "ems.f32LcdShowSoc", const.COMBINED_BATTERY_LEVEL_F32, False),
             InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER),
@@ -106,7 +107,7 @@ class DeltaPro(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bmsSlave1.designCap", const.SLAVE_N_DESIGN_CAPACITY % 1, False),
             CapacitySensorEntity(client, self, "bmsSlave1.fullCap", const.SLAVE_N_FULL_CAPACITY % 1, False),
             CapacitySensorEntity(client, self, "bmsSlave1.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 1, False),
-            LevelSensorEntity(client, self, "bmsSlave1.soh", const.SLAVE_N_SOH % 1),
+            StateOfHealthSensorEntity(client, self, "bmsSlave1.soh", const.SLAVE_N_SOH % 1),
             TempSensorEntity(client, self, "bmsSlave1.temp", const.SLAVE_N_BATTERY_TEMP % 1, False, True)
             .attr("bmsSlave1.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
             .attr("bmsSlave1.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
@@ -123,7 +124,7 @@ class DeltaPro(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bmsSlave2.designCap", const.SLAVE_N_DESIGN_CAPACITY % 2, False),
             CapacitySensorEntity(client, self, "bmsSlave2.fullCap", const.SLAVE_N_FULL_CAPACITY % 2, False),
             CapacitySensorEntity(client, self, "bmsSlave2.remainCap", const.SLAVE_N_REMAIN_CAPACITY % 2, False),
-            LevelSensorEntity(client, self, "bmsSlave2.soh", const.SLAVE_N_SOH % 2),
+            StateOfHealthSensorEntity(client, self, "bmsSlave2.soh", const.SLAVE_N_SOH % 2),
             MilliVoltSensorEntity(client, self, "bmsSlave1.vol", const.SLAVE_N_BATTERY_VOLT % 1, False),
             MilliVoltSensorEntity(client, self, "bmsSlave1.minCellVol", const.SLAVE_N_MIN_CELL_VOLT % 1, False),
             MilliVoltSensorEntity(client, self, "bmsSlave1.maxCellVol", const.SLAVE_N_MAX_CELL_VOLT % 1, False),

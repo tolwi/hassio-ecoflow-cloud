@@ -42,6 +42,7 @@ from custom_components.ecoflow_cloud.sensor import (
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
 )
@@ -294,7 +295,7 @@ class Delta3(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bms_design_cap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_full_cap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_remain_cap", const.MAIN_REMAIN_CAPACITY, False),
-            LevelSensorEntity(client, self, "bms_batt_soh", const.SOH),
+            StateOfHealthSensorEntity(client, self, "bms_batt_soh", const.SOH),
             LevelSensorEntity(client, self, "cms_batt_soc", const.COMBINED_BATTERY_LEVEL),
             Delta3ChargingStateSensorEntity(client, self, "bms_chg_dsg_state", const.BATTERY_CHARGING_STATE),
             InWattsSensorEntity(client, self, "pow_in_sum_w", const.TOTAL_IN_POWER).with_energy(),

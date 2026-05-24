@@ -133,6 +133,14 @@ class LevelSensorEntity(BaseSensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
 
 
+class StateOfHealthSensorEntity(BaseSensorEntity):
+    # State of health is a battery wear/health percentage, not the amount of
+    # charge left, so it must not use the BATTERY device class (HA defines that
+    # as "percentage of battery that is left").
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+
 class RemainSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.DURATION
     _attr_native_unit_of_measurement = UnitOfTime.MINUTES

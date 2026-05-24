@@ -37,6 +37,7 @@ from custom_components.ecoflow_cloud.sensor import (
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
 )
@@ -78,7 +79,7 @@ class DeltaPro3(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bms_design_cap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_full_cap_mah", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_remain_cap_mah", const.MAIN_REMAIN_CAPACITY, False),
-            LevelSensorEntity(client, self, "bms_batt_soh", const.SOH),
+            StateOfHealthSensorEntity(client, self, "bms_batt_soh", const.SOH),
             # Cycles from BMSHeartBeatReport (not DisplayPropertyUpload)
             CyclesSensorEntity(client, self, "cycles", const.CYCLES),
             VoltSensorEntity(client, self, "bms_batt_vol", const.BATTERY_VOLT, False)
