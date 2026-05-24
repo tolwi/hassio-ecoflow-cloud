@@ -441,6 +441,7 @@ BATTERY_N_IN_POWER = "Battery %i Input Power"
 BATTERY_N_OUT_POWER = "Battery %i Output Power"
 BATTERY_N_CURRENT = "Battery %i Current"
 CIRCUIT_N_CURRENT = "Circuit %i Current"
+BREAKER_N_POWER = "Breaker %i Power"
 
 #Smart Home Panel 2
 
