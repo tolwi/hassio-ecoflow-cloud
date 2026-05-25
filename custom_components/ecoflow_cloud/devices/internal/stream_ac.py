@@ -326,6 +326,78 @@ class StreamAC(BaseInternalDevice):
         msg.msg.CopyFrom(header)
         return msg.SerializeToString()
 
+    def _build_proto_nested_command(
+        self,
+        outer_field_num: int,
+        inner_field_num: int,
+        value: bool,
+        trailing_empty_field: int | None = None,
+    ) -> bytes:
+        """Build a protobuf command with a nested length-delimited sub-message (wire type 2).
+
+        Used for grouped boolean fields like cfgEnergyStrategyOperateMode, where the
+        outer field is a sub-message containing one or more inner varint booleans.
+        Optionally appends a trailing empty length-delimited field (observed in the
+        EcoFlow mobile app's writes as field 546 — appears to act as a "commit"
+        marker the device requires before applying the change).
+        """
+        import time
+        from .proto import stream_ac_pb2
+
+        def encode_varint(n):
+            result = bytearray()
+            while True:
+                bits = n & 0x7F
+                n >>= 7
+                if n:
+                    result.append(0x80 | bits)
+                else:
+                    result.append(bits)
+                    break
+            return bytes(result)
+
+        def encode_field(fnum, val):
+            return encode_varint((fnum << 3) | 0) + encode_varint(val)
+
+        def encode_nested_field(outer_fnum, inner_fnum, val):
+            inner = encode_field(inner_fnum, int(bool(val)))
+            return (
+                encode_varint((outer_fnum << 3) | 2)
+                + encode_varint(len(inner))
+                + inner
+            )
+
+        def encode_empty_field(fnum):
+            return encode_varint((fnum << 3) | 2) + encode_varint(0)
+
+        pdata = encode_field(6, int(time.time())) + encode_nested_field(
+            outer_field_num, inner_field_num, value
+        )
+        if trailing_empty_field is not None:
+            pdata += encode_empty_field(trailing_empty_field)
+
+        import random
+        header = stream_ac_pb2.StreamACHeader()
+        header.src = 32
+        header.dest = 2
+        header.d_src = 1
+        header.d_dest = 1
+        header.cmd_func = 254
+        header.cmd_id = 17
+        header.data_len = len(pdata)
+        header.need_ack = 1
+        header.seq = random.randint(100000000, 999999999)
+        header.product_id = 58
+        header.version = 3
+        header.payload_ver = 1
+        setattr(header, "from", "Android")
+        header.pdata = pdata
+
+        msg = stream_ac_pb2.StreamACSendHeaderMsg()
+        msg.msg.CopyFrom(header)
+        _LOGGER.debug("NESTED_CMD hex=%s", msg.SerializeToString().hex())
+        return msg.SerializeToString()
+
     # moduleWifiRssi
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         outer_self = self
@@ -363,10 +435,51 @@ class StreamAC(BaseInternalDevice):
             def turn_on(self_, **kwargs):
                 raw = self._build_proto_command(self_._field_num, self_._enable_val)
                 client.mqtt_client.publish(self.device_info.set_topic, raw)
+                self_._attr_is_on = True
+                self_.schedule_update_ha_state()
 
             def turn_off(self_, **kwargs):
                 raw = self._build_proto_command(self_._field_num, self_._disable_val)
                 client.mqtt_client.publish(self.device_info.set_topic, raw)
+                self_._attr_is_on = False
+                self_.schedule_update_ha_state()
+
+        class ProtoNestedEnabledEntity(EnabledEntity):
+            def __init__(
+                self_, *args,
+                outer_field_num,
+                enable_inner_field_num,
+                disable_inner_field_num,
+                trailing_empty_field=None,
+                **kwargs,
+            ):
+                self_._outer_field_num = outer_field_num
+                self_._enable_inner_field_num = enable_inner_field_num
+                self_._disable_inner_field_num = disable_inner_field_num
+                self_._trailing_empty_field = trailing_empty_field
+                super().__init__(*args, **kwargs)
+
+            def turn_on(self_, **kwargs):
+                raw = self._build_proto_nested_command(
+                    self_._outer_field_num,
+                    self_._enable_inner_field_num,
+                    True,
+                    trailing_empty_field=self_._trailing_empty_field,
+                )
+                client.mqtt_client.publish(self.device_info.set_topic, raw)
+                self_._attr_is_on = True
+                self_.schedule_update_ha_state()
+
+            def turn_off(self_, **kwargs):
+                raw = self._build_proto_nested_command(
+                    self_._outer_field_num,
+                    self_._disable_inner_field_num,
+                    True,
+                    trailing_empty_field=self_._trailing_empty_field,
+                )
+                client.mqtt_client.publish(self.device_info.set_topic, raw)
+                self_._attr_is_on = False
+                self_.schedule_update_ha_state()
 
         return [
             ProtoEnabledEntity(
@@ -379,6 +492,26 @@ class StreamAC(BaseInternalDevice):
                 lambda value: {}, field_num=380, enable_val=1, disable_val=0,
                 enableValue=True, disableValue=False,
             ),
+            # The energy-strategy modes are mutually exclusive on the device — a
+            # radio-button group, not independent booleans. The write field is 106
+            # (cfgEnergyStrategyOperateMode); the read field is 393
+            # (energyStrategyOperateMode). Captured from the EcoFlow mobile app:
+            # ON  sends inner field 1 = 1  (Self-Powered)
+            # OFF sends inner field 2 = 1  (the "Custom" mode in the app UI)
+            # Both messages include a trailing empty field 546, which the device
+            # requires as a commit marker. The device acks on /set_reply with
+            # is_ack=1, cmd_id=18, and the original seq.
+            ProtoNestedEnabledEntity(
+                client, self,
+                "energyStrategyOperateMode.operateSelfPoweredOpen",
+                const.STREAM_OPERATION_MODE_SELF_POWERED,
+                lambda value: {},
+                outer_field_num=106,
+                enable_inner_field_num=1,
+                disable_inner_field_num=2,
+                trailing_empty_field=546,
+                enableValue=True, disableValue=False,
+            ),
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
@@ -389,6 +522,17 @@ class StreamAC(BaseInternalDevice):
         380: ("relay2Onoff", bool),
         461: ("backupReverseSoc", int),
         1628: ("feedGridMode", int),
+    }
+
+    # Wire-type-2 (sub-message) fields whose inner varint fields we want
+    # surfaced into raw["params"]. Inner field 1 of field 393 is confirmed by
+    # write/echo round-trip; the other inner fields in the energy-strategy
+    # group are still unmapped and will continue to surface as
+    # STREAM_AC_BOOL_GROUP debug lines until identified.
+    _NESTED_FIELD_MAP: dict = {
+        393: {
+            1: ("energyStrategyOperateMode.operateSelfPoweredOpen", bool),
+        },
     }
 
     def _decode_manual_fields(self, pdata: bytes, raw: dict) -> None:
@@ -418,6 +562,38 @@ class StreamAC(BaseInternalDevice):
                         raw["params"][name] = cast(value)
                 elif wire_type == 2:
                     length, pos = decode_varint(pdata, pos)
+                    sub_bytes = pdata[pos:pos + length]
+                    if field_num in self._NESTED_FIELD_MAP:
+                        # Mutually-exclusive (radio-button) inner fields: when one
+                        # tracked inner field is reported, mirror its value; when an
+                        # untracked inner field arrives with value=1, every tracked
+                        # flag in the same group is implicitly off.
+                        inner_map = self._NESTED_FIELD_MAP[field_num]
+                        sub_pos = 0
+                        while sub_pos < len(sub_bytes):
+                            try:
+                                inner_tag, sub_pos = decode_varint(sub_bytes, sub_pos)
+                                inner_field_num = inner_tag >> 3
+                                inner_wire_type = inner_tag & 0x7
+                                if inner_wire_type == 0:
+                                    inner_value, sub_pos = decode_varint(sub_bytes, sub_pos)
+                                    if inner_field_num in inner_map:
+                                        inner_name, inner_cast = inner_map[inner_field_num]
+                                        raw["params"][inner_name] = inner_cast(inner_value)
+                                    elif inner_value:
+                                        for tracked_name, tracked_cast in inner_map.values():
+                                            raw["params"][tracked_name] = tracked_cast(0)
+                                else:
+                                    break
+                            except Exception:
+                                break
+                    elif field_num not in self._MANUAL_FIELD_MAP:
+                        _LOGGER.info(
+                            "STREAM_AC_BOOL_GROUP field=%d len=%d hex=%s",
+                            field_num,
+                            length,
+                            sub_bytes.hex(),
+                        )
                     pos += length
                 elif wire_type == 5:
                     pos += 4
