@@ -20,6 +20,7 @@ from custom_components.ecoflow_cloud.sensor import (
     InWattsSensorEntity,
     LevelSensorEntity,
     MilliVoltSensorEntity,
+    MiscSensorEntity,
     OutWattsSensorEntity,
     RemainSensorEntity,
     TempSensorEntity,
@@ -283,6 +284,19 @@ class StreamAC(BaseInternalDevice):
             .attr("minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
+            # Schedule entry — _decode_schedule_entry surfaces the active
+            # SetTimeTaskWrite-style entry from DisplayPropertyUpload field
+            # 584 into raw["params"]["schedule.*"]. The summary string is
+            # the entity state; the structured fields hang off as attrs.
+            MiscSensorEntity(client, self, "schedule.summary", const.STREAM_SCHEDULE)
+            .attr("schedule.enabled", "Enabled", False)
+            .attr("schedule.power", "Power (W)", 0)
+            .attr("schedule.startMin", "Start (min of day)", 0)
+            .attr("schedule.endMin", "End (min of day)", 0)
+            .attr("schedule.days", "Days bitmask", 0)
+            .attr("schedule.timeMode", "Time mode", 0)
+            .attr("schedule.taskIndex", "Task index", 0)
+            .attr("schedule.isValid", "Is valid", False),
         ]
 
     def _build_proto_command(self, field_num: int, value: int) -> bytes:
@@ -306,6 +320,119 @@ class StreamAC(BaseInternalDevice):
             return encode_varint((fnum << 3) | 0) + encode_varint(val)
 
         pdata = encode_field(6, int(time.time())) + encode_field(field_num, value)
+
+        import random
+        header = stream_ac_pb2.StreamACHeader()
+        header.src = 32
+        header.dest = 2
+        header.d_src = 1
+        header.d_dest = 1
+        header.cmd_func = 254
+        header.cmd_id = 17
+        header.data_len = len(pdata)
+        header.need_ack = 1
+        header.seq = random.randint(100000000, 999999999)
+        header.product_id = 58
+        header.version = 3
+        header.payload_ver = 1
+        setattr(header, "from", "Android")
+        header.pdata = pdata
+
+        msg = stream_ac_pb2.StreamACSendHeaderMsg()
+        msg.msg.CopyFrom(header)
+        return msg.SerializeToString()
+
+    def _build_proto_schedule_command(
+        self,
+        *,
+        task_index: int,
+        enabled: bool,
+        is_valid: bool,
+        is_repeating: bool,
+        time_mode: int,
+        days: int,
+        start_min: int,
+        end_min: int,
+        power: int,
+    ) -> bytes:
+        """Build a `SetTimeTaskWrite`-shaped write at outer field 595.
+
+        Empirical field semantics (capture session 2026-05-26):
+            inner f2  = taskIndex (slot number, observed=2)
+            inner f3  = isValid (always 1 in valid entries)
+            inner f4  = isEnable (elided when 0)
+            inner f5  = isRepeating
+            inner f8  = timeMode (1=daily, 2=weekly; device-specific enum)
+            inner f9  = days bitmask (bit0=Mon … bit6=Sun; only meaningful
+                        when time_mode >= 2)
+            inner f10 = timeTable — packed varint with
+                        `(end_min << 16) | start_min`
+            inner f12 = power in watts
+
+        Inner fields f6, f7, f11 are not used by this device generation
+        despite the decompiled-proto's SetTimeTaskWrite schema listing
+        them. The strategy doc's enum/field-mapping for the schedule was
+        wrong for this device; mappings above are the live truth.
+
+        There is no `type` (AC1 / AC2 / grid) field in the schedule
+        entry — discharge routing is controlled by feedGridMode
+        (field 168) at the device level, not per-schedule.
+        """
+        import time
+        from .proto import stream_ac_pb2
+
+        def encode_varint(n):
+            result = bytearray()
+            while True:
+                bits = n & 0x7F
+                n >>= 7
+                if n:
+                    result.append(0x80 | bits)
+                else:
+                    result.append(bits)
+                    break
+            return bytes(result)
+
+        def encode_field(fnum, val):
+            return encode_varint((fnum << 3) | 0) + encode_varint(val)
+
+        def encode_bytes_field(fnum, payload):
+            return (
+                encode_varint((fnum << 3) | 2)
+                + encode_varint(len(payload))
+                + payload
+            )
+
+        # Build the inner SetTimeTaskWrite body. Field order and presence
+        # match the EcoFlow app's captured wire layout exactly: f3 and f5
+        # are always emitted (even when their value is 0 — proto3 would
+        # normally elide that, but the device may rely on the explicit
+        # presence, similar to how the cfgMaxChgSoc/cfgMinDsgSoc pair is
+        # silently rejected when only one field is sent). f4 is the one
+        # field the app does drop on disable — captured behavior.
+        inner_parts = [
+            encode_field(2, task_index),
+            encode_field(3, 1 if is_valid else 0),
+        ]
+        if enabled:
+            inner_parts.append(encode_field(4, 1))
+        inner_parts.append(encode_field(5, 1 if is_repeating else 0))
+        inner_parts.append(encode_field(8, time_mode))
+        inner_parts.append(encode_field(9, days))
+        time_table_value = ((end_min & 0xFFFF) << 16) | (start_min & 0xFFFF)
+        inner_parts.append(encode_bytes_field(10, encode_varint(time_table_value)))
+        inner_parts.append(encode_field(12, power))
+        inner = b"".join(inner_parts)
+
+        # The schedule field 595 wraps an inner field-1 sub-message
+        # containing the actual SetTimeTaskWrite. If the device supported
+        # multiple entries in one write, additional field-1 sub-messages
+        # would appear here.
+        wrapper = encode_bytes_field(1, inner)
+        pdata = (
+            encode_field(6, int(time.time()))
+            + encode_bytes_field(595, wrapper)
+        )
 
         import random
         header = stream_ac_pb2.StreamACHeader()
@@ -542,6 +669,43 @@ class StreamAC(BaseInternalDevice):
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         from custom_components.ecoflow_cloud.switch import EnabledEntity
+        outer_self = self
+
+        class ScheduleEnabledSwitchEntity(EnabledEntity):
+            """Toggle the active schedule entry on/off by re-sending the
+            full SetTimeTaskWrite at field 595 with the new isEnable bit.
+
+            All other parameters (taskIndex, time slot, power, days,
+            timeMode, isValid, isRepeating) are read from the last-known
+            telemetry surfaced by _decode_schedule_entry; this entity does
+            not let the user edit them — use the EcoFlow mobile app for
+            that and then gate the resulting schedule on/off from here.
+            """
+
+            def turn_on(self_, **kwargs):
+                self_._send_schedule(True)
+                self_._attr_is_on = True
+                self_.schedule_update_ha_state()
+
+            def turn_off(self_, **kwargs):
+                self_._send_schedule(False)
+                self_._attr_is_on = False
+                self_.schedule_update_ha_state()
+
+            def _send_schedule(self_, enabled: bool):
+                params = outer_self.data.params
+                raw = outer_self._build_proto_schedule_command(
+                    task_index=int(params.get("schedule.taskIndex") or 2),
+                    enabled=enabled,
+                    is_valid=bool(params.get("schedule.isValid", True)),
+                    is_repeating=bool(params.get("schedule.isRepeating", False)),
+                    time_mode=int(params.get("schedule.timeMode") or 1),
+                    days=int(params.get("schedule.days") or 0),
+                    start_min=int(params.get("schedule.startMin") or 0),
+                    end_min=int(params.get("schedule.endMin") or 0),
+                    power=int(params.get("schedule.power") or 0),
+                )
+                client.mqtt_client.publish(outer_self.device_info.set_topic, raw)
 
         class ProtoEnabledEntity(EnabledEntity):
             def __init__(self_, *args, field_num, enable_val, disable_val, **kwargs):
@@ -629,6 +793,16 @@ class StreamAC(BaseInternalDevice):
             ProtoEnabledEntity(
                 client, self, "relay3Onoff", const.MODE_AC2_ON,
                 lambda value: {}, field_num=381, enable_val=1, disable_val=0,
+                enableValue=True, disableValue=False,
+            ),
+            # Schedule enable/disable. Class definition is above; this
+            # instance re-emits the active SetTimeTask entry with the new
+            # isEnable bit, preserving the other params from telemetry.
+            ScheduleEnabledSwitchEntity(
+                client, self,
+                "schedule.enabled",
+                const.STREAM_SCHEDULE_ENABLED,
+                lambda value: {},
                 enableValue=True, disableValue=False,
             ),
             # Legacy Self-Powered-only switch, superseded by the four-option
@@ -736,6 +910,114 @@ class StreamAC(BaseInternalDevice):
         },
     }
 
+    # Day bitmask labels in human order, bit0=Mon (per inner field 9 of the
+    # schedule entry — see _build_proto_schedule_command). Used to render the
+    # `schedule.days` raw int into a friendly summary.
+    _SCHEDULE_DAY_LABELS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+    def _decode_schedule_entry(self, wrapper_bytes: bytes, raw: dict) -> None:
+        """Decode the schedule entry at top-level field 584 (read mirror of
+        the write at field 595). See _build_proto_schedule_command for the
+        inner field mapping; this is the inverse.
+
+        Surfaces the decoded values into ``raw["params"]`` under
+        ``schedule.*`` keys so they can be bound to sensor attributes and
+        re-used by the schedule_enabled switch when it re-sends the entry
+        with one flag flipped.
+        """
+
+        def varint(b, p):
+            r, s = 0, 0
+            while p < len(b):
+                x = b[p]; p += 1
+                r |= (x & 0x7f) << s
+                if not (x & 0x80): return r, p
+                s += 7
+            return r, p
+
+        # Outer wrapper: a single field-1 sub-message holding the entry.
+        try:
+            p = 0
+            tag, p = varint(wrapper_bytes, p)
+            if (tag >> 3) != 1 or (tag & 7) != 2:
+                return
+            ln, p = varint(wrapper_bytes, p)
+            inner = wrapper_bytes[p:p + ln]
+        except Exception:
+            return
+
+        # Defaults reflect "no schedule configured" — proto3 elides
+        # zero-value scalars on the wire, so any missing field implies 0.
+        entry = {
+            "taskIndex": 0,
+            "isValid": False,
+            "enabled": False,
+            "isRepeating": False,
+            "timeMode": 0,
+            "days": 0,
+            "startMin": 0,
+            "endMin": 0,
+            "power": 0,
+        }
+        p = 0
+        while p < len(inner):
+            try:
+                tag, p = varint(inner, p)
+            except Exception:
+                break
+            fn, wt = tag >> 3, tag & 7
+            if wt == 0:
+                v, p = varint(inner, p)
+                if fn == 2: entry["taskIndex"] = v
+                elif fn == 3: entry["isValid"] = bool(v)
+                elif fn == 4: entry["enabled"] = bool(v)
+                elif fn == 5: entry["isRepeating"] = bool(v)
+                elif fn == 8: entry["timeMode"] = v
+                elif fn == 9: entry["days"] = v
+                elif fn == 12: entry["power"] = v
+            elif wt == 2:
+                sub_ln, p = varint(inner, p)
+                val_bytes = inner[p:p + sub_ln]
+                p += sub_ln
+                if fn == 10 and val_bytes:
+                    # timeTable is a `repeated uint32 packed` carrying one
+                    # entry here: (end_min << 16) | start_min, varint-encoded.
+                    try:
+                        tt, _ = varint(val_bytes, 0)
+                        entry["startMin"] = tt & 0xFFFF
+                        entry["endMin"] = tt >> 16
+                    except Exception:
+                        pass
+            else:
+                break
+
+        # Surface every field individually for the entity attribute view.
+        for k, v in entry.items():
+            raw["params"][f"schedule.{k}"] = v
+
+        # Rendered one-line summary used as the sensor state. Examples:
+        #   "disabled"
+        #   "Mon|Wed|Fri 10:00-12:00 400W"
+        #   "daily 08:00-20:00 600W"
+        if not entry["isValid"]:
+            summary = "invalid"
+        elif not entry["enabled"]:
+            summary = "disabled"
+        else:
+            start = entry["startMin"]
+            end = entry["endMin"]
+            time_str = f"{start//60:02d}:{start%60:02d}-{end//60:02d}:{end%60:02d}"
+            if entry["timeMode"] >= 2 and entry["days"]:
+                days_str = "|".join(
+                    label
+                    for bit, label in enumerate(self._SCHEDULE_DAY_LABELS)
+                    if entry["days"] & (1 << bit)
+                )
+            else:
+                days_str = "daily"
+            summary = f"{days_str} {time_str} {entry['power']}W"
+        raw["params"]["schedule.summary"] = summary
+
     def _decode_manual_fields(self, pdata: bytes, raw: dict) -> None:
         """Extract specific unmapped protobuf varint fields from raw pdata bytes."""
 
@@ -804,6 +1086,10 @@ class StreamAC(BaseInternalDevice):
                                     break
                             except Exception:
                                 break
+                    elif field_num == 584:
+                        # Schedule entry (read mirror of write field 595).
+                        # Empirically mapped — see _decode_schedule_entry.
+                        self._decode_schedule_entry(sub_bytes, raw)
                     elif field_num not in self._MANUAL_FIELD_MAP:
                         _LOGGER.info(
                             "STREAM_AC_BOOL_GROUP field=%d len=%d hex=%s",

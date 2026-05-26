@@ -53,6 +53,7 @@ tracked separately.
 | 168 | top-level varint (1 or 2) | `feedGridMode` — feed-in control on/off | field 1628 | commit `218ad96` |
 | 380 | top-level varint (0 or 1) | `relay2Onoff` — AC1 relay click | not surfaced yet (field 380 in DisplayPropertyUpload is `plugInInfoPvVol`, an unrelated float — see the note in `stream_ac.py` `switches()`) | commit `218ad96` |
 | 381 | top-level varint (0 or 1) | `relay3Onoff` — AC2 relay (the strategy doc's `cfgAc2OutOpen=377` was wrong) | not surfaced yet | capture 2026-05-26 |
+| 595 | doubly-nested: outer wrapper → inner field 1 → inner-inner SetTimeTaskWrite fields | schedule entry (the strategy doc's `cfgWrite.setTimeTask=39` was wrong; field 595 was the user's earlier hypothesis, confirmed by app capture) | field 584 (same doubly-nested shape) | capture 2026-05-26 |
 
 All work via the existing `_build_proto_command` (single varint),
 `_build_proto_paired_command` (paired varints, for the SOC pair), or
@@ -70,6 +71,59 @@ made Phase C look broken. Captured from the EcoFlow app: it always
 emits both fields together even when only one slider moved. There may
 be other paired-field groups in this device's ConfigWrite vocabulary;
 treat partial-config writes as suspect until verified.
+
+### Schedule entry encoding (field 595 write / field 584 read)
+
+The schedule (`SetTimeTaskWrite` in proto lingo) lives at write field
+**595** and read field **584**. The strategy doc claimed the write was
+at field 39 and the read at field 219; both were wrong for this device.
+The user's earlier hypothesis ("schedule entry in field 595, inner
+fields 2,3,4,5,8,9,10,12") was right, and the strategy doc's dismissal
+of it was the actual error.
+
+Wire shape (both directions):
+
+```
+outer pdata
+└─ field 595 / 584 (wire-type 2)
+   └─ inner field 1 (wire-type 2) — the SetTimeTaskWrite wrapper
+      ├─ inner-inner f2  varint  = taskIndex (slot number; observed = 2
+      │                            on this device with a single entry)
+      ├─ inner-inner f3  varint  = isValid (always 1; explicitly emitted
+      │                            even when value 0 in some encodings)
+      ├─ inner-inner f4  varint  = isEnable (1 = enabled; field is
+      │                            ELIDED from the wire entirely when
+      │                            disabled, even though proto3 would
+      │                            normally permit explicit-0)
+      ├─ inner-inner f5  varint  = isRepeating (always emitted on wire
+      │                            — explicit 0 captured)
+      ├─ inner-inner f8  varint  = timeMode (1 = daily, 2 = weekly;
+      │                            device-specific enum that does NOT
+      │                            match the strategy doc's PD335 enum)
+      ├─ inner-inner f9  varint  = days bitmask, bit0=Mon … bit6=Sun;
+      │                            only meaningful when timeMode ≥ 2
+      ├─ inner-inner f10 bytes[4] = timeTable — a single varint inside
+      │                            the length-delimited field, encoding
+      │                            `(endMinute << 16) | startMinute`
+      └─ inner-inner f12 varint  = power (watts)
+```
+
+**Notably absent**: the schedule entry has **no `type` field**
+(AC_CHG / AC_DSG / AC_TWO_DSG / etc. from the strategy doc's
+`PD335TimeTaskType` enum). Discharge routing on this device is
+controlled at the device level by `feedGridMode` (write field 168):
+
+- `feedGridMode = on (1)` → discharge feeds back to the grid through
+  the bidirectional AC input port
+- `feedGridMode = off (2)` → discharge goes to the AC1 / AC2 output
+  sockets
+
+So "schedule a 400W discharge to the grid Mon-Wed-Fri 10:00-12:00" is
+two settings: the schedule entry above, plus `feedGridMode = 1`.
+
+Inner fields f6, f7, f11 from the strategy doc's `SetTimeTaskWrite`
+mapping (claimed conflictFlag/type/timeMode/timeParam) **do not appear
+in this device's wire format** for either reads or writes.
 
 ## Verified read fields (DisplayPropertyUpload)
 
