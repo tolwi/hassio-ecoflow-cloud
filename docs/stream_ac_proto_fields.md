@@ -46,16 +46,30 @@ tracked separately.
 
 | Write field | Wire shape | Purpose | Read mirror | Source |
 |---:|---|---|---|---|
+| 33 (paired w/ 34) | two top-level varints in one pdata: `cfgMaxChgSoc` + `cfgMinDsgSoc` | `cfgMaxChgSoc` — max charge SOC % (50–100) | field 270 (`cmsMaxChgSoc`) | capture 2026-05-26 |
+| 34 (paired w/ 33) | as above — always send both fields together, never alone | `cfgMinDsgSoc` — min discharge SOC % (0–30) | field 271 (`cmsMinDsgSoc`) | capture 2026-05-26 |
 | 102 | top-level varint (0–95 typical) | `cfgBackupReverseSoc` — backup reserve SOC % | field 461 (`backupReverseSoc`) | commit `de63679` |
 | 106 | nested sub-message; inner field 1/2/3/4 = 1; trailing empty field 546 commit marker | `cfgEnergyStrategyOperateMode` — operating-mode radio group (Self-Powered / Scheduled / TOU / Smart) | field 393 (matching inner field = 1) | commit `8b2c88c`, `ec524fb` |
 | 168 | top-level varint (1 or 2) | `feedGridMode` — feed-in control on/off | field 1628 | commit `218ad96` |
 | 380 | top-level varint (0 or 1) | `relay2Onoff` — AC1 relay click | not surfaced yet (field 380 in DisplayPropertyUpload is `plugInInfoPvVol`, an unrelated float — see the note in `stream_ac.py` `switches()`) | commit `218ad96` |
+| 381 | top-level varint (0 or 1) | `relay3Onoff` — AC2 relay (the strategy doc's `cfgAc2OutOpen=377` was wrong) | not surfaced yet | capture 2026-05-26 |
 
-All four work via the existing `_build_proto_command` (or
-`_build_proto_nested_command` for field 106) in
+All work via the existing `_build_proto_command` (single varint),
+`_build_proto_paired_command` (paired varints, for the SOC pair), or
+`_build_proto_nested_command` (sub-message, for field 106) in
 `custom_components/ecoflow_cloud/devices/internal/stream_ac.py`, using
 `cmd_func=254, cmd_id=17`. The device acks within ~200–600 ms with
 `cmd_func=254, cmd_id=18, is_ack=1` on the matching `seq`.
+
+### Paired-write requirement (important)
+
+The SOC pair `cfgMaxChgSoc` + `cfgMinDsgSoc` must be sent **together** in
+the same pdata. Sending one alone produces an `is_ack=1` reply but the
+device silently does not apply the change — the trap that originally
+made Phase C look broken. Captured from the EcoFlow app: it always
+emits both fields together even when only one slider moved. There may
+be other paired-field groups in this device's ConfigWrite vocabulary;
+treat partial-config writes as suspect until verified.
 
 ## Verified read fields (DisplayPropertyUpload)
 
@@ -66,38 +80,44 @@ cadence on this device, ~1020 bytes of pdata, starts with `9801...`).
 | Read field | Type | Param name in `raw["params"]` | Notes |
 |---:|---|---|---|
 | 6 | varint | `f32ShowSoc` (integer percent) | top-level; surfaced by `_MANUAL_FIELD_MAP[6]` |
+| 270 | varint | `cmsMaxChgSoc` | top-level; surfaced by `_MANUAL_FIELD_MAP[270]`. Mirror of `cfgMaxChgSoc` (write field 33). |
+| 271 | varint | `cmsMinDsgSoc` | top-level; surfaced by `_MANUAL_FIELD_MAP[271]`. Mirror of `cfgMinDsgSoc` (write field 34). |
 | 461 | varint | `backupReverseSoc` | top-level; surfaced by `_MANUAL_FIELD_MAP[461]` |
 | 393 | wire-type-2 sub-message; inner field 1/2/3/4 = 1 indicates active mode | `energyStrategyOperateMode.activeMode` + four `energyStrategyOperateMode.operate*Open` flags | surfaced by `_RADIO_GROUP_MAP[393]` |
 | 1628 | varint | `feedGridMode` | top-level; surfaced by `_MANUAL_FIELD_MAP[1628]` |
-| 730 | varint | (candidate `cmsMinDsgSoc`; value matches device's min discharge SOC setting but not currently mapped) | top-level — passive observation only; no write currently routes here |
-| 994 | varint | (candidate `cmsMaxChgSoc`; value matches device's max charge SOC setting but not currently mapped) | top-level — passive observation only; no write currently routes here |
 
-Fields 730 and 994 are read candidates only — see the failed-write notes
-above. Surfacing them as sensors would be safe; surfacing them as the
-read side of a writable number entity would mislead users until the
-matching write fields are identified.
+Fields **730 and 994** were earlier guessed to be the SOC read mirrors
+because their values happened to match (5, 100) at the time of capture.
+Empirical verification later (2026-05-26 capture: moving the Min
+discharge slider from 12 → 16 caused `f271` to track 12 → 16 while
+`f730` stayed at 5) proved 730/994 are unrelated. They may be storm-mode
+SOC, TOU SOC, or BMS absolute limits — currently unmapped.
 
-## Failed write attempts
+## Failed write attempts and what we learned
 
 Recorded here so we don't burn time re-testing them with the same
 approach. Each was tested with `cmd_func=254, cmd_id=17` and the value
-encoded as a top-level varint (the same shape that works for fields 102,
-168, 380).
+encoded as a top-level varint (the same shape that works for the
+verified single-field writes 102 / 168 / 380 / 381).
 
-| Tried | Intended setting | Failure mode | Tested |
+| Tried | Intended setting | Failure mode | Resolution |
 |---:|---|---|---|
-| 33 | `cfgMaxChgSoc` | acked (`is_ack=1`), value never applied (f994 unchanged) | session 2026-05-26 |
-| 34 | `cfgMinDsgSoc` | acked, never applied (f730 unchanged) | session 2026-05-26 |
-| 18 | `cfgDc12VOutOpen` | no ack, message dropped | session 2026-05-26 |
-| 19 | `cfgUsbOpen` | no ack, message dropped | session 2026-05-26 |
-| 76 | `cfgAcOutOpen` | no ack, message dropped | session 2026-05-26 |
-| 377 | `cfgAc2OutOpen` | no ack, message dropped | session 2026-05-26 |
+| 33 alone | `cfgMaxChgSoc` | acked, value never applied | works when **paired** with f34 — see Verified table above |
+| 34 alone | `cfgMinDsgSoc` | acked, never applied | works when **paired** with f33 |
+| 18 | `cfgDc12VOutOpen` | no ack, dropped | this device has no DC 12V output — the EcoFlow app doesn't expose the toggle either. Strategy-doc field number may be valid on other PD335 variants but isn't testable here. |
+| 19 | `cfgUsbOpen` | no ack, dropped | likewise, no USB on this device |
+| 76 | `cfgAcOutOpen` | no ack, dropped | strategy-doc field number unverified; this device may not have a separate master-AC enable distinct from the AC1/AC2 relays at 380/381 |
+| 377 | `cfgAc2OutOpen` | no ack, dropped | **correct field is 381** (confirmed by app capture). The strategy-doc number was wrong. |
 
-Implications by analogy: the strategy doc's other low-numbered
-ConfigWrite fields (`cfgAcStandbyTime=10`, `cfgDcStandbyTime=11`,
-`cfgScreenOffTime=12`, `cfgDevStandbyTime=13`, `cfgLcdLight=14`, etc.)
-are likely also wrong as written. Do not implement entities for these
-without first capturing the real write traffic.
+Implications by analogy:
+
+- Strategy-doc field numbers for **anything not yet captured** are unreliable.
+  Treat them as starting hypotheses, not facts.
+- The other low-numbered ConfigWrite fields (`cfgAcStandbyTime=10`,
+  `cfgDcStandbyTime=11`, `cfgScreenOffTime=12`, `cfgDevStandbyTime=13`,
+  `cfgLcdLight=14`, etc.) may have the same paired-field requirement
+  as the SOC pair, may use different field numbers, or may not apply
+  to this device at all. Capture before implementing.
 
 ## Capture session: identifying a write field empirically
 

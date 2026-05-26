@@ -6,11 +6,12 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.const import PERCENTAGE
 from homeassistant.util import utcnow
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
-from custom_components.ecoflow_cloud.number import BatteryBackupLevel
+from custom_components.ecoflow_cloud.number import BatteryBackupLevel, MinMaxLevelEntity
 from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
     CumulativeCapacitySensorEntity,
@@ -327,6 +328,68 @@ class StreamAC(BaseInternalDevice):
         msg.msg.CopyFrom(header)
         return msg.SerializeToString()
 
+    def _build_proto_paired_command(
+        self,
+        field_num_a: int,
+        value_a: int,
+        field_num_b: int,
+        value_b: int,
+    ) -> bytes:
+        """Build a write that carries two varint fields in one pdata.
+
+        Some cfg writes on this device must include multiple paired fields
+        in a single message — e.g. the SOC limit pair cfgMaxChgSoc (33)
+        and cfgMinDsgSoc (34): writing only one of them is silently
+        rejected by the device. Captured from the EcoFlow mobile app
+        2026-05-26 — the app always emits both fields together even when
+        only one slider changed, and the device only honours the change
+        when both arrive in the same pdata.
+        """
+        import time
+        from .proto import stream_ac_pb2
+
+        def encode_varint(n):
+            result = bytearray()
+            while True:
+                bits = n & 0x7F
+                n >>= 7
+                if n:
+                    result.append(0x80 | bits)
+                else:
+                    result.append(bits)
+                    break
+            return bytes(result)
+
+        def encode_field(fnum, val):
+            return encode_varint((fnum << 3) | 0) + encode_varint(val)
+
+        pdata = (
+            encode_field(6, int(time.time()))
+            + encode_field(field_num_a, value_a)
+            + encode_field(field_num_b, value_b)
+        )
+
+        import random
+        header = stream_ac_pb2.StreamACHeader()
+        header.src = 32
+        header.dest = 2
+        header.d_src = 1
+        header.d_dest = 1
+        header.cmd_func = 254
+        header.cmd_id = 17
+        header.data_len = len(pdata)
+        header.need_ack = 1
+        header.seq = random.randint(100000000, 999999999)
+        header.product_id = 58
+        header.version = 3
+        header.payload_ver = 1
+        setattr(header, "from", "Android")
+        header.pdata = pdata
+
+        msg = stream_ac_pb2.StreamACSendHeaderMsg()
+        msg.msg.CopyFrom(header)
+        return msg.SerializeToString()
+
     def _build_proto_nested_command(
         self,
         outer_field_num: int,
@@ -408,6 +471,43 @@ class StreamAC(BaseInternalDevice):
                 raw = outer_self._build_proto_command(102, int(value))
                 client.mqtt_client.publish(outer_self.device_info.set_topic, raw)
 
+        class PairedSocNumberEntity(MinMaxLevelEntity):
+            """SOC limit number that always writes the paired companion too.
+
+            cfgMaxChgSoc (33) and cfgMinDsgSoc (34) must arrive in the same
+            pdata, otherwise the device silently rejects the write. Each
+            entity holds its own (mqtt_key, field_num) plus the companion's
+            field_num and the mqtt_key for its current value, looked up
+            from the device's last-known telemetry at write time.
+            """
+
+            _attr_native_unit_of_measurement = PERCENTAGE
+
+            def __init__(
+                self_,
+                *args,
+                my_field_num: int,
+                other_field_num: int,
+                other_mqtt_key: str,
+                other_fallback: int,
+                **kwargs,
+            ):
+                self_._my_field_num = my_field_num
+                self_._other_field_num = other_field_num
+                self_._other_mqtt_key = other_mqtt_key
+                self_._other_fallback = other_fallback
+                super().__init__(*args, **kwargs)
+
+            async def async_set_native_value(self_, value: float):
+                other_val = outer_self.data.params.get(
+                    self_._other_mqtt_key, self_._other_fallback
+                )
+                raw = outer_self._build_proto_paired_command(
+                    self_._my_field_num, int(value),
+                    self_._other_field_num, int(other_val),
+                )
+                client.mqtt_client.publish(outer_self.device_info.set_topic, raw)
+
         return [
             ProtoBackupReserveEntity(
                 client,
@@ -420,6 +520,23 @@ class StreamAC(BaseInternalDevice):
                 "cmsMaxChgSoc",
                 3,
                 lambda value: {},
+            ),
+            # Max charge SOC — write field 33 paired with field 34; read at
+            # field 270 (cmsMaxChgSoc). See _build_proto_paired_command for
+            # why the pairing is mandatory.
+            PairedSocNumberEntity(
+                client, self, "cmsMaxChgSoc", const.MAX_CHARGE_LEVEL,
+                50, 100, lambda value: {},
+                my_field_num=33, other_field_num=34,
+                other_mqtt_key="cmsMinDsgSoc", other_fallback=5,
+            ),
+            # Min discharge SOC — write field 34 paired with field 33; read
+            # at field 271 (cmsMinDsgSoc).
+            PairedSocNumberEntity(
+                client, self, "cmsMinDsgSoc", const.MIN_DISCHARGE_LEVEL,
+                0, 30, lambda value: {},
+                my_field_num=34, other_field_num=33,
+                other_mqtt_key="cmsMaxChgSoc", other_fallback=100,
             ),
         ]
 
@@ -504,6 +621,16 @@ class StreamAC(BaseInternalDevice):
                 lambda value: {}, field_num=380, enable_val=1, disable_val=0,
                 enableValue=True, disableValue=False,
             ),
+            # AC2 relay — write field 381 (adjacent to AC1's 380). Captured
+            # from the EcoFlow app 2026-05-26: toggling AC2 in the app emits
+            # a single-varint write at f381 with value 0/1, same encoding as
+            # AC1. The strategy doc's cfgAc2OutOpen=377 was incorrect for
+            # this device generation.
+            ProtoEnabledEntity(
+                client, self, "relay3Onoff", const.MODE_AC2_ON,
+                lambda value: {}, field_num=381, enable_val=1, disable_val=0,
+                enableValue=True, disableValue=False,
+            ),
             # Legacy Self-Powered-only switch, superseded by the four-option
             # Operating mode select below. Disabled by default for new installs
             # but kept so existing users' automations don't break on upgrade.
@@ -571,6 +698,14 @@ class StreamAC(BaseInternalDevice):
 
     _MANUAL_FIELD_MAP: dict = {
         6: ("f32ShowSoc", int),
+        # Read mirrors of cfgMaxChgSoc (write 33) and cfgMinDsgSoc (write 34).
+        # Empirically captured 2026-05-26 from a real device: moving the
+        # Min discharge SOC slider in the EcoFlow app from 12 → 16 caused
+        # f271 in the next DisplayPropertyUpload to flip from 12 → 16.
+        # Both writes echo through these read fields within one telemetry
+        # cycle. f730/f994 (the previous guesses) are unrelated.
+        270: ("cmsMaxChgSoc", int),
+        271: ("cmsMinDsgSoc", int),
         # See the field-380 note above ProtoEnabledEntity in switches(). This
         # entry is currently dead because incoming field 380 lives two levels
         # deep inside Champ_cmd21_3 (where the proto names it plugInInfoPvVol,
