@@ -97,11 +97,31 @@ outer pdata
       │                            normally permit explicit-0)
       ├─ inner-inner f5  varint  = isRepeating (always emitted on wire
       │                            — explicit 0 captured)
-      ├─ inner-inner f8  varint  = timeMode (1 = daily, 2 = weekly;
-      │                            device-specific enum that does NOT
-      │                            match the strategy doc's PD335 enum)
-      ├─ inner-inner f9  varint  = days bitmask, bit0=Mon … bit6=Sun;
-      │                            only meaningful when timeMode ≥ 2
+      ├─ inner-inner f8  varint  = timeMode
+      │                            * 1 = daily (every day; f9 = 0)
+      │                            * 2 = weekly (specific weekdays; f9
+      │                                  carries a bitmask, see below)
+      │                            Device-specific enum that does NOT
+      │                            match the strategy doc's PD335 enum.
+      ├─ inner-inner f9  varint  = days bitmask (only meaningful when
+      │                            timeMode = 2). 7 bits encoding the
+      │                            selected weekdays.
+      │                            **Bit-to-weekday convention is
+      │                            currently uncertain on this device.**
+      │                            The strategy doc claimed bit0=Mon
+      │                            with weekdays=31, weekends=96. An
+      │                            empirical observation during the
+      │                            2026-05-26 verification session
+      │                            saw a "MWF" schedule (per the user
+      │                            picking Mon/Wed/Fri checkboxes in the
+      │                            EcoFlow app, bitmask = 21 = 0b0010101)
+      │                            firing on a Tuesday during its time
+      │                            window. Under bit0=Mon, that bitmask
+      │                            shouldn't include Tuesday; under
+      │                            bit0=Sun it would (Sun|Tue|Thu = 21).
+      │                            Resolve with a targeted capture
+      │                            ("Sunday only" / "Saturday only" in
+      │                            the app, check the bitmask).
       ├─ inner-inner f10 bytes[4] = timeTable — a single varint inside
       │                            the length-delimited field, encoding
       │                            `(endMinute << 16) | startMinute`
