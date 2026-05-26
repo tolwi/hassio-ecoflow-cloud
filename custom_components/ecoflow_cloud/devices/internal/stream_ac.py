@@ -24,6 +24,7 @@ from custom_components.ecoflow_cloud.sensor import (
     TempSensorEntity,
     WattsSensorEntity,
 )
+from custom_components.ecoflow_cloud.select import DictSelectEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -487,20 +488,25 @@ class StreamAC(BaseInternalDevice):
                 lambda value: {}, field_num=168, enable_val=1, disable_val=2,
                 enableValue=2, disableValue=1,
             ),
+            # Field 380 is reused for two different things depending on direction:
+            #   Write (cfgWrite, top-level varint 0/1): AC1 relay toggle
+            #     (relay2Onoff). Empirically verified to click the relay in
+            #     commit 218ad96.
+            #   Read (DisplayPropertyUpload field 380): plugInInfoPvVol — PV1
+            #     input voltage as a fixed32 float, nested two levels deep
+            #     inside Champ_cmd21_3. Not surfaced by the current decoder
+            #     (it's not declared in stream_ac.proto and
+            #     _decode_manual_fields only walks the top level of pdata), so
+            #     this switch's state stays "unknown" until the user toggles
+            #     it. The _MANUAL_FIELD_MAP entry below is harmless but dead.
             ProtoEnabledEntity(
                 client, self, "relay2Onoff", const.MODE_AC1_ON,
                 lambda value: {}, field_num=380, enable_val=1, disable_val=0,
                 enableValue=True, disableValue=False,
             ),
-            # The energy-strategy modes are mutually exclusive on the device — a
-            # radio-button group, not independent booleans. The write field is 106
-            # (cfgEnergyStrategyOperateMode); the read field is 393
-            # (energyStrategyOperateMode). Captured from the EcoFlow mobile app:
-            # ON  sends inner field 1 = 1  (Self-Powered)
-            # OFF sends inner field 2 = 1  (the "Custom" mode in the app UI)
-            # Both messages include a trailing empty field 546, which the device
-            # requires as a commit marker. The device acks on /set_reply with
-            # is_ack=1, cmd_id=18, and the original seq.
+            # Legacy Self-Powered-only switch, superseded by the four-option
+            # Operating mode select below. Disabled by default for new installs
+            # but kept so existing users' automations don't break on upgrade.
             ProtoNestedEnabledEntity(
                 client, self,
                 "energyStrategyOperateMode.operateSelfPoweredOpen",
@@ -510,28 +516,88 @@ class StreamAC(BaseInternalDevice):
                 enable_inner_field_num=1,
                 disable_inner_field_num=2,
                 trailing_empty_field=546,
+                enabled=False,
                 enableValue=True, disableValue=False,
             ),
         ]
 
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
-        return []
+        outer_self = self
+
+        class ProtoNestedRadioSelectEntity(DictSelectEntity):
+            """Select for a mutually-exclusive radio-button proto field group.
+
+            The ``value`` stored in ``options_dict`` is the inner-field number
+            inside the outer nested write — selecting an option writes that
+            inner field with value=1 (the "set this mode" signal). The device
+            echoes back the chosen mode by emitting the matching inner field
+            of the read sub-message; ``_decode_manual_fields`` translates that
+            into the ``active_key`` int that this entity binds to.
+            """
+
+            def __init__(self_, *args, outer_field_num, trailing_empty_field=None, **kwargs):
+                self_._outer_field_num = outer_field_num
+                self_._trailing_empty_field = trailing_empty_field
+                super().__init__(*args, **kwargs)
+
+            def select_option(self_, option: str) -> None:
+                inner_field_num = self_._options_dict[option]
+                raw = outer_self._build_proto_nested_command(
+                    self_._outer_field_num,
+                    inner_field_num,
+                    True,
+                    trailing_empty_field=self_._trailing_empty_field,
+                )
+                client.mqtt_client.publish(outer_self.device_info.set_topic, raw)
+                self_._current_option = option
+                self_.schedule_update_ha_state()
+
+        return [
+            # Operating mode — cfgEnergyStrategyOperateMode (write field 106) /
+            # energyStrategyOperateMode (read field 393). Four mutually
+            # exclusive modes; selecting one writes its inner field number
+            # with value=1, followed by an empty field 546 commit marker.
+            # The device acks on /set_reply with is_ack=1, cmd_id=18.
+            ProtoNestedRadioSelectEntity(
+                client, self,
+                "energyStrategyOperateMode.activeMode",
+                const.STREAM_OPERATION_MODE,
+                const.STREAM_OPERATION_MODE_OPTIONS,
+                lambda value: {},
+                outer_field_num=106,
+                trailing_empty_field=546,
+            ),
+        ]
 
     _MANUAL_FIELD_MAP: dict = {
         6: ("f32ShowSoc", int),
+        # See the field-380 note above ProtoEnabledEntity in switches(). This
+        # entry is currently dead because incoming field 380 lives two levels
+        # deep inside Champ_cmd21_3 (where the proto names it plugInInfoPvVol,
+        # a float), not at the top level walked by _decode_manual_fields.
         380: ("relay2Onoff", bool),
         461: ("backupReverseSoc", int),
         1628: ("feedGridMode", int),
     }
 
-    # Wire-type-2 (sub-message) fields whose inner varint fields we want
-    # surfaced into raw["params"]. Inner field 1 of field 393 is confirmed by
-    # write/echo round-trip; the other inner fields in the energy-strategy
-    # group are still unmapped and will continue to surface as
-    # STREAM_AC_BOOL_GROUP debug lines until identified.
-    _NESTED_FIELD_MAP: dict = {
+    # Radio-button-group sub-messages: outer field number → group definition.
+    # Inner fields in such a group are mutually exclusive; the device clears
+    # the others when one is set to 1. For each group:
+    #   active_key — synthetic top-level int key written into raw["params"],
+    #                whose value is the inner field number of the active mode.
+    #                Bind a select entity to this key.
+    #   flags      — inner_field_num → (mirrored_bool_name, cast). When an
+    #                inner field is observed with value=1, the matching flag
+    #                is set True and all other tracked flags are cleared.
+    _RADIO_GROUP_MAP: dict = {
         393: {
-            1: ("energyStrategyOperateMode.operateSelfPoweredOpen", bool),
+            "active_key": "energyStrategyOperateMode.activeMode",
+            "flags": {
+                1: ("energyStrategyOperateMode.operateSelfPoweredOpen", bool),
+                2: ("energyStrategyOperateMode.operateScheduledOpen", bool),
+                3: ("energyStrategyOperateMode.operateTouModeOpen", bool),
+                4: ("energyStrategyOperateMode.operateIntelligentScheduleModeOpen", bool),
+            },
         },
     }
 
@@ -563,12 +629,10 @@ class StreamAC(BaseInternalDevice):
                 elif wire_type == 2:
                     length, pos = decode_varint(pdata, pos)
                     sub_bytes = pdata[pos:pos + length]
-                    if field_num in self._NESTED_FIELD_MAP:
-                        # Mutually-exclusive (radio-button) inner fields: when one
-                        # tracked inner field is reported, mirror its value; when an
-                        # untracked inner field arrives with value=1, every tracked
-                        # flag in the same group is implicitly off.
-                        inner_map = self._NESTED_FIELD_MAP[field_num]
+                    if field_num in self._RADIO_GROUP_MAP:
+                        group = self._RADIO_GROUP_MAP[field_num]
+                        active_key = group["active_key"]
+                        flags = group["flags"]
                         sub_pos = 0
                         while sub_pos < len(sub_bytes):
                             try:
@@ -577,12 +641,30 @@ class StreamAC(BaseInternalDevice):
                                 inner_wire_type = inner_tag & 0x7
                                 if inner_wire_type == 0:
                                     inner_value, sub_pos = decode_varint(sub_bytes, sub_pos)
-                                    if inner_field_num in inner_map:
-                                        inner_name, inner_cast = inner_map[inner_field_num]
-                                        raw["params"][inner_name] = inner_cast(inner_value)
+                                    if inner_field_num in flags and inner_value:
+                                        # This is the active mode. Mirror all
+                                        # flags (this one True, others False)
+                                        # and record the active inner-field
+                                        # number for the select entity.
+                                        for fnum, (fname, fcast) in flags.items():
+                                            raw["params"][fname] = fcast(1 if fnum == inner_field_num else 0)
+                                        raw["params"][active_key] = inner_field_num
+                                    elif inner_field_num in flags:
+                                        # Explicit value=0: clear just this
+                                        # flag. The device sometimes emits
+                                        # 0-values alongside the new active
+                                        # inner field within the same message.
+                                        fname, fcast = flags[inner_field_num]
+                                        raw["params"][fname] = fcast(0)
                                     elif inner_value:
-                                        for tracked_name, tracked_cast in inner_map.values():
-                                            raw["params"][tracked_name] = tracked_cast(0)
+                                        # An untracked inner field is set:
+                                        # the device is in a mode we don't
+                                        # model. Clear all tracked flags so
+                                        # stale state doesn't linger; leave
+                                        # active_key unchanged (the select
+                                        # will keep its last known value).
+                                        for fname, fcast in flags.values():
+                                            raw["params"][fname] = fcast(0)
                                 else:
                                     break
                             except Exception:
