@@ -13,7 +13,7 @@ Inspired by [hassio-ecoflow](https://github.com/vwt12eh8/hassio-ecoflow) and [ec
 ### HACS installation
 The quickest way to install this integration is via [HACS](https://github.com/hacs/integration) by clicking the button below:
 
-[![Add to HACS via My Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tolwi&repository=hassio-ecoflow-cloud&category=Integration)
+[![Add to HACS via My Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=magikh0e&repository=hassio-ecoflow-cloud&category=Integration)
 
 1. Click above to install as a custom repository via HACS
 2. Restart Home Assistant
@@ -25,7 +25,7 @@ EcoFlow strictly separates accounts by region. If you encounter the error `Accou
 - **Europe:** `api-e.ecoflow.com`
 
 ### Manual installation options
-- Install as a [custom repository](https://github.com/tolwi/hassio-ecoflow-cloud) via [HACS](https://github.com/hacs/integration)
+- Install as a [custom repository](https://github.com/magikh0e/hassio-ecoflow-cloud) via [HACS](https://github.com/hacs/integration)
 - Manually download and extract to the custom_components directory
 
 Restart Home Assistant. Once restart is done, use `Add Integration` → `EcoflowCloud`.
@@ -2323,6 +2323,43 @@ For information on how to add, remove, and configure devices, please refer to th
 - Bluetooth Timeout
 - Device Timeout
 - AC Output Type
+
+</p></details>
+
+<details><summary> DELTA 3 Max Plus (API) <i>(sensors: 16, switches: 7, sliders: 3)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Battery Charging State
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- AC In Power
+- Solar In Power
+- Solar 2 In Power
+- DC Out Power
+- Type-C (1) Out Power
+- Type-C (2) Out Power
+- Type-C (3) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Status
+
+*Switches*
+- AC Output
+- AC2 Output
+- DC Output
+- X-Boost Enabled
+- Beeper
+- Backup Reserve Enabled
+- Bypass Output Disabled
+
+*Sliders (numbers)*
+- Max Charge Level
+- Min Discharge Level
+- Backup Reserve Level
 
 </p></details>
 
