@@ -17,7 +17,7 @@ from custom_components.ecoflow_cloud.sensor import (
     InWattsSensorEntity,
     LevelSensorEntity,
     OutWattsSensorEntity,
-    QuotaStatusSensorEntity,
+    QuotaScheduledStatusSensorEntity,
     RemainSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import EnabledEntity
@@ -135,7 +135,11 @@ class Delta3MaxPlus(BaseDevice):
             Delta3RemainSensorEntity(client, self, "cmsChgRemTime", const.CHARGE_REMAINING_TIME),
             Delta3RemainSensorEntity(client, self, "cmsDsgRemTime", const.DISCHARGE_REMAINING_TIME),
 
-            QuotaStatusSensorEntity(client, self),
+            # Scheduled variant adds a proactive HTTP poll every 60s so values
+            # never freeze if MQTT push stalls after a broker reconnect (the
+            # plain QuotaStatusSensorEntity only polls reactively once the
+            # device is flagged offline). Same entity name/id, so not a rename.
+            QuotaScheduledStatusSensorEntity(client, self, reload_delay=60, title="Status", key="status"),
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
