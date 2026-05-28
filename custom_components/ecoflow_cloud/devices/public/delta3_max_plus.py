@@ -138,8 +138,11 @@ class Delta3MaxPlus(BaseDevice):
             # Scheduled variant adds a proactive HTTP poll every 60s so values
             # never freeze if MQTT push stalls after a broker reconnect (the
             # plain QuotaStatusSensorEntity only polls reactively once the
-            # device is flagged offline). Same entity name/id, so not a rename.
-            QuotaScheduledStatusSensorEntity(client, self, reload_delay=60, title="Status", key="status"),
+            # device is flagged offline). Positional reload_delay only -- the
+            # title/key kwargs exist only on newer releases and crash the
+            # sensor platform on v1.5.0-beta3; this entity is named
+            # "Status (Scheduled)" on all versions.
+            QuotaScheduledStatusSensorEntity(client, self, 60),
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
