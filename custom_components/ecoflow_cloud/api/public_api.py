@@ -155,3 +155,53 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         hmac_digest = hmac_obj.hexdigest()
 
         return hmac_digest
+
+    def __flatten_params(self, data: dict) -> list[tuple[str, str]]:
+        def _flatten(prefix: str, value: Any) -> list[tuple[str, str]]:
+            items: list[tuple[str, str]] = []
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    key = f"{prefix}.{k}" if prefix else k
+                    items.extend(_flatten(key, v))
+            elif isinstance(value, list):
+                for idx, v in enumerate(value):
+                    items.extend(_flatten(f"{prefix}[{idx}]", v))
+            else:
+                items.append((prefix, str(value)))
+            return items
+
+        return _flatten("", data)
+
+    async def post_api(self, endpoint: str, body: dict) -> dict:
+        """Sign and POST a request to the EcoFlow open API."""
+        self.nonce = str(random.randint(10000, 1000000))
+        self.timestamp = str(int(time.time() * 1000))
+        flat = [(k, v) for k, v in self.__flatten_params(body) if k]
+        flat.sort(key=lambda x: x[0])
+        params_str = "&".join(f"{k}={v}" for k, v in flat)
+        sign = self.__gen_sign(params_str)
+        headers = {
+            "accessKey": self.access_key,
+            "nonce": self.nonce,
+            "timestamp": self.timestamp,
+            "sign": sign,
+            "Content-Type": "application/json;charset=UTF-8",
+        }
+        async with aiohttp.ClientSession() as session:
+            _LOGGER.debug("API POST %s body=%s", endpoint, body)
+            resp = await session.post(
+                f"https://{self.api_domain}/iot-open/sign{endpoint}",
+                headers=headers,
+                json=body,
+            )
+            return await self._get_json_response(resp)
+
+    async def historical_data(self, device_sn: str, begin_time: str, end_time: str, code: str) -> dict:
+        """Fetch a historical metric from the EcoFlow /device/quota/data endpoint."""
+        return await self.post_api(
+            "/device/quota/data",
+            {
+                "sn": device_sn,
+                "params": {"beginTime": begin_time, "endTime": end_time, "code": code},
+            },
+        )
