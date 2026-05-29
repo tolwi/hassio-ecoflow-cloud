@@ -193,12 +193,8 @@ class Delta3MaxPlus(BaseDevice):
                 client, self, "cmsMinDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
                 lambda value: _delta3_set(sn, {"cfgMinDsgSoc": value}),
             ),
-            # Range 0-100, not the docs' stated 0-50: real devices read back
-            # backupReverseSoc values above 50 (reports of 90 seen), so the SET
-            # field accepts the full SoC range. A max of 50 made HA flag the
-            # entity as out-of-range whenever the reserve was set higher.
             LevelEntity(
-                client, self, "backupReverseSoc", "Backup Reserve Level", 0, 100,
+                client, self, "backupReverseSoc", "Backup Reserve Level", 0, 50,
                 lambda value: _delta3_set(sn, {"cfgBackupReverseSoc": value}),
             ),
         ]
