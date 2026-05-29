@@ -371,6 +371,20 @@ class StreamACHistoryUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return params
 
 
+class StreamACMonetarySensorEntity(BaseSensorEntity):
+    """Sensor whose unit of measurement is read dynamically from a params key (e.g. currency)."""
+
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, mqtt_key: str, title: str, unit_key: str):
+        super().__init__(client, device, mqtt_key, title)
+        self._unit_key = unit_key
+
+    def _updated(self, data: dict[str, Any]):
+        unit = data.get(self._unit_key)
+        if unit:
+            self._attr_native_unit_of_measurement = str(unit)
+        super()._updated(data)
+
+
 class StreamAC(BaseDevice):
     """StreamAC device with real-time MQTT sensors and periodic historical data."""
 
@@ -698,24 +712,24 @@ class StreamAC(BaseDevice):
             .attr("history.energyIndependenceYear.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
             BaseSensorEntity(client, self, "history.environmentalImpactToday", const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_TODAY)
-            .with_unit_of_measurement("g")
+            .with_unit_of_measurement("kg")
             .with_state_class(SensorStateClass.TOTAL)
             .attr("history.environmentalImpactToday.beginTime", "Begin Time", "")
             .attr("history.environmentalImpactToday.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
             BaseSensorEntity(client, self, "history.environmentalImpactCumulative", const.STREAM_HISTORY_ENVIRONMENTAL_IMPACT_CUMULATIVE)
-            .with_unit_of_measurement("g")
+            .with_unit_of_measurement("kg")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.environmentalImpactCumulative.beginTime", "Begin Time", "")
             .attr("history.environmentalImpactCumulative.endTime", "End Time", "")
             .attr("history.mainSn", "Main Device SN", ""),
-            BaseSensorEntity(client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY)
+            StreamACMonetarySensorEntity(client, self, "history.solarEnergySavingsToday", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_TODAY, "history.solarEnergySavingsUnit")
             .with_state_class(SensorStateClass.TOTAL)
             .attr("history.solarEnergySavingsToday.beginTime", "Begin Time", "")
             .attr("history.solarEnergySavingsToday.endTime", "End Time", "")
             .attr("history.solarEnergySavingsUnit", "Currency Unit", "")
             .attr("history.mainSn", "Main Device SN", ""),
-            BaseSensorEntity(client, self, "history.solarEnergySavingsCumulative", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE)
+            StreamACMonetarySensorEntity(client, self, "history.solarEnergySavingsCumulative", const.STREAM_HISTORY_TOTAL_SOLAR_SAVINGS_CUMULATIVE, "history.solarEnergySavingsUnit")
             .with_state_class(SensorStateClass.TOTAL_INCREASING)
             .attr("history.solarEnergySavingsCumulative.beginTime", "Begin Time", "")
             .attr("history.solarEnergySavingsCumulative.endTime", "End Time", "")
