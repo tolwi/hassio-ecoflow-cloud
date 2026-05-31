@@ -31,6 +31,37 @@ from custom_components.ecoflow_cloud.switch import EnabledEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+# Power values for the Stream AC are decoded as floats. A field whose real
+# value is 0 occasionally decodes to a denormalized-float artifact (e.g.
+# -1.40129846432482e-45), which then surfaces verbatim on the power sensors.
+# Clamp any such near-zero float to a clean 0 so every power sensor on this
+# device reports 0 instead of the artifact.
+_POWER_CLAMP_THRESHOLD = 0.01
+
+
+def _clamp_small_watts(val: Any) -> Any:
+    if isinstance(val, float) and abs(val) < _POWER_CLAMP_THRESHOLD:
+        return 0
+    return val
+
+
+class StreamACWattsSensorEntity(WattsSensorEntity):
+    @override
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(_clamp_small_watts(val))
+
+
+class StreamACInWattsSensorEntity(InWattsSensorEntity):
+    @override
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(_clamp_small_watts(val))
+
+
+class StreamACOutWattsSensorEntity(OutWattsSensorEntity):
+    @override
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(_clamp_small_watts(val))
+
 
 class StreamAC(BaseInternalDevice):
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
@@ -124,7 +155,7 @@ class StreamAC(BaseInternalDevice):
             # "gridCodeVersion": 10001,
             # "gridConnectionFreq": 49.974655,
             # "gridConnectionPower": -967.2364,
-            WattsSensorEntity(client, self, "gridConnectionPower", const.STREAM_POWER_AC),
+            StreamACWattsSensorEntity(client, self, "gridConnectionPower", const.STREAM_POWER_AC),
             # "gridConnectionSta": "PANEL_GRID_IN",
             # "gridConnectionVol": 235.34576,
             MilliVoltSensorEntity(client, self, "gridConnectionVol", const.STREAM_POWER_VOL, False),
@@ -133,7 +164,7 @@ class StreamAC(BaseInternalDevice):
             # "heatfilmTemp": [],
             # "hwVer": "V0.0.0",
             # "inputWatts": 900,
-            InWattsSensorEntity(client, self, "inputWatts", const.STREAM_IN_POWER, False),
+            StreamACInWattsSensorEntity(client, self, "inputWatts", const.STREAM_IN_POWER, False),
             # "invNtcTemp3": 49,
             # "maxBpInput": 1050,
             # "maxBpOutput": 1200,
@@ -164,7 +195,7 @@ class StreamAC(BaseInternalDevice):
             # "num": 0,
             # "openBmsFlag": 1,
             # "outputWatts": 0,
-            OutWattsSensorEntity(client, self, "outputWatts", const.STREAM_OUT_POWER, False),
+            StreamACOutWattsSensorEntity(client, self, "outputWatts", const.STREAM_OUT_POWER, False),
             # "packSn": "BKxxxxx",
             # "plugInInfoPv2Amp": 0.0,
             # "plugInInfoPv2Flag": false,
@@ -180,36 +211,36 @@ class StreamAC(BaseInternalDevice):
             # "plugInInfoPvVol": 0.0,
             # "powConsumptionMeasurement": 2,
             # "powGetBpCms": 1915.0862,
-            WattsSensorEntity(client, self, "powGetBpCms", const.STREAM_POWER_BATTERY),
+            StreamACWattsSensorEntity(client, self, "powGetBpCms", const.STREAM_POWER_BATTERY),
             # "powGetPv": 0.0,
-            WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True),
+            StreamACWattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True),
             # "powGetPv2": 0.0,
-            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False, True),
+            StreamACWattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False, True),
             # "powGetPv3": 0.0,
-            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False, True),
+            StreamACWattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False, True),
             # "powGetPv4": 0.0,
-            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
+            StreamACWattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
             # "powGetPvSum": 2051.3975,
-            WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM),
+            StreamACWattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM),
             # "powGetSchuko1": 0.0,
-            WattsSensorEntity(client, self, "powGetSchuko1", const.STREAM_GET_SCHUKO1, False, True),
+            StreamACWattsSensorEntity(client, self, "powGetSchuko1", const.STREAM_GET_SCHUKO1, False, True),
             # "powGetSchuko2": 18.654325,
-            WattsSensorEntity(client, self, "powGetSchuko2", const.STREAM_GET_SCHUKO2, False, True),
+            StreamACWattsSensorEntity(client, self, "powGetSchuko2", const.STREAM_GET_SCHUKO2, False, True),
             # "powGetSysGrid": -135.0,
-            WattsSensorEntity(client, self, "powGetSysGrid", const.STREAM_POWER_GRID),
+            StreamACWattsSensorEntity(client, self, "powGetSysGrid", const.STREAM_POWER_GRID),
             # "powGetSysLoad": 0.0,
-            WattsSensorEntity(client, self, "powGetSysLoad", const.STREAM_GET_SYS_LOAD),
+            StreamACWattsSensorEntity(client, self, "powGetSysLoad", const.STREAM_GET_SYS_LOAD),
             # "powGetSysLoadFromBp": 0.0,
-            WattsSensorEntity(client, self, "powGetSysLoadFromBp", const.STREAM_GET_SYS_LOAD_FROM_BP),
+            StreamACWattsSensorEntity(client, self, "powGetSysLoadFromBp", const.STREAM_GET_SYS_LOAD_FROM_BP),
             # "powGetSysLoadFromGrid": 0.0,
-            WattsSensorEntity(
+            StreamACWattsSensorEntity(
                 client,
                 self,
                 "powGetSysLoadFromGrid",
                 const.STREAM_GET_SYS_LOAD_FROM_GRID,
             ),
             # "powGetSysLoadFromPv": 0.0,
-            WattsSensorEntity(client, self, "powGetSysLoadFromPv", const.STREAM_GET_SYS_LOAD_FROM_PV),
+            StreamACWattsSensorEntity(client, self, "powGetSysLoadFromPv", const.STREAM_GET_SYS_LOAD_FROM_PV),
             # "powSysAcInMax": 4462,
             # "powSysAcOutMax": 800,
             # "productDetail": 5,
@@ -240,7 +271,7 @@ class StreamAC(BaseInternalDevice):
             # "stormPatternEndTime": 0,
             # "stormPatternOpenFlag": false,
             # "sysGridConnectionPower": -2020.0437,
-            WattsSensorEntity(client, self, "sysGridConnectionPower", const.STREAM_POWER_AC_SYS, False),
+            StreamACWattsSensorEntity(client, self, "sysGridConnectionPower", const.STREAM_POWER_AC_SYS, False),
             # "sysLoaderVer": 4294967295,
             # "sysState": 3,
             # "sysVer": 33620026,
