@@ -629,6 +629,14 @@ class StreamAC(BaseInternalDevice):
                 raw = outer_self._build_proto_command(102, int(value))
                 client.mqtt_client.publish(outer_self.device_info.set_topic, raw)
 
+            def _updated(self_, data):
+                super()._updated(data)
+                # Pin to a fixed 15-100 range (true hardware ceiling) rather than
+                # BatteryBackupLevel's dynamic clamp to the SOC limits, which capped
+                # max at cmsMaxChgSoc (e.g. 82). Lets 95 be set as a charge target.
+                self_._attr_native_min_value = 15
+                self_._attr_native_max_value = 100
+
         class PairedSocNumberEntity(MinMaxLevelEntity):
             """SOC limit number that always writes the paired companion too.
 
@@ -672,8 +680,8 @@ class StreamAC(BaseInternalDevice):
                 self,
                 "backupReverseSoc",
                 const.BACKUP_RESERVE_LEVEL,
-                3,
-                95,
+                15,
+                100,
                 "cmsMinDsgSoc",
                 "cmsMaxChgSoc",
                 3,
