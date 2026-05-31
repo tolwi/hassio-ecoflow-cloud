@@ -384,6 +384,7 @@ STREAM_OPERATION_MODE_OPTIONS = {
     "Smart": 4,
 }
 STREAM_FEED_IN_CONTROL = "Feed-in control"
+STREAM_SEMI_AUTO_DISCHARGE = "Semi-automated discharge"
 
 ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
 ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"

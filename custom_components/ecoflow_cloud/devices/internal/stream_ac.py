@@ -826,6 +826,18 @@ class StreamAC(BaseInternalDevice):
                 lambda value: {}, field_num=381, enable_val=1, disable_val=0,
                 enableValue=True, disableValue=False,
             ),
+            # "Semi-automated monitoring" discharge-strategy enable (field 239).
+            # Confirmed on hardware 2026-05-31 via this switch: enable_val=1
+            # starts discharge (battery 0 -> -800W to AC output, read field 1628
+            # 0->1->2); disable_val=2 stops it (1628 -> 0, battery -> 0). Note
+            # f239=0 was also acked but did NOT stop discharge, so the enum is
+            # 1=on / 2=off (same as feedGridMode field 168), not 1/0. This
+            # switch's shown state is optimistic (no dedicated read field).
+            ProtoEnabledEntity(
+                client, self, "dischargeStrategy239", const.STREAM_SEMI_AUTO_DISCHARGE,
+                lambda value: {}, field_num=239, enable_val=1, disable_val=2,
+                enableValue=True, disableValue=False,
+            ),
             # Schedule enable/disable. Class definition is above; this
             # instance re-emits the active SetTimeTask entry with the new
             # isEnable bit, preserving the other params from telemetry.
