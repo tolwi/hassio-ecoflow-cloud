@@ -26,6 +26,7 @@ from custom_components.ecoflow_cloud.sensor import (
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
     StatusSensorEntity,
     TempSensorEntity,
 )
@@ -42,7 +43,7 @@ class Delta2(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bms_bmsStatus.designCap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_bmsStatus.fullCap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False),
-            LevelSensorEntity(client, self, "bms_bmsStatus.soh", const.SOH),
+            StateOfHealthSensorEntity(client, self, "bms_bmsStatus.soh", const.SOH),
             LevelSensorEntity(client, self, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE),
             InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
@@ -84,7 +85,7 @@ class Delta2(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bms_slave.designCap", const.SLAVE_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_slave.fullCap", const.SLAVE_FULL_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_slave.remainCap", const.SLAVE_REMAIN_CAPACITY, False),
-            LevelSensorEntity(client, self, "bms_slave.soh", const.SLAVE_SOH),
+            StateOfHealthSensorEntity(client, self, "bms_slave.soh", const.SLAVE_SOH),
             TempSensorEntity(client, self, "bms_slave.temp", const.SLAVE_BATTERY_TEMP, False, True)
             .attr("bms_slave.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
             .attr("bms_slave.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
