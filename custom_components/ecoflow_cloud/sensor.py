@@ -672,7 +672,13 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
 
 
 class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
-    """QuotaStatusSensorEntity with additional periodic scheduled refresh."""
+    """QuotaStatusSensorEntity with additional periodic scheduled refresh.
+
+    Caveat: the scheduled refresh fetches values via a periodic HTTP (quota)
+    call. The quota endpoint keeps returning the last known values even when
+    the device is offline, so a successful poll does not prove the device is
+    actually online — the data may be stale/cached server-side.
+    """
 
     def __init__(
         self,
