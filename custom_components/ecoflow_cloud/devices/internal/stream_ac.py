@@ -21,6 +21,7 @@ from custom_components.ecoflow_cloud.sensor import (
     OutWattsSensorEntity,
     RemainSensorEntity,
     StateOfHealthSensorEntity,
+    StoredEnergyFromSocSensorEntity,
     TempSensorEntity,
     WattsSensorEntity,
 )
@@ -83,6 +84,9 @@ class StreamAC(BaseInternalDevice):
             # "cmsBattPowInMax": 2114,
             # "cmsBattPowOutMax": 2400,
             # "cmsBattSoc": 43.0,
+            StoredEnergyFromSocSensorEntity(
+                client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY
+            ),
             # "cmsBattSoh": 100.0,
             # "cmsBmsRunState": 1,
             # "cmsChgDsgState": 2,

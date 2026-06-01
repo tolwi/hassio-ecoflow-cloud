@@ -131,6 +131,15 @@ class LevelSensorEntity(BaseSensorEntity):
     _attr_device_class = SensorDeviceClass.BATTERY
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 2
+
+
+class BatteryLimitSensorEntity(BaseSensorEntity):
+    # Charge/discharge SoC limits are configuration thresholds, not the amount of
+    # charge left, so they must not use the BATTERY device class (HA defines that
+    # as "percentage of battery that is left").
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
 
 class StateOfHealthSensorEntity(BaseSensorEntity):
@@ -328,6 +337,62 @@ class EnergySensorEntity(BaseSensorEntity):
             return super()._update_value(ival)
         else:
             return False
+
+
+class EnergyStorageSensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.ENERGY_STORAGE
+    _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 0
+
+
+class StoredEnergyFromSocSensorEntity(EnergyStorageSensorEntity):
+    """Stored energy (Wh) computed as full-pack-energy x SoC%.
+
+    Some devices (e.g. the EcoFlow Stream family) report total pack energy in
+    watt-hours (``cmsBattFullEnergy``) but not the currently stored energy.
+    This derives it as ``full_energy_key x soc_key / 100`` from a single payload
+    tick, giving a spec-correct ENERGY_STORAGE sensor while the percentage SoC
+    keeps its own BATTERY entity.
+
+    A synthetic ``mqtt_key`` is used so the computed entity's ``unique_id``
+    cannot collide with any entity subscribing to the raw source keys (mirrors
+    ``StreamPvWattsSensorEntity``).
+    """
+
+    _SYNTHETIC_KEY_PREFIX = "storedEnergy"
+
+    def __init__(
+        self,
+        client,
+        device,
+        full_energy_key: str,
+        soc_key: str,
+        title: str,
+        enabled: bool = True,
+        auto_enable: bool = False,
+    ) -> None:
+        self._full_energy_key = full_energy_key
+        self._soc_key = soc_key
+        synthetic_key = f"{self._SYNTHETIC_KEY_PREFIX}_{full_energy_key}"
+        super().__init__(client, device, synthetic_key, title, enabled, auto_enable)
+
+    def _updated(self, data: dict[str, Any]) -> None:
+        full_energy = data.get(self._full_energy_key)
+        soc = data.get(self._soc_key)
+        if full_energy is None or soc is None:
+            # Let the upstream pipeline handle offline / default-value reset.
+            super()._updated(data)
+            return
+        try:
+            stored = float(full_energy) * float(soc) / 100.0
+        except (TypeError, ValueError):
+            return
+        # Inject the computed value under our synthetic mqtt_key and let the
+        # upstream _updated() do attribute mapping, auto-enable, _update_value
+        # and the HA state write. Shallow-copy so sibling sensors reading the
+        # same payload tick are unaffected.
+        super()._updated({**data, self.mqtt_key: stored})
 
 
 class CapacitySensorEntity(BaseSensorEntity):

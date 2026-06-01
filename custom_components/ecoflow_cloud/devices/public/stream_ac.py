@@ -11,6 +11,7 @@ from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
 from custom_components.ecoflow_cloud.number import BatteryBackupLevel
 from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
+    BatteryLimitSensorEntity,
     CapacitySensorEntity,
     CumulativeCapacitySensorEntity,
     CyclesSensorEntity,
@@ -22,6 +23,7 @@ from custom_components.ecoflow_cloud.sensor import (
     RemainSensorEntity,
     StateOfHealthSensorEntity,
     StatusSensorEntity,
+    StoredEnergyFromSocSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
@@ -87,6 +89,9 @@ class StreamAC(BaseDevice):
             # "cmsBattPowInMax": 2114,
             # "cmsBattPowOutMax": 2400,
             # "cmsBattSoc": 43.0,
+            StoredEnergyFromSocSensorEntity(
+                client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY
+            ),
             # "cmsBattSoh": 100.0,
             # "cmsBmsRunState": 1,
             # "cmsChgDsgState": 2,
@@ -94,8 +99,8 @@ class StreamAC(BaseDevice):
             # "cmsDsgRemTime": 5939,
             # "cmsMaxChgSoc": 100,
             # "cmsMinDsgSoc": 5,
-            LevelSensorEntity(client, self, "cmsMaxChgSoc", const.MAX_CHARGE_LEVEL),
-            LevelSensorEntity(client, self, "cmsMinDsgSoc", const.MIN_DISCHARGE_LEVEL),
+            BatteryLimitSensorEntity(client, self, "cmsMaxChgSoc", const.MAX_CHARGE_LEVEL),
+            BatteryLimitSensorEntity(client, self, "cmsMinDsgSoc", const.MIN_DISCHARGE_LEVEL),
             # "curSensorNtcNum": 0,
             # "curSensorTemp": [],
             # "cycleSoh": 100.0,
