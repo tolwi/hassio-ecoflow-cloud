@@ -33,6 +33,7 @@ from custom_components.ecoflow_cloud.devices.public import (
     delta2 as public_delta2,
     delta2_max as public_delta2_max,
     # delta3 as public_delta3,
+    delta3_max_plus as public_delta3_max_plus,
     delta_max as public_delta_max,
     delta_pro as public_delta_pro,
     delta_pro_3 as public_delta_pro_3,
@@ -58,6 +59,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "DELTA_2": internal_delta2.Delta2,
         "DELTA_3": internal_delta3.Delta3,
         "DELTA_3_1500": internal_delta3_1500.Delta31500,
+        "DELTA_3_MAX_PLUS": internal_delta3.Delta3,
         "RIVER_2": internal_river2.River2,
         "RIVER_2_MAX": internal_river2_max.River2Max,
         "RIVER_2_PRO": internal_river2_pro.River2Pro,
@@ -99,6 +101,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[Ba
         "PowerStream": public_powerstream.PowerStream,
         "WAVE 2": public_wave2.Wave2,
         "Delta Pro 3": public_delta_pro_3.DeltaPro3,
+        "DELTA 3 Max Plus": public_delta3_max_plus.Delta3MaxPlus,
         "Power Kits": public_powerkit.PowerKit,
         "Smart Meter": public_smart_meter.SmartMeter,
         # Stream Series: keep batteries grouped, microinverter separate.

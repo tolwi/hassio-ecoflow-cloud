@@ -24,6 +24,7 @@ from custom_components.ecoflow_cloud.sensor import (
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
 )
@@ -44,7 +45,7 @@ class River2Pro(BaseInternalDevice):
             CapacitySensorEntity(client, self, "bms_bmsStatus.designCap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_bmsStatus.fullCap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, self, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False),
-            LevelSensorEntity(client, self, "bms_bmsStatus.soh", const.SOH),
+            StateOfHealthSensorEntity(client, self, "bms_bmsStatus.soh", const.SOH),
             LevelSensorEntity(client, self, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE),
             InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),

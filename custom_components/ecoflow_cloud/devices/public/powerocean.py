@@ -21,6 +21,7 @@ from custom_components.ecoflow_cloud.sensor import (
     QuotaScheduledStatusSensorEntity,
     SolarAmpSensorEntity,
     SolarPowerSensorEntity,
+    StateOfHealthSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
@@ -159,7 +160,7 @@ class PowerOcean(BaseDevice):
 
         return [
             LevelSensorEntity(client, self, f"{prefix}.bpSoc", f"{prefix}Soc"),
-            LevelSensorEntity(client, self, f"{prefix}.bpSoh", f"{prefix}Soh"),
+            StateOfHealthSensorEntity(client, self, f"{prefix}.bpSoh", f"{prefix}Soh"),
             WattsSensorEntity(client, self, f"{prefix}.bpPwr", f"{prefix}Pwr"),
             AmpSensorEntity(client, self, f"{prefix}.bpAmp", f"{prefix}Amp"),
             VoltSensorEntity(client, self, f"{prefix}.bpVol", f"{prefix}Vol"),

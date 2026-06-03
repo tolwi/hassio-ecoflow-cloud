@@ -20,6 +20,8 @@ from custom_components.ecoflow_cloud.sensor import (
     MilliVoltSensorEntity,
     OutWattsSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
+    StoredEnergyFromSocSensorEntity,
     TempSensorEntity,
     WattsSensorEntity,
 )
@@ -82,6 +84,9 @@ class StreamAC(BaseInternalDevice):
             # "cmsBattPowInMax": 2114,
             # "cmsBattPowOutMax": 2400,
             # "cmsBattSoc": 43.0,
+            StoredEnergyFromSocSensorEntity(
+                client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY
+            ),
             # "cmsBattSoh": 100.0,
             # "cmsBmsRunState": 1,
             # "cmsChgDsgState": 2,
@@ -210,7 +215,7 @@ class StreamAC(BaseInternalDevice):
             # "productDetail": 5,
             # "productType": 58,
             # "realSoh": 100.0,
-            LevelSensorEntity(client, self, "realSoh", const.REAL_SOH, False),
+            StateOfHealthSensorEntity(client, self, "realSoh", const.REAL_SOH, False),
             # "relay1Onoff": true,
             # "relay2Onoff": true,
             # "relay3Onoff": true,
@@ -230,7 +235,7 @@ class StreamAC(BaseInternalDevice):
             .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             # "socketMeasurePower": 0.0,
             # "soh": 100,
-            LevelSensorEntity(client, self, "soh", const.SOH, False),
+            StateOfHealthSensorEntity(client, self, "soh", const.SOH, False),
             # "stormPatternEnable": false,
             # "stormPatternEndTime": 0,
             # "stormPatternOpenFlag": false,

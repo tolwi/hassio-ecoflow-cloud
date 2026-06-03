@@ -32,6 +32,7 @@ from custom_components.ecoflow_cloud.sensor import (
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
     TempSensorEntity,
     WattsSensorEntity,
 )
@@ -58,7 +59,7 @@ class DeltaPro(BaseDevice):
             CapacitySensorEntity(client, self, "bmsMaster.designCap", const.MAIN_DESIGN_CAPACITY, False),
             CapacitySensorEntity(client, self, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
             CapacitySensorEntity(client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False),
-            LevelSensorEntity(client, self, "bmsMaster.soh", const.SOH),
+            StateOfHealthSensorEntity(client, self, "bmsMaster.soh", const.SOH),
             LevelSensorEntity(client, self, "ems.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
             LevelSensorEntity(
                 client,
@@ -150,7 +151,7 @@ class DeltaPro(BaseDevice):
                 const.SLAVE_N_REMAIN_CAPACITY % 1,
                 False,
             ),
-            LevelSensorEntity(client, self, "bmsSlave1.soh", const.SLAVE_N_SOH % 1),
+            StateOfHealthSensorEntity(client, self, "bmsSlave1.soh", const.SLAVE_N_SOH % 1),
             TempSensorEntity(
                 client,
                 self,
@@ -220,7 +221,7 @@ class DeltaPro(BaseDevice):
                 const.SLAVE_N_REMAIN_CAPACITY % 2,
                 False,
             ),
-            LevelSensorEntity(client, self, "bmsSlave2.soh", const.SLAVE_N_SOH % 2),
+            StateOfHealthSensorEntity(client, self, "bmsSlave2.soh", const.SLAVE_N_SOH % 2),
             MilliVoltSensorEntity(client, self, "bmsSlave1.vol", const.SLAVE_N_BATTERY_VOLT % 1, False),
             MilliVoltSensorEntity(
                 client,
