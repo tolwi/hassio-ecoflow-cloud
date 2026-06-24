@@ -10,6 +10,7 @@ from homeassistant.util import utcnow
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.api.private_api import PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity, MinBatteryLevelEntity, MinMaxLevelEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 from custom_components.ecoflow_cloud.devices.internal.proto_codec import (
@@ -32,6 +33,19 @@ from custom_components.ecoflow_cloud.sensor import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class StreamACCommandMessage(PrivateAPIMessageProtocol):
+    """Wrapper for STREAM protobuf command bytes."""
+
+    def __init__(self, payload: bytes):
+        self._payload = payload
+
+    def to_mqtt_payload(self) -> bytes:
+        return self._payload
+
+    def to_dict(self) -> dict:
+        return {"pdata": self._payload.hex()}
 
 
 class StreamAC(BaseInternalDevice):
@@ -297,25 +311,25 @@ class StreamAC(BaseInternalDevice):
         return [
             MaxBatteryLevelEntity(
                 client, self, "cmsMaxChgSoc", const.MAX_CHARGE_LEVEL, 5, 100,
-                lambda value: build_max_chg_soc(
+                lambda value: StreamACCommandMessage(build_max_chg_soc(
                     int(value),
                     self.coordinator.data.get(self.device_data.sn, {}).get("cmsMinDsgSoc", 15)
-                ),
+                )),
             ),
             MinBatteryLevelEntity(
                 client, self, "cmsMinDsgSoc", const.MIN_DISCHARGE_LEVEL, 0, 30,
-                lambda value: build_min_dsg_soc(
+                lambda value: StreamACCommandMessage(build_min_dsg_soc(
                     int(value),
                     self.coordinator.data.get(self.device_data.sn, {}).get("cmsMaxChgSoc", 95)
-                ),
+                )),
             ),
             MinMaxLevelEntity(
                 client, self, "backupReverseSoc", const.BACKUP_RESERVE_LEVEL, 0, 100,
-                lambda value: build_backup_soc(int(value)),
+                lambda value: StreamACCommandMessage(build_backup_soc(int(value))),
             ),
             MinMaxLevelEntity(
                 client, self, "feedGridModePowLimit", const.FEED_IN_LIMIT, 0, 800,
-                lambda value: build_feed_limit(int(value)),
+                lambda value: StreamACCommandMessage(build_feed_limit(int(value))),
             ),
         ]
 
@@ -323,11 +337,11 @@ class StreamAC(BaseInternalDevice):
         return [
             EnabledEntity(
                 client, self, "relay2Onoff", "AC Output Relay 2",
-                lambda value: build_relay(380, value == 1),
+                lambda value: StreamACCommandMessage(build_relay(380, value == 1)),
             ),
             EnabledEntity(
                 client, self, "relay3Onoff", "AC Output Relay 3",
-                lambda value: build_relay(381, value == 1),
+                lambda value: StreamACCommandMessage(build_relay(381, value == 1)),
             ),
         ]
 
