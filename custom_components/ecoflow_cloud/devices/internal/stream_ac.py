@@ -11,7 +11,7 @@ from homeassistant.util import utcnow
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity, MinBatteryLevelEntity, MinMaxLevelEntity
-from custom_components.ecoflow_cloud.switch import EcoflowSwitchEntity
+from custom_components.ecoflow_cloud.switch import EnabledEntity
 from custom_components.ecoflow_cloud.devices.internal.proto_codec import (
     build_feed_limit, build_max_chg_soc, build_min_dsg_soc, build_backup_soc, build_relay
 )
@@ -321,13 +321,13 @@ class StreamAC(BaseInternalDevice):
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
         return [
-            EcoflowSwitchEntity(
+            EnabledEntity(
                 client, self, "relay2Onoff", "AC Output Relay 2",
-                lambda on: build_relay(380, on),
+                lambda value: build_relay(380, value == 1),
             ),
-            EcoflowSwitchEntity(
+            EnabledEntity(
                 client, self, "relay3Onoff", "AC Output Relay 3",
-                lambda on: build_relay(381, on),
+                lambda value: build_relay(381, value == 1),
             ),
         ]
 
