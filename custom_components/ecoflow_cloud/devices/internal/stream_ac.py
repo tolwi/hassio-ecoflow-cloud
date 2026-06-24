@@ -10,7 +10,7 @@ from homeassistant.util import utcnow
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
-from custom_components.ecoflow_cloud.api.private_api import PrivateAPIMessageProtocol
+from custom_components.ecoflow_cloud.api.message import PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.number import MaxBatteryLevelEntity, MinBatteryLevelEntity, MinMaxLevelEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 from custom_components.ecoflow_cloud.devices.internal.proto_codec import (
