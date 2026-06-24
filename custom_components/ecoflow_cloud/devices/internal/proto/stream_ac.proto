@@ -178,3 +178,13 @@ message StreamACChamp_cmd21_2 {
 message StreamACChamp_cmd21 {
     optional StreamACChamp_cmd21_2 Champ_cmd21_champ_cmd21_2 = 1;
 }
+message StreamACConfigWrite {
+    optional uint32 cfg_utc_time = 6;
+    optional uint32 cms_max_chg_soc = 33;
+    optional uint32 cms_min_dsg_soc = 34;
+    optional uint32 backup_reverse_soc = 102;
+    optional uint32 feed_grid_mode_pow_limit = 169;
+    optional uint32 relay2_onoff = 380;
+    optional uint32 relay3_onoff = 381;
+    optional uint32 brightness = 384;
+}
