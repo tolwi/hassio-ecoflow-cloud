@@ -388,6 +388,10 @@ class Delta3(BaseInternalDevice):
                 lambda value: _create_delta3_proto_command(
                     "en_beep", 1 if value else 0, device.device_data.sn, data_len=2
                 ),
+                # en_beep is 1 = beeper enabled, unlike the legacy quiet-mode
+                # keys (beepState) that BeeperEntity inverts by default
+                enableValue=1,
+                disableValue=0,
             ),
             EnabledEntity(
                 client,
