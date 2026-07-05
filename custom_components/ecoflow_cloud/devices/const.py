@@ -19,6 +19,13 @@ SCREEN_TIMEOUT_OPTIONS = {
     "30 min": 1800,
 }
 
+ENERGY_STRATEGY_OPTIONS = {
+    "Standard": 0,
+    "Self-Powered": 1,
+    "Scheduled": 2,
+    "TOU": 3,
+}
+
 UNIT_TIMEOUT_OPTIONS = {
     "Never": 0,
     "30 min": 30,
@@ -240,6 +247,7 @@ UNIT_TIMEOUT = "Unit Timeout"
 AC_TIMEOUT = "AC Timeout"
 DC_TIMEOUT = "DC (12V) Timeout"
 DC_CHARGE_CURRENT = "DC (12V) Charge Current"
+ENERGY_STRATEGY = "Energy Strategy"
 GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
 GEN_BAT_CHARGING_POWER = "Generator Battery Charging Power"
