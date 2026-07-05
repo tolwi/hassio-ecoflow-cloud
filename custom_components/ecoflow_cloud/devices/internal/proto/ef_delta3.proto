@@ -128,6 +128,9 @@ message Delta3DisplayPropertyUpload {
   optional uint32 plug_in_info_pv_chg_vol_max = 366;    // PV charge vol max (V)
   optional uint32 flow_info_ac_out = 367;               // AC output flow direction
   optional float pow_get_ac_out = 368;                  // AC output power (W)
+  optional Delta3CfgEnergyStrategyOperateMode energy_strategy_operate_mode = 393; // Active energy strategy
+  optional uint32 self_powered_conflict_flag = 395;     // Self-powered mode conflict flag
+  optional uint32 tou_mode_conflict_flag = 396;         // TOU mode conflict flag
   optional uint32 flow_info_dcp_in = 423;               // DCP input flow
   optional uint32 flow_info_dcp_out = 424;              // DCP output flow
   optional float pow_get_dcp = 425;                     // DCP power (W)
@@ -232,6 +235,7 @@ message Delta3SetCommand {
     optional uint32 plug_in_info_pv_dc_amp_max = 87;      // Max solar charge current (A)
     optional uint32 cfg_led_mode = 89;                    // LED mode
     optional uint32 pv_chg_type = 90;                     // PV charge type (0=Auto, 1=Solar, 2=Car)
+    optional Delta3CfgEnergyStrategyOperateMode energy_strategy_operate_mode = 106; // Energy strategy selection
     optional int32 output_power_off_memory = 141;         // AC always on enable (0/1)
 }
 
@@ -260,6 +264,7 @@ message Delta3SetReply {
     optional uint32 plug_in_info_pv_dc_amp_max = 87;      // Max solar charge current
     optional uint32 cfg_led_mode = 89;                    // LED mode
     optional uint32 pv_chg_type = 90;                     // PV charge type
+    optional Delta3CfgEnergyStrategyOperateMode energy_strategy_operate_mode = 106; // Energy strategy selection
     optional int32 output_power_off_memory = 141;         // AC always on state
 }
 
@@ -267,6 +272,15 @@ message Delta3SetReply {
 message Delta3CfgEnergyBackup {
   optional uint32 energy_backup_en = 1;                 // Backup reserve enabled
   optional uint32 energy_backup_start_soc = 2;          // Backup reserve SOC threshold
+}
+
+// Energy strategy operating mode (Self-Powered / Scheduled / TOU).
+// The three flags are mutually exclusive; all zero means no strategy
+// is active (standard passthrough behavior).
+message Delta3CfgEnergyStrategyOperateMode {
+  optional int32 operate_self_powered_open = 1;         // Self-powered mode enabled (0/1)
+  optional int32 operate_scheduled_open = 2;            // Scheduled mode enabled (0/1)
+  optional int32 operate_tou_mode_open = 3;             // TOU mode enabled (0/1)
 }
 
 // CMS Heartbeat Report - cmdFunc=32, cmdId=2
