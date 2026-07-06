@@ -145,6 +145,7 @@ message Delta3DisplayPropertyUpload {
   optional uint32 plug_in_info_dcp_err_code = 438;      // DCP error code
   optional uint32 plug_in_info_dcp2_err_code = 439;     // DCP2 error code
   optional uint32 plug_in_info_ac_in_chg_hal_pow_max = 458; // AC input charge max power (W)
+  optional uint32 backup_reverse_soc = 461;             // Backup reserve SOC (operating mode floor, %)
 }
 
 // Runtime Property Upload - cmdFunc=254, cmdId=22
@@ -235,6 +236,7 @@ message Delta3SetCommand {
     optional uint32 plug_in_info_pv_dc_amp_max = 87;      // Max solar charge current (A)
     optional uint32 cfg_led_mode = 89;                    // LED mode
     optional uint32 pv_chg_type = 90;                     // PV charge type (0=Auto, 1=Solar, 2=Car)
+    optional uint32 backup_reverse_soc = 102;             // Backup reserve SOC (%)
     optional Delta3CfgEnergyStrategyOperateMode energy_strategy_operate_mode = 106; // Energy strategy selection
     optional int32 output_power_off_memory = 141;         // AC always on enable (0/1)
 }
@@ -264,6 +266,7 @@ message Delta3SetReply {
     optional uint32 plug_in_info_pv_dc_amp_max = 87;      // Max solar charge current
     optional uint32 cfg_led_mode = 89;                    // LED mode
     optional uint32 pv_chg_type = 90;                     // PV charge type
+    optional uint32 backup_reverse_soc = 102;             // Backup reserve SOC (%)
     optional Delta3CfgEnergyStrategyOperateMode energy_strategy_operate_mode = 106; // Energy strategy selection
     optional int32 output_power_off_memory = 141;         // AC always on state
 }

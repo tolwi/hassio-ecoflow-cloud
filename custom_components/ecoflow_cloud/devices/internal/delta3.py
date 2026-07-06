@@ -433,6 +433,23 @@ class Delta3(BaseInternalDevice):
                 5,
                 lambda value: _create_delta3_energy_backup_command(1, int(value), device.device_data.sn),
             ),
+            BatteryBackupLevel(
+                client,
+                self,
+                "backup_reverse_soc",
+                const.BACKUP_RESERVE_SOC,
+                5,
+                100,
+                "cms_min_dsg_soc",
+                "cms_max_chg_soc",
+                5,
+                # backup_reverse_soc is the operating-mode partition floor
+                # shown as "Backup reserve" in the app energy strategy
+                # screen; distinct from the legacy energy_backup_* pair.
+                lambda value: _create_delta3_proto_command(
+                    "backup_reverse_soc", int(value), device.device_data.sn
+                ),
+            ),
         ]
 
     @override
