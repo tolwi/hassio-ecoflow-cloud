@@ -26,6 +26,12 @@ ENERGY_STRATEGY_OPTIONS = {
     "TOU": 3,
 }
 
+AC_CHARGE_MODE_OPTIONS = {
+    "Auto": 1,
+    "Silent": 2,
+    "Custom": 0,
+}
+
 UNIT_TIMEOUT_OPTIONS = {
     "Never": 0,
     "30 min": 30,
@@ -249,6 +255,7 @@ AC_TIMEOUT = "AC Timeout"
 DC_TIMEOUT = "DC (12V) Timeout"
 DC_CHARGE_CURRENT = "DC (12V) Charge Current"
 ENERGY_STRATEGY = "Energy Strategy"
+AC_CHARGE_MODE = "AC Charging Mode"
 GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
 GEN_BAT_CHARGING_POWER = "Generator Battery Charging Power"

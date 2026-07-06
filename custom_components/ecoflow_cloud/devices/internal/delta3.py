@@ -561,6 +561,20 @@ class Delta3(BaseInternalDevice):
                 const.ENERGY_STRATEGY_OPTIONS,
                 lambda value: _create_delta3_energy_strategy_command(int(value), device.device_data.sn),
             ),
+            DictSelectEntity(
+                client,
+                self,
+                "plug_in_info_ac_in_chg_mode",
+                const.AC_CHARGE_MODE,
+                const.AC_CHARGE_MODE_OPTIONS,
+                # Selecting Custom (0) makes the device apply the wattage
+                # from the AC Charging Power entity (field 54); Auto (1)
+                # lets the firmware pick a battery-optimal power, Silent (2)
+                # caps it at the silence_chg_watt value.
+                lambda value: _create_delta3_proto_command(
+                    "plug_in_info_ac_in_chg_mode", int(value), device.device_data.sn
+                ),
+            ),
             TimeoutDictSelectEntity(
                 client,
                 self,
