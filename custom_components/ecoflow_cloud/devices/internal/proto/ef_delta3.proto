@@ -51,6 +51,7 @@ message Delta3DisplayPropertyUpload {
   optional uint32 dev_standby_time = 17;                // Unit timeout (min)
   optional uint32 screen_off_time = 18;                 // Screen timeout (sec)
   optional uint32 ac_standby_time = 19;                 // AC timeout (min)
+  optional uint32 dc_standby_time = 20;                 // DC (12V) timeout (min)
   optional uint32 ac_always_on_flag = 22;               // AC always on flag (bool)
   optional uint32 ac_always_on_mini_soc = 23;           // AC always on min SOC (%)
   optional uint32 xboost_en = 25;                       // X-Boost enabled (bool)
