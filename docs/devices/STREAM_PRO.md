@@ -24,7 +24,7 @@
 - Power PV 2 (`powGetPv2`)   _(auto)_
 - Power PV 3 (`powGetPv3`)   _(auto)_
 - Power PV 4 (`powGetPv4`)   _(auto)_
-- Power PV Sum (`powGetPvSum`)
+- Power PV Sum (`powGetPvSum`) (energy:  _[Device Name]_ PV Total Energy)
 - Power SCHUKO1 (`powGetSchuko1`)   _(auto)_
 - Power SCHUKO2 (`powGetSchuko2`)   _(auto)_
 - Power Grid (`powGetSysGrid`)

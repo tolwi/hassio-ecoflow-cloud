@@ -1465,7 +1465,7 @@
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
-- Power PV Sum
+- Power PV Sum (energy:  _[Device Name]_ PV Total Energy)
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
 - Power Grid
@@ -1511,7 +1511,7 @@
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
-- Power PV Sum
+- Power PV Sum (energy:  _[Device Name]_ PV Total Energy)
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
 - Power Grid
@@ -1557,7 +1557,7 @@
 - Power PV 2  _(auto)_
 - Power PV 3  _(auto)_
 - Power PV 4  _(auto)_
-- Power PV Sum
+- Power PV Sum (energy:  _[Device Name]_ PV Total Energy)
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
 - Power Grid
@@ -2584,7 +2584,7 @@
 - Power PV2 In Amps  _(auto)_
 - Power PV3 In Amps  _(auto)_
 - Power PV4 In Amps  _(auto)_
-- Power PV Sum
+- Power PV Sum (energy:  _[Device Name]_ PV Total Energy)
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
 - Power Grid
@@ -2654,7 +2654,7 @@
 - Power PV2 In Amps  _(auto)_
 - Power PV3 In Amps  _(auto)_
 - Power PV4 In Amps  _(auto)_
-- Power PV Sum
+- Power PV Sum (energy:  _[Device Name]_ PV Total Energy)
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
 - Power Grid
@@ -2724,7 +2724,7 @@
 - Power PV2 In Amps  _(auto)_
 - Power PV3 In Amps  _(auto)_
 - Power PV4 In Amps  _(auto)_
-- Power PV Sum
+- Power PV Sum (energy:  _[Device Name]_ PV Total Energy)
 - Power SCHUKO1  _(auto)_
 - Power SCHUKO2  _(auto)_
 - Power Grid

@@ -190,7 +190,10 @@ class StreamAC(BaseInternalDevice):
             # "powGetPv4": 0.0,
             WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
             # "powGetPvSum": 2051.3975,
-            WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM),
+            WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM).with_energy(
+                energy_title=const.STREAM_PV_TOTAL_ENERGY,
+                unit_prefix=None,
+            ),
             # "powGetSchuko1": 0.0,
             WattsSensorEntity(client, self, "powGetSchuko1", const.STREAM_GET_SCHUKO1, False, True),
             # "powGetSchuko2": 18.654325,
