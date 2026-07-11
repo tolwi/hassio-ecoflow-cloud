@@ -8,7 +8,7 @@ from homeassistant.components.switch import SwitchEntity
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
-from custom_components.ecoflow_cloud.number import BatteryBackupLevel
+from custom_components.ecoflow_cloud.number import BatteryBackupLevel, DynamicMaxPowerEntity
 from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
     BatteryLimitSensorEntity,
@@ -340,6 +340,24 @@ class StreamAC(BaseDevice):
                     "params": {
                         "cfgBackupReverseSoc": int(value),
                     },
+                },
+            ),
+            DynamicMaxPowerEntity(
+                client,
+                self,
+                "feedGridModePowLimit",
+                const.STREAM_GRID_TIED_OUTPUT_POWER_LIMIT,
+                0,
+                "feedGridModePowMax",
+                lambda value: {
+                    "sn": self.device_info.sn,
+                    "cmdId": 17,
+                    "cmdFunc": 254,
+                    "dirDest": 1,
+                    "dirSrc": 1,
+                    "dest": 2,
+                    "needAck": True,
+                    "params": {"cfgFeedGridModePowLimit": int(value)},
                 },
             ),
         ]
