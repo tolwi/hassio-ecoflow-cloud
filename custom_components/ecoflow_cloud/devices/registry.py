@@ -82,6 +82,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "STREAM_AC": internal_stream_ac.StreamAC,
         "STREAM_PRO": internal_stream_ac.StreamAC,
         "STREAM_ULTRA": internal_stream_ac.StreamAC,
+        "STREAM_ULTRA_X": internal_stream_ac.StreamAC,
         "DIAGNOSTIC": DiagnosticDevice,
     }
 )
@@ -107,6 +108,7 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[Ba
         "Stream AC": public_stream_ac.StreamAC,
         "Stream PRO": public_stream_ac.StreamAC,
         "Stream Ultra": public_stream_ac.StreamAC,
+        "Stream Ultra X": public_stream_ac.StreamAC,
         "Stream Microinverter": public_stream_microinverter.StreamMicroinveter,
         "Smart Home Panel": public_smart_home_panel.SmartHomePanel,
         "Smart Home Panel 2": public_smart_home_panel_2.SmartHomePanel2,

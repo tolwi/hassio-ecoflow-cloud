@@ -30,6 +30,7 @@ Current integrations details:
 - [Smart_Plug](devices/Smart_Plug-Public.md)
 - [Stream_AC](devices/Stream_AC-Public.md)
 - [Stream_ULTRA](devices/Stream_Ultra-Public.md)
+- [Stream_Ultra_X](devices/Stream_Ultra_X-Public.md)
 - [Stream_Microinverter](devices/Stream_Microinverter-Public.md)
 - [PowerStream](devices/PowerStream-Public.md)
 - [Diagnostic](devices/Diagnostic-Public.md)
