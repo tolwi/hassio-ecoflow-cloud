@@ -722,6 +722,50 @@ from Home Assistant.
 
 </p></details>
 
+<details><summary> DELTA_PRO_ULTRA_X <i>(sensors: 37)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Charge Remaining Time
+- Discharge Remaining Time
+- Status
+- Battery 1 Level  _(disabled)_
+- Battery 2 Level  _(disabled)_
+- Battery 3 Level  _(disabled)_
+- Battery 4 Level  _(disabled)_
+- Battery 5 Level  _(disabled)_
+- Battery 6 Level  _(disabled)_
+- Battery 7 Level  _(disabled)_
+- Battery 8 Level  _(disabled)_
+- Battery 9 Level  _(disabled)_
+- Battery 10 Level  _(disabled)_
+- AC In Power  _(disabled)_
+- AC Out Power  _(disabled)_
+- AC 240V Output Power  _(disabled)_
+- AC 120V Output Power  _(disabled)_
+- Solar (1) In Power  _(disabled)_
+- Solar (2) In Power  _(disabled)_
+- AC Output Frequency  _(disabled)_
+- AC Output Power L1  _(disabled)_
+- AC Output Power L2  _(disabled)_
+- Max Charge Level  _(disabled)_
+- Min Discharge Level  _(disabled)_
+- Battery 1 Temperature  _(disabled)_
+- Battery 2 Temperature  _(disabled)_
+- Battery 3 Temperature  _(disabled)_
+- Battery 4 Temperature  _(disabled)_
+- Battery 5 Temperature  _(disabled)_
+- Battery 6 Temperature  _(disabled)_
+- Battery 7 Temperature  _(disabled)_
+- Battery 8 Temperature  _(disabled)_
+- Battery 9 Temperature  _(disabled)_
+- Battery 10 Temperature  _(disabled)_
+
+</p></details>
+
 <details><summary> RIVER_MAX <i>(sensors: 49, switches: 5, sliders: 1, selects: 3)</i> </summary>
 <p>
 
