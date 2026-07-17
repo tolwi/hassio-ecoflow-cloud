@@ -372,7 +372,20 @@ STREAM_OUT_POWER = "Out Power"
 STREAM_STR_OUT_POWER = "Out Power %s"
 STREAM_OPERATION_MODE_SELF_POWERED = "Operating mode - Self-powered"
 STREAM_OPERATION_MODE_AI_MODE = "Operating mode - AI Mode"
+STREAM_OPERATION_MODE = "Operating mode"
+STREAM_SCHEDULE = "Schedule"
+STREAM_SCHEDULE_ENABLED = "Schedule enabled"
+# Map display label -> inner field number of cfgEnergyStrategyOperateMode (write
+# field 106) / energyStrategyOperateMode (read field 393). The four modes are
+# mutually exclusive; only one is active at a time.
+STREAM_OPERATION_MODE_OPTIONS = {
+    "Self-Powered": 1,
+    "Scheduled": 2,
+    "TOU": 3,
+    "Smart": 4,
+}
 STREAM_FEED_IN_CONTROL = "Feed-in control"
+STREAM_SEMI_AUTO_DISCHARGE = "Semi-automated discharge"
 
 ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
 ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"

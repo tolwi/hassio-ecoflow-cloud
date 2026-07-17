@@ -1,0 +1,104 @@
+stream_ac_set_schedule:
+  name: Stream AC Pro — set schedule
+  description: >-
+    Write a single schedule entry (SetTimeTaskWrite) to a Stream AC Pro. All
+    fields are required; the entry is encoded and published to the device's
+    set topic over MQTT. See docs/stream_ac_proto_fields.md for the wire format.
+  fields:
+    serial:
+      name: Serial number
+      description: Serial number of the target Stream AC Pro device.
+      required: true
+      example: BKxxxxxxxxxxxxxx
+      selector:
+        text:
+    task_index:
+      name: Task index
+      description: Schedule slot number to write (inner field 2; slot 2 observed in captures).
+      required: true
+      example: 2
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 1
+          mode: box
+    enabled:
+      name: Enabled
+      description: Whether the schedule entry is active (inner field isEnable).
+      required: true
+      example: true
+      selector:
+        boolean:
+    is_valid:
+      name: Is valid
+      description: Marks the entry as a valid slot (inner field isValid; set true for real entries).
+      required: true
+      example: true
+      selector:
+        boolean:
+    is_repeating:
+      name: Is repeating
+      description: Whether the entry repeats rather than running once (inner field isRepeating).
+      required: true
+      example: false
+      selector:
+        boolean:
+    time_mode:
+      name: Time mode
+      description: Recurrence mode (inner field 8). 1 = daily, 2 = weekly (uses the days bitmask).
+      required: true
+      example: 2
+      selector:
+        number:
+          min: 1
+          max: 2
+          step: 1
+          mode: box
+    days:
+      name: Days bitmask
+      description: >-
+        Weekday bitmask (inner field 9): bit0 = Monday … bit6 = Sunday
+        (0–127). Only meaningful when time_mode is 2 (weekly).
+      required: true
+      example: 31
+      selector:
+        number:
+          min: 0
+          max: 127
+          step: 1
+          mode: box
+    start_min:
+      name: Start (minute of day)
+      description: Schedule start as minutes since midnight (0–1439). E.g. 480 = 08:00.
+      required: true
+      example: 480
+      selector:
+        number:
+          min: 0
+          max: 1439
+          step: 1
+          mode: box
+    end_min:
+      name: End (minute of day)
+      description: Schedule end as minutes since midnight (0–1439). E.g. 1320 = 22:00.
+      required: true
+      example: 1320
+      selector:
+        number:
+          min: 0
+          max: 1439
+          step: 1
+          mode: box
+    power:
+      name: Power
+      description: Target power for the schedule entry, in watts (inner field 12).
+      required: true
+      example: 600
+      selector:
+        number:
+          min: 0
+          max: 800
+          step: 1
+          unit_of_measurement: W
+          mode: box
