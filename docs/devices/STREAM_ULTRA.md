@@ -6,10 +6,13 @@
 - Cumulative Capacity Discharge (mAh) (`accuDsgCap`)   _(disabled)_
 - Cumulative Energy Discharge (Wh) (`accuDsgEnergy`)   _(disabled)_
 - Charge Remaining Time (`bmsChgRemTime`)   _(disabled)_
-- Discharge Remaining Time (`bmsDsgRemTime`)   _(disabled)_
+- Discharge Remaining Time (`bmsDsgRemTime`)
+- Stored Energy (`storedEnergy_cmsBattFullEnergy`)   _(auto)_
+- Max Charge Level (`cmsMaxChgSoc`)
+- Min Discharge Level (`cmsMinDsgSoc`)
 - Cycles (`cycles`)   _(disabled)_
 - Design Capacity (`designCap`)   _(disabled)_
-- Power Battery SOC (`f32ShowSoc`)   _(disabled)_
+- Power Battery SOC (`f32ShowSoc`)
 - Full Capacity (`fullCap`)   _(disabled)_
 - Power AC (`gridConnectionPower`)
 - Power Volts (`gridConnectionVol`)   _(disabled)_
@@ -35,7 +38,7 @@
 - Real State of Health (`realSoh`)   _(disabled)_
 - Remain Capacity (`remainCap`)   _(disabled)_
 - Remaining Time (`remainTime`)   _(disabled)_
-- Power Battery (`soc`)   _(disabled)_
+- Battery Level (`soc`)
 - State of Health (`soh`)   _(disabled)_
 - Power AC SYS (`sysGridConnectionPower`)   _(disabled)_
 - Battery Temperature (`temp`)   _(disabled)_
