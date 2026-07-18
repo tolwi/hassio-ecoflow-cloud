@@ -94,8 +94,9 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         enabled: bool = True,
         auto_enable: bool = False,
         diagnostic: Optional[bool] = None,
+        entity_key: str | None = None,
     ):
-        super().__init__(client, device, title, mqtt_key)
+        super().__init__(client, device, title, entity_key or mqtt_key)
 
         self.__mqtt_key = mqtt_key
         self._mqtt_key_adopted = self._adopt_json_key(mqtt_key)
@@ -123,6 +124,10 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
             return key
 
     @property
+    def available(self) -> bool:
+        return bool(self._attr_available) and not self._device.status_tracker.is_offline
+
+    @property
     def mqtt_key(self):
         return self.__mqtt_key
 
@@ -140,13 +145,19 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         # self.async_on_remove(d.dispose)
 
     def _handle_coordinator_update(self) -> None:
+        if self._device.status_tracker.is_offline:
+            self._mark_unavailable()
+            return
+
         if self.coordinator.data.changed:
             self._updated(self.coordinator.data.data_holder.params)
-        elif self._device.status_tracker.is_offline:  # Device is offline
-            # Reset sensors that should reset to default values
-            if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
-                self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
-                self._updated(self.coordinator.data.data_holder.params)
+
+    def _mark_unavailable(self) -> None:
+        if not self._attr_available:
+            return
+
+        self._attr_available = False
+        self.schedule_update_ha_state()
 
     def _updated(self, data: dict[str, Any]):
         # update attributes
@@ -164,6 +175,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         # update value
         values = self._mqtt_key_expr.find(data)
         if len(values) == 1 or (len(values) > 1 and self._multiple_value_sum):
+            was_available = bool(self._attr_available)
             self._attr_available = True
             if self._auto_enable:
                 self._attr_entity_registry_enabled_default = True
@@ -173,7 +185,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
             if len(values) > 1 and self._multiple_value_sum:
                 for v in values[1:]:
                     total += v.value
-            if self._update_value(total):
+            if self._update_value(total) or not was_available:
                 self.schedule_update_ha_state()
 
     @property
@@ -269,8 +281,9 @@ class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):  # type: ignore[misc]
         enabled: bool = True,
         auto_enable: bool = False,
         diagnostic: Optional[bool] = None,
+        entity_key: str | None = None,
     ):
-        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic)
+        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic, entity_key)
         if self._attr_default_value is not None:
             self._attr_native_value = self._attr_default_value
 

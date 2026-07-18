@@ -15,10 +15,14 @@
 - AC In Volts (`inv.acInVol`)
 - AC Out Volts (`inv.invOutVol`)
 - Type-C In Power (`pd.typecChaWatts`)
+- Solar In Current (`mppt.inAmp`)
+- Solar In Voltage (`mppt.inVol`)
 - Solar In Power (`mppt.inWatts`) (energy:  _[Device Name]_ Solar In  Energy)
 - DC Out Power (`pd.carWatts`)
 - Type-C Out Power (`pd.typec1Watts`)
 - USB Out Power (`pd.usb1Watts`)
+- DC Mode (`mppt.chgType`)   _(diagnostic; state shows the live runtime mode, attributes still include configured/runtime raw values, and runtime `255` is shown as `No active DC input`)_
+- MPPT Fault (`mppt.faultCode`)   _(diagnostic; decoded title with raw bitmask in attributes, with idle/no-input auxiliary warnings suppressed into attributes instead of shown as active faults)_
 - Charge Remaining Time (`bms_emsStatus.chgRemainTime`)
 - Discharge Remaining Time (`bms_emsStatus.dsgRemainTime`)
 - Remaining Time (`pd.remainTime`)
@@ -52,3 +56,5 @@
 - AC Timeout (`mppt.acStandbyMins` -> `{"moduleType": 5, "operateType": "acStandby", "params": {"standbyMins": "VALUE"}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
 
 
+
+_Note: River 2 family exposes a user-facing DC (12V/car) output via `pd.carState`, but there is no confirmed dedicated 24V output control path like Delta Pro 3 `cfgDc24vOutOpen`._
