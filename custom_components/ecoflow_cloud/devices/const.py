@@ -364,6 +364,7 @@ STREAM_IN_VOL_PV_2 = "Power PV2 Volts"
 STREAM_IN_VOL_PV_3 = "Power PV3 Volts"
 STREAM_IN_VOL_PV_4 = "Power PV4 Volts"
 STREAM_POWER_PV_SUM = "Power PV Sum"
+STREAM_PV_TOTAL_ENERGY = "PV Total Energy"
 STREAM_GET_SYS_LOAD = "Power Sys Load" # powGetSysLoad
 STREAM_GET_SYS_LOAD_FROM_BP = "Power Sys Load From Battery" # powGetSysLoadFromBp
 STREAM_GET_SYS_LOAD_FROM_GRID = "Power Sys Load From Grid" # powGetSysLoadFromGrid
@@ -389,6 +390,7 @@ STREAM_STR_OUT_POWER = "Out Power %s"
 STREAM_OPERATION_MODE_SELF_POWERED = "Operating mode - Self-powered"
 STREAM_OPERATION_MODE_AI_MODE = "Operating mode - AI Mode"
 STREAM_FEED_IN_CONTROL = "Feed-in control"
+STREAM_GRID_TIED_OUTPUT_POWER_LIMIT = "Grid-tied output power limit"
 
 ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
 ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
