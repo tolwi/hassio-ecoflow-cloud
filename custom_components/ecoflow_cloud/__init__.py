@@ -178,11 +178,23 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
 def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
     result = dict[str, DeviceData]()
+    is_public_api = CONF_ACCESS_KEY in entry.data and CONF_SECRET_KEY in entry.data
+    canonicalize = None
+    if is_public_api:
+        try:
+            from .devices.registry import canonical_product_name as _canonical_product_name
+
+            canonicalize = _canonical_product_name
+        except Exception:
+            canonicalize = None
     for sn, data in entry.data[CONF_DEVICE_LIST].items():
+        device_type = data[CONF_DEVICE_TYPE]
+        if canonicalize is not None:
+            device_type = canonicalize(device_type)
         result[sn] = DeviceData(
             sn,
             data[CONF_DEVICE_NAME],
-            data[CONF_DEVICE_TYPE],
+            device_type,
             DeviceOptions(
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_REFRESH_PERIOD_SEC],
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_POWER_STEP],
@@ -251,6 +263,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     for sn, device_data in devices_list.items():
         device = api_client.configure_device(device_data, api_devices_map)
         device.configure(hass)
+        configure_history = getattr(device, "configure_history", None)
+        if callable(configure_history):
+            try:
+                configure_history(hass, api_client)
+            except Exception as exc:
+                _LOGGER.error("Failed to configure history for %s: %s", sn, exc, exc_info=True)
 
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
@@ -292,6 +310,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
             hass.data[ECOFLOW_DOMAIN].pop(_STATUS_COORDINATOR_KEY)
 
     client = hass.data[ECOFLOW_DOMAIN].pop(entry.entry_id)
+    for device in client.devices.values():
+        cleanup = getattr(device, "async_cleanup", None)
+        if callable(cleanup):
+            await cleanup()
     client.stop()
     return True
 
