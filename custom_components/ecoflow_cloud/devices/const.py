@@ -364,6 +364,7 @@ STREAM_IN_VOL_PV_2 = "Power PV2 Volts"
 STREAM_IN_VOL_PV_3 = "Power PV3 Volts"
 STREAM_IN_VOL_PV_4 = "Power PV4 Volts"
 STREAM_POWER_PV_SUM = "Power PV Sum"
+STREAM_PV_TOTAL_ENERGY = "PV Total Energy"
 STREAM_GET_SYS_LOAD = "Power Sys Load" # powGetSysLoad
 STREAM_GET_SYS_LOAD_FROM_BP = "Power Sys Load From Battery" # powGetSysLoadFromBp
 STREAM_GET_SYS_LOAD_FROM_GRID = "Power Sys Load From Grid" # powGetSysLoadFromGrid
