@@ -104,7 +104,8 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
 
             from .devices.registry import device_support_sub_devices
 
-            for sn, device_data in self.new_data[CONF_DEVICE_LIST].items():
+            # iterate over a snapshot: the loop mutates new_data[CONF_DEVICE_LIST]
+            for sn, device_data in list(self.new_data[CONF_DEVICE_LIST].items()):
                 if device_data[CONF_DEVICE_TYPE] not in device_support_sub_devices:
                     # skip here all devices that do not support sub devices
                     continue
@@ -113,19 +114,35 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
                 if not isinstance(self.auth, EcoflowPublicApiClient):
                     raise TypeError("Only public api is supported for devices with sub devices")
                 all_device_info = await self.auth.call_api("/device/quota/all", {"sn": sn})
-                for sub_device_type, sub_devices in all_device_info["data"].items():
-                    if not isinstance(sub_devices, dict):
+
+                # The "/device/quota/all" response for a Power Kit is a FLAT dict whose
+                # keys look like "<moduleType>.<moduleSn>.<field>"
+                # (e.g. "bp5000.M101Z3B4ZE5A0737.soc"), with scalar values. Aggregate
+                # keys such as "bmsTotal.<field>" carry no module serial. Older
+                # firmware/API returned a nested dict ({type: {sn: {...}}}); support both.
+                discovered: dict[str, str] = {}  # sub_device_sn -> sub_device_type
+                for key, value in all_device_info["data"].items():
+                    parts = key.split(".")
+                    if len(parts) >= 3:
+                        sub_device_type, sub_device_sn = parts[0], parts[1]
+                        discovered.setdefault(sub_device_sn, sub_device_type)
+                    elif isinstance(value, dict):
+                        # legacy nested shape: {sub_device_type: {sub_device_sn: {...}}}
+                        for sub_device_sn, item in value.items():
+                            if isinstance(item, (dict, list)):
+                                discovered.setdefault(sub_device_sn, key)
+
+                for sub_device_sn, sub_device_type in discovered.items():
+                    if sub_device_sn == sn:
+                        # some modules (e.g. "wireless") report under the parent's
+                        # serial; skip to avoid overwriting the parent device entry
                         continue
-                    for sub_device_sn, item in sub_devices.items():
-                        if not isinstance(item, (dict, list)):
-                            # skip all element that are simple
-                            continue
-                        self.new_data[CONF_DEVICE_LIST][sub_device_sn] = {
-                            CONF_DEVICE_NAME: f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}",
-                            CONF_DEVICE_TYPE: sub_device_type,
-                            CONF_PARENT_SN: sn,
-                        }
-                        self.new_options[CONF_DEVICE_LIST][sub_device_sn] = self.new_options[CONF_DEVICE_LIST][sn]
+                    self.new_data[CONF_DEVICE_LIST][sub_device_sn] = {
+                        CONF_DEVICE_NAME: f"{device_data[CONF_DEVICE_NAME]}.{sub_device_type}.{sub_device_sn}",
+                        CONF_DEVICE_TYPE: sub_device_type,
+                        CONF_PARENT_SN: sn,
+                    }
+                    self.new_options[CONF_DEVICE_LIST][sub_device_sn] = self.new_options[CONF_DEVICE_LIST][sn]
 
             return self.async_create_entry(
                 title=self.new_data[CONF_GROUP],
