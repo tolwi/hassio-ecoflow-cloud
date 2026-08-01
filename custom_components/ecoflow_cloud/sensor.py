@@ -560,6 +560,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
         key: str = "status",
         poll_when_silent: bool = False,
         scheduled_refresh_sec: int | None = None,
+        stall_sec: int | None = None,
     ):
         from .devices.status_tracker import OnlineStatus
 
@@ -569,6 +570,14 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
         self._prev_status: OnlineStatus | None = None
         self._poll_when_silent = poll_when_silent
         self._scheduled_refresh_sec = scheduled_refresh_sec
+        # Watchdog threshold, deliberately separate from assume_offline_sec.
+        # The latter answers "is the device gone?" and is rightly slow; this
+        # one answers "has the stream stalled?" and wants to be fast. A device
+        # that normally reports every few seconds is already pathological after
+        # a minute of silence. Defaults to assume_offline_sec so device classes
+        # that report slowly keep their current, safe behaviour.
+        self._stall_sec = stall_sec
+        self._watchdog_since = dt.utcnow()
         self._last_poll = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
         self._last_scheduled = dt.utcnow()
         self._poll_count = 0
@@ -622,10 +631,29 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
                 self.schedule_update_ha_state()
 
     def _schedule_mqtt_reconnect(self) -> bool:
-        reconnect_count = self._client.schedule_mqtt_reconnect()
+        # Precedence: explicit user option, then the device class default, then
+        # assume_offline_sec. 0 means "not set" at both of the first two levels.
+        threshold = (
+            self._device.device_data.options.stall_sec
+            or self._stall_sec
+            or self._tracker.assume_offline_sec
+        )
+
+        # _watchdog_since guards the two moments where last_data_time is not a
+        # meaningful reference: right after setup, when no telemetry has ever
+        # arrived, and right after a recovery, when the new client has not been
+        # given a chance yet. Without it both would look infinitely stale and
+        # trigger an immediate second recovery.
+        reference = max(self._tracker.last_data_time, self._watchdog_since)
+        data_stale = (dt.utcnow() - reference).total_seconds() >= threshold
+
+        reconnect_count = self._client.schedule_mqtt_reconnect(
+            data_stale=data_stale, cooldown_sec=threshold
+        )
         if reconnect_count is None:
             return False
 
+        self._watchdog_since = dt.utcnow()
         self._attrs[ATTR_STATUS_RECONNECTS] = reconnect_count
         self.hass.async_create_background_task(
             self._async_reconnect_mqtt(),
@@ -634,7 +662,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
         return True
 
     async def _async_reconnect_mqtt(self) -> None:
-        await self.hass.async_add_executor_job(self._client.mqtt_client.reconnect)
+        await self._client.async_recover(self.hass)
 
     def _format_age(self, timestamp: datetime | None) -> str | None:
         if timestamp is None:

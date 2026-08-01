@@ -35,6 +35,8 @@ from custom_components.ecoflow_cloud import (
     DEFAULT_REFRESH_PERIOD_SEC,
     ECOFLOW_DOMAIN,
     OPTS_ASSUME_OFFLINE_SEC,
+    OPTS_STALL_SEC,
+    DEFAULT_STALL_SEC,
     OPTS_DIAGNOSTIC_MODE,
     OPTS_POWER_STEP,
     OPTS_REFRESH_PERIOD_SEC,
@@ -278,6 +280,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_DIAGNOSTIC_MODE: False,
             OPTS_VERBOSE_STATUS_MODE: False,
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
+            OPTS_STALL_SEC: DEFAULT_STALL_SEC,
         }
 
         return await self.update_or_create()
@@ -421,6 +424,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_DIAGNOSTIC_MODE: ("Diagnostic".lower() == user_input[CONF_DEVICE_TYPE].lower()),
             OPTS_VERBOSE_STATUS_MODE: False,
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
+            OPTS_STALL_SEC: DEFAULT_STALL_SEC,
         }
 
         return await self.update_or_create()
@@ -475,6 +479,7 @@ class EcoflowOptionsFlow(OptionsFlow):
                         vol.Required(OPTS_DIAGNOSTIC_MODE, default=device_options.diagnostic_mode): bool,
                         vol.Required(OPTS_VERBOSE_STATUS_MODE, default=device_options.verbose_status_mode): bool,
                         vol.Required(OPTS_ASSUME_OFFLINE_SEC, default=device_options.assume_offline_sec): int,
+                        vol.Required(OPTS_STALL_SEC, default=device_options.stall_sec): int,
                     }
                 ),
             )
@@ -486,6 +491,7 @@ class EcoflowOptionsFlow(OptionsFlow):
             OPTS_DIAGNOSTIC_MODE: user_input[OPTS_DIAGNOSTIC_MODE],
             OPTS_VERBOSE_STATUS_MODE: user_input[OPTS_VERBOSE_STATUS_MODE],
             OPTS_ASSUME_OFFLINE_SEC: user_input[OPTS_ASSUME_OFFLINE_SEC],
+            OPTS_STALL_SEC: user_input[OPTS_STALL_SEC],
         }
 
         return self.async_create_entry(title="", data=new_options)
