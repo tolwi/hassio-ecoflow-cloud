@@ -40,6 +40,4 @@ class ReconnectButtonEntity(ButtonEntity, EcoFlowAbstractEntity):
         self._attr_device_class = ButtonDeviceClass.RESTART
 
     async def async_press(self) -> None:
-        await self.hass.async_add_executor_job(self._client.stop)
-        await self._client.login()
-        await self.hass.async_add_executor_job(self._client.start)
+        await self._client.async_recover(self.hass)

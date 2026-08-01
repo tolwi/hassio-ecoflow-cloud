@@ -34,12 +34,14 @@ from custom_components.ecoflow_cloud import (
     DEFAULT_ASSUME_OFFLINE_SEC,
     DEFAULT_REFRESH_PERIOD_SEC,
     DEFAULT_RESET_SENSORS_ON_OFFLINE,
+    DEFAULT_STALL_SEC,
     ECOFLOW_DOMAIN,
     OPTS_ASSUME_OFFLINE_SEC,
     OPTS_DIAGNOSTIC_MODE,
     OPTS_POWER_STEP,
     OPTS_REFRESH_PERIOD_SEC,
     OPTS_RESET_SENSORS_ON_OFFLINE,
+    OPTS_STALL_SEC,
     OPTS_VERBOSE_STATUS_MODE,
     DeviceData,
     DeviceOptions,
@@ -298,6 +300,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_VERBOSE_STATUS_MODE: False,
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
             OPTS_RESET_SENSORS_ON_OFFLINE: DEFAULT_RESET_SENSORS_ON_OFFLINE,
+            OPTS_STALL_SEC: DEFAULT_STALL_SEC,
         }
 
         return await self.update_or_create()
@@ -442,6 +445,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_VERBOSE_STATUS_MODE: False,
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
             OPTS_RESET_SENSORS_ON_OFFLINE: DEFAULT_RESET_SENSORS_ON_OFFLINE,
+            OPTS_STALL_SEC: DEFAULT_STALL_SEC,
         }
 
         return await self.update_or_create()
@@ -500,6 +504,7 @@ class EcoflowOptionsFlow(OptionsFlow):
                             OPTS_RESET_SENSORS_ON_OFFLINE,
                             default=device_options.reset_sensors_on_offline,
                         ): bool,
+                        vol.Required(OPTS_STALL_SEC, default=device_options.stall_sec): int,
                     }
                 ),
             )
@@ -512,6 +517,7 @@ class EcoflowOptionsFlow(OptionsFlow):
             OPTS_VERBOSE_STATUS_MODE: user_input[OPTS_VERBOSE_STATUS_MODE],
             OPTS_ASSUME_OFFLINE_SEC: user_input[OPTS_ASSUME_OFFLINE_SEC],
             OPTS_RESET_SENSORS_ON_OFFLINE: user_input[OPTS_RESET_SENSORS_ON_OFFLINE],
+            OPTS_STALL_SEC: user_input[OPTS_STALL_SEC],
         }
 
         return self.async_create_entry(title="", data=new_options)
