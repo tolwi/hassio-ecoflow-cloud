@@ -7,6 +7,7 @@
 - Cumulative Energy Discharge (Wh) (`accuDsgEnergy`)   _(disabled)_
 - Charge Remaining Time (`bmsChgRemTime`)   _(disabled)_
 - Discharge Remaining Time (`bmsDsgRemTime`)   _(disabled)_
+- Stored Energy (`storedEnergy_cmsBattFullEnergy`)
 - Cycles (`cycles`)   _(disabled)_
 - Design Capacity (`designCap`)   _(disabled)_
 - Power Battery SOC (`f32ShowSoc`)   _(disabled)_
