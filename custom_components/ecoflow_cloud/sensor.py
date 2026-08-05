@@ -1,3 +1,4 @@
+import inspect
 import logging
 import re
 import struct
@@ -53,6 +54,9 @@ from .entities import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+# HA 2025.8 added a `hass` argument to IntegrationSensor.__init__ and 2026.8 removed it again
+_INTEGRATION_SENSOR_TAKES_HASS = "hass" in inspect.signature(IntegrationSensor.__init__).parameters
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -700,8 +704,9 @@ class IntegralEnergySensorEntity(IntegrationSensor):
     _attr_entity_registry_visible_default = False
 
     def __init__(self, base: WattsSensorEntity, enabled_default: bool = True):
+        version_kwargs: dict[str, Any] = {"hass": base.coordinator.hass} if _INTEGRATION_SENSOR_TAKES_HASS else {}
         super().__init__(
-            base.coordinator.hass,
+            **version_kwargs,
             integration_method="left",
             name=f"{base._device.device_info.name} {base.title().replace(f'{const.POWER}', f' {const.ENERGY}')}",
             round_digits=4,
