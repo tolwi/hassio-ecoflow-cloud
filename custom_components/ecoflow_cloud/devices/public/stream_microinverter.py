@@ -8,6 +8,9 @@ from homeassistant.components.switch import SwitchEntity
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
+from custom_components.ecoflow_cloud.devices.public.stream_pv_helpers import (
+    StreamPvWattsSensorEntity,
+)
 from custom_components.ecoflow_cloud.sensor import (
     CelsiusSensorEntity,
     FrequencySensorEntity,
@@ -15,9 +18,6 @@ from custom_components.ecoflow_cloud.sensor import (
     StatusSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
-)
-from custom_components.ecoflow_cloud.devices.public.stream_pv_helpers import (
-    StreamPvWattsSensorEntity,
 )
 
 

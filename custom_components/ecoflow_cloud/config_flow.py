@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from copy import deepcopy
-from typing import Any, Dict
+from typing import Any
 
 import voluptuous as vol
 from homeassistant.config_entries import (
@@ -213,7 +213,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             self.new_data[CONF_GROUP],
         )
 
-        errors: Dict[str, str] = {}
+        errors: dict[str, str] = {}
         try:
             await self.auth.login()
         except EcoflowException as e:  # pylint: disable=broad-except
@@ -314,7 +314,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             self.new_data[CONF_GROUP],
         )
 
-        errors: Dict[str, str] = {}
+        errors: dict[str, str] = {}
         try:
             await self.auth.login()
         except EcoflowException as e:  # pylint: disable=broad-except
@@ -442,7 +442,7 @@ class EcoflowOptionsFlow(OptionsFlow):
     def _ensure_devices_loaded(self) -> None:
         if not self.device_selector:
             self.devices = extract_devices(self.config_entry)
-            for _, device in self.devices.items():
+            for device in self.devices.values():
                 self.device_selector[f"{device.name} ({device.sn})"] = device
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):

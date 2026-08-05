@@ -1,7 +1,8 @@
-from homeassistant.components.select import SelectEntity
-from homeassistant.components.switch import SwitchEntity
 from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
+
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity

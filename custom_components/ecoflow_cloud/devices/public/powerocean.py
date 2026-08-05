@@ -1,4 +1,3 @@
-from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
 import base64
 import logging
 from typing import Any
@@ -11,6 +10,7 @@ from homeassistant.const import UnitOfEnergy
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice
+from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
 from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
     CyclesSensorEntity,
@@ -276,7 +276,7 @@ class PowerOcean(BaseDevice):
             if isinstance(bp_sn, str):
                 try:
                     decoded_sn = base64.b64decode(bp_sn).decode("utf-8")
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     _LOGGER.debug("Failed to decode battery serial number: %s", e)
                     decoded_sn = None
                 if decoded_sn:

@@ -1,11 +1,11 @@
-from homeassistant.core import callback, HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 
 from . import (
-    ATTR_STATUS_UPDATES,
+    ATTR_QUOTA_REQUESTS,
     ATTR_STATUS_DATA_LAST_UPDATE,
     ATTR_STATUS_LAST_UPDATE,
     ATTR_STATUS_PHASE,
-    ATTR_QUOTA_REQUESTS,
+    ATTR_STATUS_UPDATES,
 )
 
 

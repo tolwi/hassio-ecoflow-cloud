@@ -1,26 +1,27 @@
 import json
 import logging
-import random
 import os
+import random
 from datetime import datetime
+from typing import Any, override
+
+from google.protobuf.json_format import MessageToDict
 from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityFeature,
     HVACMode,
 )
 from homeassistant.components.climate.const import (
-    PRESET_NONE,
     PRESET_BOOST,
     PRESET_ECO,
+    PRESET_NONE,
     PRESET_SLEEP,
 )
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.const import UnitOfTemperature, ATTR_TEMPERATURE
-from typing import Any, Optional, override
-from google.protobuf.json_format import MessageToDict
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import PrivateAPIMessageProtocol
@@ -28,15 +29,16 @@ from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.number import LevelEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity
 from custom_components.ecoflow_cloud.sensor import (
+    InWattsSensorEntity,
     LevelSensorEntity,
     MiscSensorEntity,
+    OutWattsSensorEntity,
     RemainSensorEntity,
     TempSensorEntity,
     WattsSensorEntity,
-    InWattsSensorEntity,
-    OutWattsSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
+
 from .proto import wave3_pb2
 
 _LOGGER = logging.getLogger(__name__)
@@ -367,29 +369,29 @@ class Wave3ClimateEntity(ClimateEntity):
         return features
 
     @property
-    def current_temperature(self) -> Optional[float]:
+    def current_temperature(self) -> float | None:
         return self._params().get("temp_ambient")
 
     @property
-    def target_temperature(self) -> Optional[float]:
+    def target_temperature(self) -> float | None:
         if self.hvac_mode in (HVACMode.DRY, HVACMode.FAN_ONLY, HVACMode.HEAT_COOL):
             return None
         return self._params().get("current_temp_set", 22.0)
 
     @property
-    def target_temperature_high(self) -> Optional[float]:
+    def target_temperature_high(self) -> float | None:
         return self._params().get("current_temp_upper", 24.0)
 
     @property
-    def target_temperature_low(self) -> Optional[float]:
+    def target_temperature_low(self) -> float | None:
         return self._params().get("current_temp_lower", 20.0)
 
     @property
-    def current_humidity(self) -> Optional[float]:
+    def current_humidity(self) -> float | None:
         return self._params().get("humi_ambient")
 
     @property
-    def target_humidity(self) -> Optional[float]:
+    def target_humidity(self) -> float | None:
         return self._params().get("current_humi_set", 50.0)
 
     @property
@@ -412,7 +414,7 @@ class Wave3ClimateEntity(ClimateEntity):
         return "1"
 
     @property
-    def preset_mode(self) -> Optional[str]:
+    def preset_mode(self) -> str | None:
         return _SUBMODE_TO_PRESET.get(self._params().get("current_submode", 3), PRESET_NONE)
 
     def set_hvac_mode(self, hvac_mode: HVACMode) -> None:

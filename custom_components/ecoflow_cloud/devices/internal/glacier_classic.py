@@ -244,7 +244,7 @@ class GlacierClassicCommandMessage(PrivateAPIMessageProtocol):
         return {type(self._packet).__name__: result}
 
 
-def _create_glacier_classic_proto_command(field_name: str, value: int | float, device_sn: str):
+def _create_glacier_classic_proto_command(field_name: str, value: float, device_sn: str):
     """Create a protobuf command for Glacier Classic."""
 
     proto_field_name, value_kind = CONFIG_WRITE_FIELDS[field_name]
@@ -611,7 +611,7 @@ class GlacierClassic(BaseInternalDevice):
 
         cmd_func = header_info.get("cmdFunc", 0)
         cmd_id = header_info.get("cmdId", 0)
-        packet_name, packet_type = self._get_packet_type(header_info)
+        _packet_name, packet_type = self._get_packet_type(header_info)
         if packet_type is None:
             return {}
         try:

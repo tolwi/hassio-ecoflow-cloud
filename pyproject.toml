@@ -24,6 +24,22 @@ package = false
 line-length = 120
 indent-width = 4
 
+[tool.ruff.lint]
+# Keep the lint job focused on mechanical issues for now. These rules flag
+# existing broad integration patterns that should be tightened in targeted PRs.
+ignore = [
+    "BLE001",
+    "DTZ005",
+    "G201",
+    "PERF402",
+    "PLE1206",
+    "PYI063",
+    "RUF012",
+    "S110",
+    "SIM102",
+    "TRY401",
+]
+
 [tool.mypy]
 allow_untyped_calls = true
 check_untyped_defs = true

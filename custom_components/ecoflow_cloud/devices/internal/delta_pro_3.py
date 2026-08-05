@@ -383,7 +383,7 @@ class DeltaPro3(BaseInternalDevice):
 
             # 5. Flatten all fields for params
             flat_dict = self._flatten_dict(decoded_data)
-            _LOGGER.debug(f"Flat dict for params (all fields): {flat_dict}")  # noqa: G004
+            _LOGGER.debug(f"Flat dict for params (all fields): {flat_dict}")
         except Exception as e:
             _LOGGER.error(f"[DeltaPro3] Data processing failed: {e}", exc_info=True)
             _LOGGER.debug("[DeltaPro3] Attempting JSON fallback after protobuf failure")

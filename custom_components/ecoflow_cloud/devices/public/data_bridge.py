@@ -1,5 +1,5 @@
-from typing import Any
 import logging
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ plain_to_status: dict[str, str] = {
     "bms_slave_bmsSlaveStatus_2": "bmsSlaveStatus_2",
 }
 
-status_to_plain = dict((v, k) for (k, v) in plain_to_status.items())
+status_to_plain = {v: k for (k, v) in plain_to_status.items()}
 
 
 def to_plain(raw_data: dict[str, Any]) -> dict[str, Any]:

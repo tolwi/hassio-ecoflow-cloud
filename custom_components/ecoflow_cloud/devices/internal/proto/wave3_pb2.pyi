@@ -1,9 +1,11 @@
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -60,7 +62,7 @@ USER_TEMP_UNIT_C: USER_TEMP_UNIT_TYPE
 USER_TEMP_UNIT_F: USER_TEMP_UNIT_TYPE
 
 class Wave3AppRuquestBpEuLawData(_message.Message):
-    __slots__ = ("pack_sn", "app_to_bms_launch_date", "app_launch_date_set_type", "app_to_bms_reset_flag", "bms_data_upload_en")
+    __slots__ = ("app_launch_date_set_type", "app_to_bms_launch_date", "app_to_bms_reset_flag", "bms_data_upload_en", "pack_sn")
     PACK_SN_FIELD_NUMBER: _ClassVar[int]
     APP_TO_BMS_LAUNCH_DATE_FIELD_NUMBER: _ClassVar[int]
     APP_LAUNCH_DATE_SET_TYPE_FIELD_NUMBER: _ClassVar[int]
@@ -71,10 +73,10 @@ class Wave3AppRuquestBpEuLawData(_message.Message):
     app_launch_date_set_type: int
     app_to_bms_reset_flag: int
     bms_data_upload_en: int
-    def __init__(self, pack_sn: _Optional[str] = ..., app_to_bms_launch_date: _Optional[int] = ..., app_launch_date_set_type: _Optional[int] = ..., app_to_bms_reset_flag: _Optional[int] = ..., bms_data_upload_en: _Optional[int] = ...) -> None: ...
+    def __init__(self, pack_sn: str | None = ..., app_to_bms_launch_date: int | None = ..., app_launch_date_set_type: int | None = ..., app_to_bms_reset_flag: int | None = ..., bms_data_upload_en: int | None = ...) -> None: ...
 
 class Wave3ConfigReadAck(_message.Message):
-    __slots__ = ("cfg_utc_time", "cfg_utc_timezone", "get_time_task_list", "read_time_task_v2_list", "get_pd_firm_ver", "get_iot_firm_ver", "get_mppt_firm_ver", "get_llc_firm_ver", "get_inv_firm_ver", "get_bms_firm_ver")
+    __slots__ = ("cfg_utc_time", "cfg_utc_timezone", "get_bms_firm_ver", "get_inv_firm_ver", "get_iot_firm_ver", "get_llc_firm_ver", "get_mppt_firm_ver", "get_pd_firm_ver", "get_time_task_list", "read_time_task_v2_list")
     CFG_UTC_TIME_FIELD_NUMBER: _ClassVar[int]
     CFG_UTC_TIMEZONE_FIELD_NUMBER: _ClassVar[int]
     GET_TIME_TASK_LIST_FIELD_NUMBER: _ClassVar[int]
@@ -95,19 +97,19 @@ class Wave3ConfigReadAck(_message.Message):
     get_llc_firm_ver: int
     get_inv_firm_ver: int
     get_bms_firm_ver: int
-    def __init__(self, cfg_utc_time: _Optional[int] = ..., cfg_utc_timezone: _Optional[int] = ..., get_time_task_list: _Optional[_Union[Wave3GetAllTimeTaskReadck, _Mapping]] = ..., read_time_task_v2_list: _Optional[_Union[Wave3TimeTaskItemV2List, _Mapping]] = ..., get_pd_firm_ver: _Optional[int] = ..., get_iot_firm_ver: _Optional[int] = ..., get_mppt_firm_ver: _Optional[int] = ..., get_llc_firm_ver: _Optional[int] = ..., get_inv_firm_ver: _Optional[int] = ..., get_bms_firm_ver: _Optional[int] = ...) -> None: ...
+    def __init__(self, cfg_utc_time: int | None = ..., cfg_utc_timezone: int | None = ..., get_time_task_list: Wave3GetAllTimeTaskReadck | _Mapping | None = ..., read_time_task_v2_list: Wave3TimeTaskItemV2List | _Mapping | None = ..., get_pd_firm_ver: int | None = ..., get_iot_firm_ver: int | None = ..., get_mppt_firm_ver: int | None = ..., get_llc_firm_ver: int | None = ..., get_inv_firm_ver: int | None = ..., get_bms_firm_ver: int | None = ...) -> None: ...
 
 class Wave3ConfigRead(_message.Message):
     __slots__ = ("action_id",)
     ACTION_ID_FIELD_NUMBER: _ClassVar[int]
     action_id: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, action_id: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, action_id: _Iterable[int] | None = ...) -> None: ...
 
 class Wave3ResvInfo(_message.Message):
     __slots__ = ("resv_info",)
     RESV_INFO_FIELD_NUMBER: _ClassVar[int]
     resv_info: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, resv_info: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, resv_info: _Iterable[int] | None = ...) -> None: ...
 
 class Wave3TimeTaskParamDetail(_message.Message):
     __slots__ = ("type", "val")
@@ -115,10 +117,10 @@ class Wave3TimeTaskParamDetail(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     type: WAVE3_TIME_TASK_DETAIL_TYPE
     val: float
-    def __init__(self, type: _Optional[_Union[WAVE3_TIME_TASK_DETAIL_TYPE, str]] = ..., val: _Optional[float] = ...) -> None: ...
+    def __init__(self, type: WAVE3_TIME_TASK_DETAIL_TYPE | str | None = ..., val: float | None = ...) -> None: ...
 
 class Wave3TimeTaskItemV2(_message.Message):
-    __slots__ = ("task_index", "is_cfg", "is_enable", "conflict_flag", "time_mode", "time_param", "time_table", "task_type", "task_param", "task_param_detail")
+    __slots__ = ("conflict_flag", "is_cfg", "is_enable", "task_index", "task_param", "task_param_detail", "task_type", "time_mode", "time_param", "time_table")
     TASK_INDEX_FIELD_NUMBER: _ClassVar[int]
     IS_CFG_FIELD_NUMBER: _ClassVar[int]
     IS_ENABLE_FIELD_NUMBER: _ClassVar[int]
@@ -139,16 +141,16 @@ class Wave3TimeTaskItemV2(_message.Message):
     task_type: WAVE3_TIME_TASK_TYPE
     task_param: int
     task_param_detail: _containers.RepeatedCompositeFieldContainer[Wave3TimeTaskParamDetail]
-    def __init__(self, task_index: _Optional[int] = ..., is_cfg: _Optional[bool] = ..., is_enable: _Optional[bool] = ..., conflict_flag: _Optional[int] = ..., time_mode: _Optional[_Union[WAVE3_TIME_TASK_MODE, str]] = ..., time_param: _Optional[int] = ..., time_table: _Optional[int] = ..., task_type: _Optional[_Union[WAVE3_TIME_TASK_TYPE, str]] = ..., task_param: _Optional[int] = ..., task_param_detail: _Optional[_Iterable[_Union[Wave3TimeTaskParamDetail, _Mapping]]] = ...) -> None: ...
+    def __init__(self, task_index: int | None = ..., is_cfg: bool | None = ..., is_enable: bool | None = ..., conflict_flag: int | None = ..., time_mode: WAVE3_TIME_TASK_MODE | str | None = ..., time_param: int | None = ..., time_table: int | None = ..., task_type: WAVE3_TIME_TASK_TYPE | str | None = ..., task_param: int | None = ..., task_param_detail: _Iterable[Wave3TimeTaskParamDetail | _Mapping] | None = ...) -> None: ...
 
 class Wave3TimeTaskItemV2List(_message.Message):
     __slots__ = ("time_task",)
     TIME_TASK_FIELD_NUMBER: _ClassVar[int]
     time_task: _containers.RepeatedCompositeFieldContainer[Wave3TimeTaskItemV2]
-    def __init__(self, time_task: _Optional[_Iterable[_Union[Wave3TimeTaskItemV2, _Mapping]]] = ...) -> None: ...
+    def __init__(self, time_task: _Iterable[Wave3TimeTaskItemV2 | _Mapping] | None = ...) -> None: ...
 
 class Wave3RuntimePropertyUpload(_message.Message):
-    __slots__ = ("temp_pcs_dc", "temp_pcs_ac", "plug_in_info_ac_in_vol", "plug_in_info_bms_vol", "pd_mppt_comm_err", "pd_llc_comm_err", "pd_bms_comm_err", "pd_iot_comm_err", "pd_firm_ver", "iot_firm_ver", "mppt_firm_ver", "llc_firm_ver", "plug_in_info_ac_in_amp", "bms_firm_ver", "bms_batt_vol", "bms_batt_amp", "bms_bal_state", "bms_full_cap", "bms_remain_cap", "bms_alm_state", "bms_pro_state", "bms_flt_state", "bms_err_code", "bms_min_cell_vol", "bms_max_cell_vol", "cms_batt_vol", "cms_batt_amp", "cms_chg_req_vol", "cms_chg_req_amp", "bms_overload_icon", "bms_warn_icon", "bms_high_temp_icon", "bms_low_temp_icon", "bms_limit_icon", "bms_alm_state_2", "bms_pro_state_2", "display_property_full_upload_period", "display_property_incremental_upload_period", "runtime_property_full_upload_period", "runtime_property_incremental_upload_period", "temp_pv", "plug_in_info_pv_vol", "plug_in_info_pv_amp", "plug_in_info_dcp_vol", "plug_in_info_dcp_amp", "temp_indoor_return_air", "temp_outdoor_ambient", "temp_condenser", "temp_evaporator", "temp_compressor_discharge")
+    __slots__ = ("bms_alm_state", "bms_alm_state_2", "bms_bal_state", "bms_batt_amp", "bms_batt_vol", "bms_err_code", "bms_firm_ver", "bms_flt_state", "bms_full_cap", "bms_high_temp_icon", "bms_limit_icon", "bms_low_temp_icon", "bms_max_cell_vol", "bms_min_cell_vol", "bms_overload_icon", "bms_pro_state", "bms_pro_state_2", "bms_remain_cap", "bms_warn_icon", "cms_batt_amp", "cms_batt_vol", "cms_chg_req_amp", "cms_chg_req_vol", "display_property_full_upload_period", "display_property_incremental_upload_period", "iot_firm_ver", "llc_firm_ver", "mppt_firm_ver", "pd_bms_comm_err", "pd_firm_ver", "pd_iot_comm_err", "pd_llc_comm_err", "pd_mppt_comm_err", "plug_in_info_ac_in_amp", "plug_in_info_ac_in_vol", "plug_in_info_bms_vol", "plug_in_info_dcp_amp", "plug_in_info_dcp_vol", "plug_in_info_pv_amp", "plug_in_info_pv_vol", "runtime_property_full_upload_period", "runtime_property_incremental_upload_period", "temp_compressor_discharge", "temp_condenser", "temp_evaporator", "temp_indoor_return_air", "temp_outdoor_ambient", "temp_pcs_ac", "temp_pcs_dc", "temp_pv")
     TEMP_PCS_DC_FIELD_NUMBER: _ClassVar[int]
     TEMP_PCS_AC_FIELD_NUMBER: _ClassVar[int]
     PLUG_IN_INFO_AC_IN_VOL_FIELD_NUMBER: _ClassVar[int]
@@ -249,16 +251,16 @@ class Wave3RuntimePropertyUpload(_message.Message):
     temp_condenser: float
     temp_evaporator: float
     temp_compressor_discharge: float
-    def __init__(self, temp_pcs_dc: _Optional[float] = ..., temp_pcs_ac: _Optional[float] = ..., plug_in_info_ac_in_vol: _Optional[float] = ..., plug_in_info_bms_vol: _Optional[float] = ..., pd_mppt_comm_err: _Optional[int] = ..., pd_llc_comm_err: _Optional[int] = ..., pd_bms_comm_err: _Optional[int] = ..., pd_iot_comm_err: _Optional[int] = ..., pd_firm_ver: _Optional[int] = ..., iot_firm_ver: _Optional[int] = ..., mppt_firm_ver: _Optional[int] = ..., llc_firm_ver: _Optional[int] = ..., plug_in_info_ac_in_amp: _Optional[float] = ..., bms_firm_ver: _Optional[int] = ..., bms_batt_vol: _Optional[float] = ..., bms_batt_amp: _Optional[float] = ..., bms_bal_state: _Optional[int] = ..., bms_full_cap: _Optional[int] = ..., bms_remain_cap: _Optional[int] = ..., bms_alm_state: _Optional[int] = ..., bms_pro_state: _Optional[int] = ..., bms_flt_state: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., bms_min_cell_vol: _Optional[int] = ..., bms_max_cell_vol: _Optional[int] = ..., cms_batt_vol: _Optional[float] = ..., cms_batt_amp: _Optional[float] = ..., cms_chg_req_vol: _Optional[float] = ..., cms_chg_req_amp: _Optional[float] = ..., bms_overload_icon: _Optional[int] = ..., bms_warn_icon: _Optional[int] = ..., bms_high_temp_icon: _Optional[int] = ..., bms_low_temp_icon: _Optional[int] = ..., bms_limit_icon: _Optional[int] = ..., bms_alm_state_2: _Optional[int] = ..., bms_pro_state_2: _Optional[int] = ..., display_property_full_upload_period: _Optional[int] = ..., display_property_incremental_upload_period: _Optional[int] = ..., runtime_property_full_upload_period: _Optional[int] = ..., runtime_property_incremental_upload_period: _Optional[int] = ..., temp_pv: _Optional[float] = ..., plug_in_info_pv_vol: _Optional[float] = ..., plug_in_info_pv_amp: _Optional[float] = ..., plug_in_info_dcp_vol: _Optional[float] = ..., plug_in_info_dcp_amp: _Optional[float] = ..., temp_indoor_return_air: _Optional[float] = ..., temp_outdoor_ambient: _Optional[float] = ..., temp_condenser: _Optional[float] = ..., temp_evaporator: _Optional[float] = ..., temp_compressor_discharge: _Optional[float] = ...) -> None: ...
+    def __init__(self, temp_pcs_dc: float | None = ..., temp_pcs_ac: float | None = ..., plug_in_info_ac_in_vol: float | None = ..., plug_in_info_bms_vol: float | None = ..., pd_mppt_comm_err: int | None = ..., pd_llc_comm_err: int | None = ..., pd_bms_comm_err: int | None = ..., pd_iot_comm_err: int | None = ..., pd_firm_ver: int | None = ..., iot_firm_ver: int | None = ..., mppt_firm_ver: int | None = ..., llc_firm_ver: int | None = ..., plug_in_info_ac_in_amp: float | None = ..., bms_firm_ver: int | None = ..., bms_batt_vol: float | None = ..., bms_batt_amp: float | None = ..., bms_bal_state: int | None = ..., bms_full_cap: int | None = ..., bms_remain_cap: int | None = ..., bms_alm_state: int | None = ..., bms_pro_state: int | None = ..., bms_flt_state: int | None = ..., bms_err_code: int | None = ..., bms_min_cell_vol: int | None = ..., bms_max_cell_vol: int | None = ..., cms_batt_vol: float | None = ..., cms_batt_amp: float | None = ..., cms_chg_req_vol: float | None = ..., cms_chg_req_amp: float | None = ..., bms_overload_icon: int | None = ..., bms_warn_icon: int | None = ..., bms_high_temp_icon: int | None = ..., bms_low_temp_icon: int | None = ..., bms_limit_icon: int | None = ..., bms_alm_state_2: int | None = ..., bms_pro_state_2: int | None = ..., display_property_full_upload_period: int | None = ..., display_property_incremental_upload_period: int | None = ..., runtime_property_full_upload_period: int | None = ..., runtime_property_incremental_upload_period: int | None = ..., temp_pv: float | None = ..., plug_in_info_pv_vol: float | None = ..., plug_in_info_pv_amp: float | None = ..., plug_in_info_dcp_vol: float | None = ..., plug_in_info_dcp_amp: float | None = ..., temp_indoor_return_air: float | None = ..., temp_outdoor_ambient: float | None = ..., temp_condenser: float | None = ..., temp_evaporator: float | None = ..., temp_compressor_discharge: float | None = ...) -> None: ...
 
 class Wave3DevErrcodeList(_message.Message):
     __slots__ = ("dev_errcode",)
     DEV_ERRCODE_FIELD_NUMBER: _ClassVar[int]
     dev_errcode: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, dev_errcode: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, dev_errcode: _Iterable[int] | None = ...) -> None: ...
 
 class Wave3WaveOperatingModeParamItem(_message.Message):
-    __slots__ = ("submode", "airflow_speed", "temp_set", "humi_set", "temp_thermostatic_upper_limit", "temp_thermostatic_lower_limit")
+    __slots__ = ("airflow_speed", "humi_set", "submode", "temp_set", "temp_thermostatic_lower_limit", "temp_thermostatic_upper_limit")
     SUBMODE_FIELD_NUMBER: _ClassVar[int]
     AIRFLOW_SPEED_FIELD_NUMBER: _ClassVar[int]
     TEMP_SET_FIELD_NUMBER: _ClassVar[int]
@@ -271,16 +273,16 @@ class Wave3WaveOperatingModeParamItem(_message.Message):
     humi_set: float
     temp_thermostatic_upper_limit: float
     temp_thermostatic_lower_limit: float
-    def __init__(self, submode: _Optional[int] = ..., airflow_speed: _Optional[int] = ..., temp_set: _Optional[float] = ..., humi_set: _Optional[float] = ..., temp_thermostatic_upper_limit: _Optional[float] = ..., temp_thermostatic_lower_limit: _Optional[float] = ...) -> None: ...
+    def __init__(self, submode: int | None = ..., airflow_speed: int | None = ..., temp_set: float | None = ..., humi_set: float | None = ..., temp_thermostatic_upper_limit: float | None = ..., temp_thermostatic_lower_limit: float | None = ...) -> None: ...
 
 class Wave3WaveOperatingModeParamList(_message.Message):
     __slots__ = ("list_info",)
     LIST_INFO_FIELD_NUMBER: _ClassVar[int]
     list_info: _containers.RepeatedCompositeFieldContainer[Wave3WaveOperatingModeParamItem]
-    def __init__(self, list_info: _Optional[_Iterable[_Union[Wave3WaveOperatingModeParamItem, _Mapping]]] = ...) -> None: ...
+    def __init__(self, list_info: _Iterable[Wave3WaveOperatingModeParamItem | _Mapping] | None = ...) -> None: ...
 
 class Wave3DisplayPropertyUpload(_message.Message):
-    __slots__ = ("errcode", "pow_in_sum_w", "pow_out_sum_w", "lcd_light", "pow_get_qcusb1", "pow_get_typec1", "flow_info_qcusb1", "flow_info_typec1", "dev_standby_time", "screen_off_time", "pcs_fan_level", "flow_info_ac2dc", "flow_info_ac_in", "pow_get_ac", "pow_get_ac_in", "plug_in_info_ac_in_flag", "plug_in_info_ac_in_feq", "current_time_task_v2_item", "utc_timezone", "utc_timezone_id", "utc_set_mode", "bms_err_code", "flow_info_bms_dsg", "flow_info_bms_chg", "pow_get_bms", "en_beep", "plug_in_info_ac_charger_flag", "plug_in_info_ac_in_chg_pow_max", "dev_sleep_state", "pd_err_code", "plug_in_info_ac_out_dsg_pow_max", "bms_batt_soc", "bms_batt_soh", "bms_design_cap", "bms_dsg_rem_time", "bms_chg_rem_time", "bms_min_cell_temp", "bms_max_cell_temp", "bms_min_mos_temp", "bms_max_mos_temp", "cms_batt_soc", "cms_batt_soh", "cms_dsg_rem_time", "cms_chg_rem_time", "cms_max_chg_soc", "cms_min_dsg_soc", "cms_bms_run_state", "bms_chg_dsg_state", "cms_chg_dsg_state", "time_task_conflict_flag", "time_task_change_cnt", "plug_in_info_pv_dc_amp_max", "flow_info_pv", "pow_get_pv", "plug_in_info_pv_type", "plug_in_info_pv_charger_flag", "plug_in_info_pv_chg_amp_max", "plug_in_info_pv_chg_vol_max", "bms_main_sn", "flow_info_dcp_in", "flow_info_dcp_out", "pow_get_dcp", "plug_in_info_dcp_in_flag", "plug_in_info_dcp_type", "plug_in_info_dcp_detail", "plug_in_info_dcp_dsg_chg_type", "plug_in_info_dcp_resv", "plug_in_info_dcp_sn", "plug_in_info_dcp_firm_ver", "plug_in_info_dcp_charger_flag", "plug_in_info_dcp_run_state", "plug_in_info_dcp_err_code", "plug_in_info_ac_in_chg_hal_pow_max", "temp_ambient", "humi_ambient", "wave_operating_mode", "temp_indoor_supply_air", "condensate_water_level", "in_drainage", "drainage_mode", "mood_light_mode", "lcd_show_temp_type", "en_pet_care", "temp_pet_care_warning", "user_temp_unit", "pet_care_warning", "wave_mode_info", "dev_errcode_list", "pow_get_self_consume", "power_off_delay_set", "power_off_delay_remaining")
+    __slots__ = ("bms_batt_soc", "bms_batt_soh", "bms_chg_dsg_state", "bms_chg_rem_time", "bms_design_cap", "bms_dsg_rem_time", "bms_err_code", "bms_main_sn", "bms_max_cell_temp", "bms_max_mos_temp", "bms_min_cell_temp", "bms_min_mos_temp", "cms_batt_soc", "cms_batt_soh", "cms_bms_run_state", "cms_chg_dsg_state", "cms_chg_rem_time", "cms_dsg_rem_time", "cms_max_chg_soc", "cms_min_dsg_soc", "condensate_water_level", "current_time_task_v2_item", "dev_errcode_list", "dev_sleep_state", "dev_standby_time", "drainage_mode", "en_beep", "en_pet_care", "errcode", "flow_info_ac2dc", "flow_info_ac_in", "flow_info_bms_chg", "flow_info_bms_dsg", "flow_info_dcp_in", "flow_info_dcp_out", "flow_info_pv", "flow_info_qcusb1", "flow_info_typec1", "humi_ambient", "in_drainage", "lcd_light", "lcd_show_temp_type", "mood_light_mode", "pcs_fan_level", "pd_err_code", "pet_care_warning", "plug_in_info_ac_charger_flag", "plug_in_info_ac_in_chg_hal_pow_max", "plug_in_info_ac_in_chg_pow_max", "plug_in_info_ac_in_feq", "plug_in_info_ac_in_flag", "plug_in_info_ac_out_dsg_pow_max", "plug_in_info_dcp_charger_flag", "plug_in_info_dcp_detail", "plug_in_info_dcp_dsg_chg_type", "plug_in_info_dcp_err_code", "plug_in_info_dcp_firm_ver", "plug_in_info_dcp_in_flag", "plug_in_info_dcp_resv", "plug_in_info_dcp_run_state", "plug_in_info_dcp_sn", "plug_in_info_dcp_type", "plug_in_info_pv_charger_flag", "plug_in_info_pv_chg_amp_max", "plug_in_info_pv_chg_vol_max", "plug_in_info_pv_dc_amp_max", "plug_in_info_pv_type", "pow_get_ac", "pow_get_ac_in", "pow_get_bms", "pow_get_dcp", "pow_get_pv", "pow_get_qcusb1", "pow_get_self_consume", "pow_get_typec1", "pow_in_sum_w", "pow_out_sum_w", "power_off_delay_remaining", "power_off_delay_set", "screen_off_time", "temp_ambient", "temp_indoor_supply_air", "temp_pet_care_warning", "time_task_change_cnt", "time_task_conflict_flag", "user_temp_unit", "utc_set_mode", "utc_timezone", "utc_timezone_id", "wave_mode_info", "wave_operating_mode")
     ERRCODE_FIELD_NUMBER: _ClassVar[int]
     POW_IN_SUM_W_FIELD_NUMBER: _ClassVar[int]
     POW_OUT_SUM_W_FIELD_NUMBER: _ClassVar[int]
@@ -463,10 +465,10 @@ class Wave3DisplayPropertyUpload(_message.Message):
     pow_get_self_consume: float
     power_off_delay_set: int
     power_off_delay_remaining: int
-    def __init__(self, errcode: _Optional[int] = ..., pow_in_sum_w: _Optional[float] = ..., pow_out_sum_w: _Optional[float] = ..., lcd_light: _Optional[int] = ..., pow_get_qcusb1: _Optional[float] = ..., pow_get_typec1: _Optional[float] = ..., flow_info_qcusb1: _Optional[int] = ..., flow_info_typec1: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., pcs_fan_level: _Optional[int] = ..., flow_info_ac2dc: _Optional[int] = ..., flow_info_ac_in: _Optional[int] = ..., pow_get_ac: _Optional[float] = ..., pow_get_ac_in: _Optional[float] = ..., plug_in_info_ac_in_flag: _Optional[int] = ..., plug_in_info_ac_in_feq: _Optional[int] = ..., current_time_task_v2_item: _Optional[_Union[Wave3TimeTaskItemV2, _Mapping]] = ..., utc_timezone: _Optional[int] = ..., utc_timezone_id: _Optional[str] = ..., utc_set_mode: _Optional[bool] = ..., bms_err_code: _Optional[int] = ..., flow_info_bms_dsg: _Optional[int] = ..., flow_info_bms_chg: _Optional[int] = ..., pow_get_bms: _Optional[float] = ..., en_beep: _Optional[bool] = ..., plug_in_info_ac_charger_flag: _Optional[bool] = ..., plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., dev_sleep_state: _Optional[int] = ..., pd_err_code: _Optional[int] = ..., plug_in_info_ac_out_dsg_pow_max: _Optional[int] = ..., bms_batt_soc: _Optional[float] = ..., bms_batt_soh: _Optional[float] = ..., bms_design_cap: _Optional[int] = ..., bms_dsg_rem_time: _Optional[int] = ..., bms_chg_rem_time: _Optional[int] = ..., bms_min_cell_temp: _Optional[int] = ..., bms_max_cell_temp: _Optional[int] = ..., bms_min_mos_temp: _Optional[int] = ..., bms_max_mos_temp: _Optional[int] = ..., cms_batt_soc: _Optional[float] = ..., cms_batt_soh: _Optional[float] = ..., cms_dsg_rem_time: _Optional[int] = ..., cms_chg_rem_time: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cms_bms_run_state: _Optional[int] = ..., bms_chg_dsg_state: _Optional[int] = ..., cms_chg_dsg_state: _Optional[int] = ..., time_task_conflict_flag: _Optional[int] = ..., time_task_change_cnt: _Optional[int] = ..., plug_in_info_pv_dc_amp_max: _Optional[int] = ..., flow_info_pv: _Optional[int] = ..., pow_get_pv: _Optional[float] = ..., plug_in_info_pv_type: _Optional[int] = ..., plug_in_info_pv_charger_flag: _Optional[bool] = ..., plug_in_info_pv_chg_amp_max: _Optional[int] = ..., plug_in_info_pv_chg_vol_max: _Optional[int] = ..., bms_main_sn: _Optional[str] = ..., flow_info_dcp_in: _Optional[int] = ..., flow_info_dcp_out: _Optional[int] = ..., pow_get_dcp: _Optional[float] = ..., plug_in_info_dcp_in_flag: _Optional[bool] = ..., plug_in_info_dcp_type: _Optional[int] = ..., plug_in_info_dcp_detail: _Optional[int] = ..., plug_in_info_dcp_dsg_chg_type: _Optional[int] = ..., plug_in_info_dcp_resv: _Optional[_Union[Wave3ResvInfo, _Mapping]] = ..., plug_in_info_dcp_sn: _Optional[str] = ..., plug_in_info_dcp_firm_ver: _Optional[int] = ..., plug_in_info_dcp_charger_flag: _Optional[bool] = ..., plug_in_info_dcp_run_state: _Optional[int] = ..., plug_in_info_dcp_err_code: _Optional[int] = ..., plug_in_info_ac_in_chg_hal_pow_max: _Optional[int] = ..., temp_ambient: _Optional[float] = ..., humi_ambient: _Optional[float] = ..., wave_operating_mode: _Optional[int] = ..., temp_indoor_supply_air: _Optional[float] = ..., condensate_water_level: _Optional[float] = ..., in_drainage: _Optional[bool] = ..., drainage_mode: _Optional[int] = ..., mood_light_mode: _Optional[int] = ..., lcd_show_temp_type: _Optional[int] = ..., en_pet_care: _Optional[bool] = ..., temp_pet_care_warning: _Optional[float] = ..., user_temp_unit: _Optional[_Union[USER_TEMP_UNIT_TYPE, str]] = ..., pet_care_warning: _Optional[bool] = ..., wave_mode_info: _Optional[_Union[Wave3WaveOperatingModeParamList, _Mapping]] = ..., dev_errcode_list: _Optional[_Union[Wave3DevErrcodeList, _Mapping]] = ..., pow_get_self_consume: _Optional[float] = ..., power_off_delay_set: _Optional[int] = ..., power_off_delay_remaining: _Optional[int] = ...) -> None: ...
+    def __init__(self, errcode: int | None = ..., pow_in_sum_w: float | None = ..., pow_out_sum_w: float | None = ..., lcd_light: int | None = ..., pow_get_qcusb1: float | None = ..., pow_get_typec1: float | None = ..., flow_info_qcusb1: int | None = ..., flow_info_typec1: int | None = ..., dev_standby_time: int | None = ..., screen_off_time: int | None = ..., pcs_fan_level: int | None = ..., flow_info_ac2dc: int | None = ..., flow_info_ac_in: int | None = ..., pow_get_ac: float | None = ..., pow_get_ac_in: float | None = ..., plug_in_info_ac_in_flag: int | None = ..., plug_in_info_ac_in_feq: int | None = ..., current_time_task_v2_item: Wave3TimeTaskItemV2 | _Mapping | None = ..., utc_timezone: int | None = ..., utc_timezone_id: str | None = ..., utc_set_mode: bool | None = ..., bms_err_code: int | None = ..., flow_info_bms_dsg: int | None = ..., flow_info_bms_chg: int | None = ..., pow_get_bms: float | None = ..., en_beep: bool | None = ..., plug_in_info_ac_charger_flag: bool | None = ..., plug_in_info_ac_in_chg_pow_max: int | None = ..., dev_sleep_state: int | None = ..., pd_err_code: int | None = ..., plug_in_info_ac_out_dsg_pow_max: int | None = ..., bms_batt_soc: float | None = ..., bms_batt_soh: float | None = ..., bms_design_cap: int | None = ..., bms_dsg_rem_time: int | None = ..., bms_chg_rem_time: int | None = ..., bms_min_cell_temp: int | None = ..., bms_max_cell_temp: int | None = ..., bms_min_mos_temp: int | None = ..., bms_max_mos_temp: int | None = ..., cms_batt_soc: float | None = ..., cms_batt_soh: float | None = ..., cms_dsg_rem_time: int | None = ..., cms_chg_rem_time: int | None = ..., cms_max_chg_soc: int | None = ..., cms_min_dsg_soc: int | None = ..., cms_bms_run_state: int | None = ..., bms_chg_dsg_state: int | None = ..., cms_chg_dsg_state: int | None = ..., time_task_conflict_flag: int | None = ..., time_task_change_cnt: int | None = ..., plug_in_info_pv_dc_amp_max: int | None = ..., flow_info_pv: int | None = ..., pow_get_pv: float | None = ..., plug_in_info_pv_type: int | None = ..., plug_in_info_pv_charger_flag: bool | None = ..., plug_in_info_pv_chg_amp_max: int | None = ..., plug_in_info_pv_chg_vol_max: int | None = ..., bms_main_sn: str | None = ..., flow_info_dcp_in: int | None = ..., flow_info_dcp_out: int | None = ..., pow_get_dcp: float | None = ..., plug_in_info_dcp_in_flag: bool | None = ..., plug_in_info_dcp_type: int | None = ..., plug_in_info_dcp_detail: int | None = ..., plug_in_info_dcp_dsg_chg_type: int | None = ..., plug_in_info_dcp_resv: Wave3ResvInfo | _Mapping | None = ..., plug_in_info_dcp_sn: str | None = ..., plug_in_info_dcp_firm_ver: int | None = ..., plug_in_info_dcp_charger_flag: bool | None = ..., plug_in_info_dcp_run_state: int | None = ..., plug_in_info_dcp_err_code: int | None = ..., plug_in_info_ac_in_chg_hal_pow_max: int | None = ..., temp_ambient: float | None = ..., humi_ambient: float | None = ..., wave_operating_mode: int | None = ..., temp_indoor_supply_air: float | None = ..., condensate_water_level: float | None = ..., in_drainage: bool | None = ..., drainage_mode: int | None = ..., mood_light_mode: int | None = ..., lcd_show_temp_type: int | None = ..., en_pet_care: bool | None = ..., temp_pet_care_warning: float | None = ..., user_temp_unit: USER_TEMP_UNIT_TYPE | str | None = ..., pet_care_warning: bool | None = ..., wave_mode_info: Wave3WaveOperatingModeParamList | _Mapping | None = ..., dev_errcode_list: Wave3DevErrcodeList | _Mapping | None = ..., pow_get_self_consume: float | None = ..., power_off_delay_set: int | None = ..., power_off_delay_remaining: int | None = ...) -> None: ...
 
 class Wave3SetTimeTaskWrite(_message.Message):
-    __slots__ = ("task_index", "is_valid", "is_cfg", "is_enable", "conflict_flag", "type", "time_mode", "time_param", "time_table")
+    __slots__ = ("conflict_flag", "is_cfg", "is_enable", "is_valid", "task_index", "time_mode", "time_param", "time_table", "type")
     TASK_INDEX_FIELD_NUMBER: _ClassVar[int]
     IS_VALID_FIELD_NUMBER: _ClassVar[int]
     IS_CFG_FIELD_NUMBER: _ClassVar[int]
@@ -485,26 +487,26 @@ class Wave3SetTimeTaskWrite(_message.Message):
     time_mode: int
     time_param: int
     time_table: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, task_index: _Optional[int] = ..., is_valid: _Optional[bool] = ..., is_cfg: _Optional[bool] = ..., is_enable: _Optional[bool] = ..., conflict_flag: _Optional[int] = ..., type: _Optional[int] = ..., time_mode: _Optional[int] = ..., time_param: _Optional[int] = ..., time_table: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, task_index: int | None = ..., is_valid: bool | None = ..., is_cfg: bool | None = ..., is_enable: bool | None = ..., conflict_flag: int | None = ..., type: int | None = ..., time_mode: int | None = ..., time_param: int | None = ..., time_table: _Iterable[int] | None = ...) -> None: ...
 
 class Wave3SetTimeTaskWriteAck(_message.Message):
-    __slots__ = ("task_index", "type", "sta")
+    __slots__ = ("sta", "task_index", "type")
     TASK_INDEX_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
     STA_FIELD_NUMBER: _ClassVar[int]
     task_index: int
     type: int
     sta: int
-    def __init__(self, task_index: _Optional[int] = ..., type: _Optional[int] = ..., sta: _Optional[int] = ...) -> None: ...
+    def __init__(self, task_index: int | None = ..., type: int | None = ..., sta: int | None = ...) -> None: ...
 
 class Wave3GetAllTimeTaskReadck(_message.Message):
     __slots__ = ("time_task",)
     TIME_TASK_FIELD_NUMBER: _ClassVar[int]
     time_task: _containers.RepeatedCompositeFieldContainer[Wave3SetTimeTaskWrite]
-    def __init__(self, time_task: _Optional[_Iterable[_Union[Wave3SetTimeTaskWrite, _Mapping]]] = ...) -> None: ...
+    def __init__(self, time_task: _Iterable[Wave3SetTimeTaskWrite | _Mapping] | None = ...) -> None: ...
 
 class Wave3CfgBmsPushWrite(_message.Message):
-    __slots__ = ("bms_heartbeap_open", "bms_health_open", "bms_heartbeap_freq", "bms_health_freq")
+    __slots__ = ("bms_health_freq", "bms_health_open", "bms_heartbeap_freq", "bms_heartbeap_open")
     BMS_HEARTBEAP_OPEN_FIELD_NUMBER: _ClassVar[int]
     BMS_HEALTH_OPEN_FIELD_NUMBER: _ClassVar[int]
     BMS_HEARTBEAP_FREQ_FIELD_NUMBER: _ClassVar[int]
@@ -513,18 +515,18 @@ class Wave3CfgBmsPushWrite(_message.Message):
     bms_health_open: bool
     bms_heartbeap_freq: int
     bms_health_freq: int
-    def __init__(self, bms_heartbeap_open: _Optional[bool] = ..., bms_health_open: _Optional[bool] = ..., bms_heartbeap_freq: _Optional[int] = ..., bms_health_freq: _Optional[int] = ...) -> None: ...
+    def __init__(self, bms_heartbeap_open: bool | None = ..., bms_health_open: bool | None = ..., bms_heartbeap_freq: int | None = ..., bms_health_freq: int | None = ...) -> None: ...
 
 class Wave3CfgBmsPushWriteAck(_message.Message):
-    __slots__ = ("bms_heartbeap_open", "bms_health_open")
+    __slots__ = ("bms_health_open", "bms_heartbeap_open")
     BMS_HEARTBEAP_OPEN_FIELD_NUMBER: _ClassVar[int]
     BMS_HEALTH_OPEN_FIELD_NUMBER: _ClassVar[int]
     bms_heartbeap_open: bool
     bms_health_open: bool
-    def __init__(self, bms_heartbeap_open: _Optional[bool] = ..., bms_health_open: _Optional[bool] = ...) -> None: ...
+    def __init__(self, bms_heartbeap_open: bool | None = ..., bms_health_open: bool | None = ...) -> None: ...
 
 class Wave3ConfigWrite(_message.Message):
-    __slots__ = ("cfgPowerOff", "cfg_main_power", "cfg_utc_time", "cfg_utc_timezone", "enBeep", "screenOffTime", "devStandbyTime", "lcdLight", "cmsMaxChgSoc", "cmsMinDsgSoc", "cfg_soc_cali", "cfg_bms_push", "set_time_task", "cfg_plug_in_info_ac_in_chg_pow_max", "cfg_display_property_full_upload_period", "cfg_display_property_incremental_upload_period", "cfg_runtime_property_full_upload_period", "cfg_runtime_property_incremental_upload_period", "active_display_property_full_upload", "active_runtime_property_full_upload", "cfg_plug_in_info_pv_dc_amp_max", "cfg_time_task_v2_item", "active_selected_time_task_v2", "cfg_utc_timezone_id", "cfg_utc_set_mode", "cfg_wave_operating_mode", "cfg_wave_operating_submode", "cfg_airflow_speed", "cfg_temp_set", "cfg_humi_set", "cfg_temp_thermostatic_upper_limit", "cfg_temp_thermostatic_lower_limit", "cfg_drainage_mode", "cfg_mood_light_mode", "cfg_lcd_show_temp_type", "cfg_en_pet_care", "cfg_temp_pet_care_warning", "cfg_user_temp_unit", "cfg_sys_pause", "cfg_power_off_delay_set")
+    __slots__ = ("active_display_property_full_upload", "active_runtime_property_full_upload", "active_selected_time_task_v2", "cfgPowerOff", "cfg_airflow_speed", "cfg_bms_push", "cfg_display_property_full_upload_period", "cfg_display_property_incremental_upload_period", "cfg_drainage_mode", "cfg_en_pet_care", "cfg_humi_set", "cfg_lcd_show_temp_type", "cfg_main_power", "cfg_mood_light_mode", "cfg_plug_in_info_ac_in_chg_pow_max", "cfg_plug_in_info_pv_dc_amp_max", "cfg_power_off_delay_set", "cfg_runtime_property_full_upload_period", "cfg_runtime_property_incremental_upload_period", "cfg_soc_cali", "cfg_sys_pause", "cfg_temp_pet_care_warning", "cfg_temp_set", "cfg_temp_thermostatic_lower_limit", "cfg_temp_thermostatic_upper_limit", "cfg_time_task_v2_item", "cfg_user_temp_unit", "cfg_utc_set_mode", "cfg_utc_time", "cfg_utc_timezone", "cfg_utc_timezone_id", "cfg_wave_operating_mode", "cfg_wave_operating_submode", "cmsMaxChgSoc", "cmsMinDsgSoc", "devStandbyTime", "enBeep", "lcdLight", "screenOffTime", "set_time_task")
     CFGPOWEROFF_FIELD_NUMBER: _ClassVar[int]
     CFG_MAIN_POWER_FIELD_NUMBER: _ClassVar[int]
     CFG_UTC_TIME_FIELD_NUMBER: _ClassVar[int]
@@ -605,10 +607,10 @@ class Wave3ConfigWrite(_message.Message):
     cfg_user_temp_unit: USER_TEMP_UNIT_TYPE
     cfg_sys_pause: bool
     cfg_power_off_delay_set: int
-    def __init__(self, cfgPowerOff: _Optional[int] = ..., cfg_main_power: _Optional[bool] = ..., cfg_utc_time: _Optional[int] = ..., cfg_utc_timezone: _Optional[int] = ..., enBeep: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., cfg_soc_cali: _Optional[int] = ..., cfg_bms_push: _Optional[_Union[Wave3CfgBmsPushWrite, _Mapping]] = ..., set_time_task: _Optional[_Union[Wave3SetTimeTaskWrite, _Mapping]] = ..., cfg_plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., cfg_display_property_full_upload_period: _Optional[int] = ..., cfg_display_property_incremental_upload_period: _Optional[int] = ..., cfg_runtime_property_full_upload_period: _Optional[int] = ..., cfg_runtime_property_incremental_upload_period: _Optional[int] = ..., active_display_property_full_upload: _Optional[bool] = ..., active_runtime_property_full_upload: _Optional[bool] = ..., cfg_plug_in_info_pv_dc_amp_max: _Optional[int] = ..., cfg_time_task_v2_item: _Optional[_Union[Wave3TimeTaskItemV2, _Mapping]] = ..., active_selected_time_task_v2: _Optional[int] = ..., cfg_utc_timezone_id: _Optional[str] = ..., cfg_utc_set_mode: _Optional[bool] = ..., cfg_wave_operating_mode: _Optional[int] = ..., cfg_wave_operating_submode: _Optional[int] = ..., cfg_airflow_speed: _Optional[int] = ..., cfg_temp_set: _Optional[float] = ..., cfg_humi_set: _Optional[float] = ..., cfg_temp_thermostatic_upper_limit: _Optional[float] = ..., cfg_temp_thermostatic_lower_limit: _Optional[float] = ..., cfg_drainage_mode: _Optional[int] = ..., cfg_mood_light_mode: _Optional[int] = ..., cfg_lcd_show_temp_type: _Optional[int] = ..., cfg_en_pet_care: _Optional[bool] = ..., cfg_temp_pet_care_warning: _Optional[float] = ..., cfg_user_temp_unit: _Optional[_Union[USER_TEMP_UNIT_TYPE, str]] = ..., cfg_sys_pause: _Optional[bool] = ..., cfg_power_off_delay_set: _Optional[int] = ...) -> None: ...
+    def __init__(self, cfgPowerOff: int | None = ..., cfg_main_power: bool | None = ..., cfg_utc_time: int | None = ..., cfg_utc_timezone: int | None = ..., enBeep: int | None = ..., screenOffTime: int | None = ..., devStandbyTime: int | None = ..., lcdLight: int | None = ..., cmsMaxChgSoc: int | None = ..., cmsMinDsgSoc: int | None = ..., cfg_soc_cali: int | None = ..., cfg_bms_push: Wave3CfgBmsPushWrite | _Mapping | None = ..., set_time_task: Wave3SetTimeTaskWrite | _Mapping | None = ..., cfg_plug_in_info_ac_in_chg_pow_max: int | None = ..., cfg_display_property_full_upload_period: int | None = ..., cfg_display_property_incremental_upload_period: int | None = ..., cfg_runtime_property_full_upload_period: int | None = ..., cfg_runtime_property_incremental_upload_period: int | None = ..., active_display_property_full_upload: bool | None = ..., active_runtime_property_full_upload: bool | None = ..., cfg_plug_in_info_pv_dc_amp_max: int | None = ..., cfg_time_task_v2_item: Wave3TimeTaskItemV2 | _Mapping | None = ..., active_selected_time_task_v2: int | None = ..., cfg_utc_timezone_id: str | None = ..., cfg_utc_set_mode: bool | None = ..., cfg_wave_operating_mode: int | None = ..., cfg_wave_operating_submode: int | None = ..., cfg_airflow_speed: int | None = ..., cfg_temp_set: float | None = ..., cfg_humi_set: float | None = ..., cfg_temp_thermostatic_upper_limit: float | None = ..., cfg_temp_thermostatic_lower_limit: float | None = ..., cfg_drainage_mode: int | None = ..., cfg_mood_light_mode: int | None = ..., cfg_lcd_show_temp_type: int | None = ..., cfg_en_pet_care: bool | None = ..., cfg_temp_pet_care_warning: float | None = ..., cfg_user_temp_unit: USER_TEMP_UNIT_TYPE | str | None = ..., cfg_sys_pause: bool | None = ..., cfg_power_off_delay_set: int | None = ...) -> None: ...
 
 class Wave3ConfigWriteAck(_message.Message):
-    __slots__ = ("actionId", "configOk", "cfgPowerOff", "cfg_main_power", "cfg_utc_time", "cfg_utc_timezone", "enBeep", "screenOffTime", "devStandbyTime", "lcdLight", "cmsMaxChgSoc", "cmsMinDsgSoc", "cfg_soc_cali", "cfg_bms_push", "set_time_task", "cfg_plug_in_info_ac_in_chg_pow_max", "cfg_display_property_full_upload_period", "cfg_display_property_incremental_upload_period", "cfg_runtime_property_full_upload_period", "cfg_runtime_property_incremental_upload_period", "active_display_property_full_upload", "active_runtime_property_full_upload", "cfg_plug_in_info_pv_dc_amp_max", "cfg_time_task_v2_item", "active_selected_time_task_v2", "cfg_utc_timezone_id", "cfg_utc_set_mode", "cfg_wave_operating_mode", "cfg_wave_operating_submode", "cfg_airflow_speed", "cfg_temp_set", "cfg_humi_set", "cfg_temp_thermostatic_upper_limit", "cfg_temp_thermostatic_lower_limit", "cfg_drainage_mode", "cfg_mood_light_mode", "cfg_lcd_show_temp_type", "cfg_en_pet_care", "cfg_temp_pet_care_warning", "cfg_user_temp_unit", "cfg_sys_pause", "cfg_power_off_delay_set")
+    __slots__ = ("actionId", "active_display_property_full_upload", "active_runtime_property_full_upload", "active_selected_time_task_v2", "cfgPowerOff", "cfg_airflow_speed", "cfg_bms_push", "cfg_display_property_full_upload_period", "cfg_display_property_incremental_upload_period", "cfg_drainage_mode", "cfg_en_pet_care", "cfg_humi_set", "cfg_lcd_show_temp_type", "cfg_main_power", "cfg_mood_light_mode", "cfg_plug_in_info_ac_in_chg_pow_max", "cfg_plug_in_info_pv_dc_amp_max", "cfg_power_off_delay_set", "cfg_runtime_property_full_upload_period", "cfg_runtime_property_incremental_upload_period", "cfg_soc_cali", "cfg_sys_pause", "cfg_temp_pet_care_warning", "cfg_temp_set", "cfg_temp_thermostatic_lower_limit", "cfg_temp_thermostatic_upper_limit", "cfg_time_task_v2_item", "cfg_user_temp_unit", "cfg_utc_set_mode", "cfg_utc_time", "cfg_utc_timezone", "cfg_utc_timezone_id", "cfg_wave_operating_mode", "cfg_wave_operating_submode", "cmsMaxChgSoc", "cmsMinDsgSoc", "configOk", "devStandbyTime", "enBeep", "lcdLight", "screenOffTime", "set_time_task")
     ACTIONID_FIELD_NUMBER: _ClassVar[int]
     CONFIGOK_FIELD_NUMBER: _ClassVar[int]
     CFGPOWEROFF_FIELD_NUMBER: _ClassVar[int]
@@ -693,16 +695,16 @@ class Wave3ConfigWriteAck(_message.Message):
     cfg_user_temp_unit: USER_TEMP_UNIT_TYPE
     cfg_sys_pause: bool
     cfg_power_off_delay_set: int
-    def __init__(self, actionId: _Optional[int] = ..., configOk: _Optional[bool] = ..., cfgPowerOff: _Optional[int] = ..., cfg_main_power: _Optional[bool] = ..., cfg_utc_time: _Optional[int] = ..., cfg_utc_timezone: _Optional[int] = ..., enBeep: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., cfg_soc_cali: _Optional[int] = ..., cfg_bms_push: _Optional[_Union[Wave3CfgBmsPushWriteAck, _Mapping]] = ..., set_time_task: _Optional[_Union[Wave3SetTimeTaskWriteAck, _Mapping]] = ..., cfg_plug_in_info_ac_in_chg_pow_max: _Optional[int] = ..., cfg_display_property_full_upload_period: _Optional[int] = ..., cfg_display_property_incremental_upload_period: _Optional[int] = ..., cfg_runtime_property_full_upload_period: _Optional[int] = ..., cfg_runtime_property_incremental_upload_period: _Optional[int] = ..., active_display_property_full_upload: _Optional[bool] = ..., active_runtime_property_full_upload: _Optional[bool] = ..., cfg_plug_in_info_pv_dc_amp_max: _Optional[int] = ..., cfg_time_task_v2_item: _Optional[_Union[Wave3TimeTaskItemV2, _Mapping]] = ..., active_selected_time_task_v2: _Optional[int] = ..., cfg_utc_timezone_id: _Optional[str] = ..., cfg_utc_set_mode: _Optional[bool] = ..., cfg_wave_operating_mode: _Optional[int] = ..., cfg_wave_operating_submode: _Optional[int] = ..., cfg_airflow_speed: _Optional[int] = ..., cfg_temp_set: _Optional[float] = ..., cfg_humi_set: _Optional[float] = ..., cfg_temp_thermostatic_upper_limit: _Optional[float] = ..., cfg_temp_thermostatic_lower_limit: _Optional[float] = ..., cfg_drainage_mode: _Optional[int] = ..., cfg_mood_light_mode: _Optional[int] = ..., cfg_lcd_show_temp_type: _Optional[int] = ..., cfg_en_pet_care: _Optional[bool] = ..., cfg_temp_pet_care_warning: _Optional[float] = ..., cfg_user_temp_unit: _Optional[_Union[USER_TEMP_UNIT_TYPE, str]] = ..., cfg_sys_pause: _Optional[bool] = ..., cfg_power_off_delay_set: _Optional[int] = ...) -> None: ...
+    def __init__(self, actionId: int | None = ..., configOk: bool | None = ..., cfgPowerOff: int | None = ..., cfg_main_power: bool | None = ..., cfg_utc_time: int | None = ..., cfg_utc_timezone: int | None = ..., enBeep: int | None = ..., screenOffTime: int | None = ..., devStandbyTime: int | None = ..., lcdLight: int | None = ..., cmsMaxChgSoc: int | None = ..., cmsMinDsgSoc: int | None = ..., cfg_soc_cali: int | None = ..., cfg_bms_push: Wave3CfgBmsPushWriteAck | _Mapping | None = ..., set_time_task: Wave3SetTimeTaskWriteAck | _Mapping | None = ..., cfg_plug_in_info_ac_in_chg_pow_max: int | None = ..., cfg_display_property_full_upload_period: int | None = ..., cfg_display_property_incremental_upload_period: int | None = ..., cfg_runtime_property_full_upload_period: int | None = ..., cfg_runtime_property_incremental_upload_period: int | None = ..., active_display_property_full_upload: bool | None = ..., active_runtime_property_full_upload: bool | None = ..., cfg_plug_in_info_pv_dc_amp_max: int | None = ..., cfg_time_task_v2_item: Wave3TimeTaskItemV2 | _Mapping | None = ..., active_selected_time_task_v2: int | None = ..., cfg_utc_timezone_id: str | None = ..., cfg_utc_set_mode: bool | None = ..., cfg_wave_operating_mode: int | None = ..., cfg_wave_operating_submode: int | None = ..., cfg_airflow_speed: int | None = ..., cfg_temp_set: float | None = ..., cfg_humi_set: float | None = ..., cfg_temp_thermostatic_upper_limit: float | None = ..., cfg_temp_thermostatic_lower_limit: float | None = ..., cfg_drainage_mode: int | None = ..., cfg_mood_light_mode: int | None = ..., cfg_lcd_show_temp_type: int | None = ..., cfg_en_pet_care: bool | None = ..., cfg_temp_pet_care_warning: float | None = ..., cfg_user_temp_unit: USER_TEMP_UNIT_TYPE | str | None = ..., cfg_sys_pause: bool | None = ..., cfg_power_off_delay_set: int | None = ...) -> None: ...
 
 class Wave3SetMessage(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
     header: Wave3SetHeader
-    def __init__(self, header: _Optional[_Union[Wave3SetHeader, _Mapping]] = ...) -> None: ...
+    def __init__(self, header: Wave3SetHeader | _Mapping | None = ...) -> None: ...
 
 class Wave3SetHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
+    __slots__ = ("ack_type", "check_type", "cmd_func", "cmd_id", "code", "d_dest", "d_src", "data_len", "dest", "device_sn", "enc_type", "is_ack", "is_queue", "is_rw_cmd", "module_sn", "need_ack", "payload_ver", "pdata", "product_id", "seq", "src", "time_snap", "version")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
     DEST_FIELD_NUMBER: _ClassVar[int]
@@ -750,4 +752,4 @@ class Wave3SetHeader(_message.Message):
     code: str
     module_sn: str
     device_sn: str
-    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+    def __init__(self, pdata: bytes | None = ..., src: int | None = ..., dest: int | None = ..., d_src: int | None = ..., d_dest: int | None = ..., enc_type: int | None = ..., check_type: int | None = ..., cmd_func: int | None = ..., cmd_id: int | None = ..., data_len: int | None = ..., need_ack: int | None = ..., is_ack: int | None = ..., seq: int | None = ..., product_id: int | None = ..., version: int | None = ..., payload_ver: int | None = ..., time_snap: int | None = ..., is_rw_cmd: int | None = ..., is_queue: int | None = ..., ack_type: int | None = ..., code: str | None = ..., module_sn: str | None = ..., device_sn: str | None = ..., **kwargs) -> None: ...

@@ -10,26 +10,25 @@
 import logging
 from typing import Any, override
 
+from google.protobuf.json_format import MessageToDict
+from google.protobuf.message import Message as ProtoMessageRaw
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 
-from google.protobuf.json_format import MessageToDict
-from google.protobuf.message import Message as ProtoMessageRaw
-
+import custom_components.ecoflow_cloud.devices.internal.proto.smartplug_pb2 as pb2
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
-from custom_components.ecoflow_cloud.number import BrightnessLevelEntity, MaxWattsEntity
 from custom_components.ecoflow_cloud.devices.internal.proto import AddressId
-import custom_components.ecoflow_cloud.devices.internal.proto.smartplug_pb2 as pb2
+from custom_components.ecoflow_cloud.number import BrightnessLevelEntity, MaxWattsEntity
 from custom_components.ecoflow_cloud.sensor import (
     DeciwattsSensorEntity,
+    MilliampSensorEntity,
     QuotaStatusSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
-    MilliampSensorEntity
 )
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
@@ -209,7 +208,7 @@ def _read_change_switch_status(pdata: bytes) -> dict[str, Any]:
     msg = pb2.WnPlugSwitchMessage()
     msg.ParseFromString(pdata)
     return {
-        "switchSta": True if msg.switchSta else False,
+        "switchSta": bool(msg.switchSta),
     }
 
 def _read_set_brightness(pdata: bytes) -> dict[str, Any]:

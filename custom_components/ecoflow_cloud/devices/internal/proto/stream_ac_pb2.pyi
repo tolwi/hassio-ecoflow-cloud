@@ -1,12 +1,13 @@
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class StreamACHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
+    __slots__ = ("ack_type", "check_type", "cmd_func", "cmd_id", "code", "d_dest", "d_src", "data_len", "dest", "device_sn", "enc_type", "is_ack", "is_queue", "is_rw_cmd", "module_sn", "need_ack", "payload_ver", "pdata", "product_id", "seq", "src", "time_snap", "version")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
     DEST_FIELD_NUMBER: _ClassVar[int]
@@ -54,22 +55,22 @@ class StreamACHeader(_message.Message):
     code: str
     module_sn: str
     device_sn: str
-    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+    def __init__(self, pdata: bytes | None = ..., src: int | None = ..., dest: int | None = ..., d_src: int | None = ..., d_dest: int | None = ..., enc_type: int | None = ..., check_type: int | None = ..., cmd_func: int | None = ..., cmd_id: int | None = ..., data_len: int | None = ..., need_ack: int | None = ..., is_ack: int | None = ..., seq: int | None = ..., product_id: int | None = ..., version: int | None = ..., payload_ver: int | None = ..., time_snap: int | None = ..., is_rw_cmd: int | None = ..., is_queue: int | None = ..., ack_type: int | None = ..., code: str | None = ..., module_sn: str | None = ..., device_sn: str | None = ..., **kwargs) -> None: ...
 
 class StreamACSendHeaderMsg(_message.Message):
     __slots__ = ("msg",)
     MSG_FIELD_NUMBER: _ClassVar[int]
     msg: StreamACHeader
-    def __init__(self, msg: _Optional[_Union[StreamACHeader, _Mapping]] = ...) -> None: ...
+    def __init__(self, msg: StreamACHeader | _Mapping | None = ...) -> None: ...
 
 class StreamACChamp_cmd50_4(_message.Message):
     __slots__ = ("Champ_cmd50_4_field1",)
     CHAMP_CMD50_4_FIELD1_FIELD_NUMBER: _ClassVar[int]
     Champ_cmd50_4_field1: int
-    def __init__(self, Champ_cmd50_4_field1: _Optional[int] = ...) -> None: ...
+    def __init__(self, Champ_cmd50_4_field1: int | None = ...) -> None: ...
 
 class StreamACChamp_cmd50_3(_message.Message):
-    __slots__ = ("Champ_cmd50_3_field1", "Champ_cmd50_3_field2", "Champ_cmd50_3_field3", "Champ_cmd50_3_field4", "Champ_cmd50_3_field5", "Champ_cmd50_3_field6", "Champ_cmd50_3_field7", "Champ_cmd50_3_field8", "Champ_cmd50_3_field9", "Champ_cmd50_3_field10", "Champ_cmd50_3_field11", "Champ_cmd50_3_field12", "Champ_cmd50_3_field13", "Champ_cmd50_3_field14", "Champ_cmd50_3_field15", "Champ_cmd50_3_field16", "Champ_cmd50_3_field17", "Champ_cmd50_3_field18", "Champ_cmd50_3_field19", "Champ_cmd50_3_field20", "Champ_cmd50_3_field21", "Champ_cmd50_3_field22", "Champ_cmd50_3_field23", "Champ_cmd50_3_field24", "Champ_cmd50_3_field25", "Champ_cmd50_3_field26", "Champ_cmd50_3_field27", "Champ_cmd50_3_field28", "Champ_cmd50_3_field29", "Champ_cmd50_3_field30", "Champ_cmd50_3_field31", "Champ_cmd50_3_field32", "Champ_cmd50_3_field33", "Champ_cmd50_3_field34", "Champ_cmd50_3_filed35", "version", "Champ_cmd50_3_field37", "Champ_cmd50_3_field38", "sn1", "Champ_cmd50_3_field40", "Champ_cmd50_3_field41", "Champ_cmd50_3_field42", "Champ_cmd50_3_field43", "Champ_cmd50_3_field44", "Champ_cmd50_3_field45", "Champ_cmd50_3_field46", "Champ_cmd50_3_field47", "Champ_cmd50_3_field48", "Champ_cmd50_3_field49", "Champ_cmd50_3_field50", "Champ_cmd50_3_field51", "Champ_cmd50_3_field52", "Champ_cmd50_3_field53", "Champ_cmd50_3_field54", "Champ_cmd50_3_field55", "Champ_cmd50_3_field56", "Champ_cmd50_3_field57", "Champ_cmd50_3_field58", "Champ_cmd50_3_field59", "Champ_cmd50_3_field60", "Champ_cmd50_3_field61", "Champ_cmd50_3_field65", "Champ_cmd50_3_field66", "Champ_cmd50_3_field67", "Champ_cmd50_3_field68", "Champ_cmd50_3_field69", "Champ_cmd50_3_sn", "Champ_cmd50_3_field71", "Champ_cmd50_3_field72", "Champ_cmd50_3_field73", "Champ_cmd50_3_field74", "Champ_cmd50_3_field75", "Champ_cmd50_3_field76", "Champ_cmd50_3_field77", "Champ_cmd50_3_field78", "Champ_cmd50_3_field79", "Champ_cmd50_3_field80", "sn2", "Champ_cmd50_3_field82")
+    __slots__ = ("Champ_cmd50_3_field1", "Champ_cmd50_3_field2", "Champ_cmd50_3_field3", "Champ_cmd50_3_field4", "Champ_cmd50_3_field5", "Champ_cmd50_3_field6", "Champ_cmd50_3_field7", "Champ_cmd50_3_field8", "Champ_cmd50_3_field9", "Champ_cmd50_3_field10", "Champ_cmd50_3_field11", "Champ_cmd50_3_field12", "Champ_cmd50_3_field13", "Champ_cmd50_3_field14", "Champ_cmd50_3_field15", "Champ_cmd50_3_field16", "Champ_cmd50_3_field17", "Champ_cmd50_3_field18", "Champ_cmd50_3_field19", "Champ_cmd50_3_field20", "Champ_cmd50_3_field21", "Champ_cmd50_3_field22", "Champ_cmd50_3_field23", "Champ_cmd50_3_field24", "Champ_cmd50_3_field25", "Champ_cmd50_3_field26", "Champ_cmd50_3_field27", "Champ_cmd50_3_field28", "Champ_cmd50_3_field29", "Champ_cmd50_3_field30", "Champ_cmd50_3_field31", "Champ_cmd50_3_field32", "Champ_cmd50_3_field33", "Champ_cmd50_3_field34", "Champ_cmd50_3_field37", "Champ_cmd50_3_field38", "Champ_cmd50_3_field40", "Champ_cmd50_3_field41", "Champ_cmd50_3_field42", "Champ_cmd50_3_field43", "Champ_cmd50_3_field44", "Champ_cmd50_3_field45", "Champ_cmd50_3_field46", "Champ_cmd50_3_field47", "Champ_cmd50_3_field48", "Champ_cmd50_3_field49", "Champ_cmd50_3_field50", "Champ_cmd50_3_field51", "Champ_cmd50_3_field52", "Champ_cmd50_3_field53", "Champ_cmd50_3_field54", "Champ_cmd50_3_field55", "Champ_cmd50_3_field56", "Champ_cmd50_3_field57", "Champ_cmd50_3_field58", "Champ_cmd50_3_field59", "Champ_cmd50_3_field60", "Champ_cmd50_3_field61", "Champ_cmd50_3_field65", "Champ_cmd50_3_field66", "Champ_cmd50_3_field67", "Champ_cmd50_3_field68", "Champ_cmd50_3_field69", "Champ_cmd50_3_field71", "Champ_cmd50_3_field72", "Champ_cmd50_3_field73", "Champ_cmd50_3_field74", "Champ_cmd50_3_field75", "Champ_cmd50_3_field76", "Champ_cmd50_3_field77", "Champ_cmd50_3_field78", "Champ_cmd50_3_field79", "Champ_cmd50_3_field80", "Champ_cmd50_3_field82", "Champ_cmd50_3_filed35", "Champ_cmd50_3_sn", "sn1", "sn2", "version")
     CHAMP_CMD50_3_FIELD1_FIELD_NUMBER: _ClassVar[int]
     CHAMP_CMD50_3_FIELD2_FIELD_NUMBER: _ClassVar[int]
     CHAMP_CMD50_3_FIELD3_FIELD_NUMBER: _ClassVar[int]
@@ -228,10 +229,10 @@ class StreamACChamp_cmd50_3(_message.Message):
     Champ_cmd50_3_field80: int
     sn2: str
     Champ_cmd50_3_field82: int
-    def __init__(self, Champ_cmd50_3_field1: _Optional[int] = ..., Champ_cmd50_3_field2: _Optional[int] = ..., Champ_cmd50_3_field3: _Optional[int] = ..., Champ_cmd50_3_field4: _Optional[int] = ..., Champ_cmd50_3_field5: _Optional[int] = ..., Champ_cmd50_3_field6: _Optional[int] = ..., Champ_cmd50_3_field7: _Optional[int] = ..., Champ_cmd50_3_field8: _Optional[int] = ..., Champ_cmd50_3_field9: _Optional[int] = ..., Champ_cmd50_3_field10: _Optional[int] = ..., Champ_cmd50_3_field11: _Optional[int] = ..., Champ_cmd50_3_field12: _Optional[int] = ..., Champ_cmd50_3_field13: _Optional[int] = ..., Champ_cmd50_3_field14: _Optional[int] = ..., Champ_cmd50_3_field15: _Optional[int] = ..., Champ_cmd50_3_field16: _Optional[int] = ..., Champ_cmd50_3_field17: _Optional[int] = ..., Champ_cmd50_3_field18: _Optional[int] = ..., Champ_cmd50_3_field19: _Optional[int] = ..., Champ_cmd50_3_field20: _Optional[int] = ..., Champ_cmd50_3_field21: _Optional[int] = ..., Champ_cmd50_3_field22: _Optional[int] = ..., Champ_cmd50_3_field23: _Optional[int] = ..., Champ_cmd50_3_field24: _Optional[int] = ..., Champ_cmd50_3_field25: _Optional[float] = ..., Champ_cmd50_3_field26: _Optional[int] = ..., Champ_cmd50_3_field27: _Optional[int] = ..., Champ_cmd50_3_field28: _Optional[int] = ..., Champ_cmd50_3_field29: _Optional[int] = ..., Champ_cmd50_3_field30: _Optional[int] = ..., Champ_cmd50_3_field31: _Optional[int] = ..., Champ_cmd50_3_field32: _Optional[int] = ..., Champ_cmd50_3_field33: _Optional[str] = ..., Champ_cmd50_3_field34: _Optional[int] = ..., Champ_cmd50_3_filed35: _Optional[_Union[StreamACChamp_cmd50_4, _Mapping]] = ..., version: _Optional[str] = ..., Champ_cmd50_3_field37: _Optional[int] = ..., Champ_cmd50_3_field38: _Optional[int] = ..., sn1: _Optional[str] = ..., Champ_cmd50_3_field40: _Optional[int] = ..., Champ_cmd50_3_field41: _Optional[int] = ..., Champ_cmd50_3_field42: _Optional[float] = ..., Champ_cmd50_3_field43: _Optional[float] = ..., Champ_cmd50_3_field44: _Optional[float] = ..., Champ_cmd50_3_field45: _Optional[int] = ..., Champ_cmd50_3_field46: _Optional[int] = ..., Champ_cmd50_3_field47: _Optional[int] = ..., Champ_cmd50_3_field48: _Optional[int] = ..., Champ_cmd50_3_field49: _Optional[int] = ..., Champ_cmd50_3_field50: _Optional[int] = ..., Champ_cmd50_3_field51: _Optional[int] = ..., Champ_cmd50_3_field52: _Optional[float] = ..., Champ_cmd50_3_field53: _Optional[float] = ..., Champ_cmd50_3_field54: _Optional[float] = ..., Champ_cmd50_3_field55: _Optional[int] = ..., Champ_cmd50_3_field56: _Optional[str] = ..., Champ_cmd50_3_field57: _Optional[int] = ..., Champ_cmd50_3_field58: _Optional[int] = ..., Champ_cmd50_3_field59: _Optional[int] = ..., Champ_cmd50_3_field60: _Optional[int] = ..., Champ_cmd50_3_field61: _Optional[int] = ..., Champ_cmd50_3_field65: _Optional[int] = ..., Champ_cmd50_3_field66: _Optional[int] = ..., Champ_cmd50_3_field67: _Optional[int] = ..., Champ_cmd50_3_field68: _Optional[int] = ..., Champ_cmd50_3_field69: _Optional[int] = ..., Champ_cmd50_3_sn: _Optional[str] = ..., Champ_cmd50_3_field71: _Optional[int] = ..., Champ_cmd50_3_field72: _Optional[int] = ..., Champ_cmd50_3_field73: _Optional[int] = ..., Champ_cmd50_3_field74: _Optional[int] = ..., Champ_cmd50_3_field75: _Optional[int] = ..., Champ_cmd50_3_field76: _Optional[int] = ..., Champ_cmd50_3_field77: _Optional[int] = ..., Champ_cmd50_3_field78: _Optional[int] = ..., Champ_cmd50_3_field79: _Optional[int] = ..., Champ_cmd50_3_field80: _Optional[int] = ..., sn2: _Optional[str] = ..., Champ_cmd50_3_field82: _Optional[int] = ...) -> None: ...
+    def __init__(self, Champ_cmd50_3_field1: int | None = ..., Champ_cmd50_3_field2: int | None = ..., Champ_cmd50_3_field3: int | None = ..., Champ_cmd50_3_field4: int | None = ..., Champ_cmd50_3_field5: int | None = ..., Champ_cmd50_3_field6: int | None = ..., Champ_cmd50_3_field7: int | None = ..., Champ_cmd50_3_field8: int | None = ..., Champ_cmd50_3_field9: int | None = ..., Champ_cmd50_3_field10: int | None = ..., Champ_cmd50_3_field11: int | None = ..., Champ_cmd50_3_field12: int | None = ..., Champ_cmd50_3_field13: int | None = ..., Champ_cmd50_3_field14: int | None = ..., Champ_cmd50_3_field15: int | None = ..., Champ_cmd50_3_field16: int | None = ..., Champ_cmd50_3_field17: int | None = ..., Champ_cmd50_3_field18: int | None = ..., Champ_cmd50_3_field19: int | None = ..., Champ_cmd50_3_field20: int | None = ..., Champ_cmd50_3_field21: int | None = ..., Champ_cmd50_3_field22: int | None = ..., Champ_cmd50_3_field23: int | None = ..., Champ_cmd50_3_field24: int | None = ..., Champ_cmd50_3_field25: float | None = ..., Champ_cmd50_3_field26: int | None = ..., Champ_cmd50_3_field27: int | None = ..., Champ_cmd50_3_field28: int | None = ..., Champ_cmd50_3_field29: int | None = ..., Champ_cmd50_3_field30: int | None = ..., Champ_cmd50_3_field31: int | None = ..., Champ_cmd50_3_field32: int | None = ..., Champ_cmd50_3_field33: str | None = ..., Champ_cmd50_3_field34: int | None = ..., Champ_cmd50_3_filed35: StreamACChamp_cmd50_4 | _Mapping | None = ..., version: str | None = ..., Champ_cmd50_3_field37: int | None = ..., Champ_cmd50_3_field38: int | None = ..., sn1: str | None = ..., Champ_cmd50_3_field40: int | None = ..., Champ_cmd50_3_field41: int | None = ..., Champ_cmd50_3_field42: float | None = ..., Champ_cmd50_3_field43: float | None = ..., Champ_cmd50_3_field44: float | None = ..., Champ_cmd50_3_field45: int | None = ..., Champ_cmd50_3_field46: int | None = ..., Champ_cmd50_3_field47: int | None = ..., Champ_cmd50_3_field48: int | None = ..., Champ_cmd50_3_field49: int | None = ..., Champ_cmd50_3_field50: int | None = ..., Champ_cmd50_3_field51: int | None = ..., Champ_cmd50_3_field52: float | None = ..., Champ_cmd50_3_field53: float | None = ..., Champ_cmd50_3_field54: float | None = ..., Champ_cmd50_3_field55: int | None = ..., Champ_cmd50_3_field56: str | None = ..., Champ_cmd50_3_field57: int | None = ..., Champ_cmd50_3_field58: int | None = ..., Champ_cmd50_3_field59: int | None = ..., Champ_cmd50_3_field60: int | None = ..., Champ_cmd50_3_field61: int | None = ..., Champ_cmd50_3_field65: int | None = ..., Champ_cmd50_3_field66: int | None = ..., Champ_cmd50_3_field67: int | None = ..., Champ_cmd50_3_field68: int | None = ..., Champ_cmd50_3_field69: int | None = ..., Champ_cmd50_3_sn: str | None = ..., Champ_cmd50_3_field71: int | None = ..., Champ_cmd50_3_field72: int | None = ..., Champ_cmd50_3_field73: int | None = ..., Champ_cmd50_3_field74: int | None = ..., Champ_cmd50_3_field75: int | None = ..., Champ_cmd50_3_field76: int | None = ..., Champ_cmd50_3_field77: int | None = ..., Champ_cmd50_3_field78: int | None = ..., Champ_cmd50_3_field79: int | None = ..., Champ_cmd50_3_field80: int | None = ..., sn2: str | None = ..., Champ_cmd50_3_field82: int | None = ...) -> None: ...
 
 class StreamACChamp_cmd50_2(_message.Message):
-    __slots__ = ("Champ_cmd50_2champ3", "Champ_cmd50_2_field1", "Champ_cmd50_2_field2", "Champ_cmd50_2_field3", "Champ_cmd50_2_field4", "Champ_cmd50_2_field5", "Champ_cmd50_2_field6", "Champ_cmd50_2_field7", "Champ_cmd50_2_field8", "Champ_cmd50_2_field9")
+    __slots__ = ("Champ_cmd50_2_field1", "Champ_cmd50_2_field2", "Champ_cmd50_2_field3", "Champ_cmd50_2_field4", "Champ_cmd50_2_field5", "Champ_cmd50_2_field6", "Champ_cmd50_2_field7", "Champ_cmd50_2_field8", "Champ_cmd50_2_field9", "Champ_cmd50_2champ3")
     CHAMP_CMD50_2CHAMP3_FIELD_NUMBER: _ClassVar[int]
     CHAMP_CMD50_2_FIELD1_FIELD_NUMBER: _ClassVar[int]
     CHAMP_CMD50_2_FIELD2_FIELD_NUMBER: _ClassVar[int]
@@ -252,16 +253,16 @@ class StreamACChamp_cmd50_2(_message.Message):
     Champ_cmd50_2_field7: int
     Champ_cmd50_2_field8: int
     Champ_cmd50_2_field9: int
-    def __init__(self, Champ_cmd50_2champ3: _Optional[_Union[StreamACChamp_cmd50_3, _Mapping]] = ..., Champ_cmd50_2_field1: _Optional[bytes] = ..., Champ_cmd50_2_field2: _Optional[int] = ..., Champ_cmd50_2_field3: _Optional[int] = ..., Champ_cmd50_2_field4: _Optional[int] = ..., Champ_cmd50_2_field5: _Optional[int] = ..., Champ_cmd50_2_field6: _Optional[int] = ..., Champ_cmd50_2_field7: _Optional[int] = ..., Champ_cmd50_2_field8: _Optional[int] = ..., Champ_cmd50_2_field9: _Optional[int] = ...) -> None: ...
+    def __init__(self, Champ_cmd50_2champ3: StreamACChamp_cmd50_3 | _Mapping | None = ..., Champ_cmd50_2_field1: bytes | None = ..., Champ_cmd50_2_field2: int | None = ..., Champ_cmd50_2_field3: int | None = ..., Champ_cmd50_2_field4: int | None = ..., Champ_cmd50_2_field5: int | None = ..., Champ_cmd50_2_field6: int | None = ..., Champ_cmd50_2_field7: int | None = ..., Champ_cmd50_2_field8: int | None = ..., Champ_cmd50_2_field9: int | None = ...) -> None: ...
 
 class StreamACChamp_cmd50(_message.Message):
     __slots__ = ("Champ_cmd50_champ2",)
     CHAMP_CMD50_CHAMP2_FIELD_NUMBER: _ClassVar[int]
     Champ_cmd50_champ2: StreamACChamp_cmd50_2
-    def __init__(self, Champ_cmd50_champ2: _Optional[_Union[StreamACChamp_cmd50_2, _Mapping]] = ...) -> None: ...
+    def __init__(self, Champ_cmd50_champ2: StreamACChamp_cmd50_2 | _Mapping | None = ...) -> None: ...
 
 class StreamACCloudMeter(_message.Message):
-    __slots__ = ("Champ_cmd21_4_field1", "Champ_cmd21_4_field2", "sn_metter", "Champ_cmd21_4_field4")
+    __slots__ = ("Champ_cmd21_4_field1", "Champ_cmd21_4_field2", "Champ_cmd21_4_field4", "sn_metter")
     CHAMP_CMD21_4_FIELD1_FIELD_NUMBER: _ClassVar[int]
     CHAMP_CMD21_4_FIELD2_FIELD_NUMBER: _ClassVar[int]
     SN_METTER_FIELD_NUMBER: _ClassVar[int]
@@ -270,10 +271,10 @@ class StreamACCloudMeter(_message.Message):
     Champ_cmd21_4_field2: int
     sn_metter: str
     Champ_cmd21_4_field4: int
-    def __init__(self, Champ_cmd21_4_field1: _Optional[int] = ..., Champ_cmd21_4_field2: _Optional[int] = ..., sn_metter: _Optional[str] = ..., Champ_cmd21_4_field4: _Optional[int] = ...) -> None: ...
+    def __init__(self, Champ_cmd21_4_field1: int | None = ..., Champ_cmd21_4_field2: int | None = ..., sn_metter: str | None = ..., Champ_cmd21_4_field4: int | None = ...) -> None: ...
 
 class StreamACChamp_cmd21_3(_message.Message):
-    __slots__ = ("Champ_cmd21_3_field282", "Champ_cmd21_3_field460", "powGetSysGrid", "powGetSysLoad", "powGetPvSum", "powGetBpCms", "Champ_cmd21_3_field602", "gridConnectionPower", "cloudMetter", "sysGridConnectionPower", "powGetSysLoadFromBp", "powGetSysLoadFromGrid", "powGetSchuko1")
+    __slots__ = ("Champ_cmd21_3_field282", "Champ_cmd21_3_field460", "Champ_cmd21_3_field602", "cloudMetter", "gridConnectionPower", "powGetBpCms", "powGetPvSum", "powGetSchuko1", "powGetSysGrid", "powGetSysLoad", "powGetSysLoadFromBp", "powGetSysLoadFromGrid", "sysGridConnectionPower")
     CHAMP_CMD21_3_FIELD282_FIELD_NUMBER: _ClassVar[int]
     CHAMP_CMD21_3_FIELD460_FIELD_NUMBER: _ClassVar[int]
     POWGETSYSGRID_FIELD_NUMBER: _ClassVar[int]
@@ -300,7 +301,7 @@ class StreamACChamp_cmd21_3(_message.Message):
     powGetSysLoadFromBp: float
     powGetSysLoadFromGrid: float
     powGetSchuko1: float
-    def __init__(self, Champ_cmd21_3_field282: _Optional[int] = ..., Champ_cmd21_3_field460: _Optional[int] = ..., powGetSysGrid: _Optional[float] = ..., powGetSysLoad: _Optional[float] = ..., powGetPvSum: _Optional[float] = ..., powGetBpCms: _Optional[float] = ..., Champ_cmd21_3_field602: _Optional[float] = ..., gridConnectionPower: _Optional[float] = ..., cloudMetter: _Optional[_Union[StreamACCloudMeter, _Mapping]] = ..., sysGridConnectionPower: _Optional[float] = ..., powGetSysLoadFromBp: _Optional[float] = ..., powGetSysLoadFromGrid: _Optional[float] = ..., powGetSchuko1: _Optional[float] = ...) -> None: ...
+    def __init__(self, Champ_cmd21_3_field282: int | None = ..., Champ_cmd21_3_field460: int | None = ..., powGetSysGrid: float | None = ..., powGetSysLoad: float | None = ..., powGetPvSum: float | None = ..., powGetBpCms: float | None = ..., Champ_cmd21_3_field602: float | None = ..., gridConnectionPower: float | None = ..., cloudMetter: StreamACCloudMeter | _Mapping | None = ..., sysGridConnectionPower: float | None = ..., powGetSysLoadFromBp: float | None = ..., powGetSysLoadFromGrid: float | None = ..., powGetSchuko1: float | None = ...) -> None: ...
 
 class StreamACChamp_cmd21_2(_message.Message):
     __slots__ = ("Champ_cmd21_2_champ_cmd21_3", "Champ_cmd21_2_field2", "Champ_cmd21_2_field3", "Champ_cmd21_2_field4", "Champ_cmd21_2_field5", "Champ_cmd21_2_field8", "Champ_cmd21_2_field9", "Champ_cmd21_2_field10", "Champ_cmd21_2_field11", "Champ_cmd21_2_field16", "Champ_cmd21_2_field17")
@@ -326,10 +327,10 @@ class StreamACChamp_cmd21_2(_message.Message):
     Champ_cmd21_2_field11: int
     Champ_cmd21_2_field16: int
     Champ_cmd21_2_field17: int
-    def __init__(self, Champ_cmd21_2_champ_cmd21_3: _Optional[_Union[StreamACChamp_cmd21_3, _Mapping]] = ..., Champ_cmd21_2_field2: _Optional[int] = ..., Champ_cmd21_2_field3: _Optional[int] = ..., Champ_cmd21_2_field4: _Optional[int] = ..., Champ_cmd21_2_field5: _Optional[int] = ..., Champ_cmd21_2_field8: _Optional[int] = ..., Champ_cmd21_2_field9: _Optional[int] = ..., Champ_cmd21_2_field10: _Optional[int] = ..., Champ_cmd21_2_field11: _Optional[int] = ..., Champ_cmd21_2_field16: _Optional[int] = ..., Champ_cmd21_2_field17: _Optional[int] = ...) -> None: ...
+    def __init__(self, Champ_cmd21_2_champ_cmd21_3: StreamACChamp_cmd21_3 | _Mapping | None = ..., Champ_cmd21_2_field2: int | None = ..., Champ_cmd21_2_field3: int | None = ..., Champ_cmd21_2_field4: int | None = ..., Champ_cmd21_2_field5: int | None = ..., Champ_cmd21_2_field8: int | None = ..., Champ_cmd21_2_field9: int | None = ..., Champ_cmd21_2_field10: int | None = ..., Champ_cmd21_2_field11: int | None = ..., Champ_cmd21_2_field16: int | None = ..., Champ_cmd21_2_field17: int | None = ...) -> None: ...
 
 class StreamACChamp_cmd21(_message.Message):
     __slots__ = ("Champ_cmd21_champ_cmd21_2",)
     CHAMP_CMD21_CHAMP_CMD21_2_FIELD_NUMBER: _ClassVar[int]
     Champ_cmd21_champ_cmd21_2: StreamACChamp_cmd21_2
-    def __init__(self, Champ_cmd21_champ_cmd21_2: _Optional[_Union[StreamACChamp_cmd21_2, _Mapping]] = ...) -> None: ...
+    def __init__(self, Champ_cmd21_champ_cmd21_2: StreamACChamp_cmd21_2 | _Mapping | None = ...) -> None: ...

@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
@@ -90,7 +91,7 @@ class BitMaskEnableEntity(EnabledEntity):
         self._attr_unique_id = self._gen_unique_id(self._device.device_data.sn, switchKey)
 
     def _update_value(self, val: Any) -> bool:
-        self.bitmask = ("{0:06b}".format(val))[::-1]
+        self.bitmask = (f"{val:06b}")[::-1]
         self._attr_is_on = bool(int(self.bitmask[self.switchNumber - 1]))
         _LOGGER.debug(
             "Updating switch " + str(self._attr_unique_id) + " with value " + str(val) + " to " + str(self._attr_is_on)
@@ -103,7 +104,7 @@ class BitMaskEnableEntity(EnabledEntity):
 
     def turn_off(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_set_message(0, self.command_dict((self.switchNumber - 1)))
+            self.send_set_message(0, self.command_dict(self.switchNumber - 1))
 
 
 class PowerKit(BaseDevice):
