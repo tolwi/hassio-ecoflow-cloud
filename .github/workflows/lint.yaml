@@ -20,3 +20,12 @@ jobs:
 
       - name: Lint
         run: mise run lint
+
+      - name: Deferred lint rules (advisory)
+        run: |
+          {
+            echo '### Deferred ruff rules'
+            echo '```'
+            mise run --quiet lint:debt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
