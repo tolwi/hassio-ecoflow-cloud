@@ -311,6 +311,7 @@ class StreamAC(BaseDevice):
             .attr("minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
+            self._status_sensor(client),
         ]
 
     # moduleWifiRssi
@@ -444,4 +445,13 @@ class StreamAC(BaseDevice):
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return StatusSensorEntity(client, self)
+        # Plain StatusSensorEntity on purpose -- polling cannot help here, see
+        # the class docstring. What this entity does provide is the stale-data
+        # watchdog in StatusSensorEntity._handle_coordinator_update, and that
+        # is the only thing that recovers a STREAM device.
+        #
+        # stall_sec=90: a healthy STREAM reports several times per minute, so a
+        # minute and a half of silence is unambiguous. Waiting out the 300s
+        # assume_offline_sec default would leave the entities frozen five
+        # minutes after every app contact for no diagnostic gain.
+        return StatusSensorEntity(client, self, stall_sec=90)

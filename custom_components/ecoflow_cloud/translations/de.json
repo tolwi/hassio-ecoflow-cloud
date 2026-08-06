@@ -70,7 +70,8 @@
                     "refresh_period_sec": "Datenaktualisierungsperiode (Sek.)",
                     "diagnostic_mode": "Diagnosemodus",
                     "assume_offline_sec": "Zeit bis zur Offline-Annahme (Sek.)",
-                    "verbose_status_mode": "Detaillierter Statusmodus"
+                    "verbose_status_mode": "Detaillierter Statusmodus",
+                    "stall_sec": "Zeit bis Datenstrom als abgerissen gilt (Sek., 0 = automatisch)"
                 }
             }
         }

@@ -43,7 +43,7 @@ class StreamMicroinveter(BaseDevice):
             InAmpSensorEntity(client, self, "plugInInfoPv2Amp", const.STREAM_IN_AMPS_PV_2, False, True),
             CelsiusSensorEntity(client, self, "invNtcTemp3", "Inverter NTC Temperature"),
             FrequencySensorEntity(client, self, "gridConnectionFreq", "Grid Frequency"),
-            StatusSensorEntity(client, self),
+            self._status_sensor(client),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
@@ -61,4 +61,5 @@ class StreamMicroinveter(BaseDevice):
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return StatusSensorEntity(client, self)
+        # Same cloud-side stall behaviour and reporting cadence as StreamAC.
+        return StatusSensorEntity(client, self, stall_sec=90)

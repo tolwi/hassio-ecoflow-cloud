@@ -10,6 +10,7 @@ class DeviceOptions:
     diagnostic_mode: bool
     verbose_status_mode: bool
     assume_offline_sec: int
+    stall_sec: int = 0
 
 
 @dataclasses.dataclass

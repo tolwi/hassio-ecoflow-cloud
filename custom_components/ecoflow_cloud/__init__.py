@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 import logging
@@ -59,12 +60,26 @@ OPTS_DIAGNOSTIC_MODE: Final = "diagnostic_mode"
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
 OPTS_ASSUME_OFFLINE_SEC: Final = "assume_offline_sec"
+OPTS_STALL_SEC: Final = "stall_sec"
 OPTS_VERBOSE_STATUS_MODE: Final = "verbose_status_mode"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 5
 DEFAULT_ASSUME_OFFLINE_SEC: Final = 300  # 5 minutes
+# 0 = automatic: each device class picks its own stall threshold, falling
+# back to assume_offline_sec. A global non-zero default would be wrong for
+# classes that legitimately report only every few minutes.
+DEFAULT_STALL_SEC: Final = 0
 
 _STATUS_COORDINATOR_KEY = "__status_coordinator"
+
+# Config entry keys that must never reach the log. Debug logs are routinely
+# attached to public bug reports, and this data was logged at INFO level.
+_SENSITIVE_KEYS: Final = frozenset({CONF_ACCESS_KEY, CONF_SECRET_KEY, CONF_USERNAME, CONF_PASSWORD})
+
+
+def _redact(data: Mapping[str, Any]) -> dict[str, Any]:
+    """Return a copy of a config entry mapping with credentials masked."""
+    return {k: "**REDACTED**" if k in _SENSITIVE_KEYS else v for k, v in data.items()}
 
 
 def _migrate_entity_unique_id(
@@ -189,6 +204,8 @@ def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_DIAGNOSTIC_MODE],
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_VERBOSE_STATUS_MODE],
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_ASSUME_OFFLINE_SEC],
+                # .get() so existing entries need no migration
+                entry.options[CONF_DEVICE_LIST][sn].get(OPTS_STALL_SEC, DEFAULT_STALL_SEC),
             ),
             None,
             None,
@@ -205,7 +222,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if entry.version != CONFIG_VERSION:
         return False
 
-    _LOGGER.info("Setup entry %s (data = %s)", str(entry), str(entry.data))
+    _LOGGER.info("Setup entry %s (data = %s)", str(entry), _redact(entry.data))
     api_client: EcoflowApiClient
     if ECOFLOW_DOMAIN not in hass.data:
         hass.data[ECOFLOW_DOMAIN] = {}
