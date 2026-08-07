@@ -5,6 +5,16 @@ uv = "latest"
 [env]
 _.python.venv = { path = ".venv", create = true }
 
+# Deferred, not accepted: ruff 0.16 defaults the codebase does not satisfy yet.
+# `mise run lint` skips them, `mise run lint:debt` counts them. Delete a code
+# once its violations are fixed and it becomes enforced.
+RUFF_DEFERRED = """\
+UP045,UP007,UP006,UP009,UP030,UP032,UP034,UP035,UP049,\
+RUF010,RUF012,RUF023,RUF046,RUF059,RUF100,\
+BLE001,I001,S110,DTZ005,G201,\
+PERF102,PERF402,SIM102,SIM210,TRY401,\
+C402,C408,PIE790,PLC0414,PLE1206,PYI041,PYI063"""
+
 [hooks]
 postinstall = "uv sync"
 
@@ -17,9 +27,15 @@ description = "Lint code"
 depends = ["sync"]
 dir = "custom_components"
 run = """
-uv run ruff check .
+uv run ruff check --ignore "$RUFF_DEFERRED" .
 uv run mypy .
 """
+
+[tasks."lint:debt"]
+description = "Report the deferred ruff rules (warnings only, never fails)"
+depends = ["sync"]
+dir = "custom_components"
+run = "uv run ruff check --exit-zero --statistics ."
 
 [tasks.protoc]
 tools.protoc = "32.0"

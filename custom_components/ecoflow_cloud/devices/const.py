@@ -19,6 +19,19 @@ SCREEN_TIMEOUT_OPTIONS = {
     "30 min": 1800,
 }
 
+ENERGY_STRATEGY_OPTIONS = {
+    "Standard": 0,
+    "Self-Powered": 1,
+    "Scheduled": 2,
+    "TOU": 3,
+}
+
+AC_CHARGE_MODE_OPTIONS = {
+    "Auto": 1,
+    "Silent": 2,
+    "Custom": 0,
+}
+
 UNIT_TIMEOUT_OPTIONS = {
     "Never": 0,
     "30 min": 30,
@@ -234,12 +247,15 @@ SLAVE_N_BATTERY_LEVEL_SOC = "Slave %i Battery level SOC"
 MAX_CHARGE_LEVEL = "Max Charge Level"
 MIN_DISCHARGE_LEVEL = "Min Discharge Level"
 BACKUP_RESERVE_LEVEL = "Backup Reserve Level"
+BACKUP_RESERVE_SOC = "Backup Reserve SOC"
 AC_CHARGING_POWER = "AC Charging Power"
 SCREEN_TIMEOUT = "Screen Timeout"
 UNIT_TIMEOUT = "Unit Timeout"
 AC_TIMEOUT = "AC Timeout"
 DC_TIMEOUT = "DC (12V) Timeout"
 DC_CHARGE_CURRENT = "DC (12V) Charge Current"
+ENERGY_STRATEGY = "Energy Strategy"
+AC_CHARGE_MODE = "AC Charging Mode"
 GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
 GEN_BAT_CHARGING_POWER = "Generator Battery Charging Power"
@@ -441,6 +457,7 @@ BATTERY_N_IN_POWER = "Battery %i Input Power"
 BATTERY_N_OUT_POWER = "Battery %i Output Power"
 BATTERY_N_CURRENT = "Battery %i Current"
 CIRCUIT_N_CURRENT = "Circuit %i Current"
+BREAKER_N_POWER = "Breaker %i Power"
 
 #Smart Home Panel 2
 

@@ -44,8 +44,11 @@ class EcoflowMQTTClient:
         _LOGGER.info(
             f"Connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port} with client id {self.__mqtt_info.client_id} and username {self.__mqtt_info.username}"
         )
-        self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, keepalive=15)
-        self.__client.loop_start()
+        try:
+            self.__client.connect(self.__mqtt_info.url, self.__mqtt_info.port, keepalive=15)
+            self.__client.loop_start()
+        except TimeoutError:
+            _LOGGER.exception("Initial EcoFlow MQTT connection timed out; entities will retry reconnect from status updates")
 
     def is_connected(self):
         return self.__client.is_connected()

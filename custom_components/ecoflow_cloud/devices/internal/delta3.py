@@ -234,6 +234,65 @@ def _create_delta3_energy_backup_command(energy_backup_en: int | None, energy_ba
     return Delta3CommandMessage(payload, packet)
 
 
+def _create_delta3_energy_strategy_command(mode: int, device_sn: str) -> "Delta3CommandMessage":
+    """Create a protobuf command that selects the energy strategy mode.
+
+    mode: 0 = standard (no strategy, grid passthrough), 1 = self-powered,
+    2 = scheduled, 3 = TOU. The firmware treats the three flags as
+    mutually exclusive, so all three are written explicitly on every
+    change to switch the previously active strategy off in the same
+    command.
+    """
+    payload = delta3_pb2.Delta3SetCommand()
+    payload.energy_strategy_operate_mode.operate_self_powered_open = 1 if mode == 1 else 0
+    payload.energy_strategy_operate_mode.operate_scheduled_open = 1 if mode == 2 else 0
+    payload.energy_strategy_operate_mode.operate_tou_mode_open = 1 if mode == 3 else 0
+
+    pdata = payload.SerializeToString()
+
+    packet = delta3_pb2.Delta3SendHeaderMsg()
+    message = packet.msg.add()
+
+    message.src = 32
+    message.dest = 2
+    message.d_src = 1
+    message.d_dest = 1
+    message.cmd_func = 254
+    message.cmd_id = 17
+    message.need_ack = 1
+    message.seq = int(time.time() * 1000) % 2147483647
+    message.product_id = 1
+    message.version = 19
+    message.payload_ver = 1
+    message.device_sn = device_sn
+    message.data_len = len(pdata)
+    message.pdata = pdata
+
+    return Delta3CommandMessage(payload, packet)
+
+
+def _derive_energy_strategy_mode(result: dict[str, Any]) -> None:
+    """Collapse the nested energy strategy flags into one scalar key.
+
+    The device reports the active strategy as three mutually exclusive
+    booleans nested under ``energy_strategy_operate_mode``; a select
+    entity needs a single value, so ``energy_strategy_mode`` is set to
+    0 = standard, 1 = self-powered, 2 = scheduled, 3 = TOU. A message
+    with all flags absent or zero means no strategy is active.
+    """
+    strategy = result.get("energy_strategy_operate_mode")
+    if not isinstance(strategy, dict):
+        return
+    if strategy.get("operate_tou_mode_open") == 1:
+        result["energy_strategy_mode"] = 3
+    elif strategy.get("operate_scheduled_open") == 1:
+        result["energy_strategy_mode"] = 2
+    elif strategy.get("operate_self_powered_open") == 1:
+        result["energy_strategy_mode"] = 1
+    else:
+        result["energy_strategy_mode"] = 0
+
+
 BMS_HEARTBEAT_COMMANDS: set[tuple[int, int]] = {
     (3, 1),
     (3, 2),
@@ -374,6 +433,23 @@ class Delta3(BaseInternalDevice):
                 5,
                 lambda value: _create_delta3_energy_backup_command(1, int(value), device.device_data.sn),
             ),
+            BatteryBackupLevel(
+                client,
+                self,
+                "backup_reverse_soc",
+                const.BACKUP_RESERVE_SOC,
+                5,
+                100,
+                "cms_min_dsg_soc",
+                "cms_max_chg_soc",
+                5,
+                # backup_reverse_soc is the operating-mode partition floor
+                # shown as "Backup reserve" in the app energy strategy
+                # screen; distinct from the legacy energy_backup_* pair.
+                lambda value: _create_delta3_proto_command(
+                    "backup_reverse_soc", int(value), device.device_data.sn
+                ),
+            ),
         ]
 
     @override
@@ -388,6 +464,10 @@ class Delta3(BaseInternalDevice):
                 lambda value: _create_delta3_proto_command(
                     "en_beep", 1 if value else 0, device.device_data.sn, data_len=2
                 ),
+                # en_beep is 1 = beeper enabled, unlike the legacy quiet-mode
+                # keys (beepState) that BeeperEntity inverts by default
+                enableValue=1,
+                disableValue=0,
             ),
             EnabledEntity(
                 client,
@@ -471,6 +551,28 @@ class Delta3(BaseInternalDevice):
                 dc_charge_current_options,
                 lambda value: _create_delta3_proto_command(
                     "plug_in_info_pv_dc_amp_max", int(value), device.device_data.sn
+                ),
+            ),
+            DictSelectEntity(
+                client,
+                self,
+                "energy_strategy_mode",
+                const.ENERGY_STRATEGY,
+                const.ENERGY_STRATEGY_OPTIONS,
+                lambda value: _create_delta3_energy_strategy_command(int(value), device.device_data.sn),
+            ),
+            DictSelectEntity(
+                client,
+                self,
+                "plug_in_info_ac_in_chg_mode",
+                const.AC_CHARGE_MODE,
+                const.AC_CHARGE_MODE_OPTIONS,
+                # Selecting Custom (0) makes the device apply the wattage
+                # from the AC Charging Power entity (field 54); Auto (1)
+                # lets the firmware pick a battery-optimal power, Silent (2)
+                # caps it at the silence_chg_watt value.
+                lambda value: _create_delta3_proto_command(
+                    "plug_in_info_ac_in_chg_mode", int(value), device.device_data.sn
                 ),
             ),
             TimeoutDictSelectEntity(
@@ -730,6 +832,8 @@ class Delta3(BaseInternalDevice):
                         result["cfg_usb_open"] = 1
                     elif all(v == 4 for v in usb_values):
                         result["cfg_usb_open"] = 0
+
+                _derive_energy_strategy_mode(result)
                 return result
 
             elif cmd_func == 254 and cmd_id == 22:
@@ -741,7 +845,9 @@ class Delta3(BaseInternalDevice):
                 try:
                     msg_set_command = delta3_pb2.Delta3SetCommand()
                     msg_set_command.ParseFromString(pdata)
-                    return self._protobuf_to_dict(msg_set_command)
+                    result = self._protobuf_to_dict(msg_set_command)
+                    _derive_energy_strategy_mode(result)
+                    return result
                 except Exception as e:
                     _LOGGER.debug("Failed to decode as Delta3SetCommand: %s", e)
                     return {}
@@ -751,7 +857,10 @@ class Delta3(BaseInternalDevice):
                     msg_set_reply = delta3_pb2.Delta3SetReply()
                     msg_set_reply.ParseFromString(pdata)
                     result = self._protobuf_to_dict(msg_set_reply)
-                    return result if result.get("config_ok", False) else {}
+                    if not result.get("config_ok", False):
+                        return {}
+                    _derive_energy_strategy_mode(result)
+                    return result
                 except Exception as e:
                     _LOGGER.debug(f"Failed to decode as setReply_dp3: {e}")
                     return {}

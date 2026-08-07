@@ -1,0 +1,112 @@
+## SMART_HOME_PANEL_3
+
+*Sensors*
+- Battery Level (`cms_batt_soc`)
+- Home Load Power (`shp_load_pwr`) (energy:  _[Device Name]_ Home Load  Energy)
+- Grid Power (`shp_grid_pwr`) (energy:  _[Device Name]_ Grid  Energy)
+- Storage Output Power (`shp_batt_pwr`)
+- Status
+- Grid L1 Power (`shp_grid_l1_pwr`)   _(disabled)_
+- Grid L2 Power (`shp_grid_l2_pwr`)   _(disabled)_
+- Grid L1 Voltage (`shp_l1_vol`)   _(disabled)_
+- Grid L2 Voltage (`shp_l2_vol`)   _(disabled)_
+- Grid L1 Current (`shp_grid_l1_amp`)   _(disabled)_
+- Grid L2 Current (`shp_grid_l2_amp`)   _(disabled)_
+- Circuit 1 Power (`ch_1_pwr`) (energy:  _[Device Name]_ Circuit 1  Energy)
+- Circuit 1 Voltage (`ch_1_vol`)   _(disabled)_
+- Circuit 1 Current (`ch_1_amp`)   _(disabled)_
+- Circuit 2 Power (`ch_2_pwr`) (energy:  _[Device Name]_ Circuit 2  Energy)
+- Circuit 2 Voltage (`ch_2_vol`)   _(disabled)_
+- Circuit 2 Current (`ch_2_amp`)   _(disabled)_
+- Circuit 3 Power (`ch_3_pwr`) (energy:  _[Device Name]_ Circuit 3  Energy)
+- Circuit 3 Voltage (`ch_3_vol`)   _(disabled)_
+- Circuit 3 Current (`ch_3_amp`)   _(disabled)_
+- Circuit 4 Power (`ch_4_pwr`) (energy:  _[Device Name]_ Circuit 4  Energy)
+- Circuit 4 Voltage (`ch_4_vol`)   _(disabled)_
+- Circuit 4 Current (`ch_4_amp`)   _(disabled)_
+- Circuit 5 Power (`ch_5_pwr`) (energy:  _[Device Name]_ Circuit 5  Energy)
+- Circuit 5 Voltage (`ch_5_vol`)   _(disabled)_
+- Circuit 5 Current (`ch_5_amp`)   _(disabled)_
+- Circuit 6 Power (`ch_6_pwr`) (energy:  _[Device Name]_ Circuit 6  Energy)
+- Circuit 6 Voltage (`ch_6_vol`)   _(disabled)_
+- Circuit 6 Current (`ch_6_amp`)   _(disabled)_
+- Circuit 7 Power (`ch_7_pwr`) (energy:  _[Device Name]_ Circuit 7  Energy)
+- Circuit 7 Voltage (`ch_7_vol`)   _(disabled)_
+- Circuit 7 Current (`ch_7_amp`)   _(disabled)_
+- Circuit 8 Power (`ch_8_pwr`) (energy:  _[Device Name]_ Circuit 8  Energy)
+- Circuit 8 Voltage (`ch_8_vol`)   _(disabled)_
+- Circuit 8 Current (`ch_8_amp`)   _(disabled)_
+- Circuit 9 Power (`ch_9_pwr`) (energy:  _[Device Name]_ Circuit 9  Energy)
+- Circuit 9 Voltage (`ch_9_vol`)   _(disabled)_
+- Circuit 9 Current (`ch_9_amp`)   _(disabled)_
+- Circuit 10 Power (`ch_10_pwr`) (energy:  _[Device Name]_ Circuit 10  Energy)
+- Circuit 10 Voltage (`ch_10_vol`)   _(disabled)_
+- Circuit 10 Current (`ch_10_amp`)   _(disabled)_
+- Circuit 11 Power (`ch_11_pwr`) (energy:  _[Device Name]_ Circuit 11  Energy)
+- Circuit 11 Voltage (`ch_11_vol`)   _(disabled)_
+- Circuit 11 Current (`ch_11_amp`)   _(disabled)_
+- Circuit 12 Power (`ch_12_pwr`) (energy:  _[Device Name]_ Circuit 12  Energy)
+- Circuit 12 Voltage (`ch_12_vol`)   _(disabled)_
+- Circuit 12 Current (`ch_12_amp`)   _(disabled)_
+- Circuit 13 Power (`ch_13_pwr`) (energy:  _[Device Name]_ Circuit 13  Energy)
+- Circuit 13 Voltage (`ch_13_vol`)   _(disabled)_
+- Circuit 13 Current (`ch_13_amp`)   _(disabled)_
+- Circuit 14 Power (`ch_14_pwr`) (energy:  _[Device Name]_ Circuit 14  Energy)
+- Circuit 14 Voltage (`ch_14_vol`)   _(disabled)_
+- Circuit 14 Current (`ch_14_amp`)   _(disabled)_
+- Circuit 15 Power (`ch_15_pwr`) (energy:  _[Device Name]_ Circuit 15  Energy)
+- Circuit 15 Voltage (`ch_15_vol`)   _(disabled)_
+- Circuit 15 Current (`ch_15_amp`)   _(disabled)_
+- Circuit 16 Power (`ch_16_pwr`) (energy:  _[Device Name]_ Circuit 16  Energy)
+- Circuit 16 Voltage (`ch_16_vol`)   _(disabled)_
+- Circuit 16 Current (`ch_16_amp`)   _(disabled)_
+- Circuit 17 Power (`ch_17_pwr`) (energy:  _[Device Name]_ Circuit 17  Energy)
+- Circuit 17 Voltage (`ch_17_vol`)   _(disabled)_
+- Circuit 17 Current (`ch_17_amp`)   _(disabled)_
+- Circuit 18 Power (`ch_18_pwr`) (energy:  _[Device Name]_ Circuit 18  Energy)
+- Circuit 18 Voltage (`ch_18_vol`)   _(disabled)_
+- Circuit 18 Current (`ch_18_amp`)   _(disabled)_
+- Circuit 19 Power (`ch_19_pwr`) (energy:  _[Device Name]_ Circuit 19  Energy)
+- Circuit 19 Voltage (`ch_19_vol`)   _(disabled)_
+- Circuit 19 Current (`ch_19_amp`)   _(disabled)_
+- Circuit 20 Power (`ch_20_pwr`) (energy:  _[Device Name]_ Circuit 20  Energy)
+- Circuit 20 Voltage (`ch_20_vol`)   _(disabled)_
+- Circuit 20 Current (`ch_20_amp`)   _(disabled)_
+- Circuit 21 Power (`ch_21_pwr`) (energy:  _[Device Name]_ Circuit 21  Energy)
+- Circuit 21 Voltage (`ch_21_vol`)   _(disabled)_
+- Circuit 21 Current (`ch_21_amp`)   _(disabled)_
+- Circuit 22 Power (`ch_22_pwr`) (energy:  _[Device Name]_ Circuit 22  Energy)
+- Circuit 22 Voltage (`ch_22_vol`)   _(disabled)_
+- Circuit 22 Current (`ch_22_amp`)   _(disabled)_
+- Circuit 23 Power (`ch_23_pwr`) (energy:  _[Device Name]_ Circuit 23  Energy)
+- Circuit 23 Voltage (`ch_23_vol`)   _(disabled)_
+- Circuit 23 Current (`ch_23_amp`)   _(disabled)_
+- Circuit 24 Power (`ch_24_pwr`) (energy:  _[Device Name]_ Circuit 24  Energy)
+- Circuit 24 Voltage (`ch_24_vol`)   _(disabled)_
+- Circuit 24 Current (`ch_24_amp`)   _(disabled)_
+- Circuit 25 Power (`ch_25_pwr`) (energy:  _[Device Name]_ Circuit 25  Energy)
+- Circuit 25 Voltage (`ch_25_vol`)   _(disabled)_
+- Circuit 25 Current (`ch_25_amp`)   _(disabled)_
+- Circuit 26 Power (`ch_26_pwr`) (energy:  _[Device Name]_ Circuit 26  Energy)
+- Circuit 26 Voltage (`ch_26_vol`)   _(disabled)_
+- Circuit 26 Current (`ch_26_amp`)   _(disabled)_
+- Circuit 27 Power (`ch_27_pwr`) (energy:  _[Device Name]_ Circuit 27  Energy)
+- Circuit 27 Voltage (`ch_27_vol`)   _(disabled)_
+- Circuit 27 Current (`ch_27_amp`)   _(disabled)_
+- Circuit 28 Power (`ch_28_pwr`) (energy:  _[Device Name]_ Circuit 28  Energy)
+- Circuit 28 Voltage (`ch_28_vol`)   _(disabled)_
+- Circuit 28 Current (`ch_28_amp`)   _(disabled)_
+- Circuit 29 Power (`ch_29_pwr`) (energy:  _[Device Name]_ Circuit 29  Energy)
+- Circuit 29 Voltage (`ch_29_vol`)   _(disabled)_
+- Circuit 29 Current (`ch_29_amp`)   _(disabled)_
+- Circuit 30 Power (`ch_30_pwr`) (energy:  _[Device Name]_ Circuit 30  Energy)
+- Circuit 30 Voltage (`ch_30_vol`)   _(disabled)_
+- Circuit 30 Current (`ch_30_amp`)   _(disabled)_
+- Circuit 31 Power (`ch_31_pwr`) (energy:  _[Device Name]_ Circuit 31  Energy)
+- Circuit 31 Voltage (`ch_31_vol`)   _(disabled)_
+- Circuit 31 Current (`ch_31_amp`)   _(disabled)_
+- Circuit 32 Power (`ch_32_pwr`) (energy:  _[Device Name]_ Circuit 32  Energy)
+- Circuit 32 Voltage (`ch_32_vol`)   _(disabled)_
+- Circuit 32 Current (`ch_32_amp`)   _(disabled)_
+
+

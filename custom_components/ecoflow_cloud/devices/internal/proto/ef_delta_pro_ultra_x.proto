@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+// DPU X per-pack battery array (up to 10 packs). Sits at DisplayPropertyUpload
+// field 786, which ef_dp3_iobroker.proto omits — so it's parsed as a second
+// pass over the same DP3 payload rather than forking that definition.
+
+message DPUXPack {
+  optional uint32 bay = 2;     // bay index 1..10; absent on empty slots
+  optional uint32 soc = 4;     // % state of charge
+  optional float amp = 5;      // units TBD
+  optional float design = 6;   // ~6140 constant, present on every slot
+  optional int32 temp = 8;     // deg C
+}
+
+message DPUXBpInfo {
+  repeated DPUXPack packs = 1;
+}
+
+message DPUXDisplayPropertyExtra {
+  optional DPUXBpInfo bp_info = 786;
+}
