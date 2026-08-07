@@ -277,6 +277,38 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
+    # Stream AC Pro schedule write service — extends Phase E to allow
+    # arbitrary edits of the SetTimeTaskWrite at field 595, not just the
+    # enable bit. Wire format derived from the EcoFlow app capture
+    # session 2026-05-26. See docs/stream_ac_proto_fields.md.
+    if not hass.services.has_service(ECOFLOW_DOMAIN, "stream_ac_set_schedule"):
+        from homeassistant.core import ServiceCall
+
+        async def _stream_ac_set_schedule(call: ServiceCall) -> None:
+            serial = call.data["serial"]
+            for stored in hass.data.get(ECOFLOW_DOMAIN, {}).values():
+                if not isinstance(stored, EcoflowApiClient):
+                    continue
+                device = stored.devices.get(serial)
+                if device is None or not hasattr(device, "_build_proto_schedule_command"):
+                    continue
+                raw = device._build_proto_schedule_command(
+                    task_index=call.data.get("task_index", 2),
+                    enabled=call.data.get("enabled", True),
+                    is_valid=call.data.get("is_valid", True),
+                    is_repeating=call.data.get("is_repeating", False),
+                    time_mode=call.data.get("time_mode", 2),
+                    days=call.data.get("days", 0),
+                    start_min=call.data.get("start_min", 0),
+                    end_min=call.data.get("end_min", 0),
+                    power=call.data.get("power", 0),
+                )
+                stored.mqtt_client.publish(device.device_info.set_topic, raw)
+                return
+            raise ValueError(f"No Stream AC Pro device found with serial {serial}")
+
+        hass.services.async_register(ECOFLOW_DOMAIN, "stream_ac_set_schedule", _stream_ac_set_schedule)
+
     return True
 
 
