@@ -1,13 +1,13 @@
-from typing import Any
-from custom_components.ecoflow_cloud.api import EcoflowApiClient
 import logging
-from typing import Final
+from typing import Any, Final
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import entity_registry as er
+
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 from .device_data import DeviceData, DeviceOptions
@@ -248,7 +248,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         _LOGGER.warning("Failed to fetch device statuses: %s", ex)
         api_devices_map = None
 
-    for sn, device_data in devices_list.items():
+    for device_data in devices_list.values():
         device = api_client.configure_device(device_data, api_devices_map)
         device.configure(hass)
 

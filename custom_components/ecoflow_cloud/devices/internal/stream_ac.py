@@ -1,6 +1,5 @@
-from typing import override
-from typing import Any
 import logging
+from typing import Any, override
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity

@@ -5,7 +5,7 @@ from typing import Any, NamedTuple, cast, override
 
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message as ProtoMessageRaw
-from homeassistant.components.number import NumberMode, NumberEntity  # NumberMode used by _StartVoltageEntity
+from homeassistant.components.number import NumberEntity, NumberMode  # NumberMode used by _StartVoltageEntity
 from homeassistant.components.number.const import NumberDeviceClass
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
@@ -16,9 +16,9 @@ from homeassistant.util import dt
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import JSONDict, Message, PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.internal.proto import AddressId
 from custom_components.ecoflow_cloud.devices.internal.proto import ef_alternator_pb2 as alternator_pb2
-from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.entities import BaseNumberEntity
 from custom_components.ecoflow_cloud.number import ValueUpdateEntity
 from custom_components.ecoflow_cloud.select import PowerDictSelectEntity
@@ -137,7 +137,7 @@ class _StartVoltageEntity(BaseNumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         if self._command:
-            raw = int(round(value * 10))
+            raw = round(value * 10)
             self.send_set_message(raw, self.command_dict(raw))
 
 

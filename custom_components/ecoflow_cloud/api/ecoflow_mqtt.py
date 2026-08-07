@@ -63,7 +63,7 @@ class EcoflowMQTTClient:
 
     @callback
     def _on_socket_close(self, client: Client, userdata: Any, sock: Any) -> None:
-        _LOGGER.info(f"MQTT Socket disconnection : {str(sock)}")
+        _LOGGER.info(f"MQTT Socket disconnection : {sock!s}")
 
     @callback
     def _on_connect(

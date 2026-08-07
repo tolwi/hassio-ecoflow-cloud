@@ -1,13 +1,13 @@
-from typing import Any
-
-from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 import hashlib
 import hmac
 import logging
 import random
 import time
+from typing import Any
 
 import aiohttp
+
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 
 from ..devices import EcoflowDeviceInfo
 from . import EcoflowApiClient
@@ -42,7 +42,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         _LOGGER.info("Requesting all devices")
         response = await self.call_api("/device/list")
         _LOGGER.info(f"Received devices: \n {response}")
-        result = list()
+        result = []
         for device in response["data"]:
             _LOGGER.debug(str(device))
             sn = device["sn"]

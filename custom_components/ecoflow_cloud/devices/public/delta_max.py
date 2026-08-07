@@ -1,8 +1,9 @@
 from typing import Any
+
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.sensor import StatusSensorEntity
 from custom_components.ecoflow_cloud.devices.internal.delta_max import DeltaMax as InternalDeltaMax
 from custom_components.ecoflow_cloud.devices.public.data_bridge import to_plain
+from custom_components.ecoflow_cloud.sensor import StatusSensorEntity
 
 
 class DeltaMax(InternalDeltaMax):

@@ -1,9 +1,11 @@
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -26,7 +28,7 @@ PL_CMD_ID_XLOG: PlCmdId
 PL_CMD_ID_WATTH: PlCmdId
 
 class PowerStreamHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "from_", "module_sn", "device_sn")
+    __slots__ = ("ack_type", "check_type", "cmd_func", "cmd_id", "code", "d_dest", "d_src", "data_len", "dest", "device_sn", "enc_type", "from_", "is_ack", "is_queue", "is_rw_cmd", "module_sn", "need_ack", "payload_ver", "pdata", "product_id", "seq", "src", "time_snap", "version")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
     DEST_FIELD_NUMBER: _ClassVar[int]
@@ -75,16 +77,16 @@ class PowerStreamHeader(_message.Message):
     from_: str
     module_sn: str
     device_sn: str
-    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., from_: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ...) -> None: ...
+    def __init__(self, pdata: bytes | None = ..., src: int | None = ..., dest: int | None = ..., d_src: int | None = ..., d_dest: int | None = ..., enc_type: int | None = ..., check_type: int | None = ..., cmd_func: int | None = ..., cmd_id: int | None = ..., data_len: int | None = ..., need_ack: int | None = ..., is_ack: int | None = ..., seq: int | None = ..., product_id: int | None = ..., version: int | None = ..., payload_ver: int | None = ..., time_snap: int | None = ..., is_rw_cmd: int | None = ..., is_queue: int | None = ..., ack_type: int | None = ..., code: str | None = ..., from_: str | None = ..., module_sn: str | None = ..., device_sn: str | None = ...) -> None: ...
 
 class PowerStreamSendHeaderMsg(_message.Message):
     __slots__ = ("msg",)
     MSG_FIELD_NUMBER: _ClassVar[int]
     msg: _containers.RepeatedCompositeFieldContainer[PowerStreamHeader]
-    def __init__(self, msg: _Optional[_Iterable[_Union[PowerStreamHeader, _Mapping]]] = ...) -> None: ...
+    def __init__(self, msg: _Iterable[PowerStreamHeader | _Mapping] | None = ...) -> None: ...
 
 class PowerStreamInverterHeartbeat(_message.Message):
-    __slots__ = ("inv_error_code", "inv_warning_code", "pv1_error_code", "pv1_warning_code", "pv2_error_code", "pv2_warning_code", "bat_error_code", "bat_warning_code", "llc_error_code", "llc_warning_code", "pv1_statue", "pv2_statue", "bat_statue", "llc_statue", "inv_statue", "pv1_input_volt", "pv1_op_volt", "pv1_input_cur", "pv1_input_watts", "pv1_temp", "pv2_input_volt", "pv2_op_volt", "pv2_input_cur", "pv2_input_watts", "pv2_temp", "bat_input_volt", "bat_op_volt", "bat_input_cur", "bat_input_watts", "bat_temp", "bat_soc", "llc_input_volt", "llc_op_volt", "llc_temp", "inv_input_volt", "inv_op_volt", "inv_output_cur", "inv_output_watts", "inv_temp", "inv_freq", "inv_dc_cur", "bp_type", "inv_relay_status", "pv1_relay_status", "pv2_relay_status", "install_country", "install_town", "permanent_watts", "dynamic_watts", "supply_priority", "lower_limit", "upper_limit", "inv_on_off", "wireless_error_code", "wireless_warning_code", "inv_brightness", "heartbeat_frequency", "rated_power", "chg_remain_time", "dsg_remain_time", "feed_protect")
+    __slots__ = ("bat_error_code", "bat_input_cur", "bat_input_volt", "bat_input_watts", "bat_op_volt", "bat_soc", "bat_statue", "bat_temp", "bat_warning_code", "bp_type", "chg_remain_time", "dsg_remain_time", "dynamic_watts", "feed_protect", "heartbeat_frequency", "install_country", "install_town", "inv_brightness", "inv_dc_cur", "inv_error_code", "inv_freq", "inv_input_volt", "inv_on_off", "inv_op_volt", "inv_output_cur", "inv_output_watts", "inv_relay_status", "inv_statue", "inv_temp", "inv_warning_code", "llc_error_code", "llc_input_volt", "llc_op_volt", "llc_statue", "llc_temp", "llc_warning_code", "lower_limit", "permanent_watts", "pv1_error_code", "pv1_input_cur", "pv1_input_volt", "pv1_input_watts", "pv1_op_volt", "pv1_relay_status", "pv1_statue", "pv1_temp", "pv1_warning_code", "pv2_error_code", "pv2_input_cur", "pv2_input_volt", "pv2_input_watts", "pv2_op_volt", "pv2_relay_status", "pv2_statue", "pv2_temp", "pv2_warning_code", "rated_power", "supply_priority", "upper_limit", "wireless_error_code", "wireless_warning_code")
     INV_ERROR_CODE_FIELD_NUMBER: _ClassVar[int]
     INV_WARNING_CODE_FIELD_NUMBER: _ClassVar[int]
     PV1_ERROR_CODE_FIELD_NUMBER: _ClassVar[int]
@@ -207,40 +209,40 @@ class PowerStreamInverterHeartbeat(_message.Message):
     chg_remain_time: int
     dsg_remain_time: int
     feed_protect: int
-    def __init__(self, inv_error_code: _Optional[int] = ..., inv_warning_code: _Optional[int] = ..., pv1_error_code: _Optional[int] = ..., pv1_warning_code: _Optional[int] = ..., pv2_error_code: _Optional[int] = ..., pv2_warning_code: _Optional[int] = ..., bat_error_code: _Optional[int] = ..., bat_warning_code: _Optional[int] = ..., llc_error_code: _Optional[int] = ..., llc_warning_code: _Optional[int] = ..., pv1_statue: _Optional[int] = ..., pv2_statue: _Optional[int] = ..., bat_statue: _Optional[int] = ..., llc_statue: _Optional[int] = ..., inv_statue: _Optional[int] = ..., pv1_input_volt: _Optional[int] = ..., pv1_op_volt: _Optional[int] = ..., pv1_input_cur: _Optional[int] = ..., pv1_input_watts: _Optional[int] = ..., pv1_temp: _Optional[int] = ..., pv2_input_volt: _Optional[int] = ..., pv2_op_volt: _Optional[int] = ..., pv2_input_cur: _Optional[int] = ..., pv2_input_watts: _Optional[int] = ..., pv2_temp: _Optional[int] = ..., bat_input_volt: _Optional[int] = ..., bat_op_volt: _Optional[int] = ..., bat_input_cur: _Optional[int] = ..., bat_input_watts: _Optional[int] = ..., bat_temp: _Optional[int] = ..., bat_soc: _Optional[int] = ..., llc_input_volt: _Optional[int] = ..., llc_op_volt: _Optional[int] = ..., llc_temp: _Optional[int] = ..., inv_input_volt: _Optional[int] = ..., inv_op_volt: _Optional[int] = ..., inv_output_cur: _Optional[int] = ..., inv_output_watts: _Optional[int] = ..., inv_temp: _Optional[int] = ..., inv_freq: _Optional[int] = ..., inv_dc_cur: _Optional[int] = ..., bp_type: _Optional[int] = ..., inv_relay_status: _Optional[int] = ..., pv1_relay_status: _Optional[int] = ..., pv2_relay_status: _Optional[int] = ..., install_country: _Optional[int] = ..., install_town: _Optional[int] = ..., permanent_watts: _Optional[int] = ..., dynamic_watts: _Optional[int] = ..., supply_priority: _Optional[int] = ..., lower_limit: _Optional[int] = ..., upper_limit: _Optional[int] = ..., inv_on_off: _Optional[int] = ..., wireless_error_code: _Optional[int] = ..., wireless_warning_code: _Optional[int] = ..., inv_brightness: _Optional[int] = ..., heartbeat_frequency: _Optional[int] = ..., rated_power: _Optional[int] = ..., chg_remain_time: _Optional[int] = ..., dsg_remain_time: _Optional[int] = ..., feed_protect: _Optional[int] = ...) -> None: ...
+    def __init__(self, inv_error_code: int | None = ..., inv_warning_code: int | None = ..., pv1_error_code: int | None = ..., pv1_warning_code: int | None = ..., pv2_error_code: int | None = ..., pv2_warning_code: int | None = ..., bat_error_code: int | None = ..., bat_warning_code: int | None = ..., llc_error_code: int | None = ..., llc_warning_code: int | None = ..., pv1_statue: int | None = ..., pv2_statue: int | None = ..., bat_statue: int | None = ..., llc_statue: int | None = ..., inv_statue: int | None = ..., pv1_input_volt: int | None = ..., pv1_op_volt: int | None = ..., pv1_input_cur: int | None = ..., pv1_input_watts: int | None = ..., pv1_temp: int | None = ..., pv2_input_volt: int | None = ..., pv2_op_volt: int | None = ..., pv2_input_cur: int | None = ..., pv2_input_watts: int | None = ..., pv2_temp: int | None = ..., bat_input_volt: int | None = ..., bat_op_volt: int | None = ..., bat_input_cur: int | None = ..., bat_input_watts: int | None = ..., bat_temp: int | None = ..., bat_soc: int | None = ..., llc_input_volt: int | None = ..., llc_op_volt: int | None = ..., llc_temp: int | None = ..., inv_input_volt: int | None = ..., inv_op_volt: int | None = ..., inv_output_cur: int | None = ..., inv_output_watts: int | None = ..., inv_temp: int | None = ..., inv_freq: int | None = ..., inv_dc_cur: int | None = ..., bp_type: int | None = ..., inv_relay_status: int | None = ..., pv1_relay_status: int | None = ..., pv2_relay_status: int | None = ..., install_country: int | None = ..., install_town: int | None = ..., permanent_watts: int | None = ..., dynamic_watts: int | None = ..., supply_priority: int | None = ..., lower_limit: int | None = ..., upper_limit: int | None = ..., inv_on_off: int | None = ..., wireless_error_code: int | None = ..., wireless_warning_code: int | None = ..., inv_brightness: int | None = ..., heartbeat_frequency: int | None = ..., rated_power: int | None = ..., chg_remain_time: int | None = ..., dsg_remain_time: int | None = ..., feed_protect: int | None = ...) -> None: ...
 
 class PowerStreamPermanentWattsPack(_message.Message):
     __slots__ = ("permanent_watts",)
     PERMANENT_WATTS_FIELD_NUMBER: _ClassVar[int]
     permanent_watts: int
-    def __init__(self, permanent_watts: _Optional[int] = ...) -> None: ...
+    def __init__(self, permanent_watts: int | None = ...) -> None: ...
 
 class PowerStreamSupplyPriorityPack(_message.Message):
     __slots__ = ("supply_priority",)
     SUPPLY_PRIORITY_FIELD_NUMBER: _ClassVar[int]
     supply_priority: int
-    def __init__(self, supply_priority: _Optional[int] = ...) -> None: ...
+    def __init__(self, supply_priority: int | None = ...) -> None: ...
 
 class PowerStreamBatLowerPack(_message.Message):
     __slots__ = ("lower_limit",)
     LOWER_LIMIT_FIELD_NUMBER: _ClassVar[int]
     lower_limit: int
-    def __init__(self, lower_limit: _Optional[int] = ...) -> None: ...
+    def __init__(self, lower_limit: int | None = ...) -> None: ...
 
 class PowerStreamBatUpperPack(_message.Message):
     __slots__ = ("upper_limit",)
     UPPER_LIMIT_FIELD_NUMBER: _ClassVar[int]
     upper_limit: int
-    def __init__(self, upper_limit: _Optional[int] = ...) -> None: ...
+    def __init__(self, upper_limit: int | None = ...) -> None: ...
 
 class PowerStreamBrightnessPack(_message.Message):
     __slots__ = ("brightness",)
     BRIGHTNESS_FIELD_NUMBER: _ClassVar[int]
     brightness: int
-    def __init__(self, brightness: _Optional[int] = ...) -> None: ...
+    def __init__(self, brightness: int | None = ...) -> None: ...
 
 class PowerStreamPowerItem(_message.Message):
-    __slots__ = ("timestamp", "timezone", "inv_to_grid_power", "inv_to_plug_power", "battery_power", "pv1_output_power", "pv2_output_power")
+    __slots__ = ("battery_power", "inv_to_grid_power", "inv_to_plug_power", "pv1_output_power", "pv2_output_power", "timestamp", "timezone")
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     TIMEZONE_FIELD_NUMBER: _ClassVar[int]
     INV_TO_GRID_POWER_FIELD_NUMBER: _ClassVar[int]
@@ -255,32 +257,32 @@ class PowerStreamPowerItem(_message.Message):
     battery_power: int
     pv1_output_power: int
     pv2_output_power: int
-    def __init__(self, timestamp: _Optional[int] = ..., timezone: _Optional[int] = ..., inv_to_grid_power: _Optional[int] = ..., inv_to_plug_power: _Optional[int] = ..., battery_power: _Optional[int] = ..., pv1_output_power: _Optional[int] = ..., pv2_output_power: _Optional[int] = ...) -> None: ...
+    def __init__(self, timestamp: int | None = ..., timezone: int | None = ..., inv_to_grid_power: int | None = ..., inv_to_plug_power: int | None = ..., battery_power: int | None = ..., pv1_output_power: int | None = ..., pv2_output_power: int | None = ...) -> None: ...
 
 class PowerStreamPowerPack(_message.Message):
-    __slots__ = ("sys_seq", "sys_power_stream")
+    __slots__ = ("sys_power_stream", "sys_seq")
     SYS_SEQ_FIELD_NUMBER: _ClassVar[int]
     SYS_POWER_STREAM_FIELD_NUMBER: _ClassVar[int]
     sys_seq: int
     sys_power_stream: _containers.RepeatedCompositeFieldContainer[PowerStreamPowerItem]
-    def __init__(self, sys_seq: _Optional[int] = ..., sys_power_stream: _Optional[_Iterable[_Union[PowerStreamPowerItem, _Mapping]]] = ...) -> None: ...
+    def __init__(self, sys_seq: int | None = ..., sys_power_stream: _Iterable[PowerStreamPowerItem | _Mapping] | None = ...) -> None: ...
 
 class PowerStreamPowerAckPack(_message.Message):
     __slots__ = ("sys_seq",)
     SYS_SEQ_FIELD_NUMBER: _ClassVar[int]
     sys_seq: int
-    def __init__(self, sys_seq: _Optional[int] = ...) -> None: ...
+    def __init__(self, sys_seq: int | None = ...) -> None: ...
 
 class PowerStreamNodeMessage(_message.Message):
-    __slots__ = ("sn", "mac")
+    __slots__ = ("mac", "sn")
     SN_FIELD_NUMBER: _ClassVar[int]
     MAC_FIELD_NUMBER: _ClassVar[int]
     sn: str
     mac: bytes
-    def __init__(self, sn: _Optional[str] = ..., mac: _Optional[bytes] = ...) -> None: ...
+    def __init__(self, sn: str | None = ..., mac: bytes | None = ...) -> None: ...
 
 class PowerStreamMeshChildNodeInfo(_message.Message):
-    __slots__ = ("topology_type", "mesh_protocol", "max_sub_device_num", "parent_mac_id", "mesh_id", "sub_device_list")
+    __slots__ = ("max_sub_device_num", "mesh_id", "mesh_protocol", "parent_mac_id", "sub_device_list", "topology_type")
     TOPOLOGY_TYPE_FIELD_NUMBER: _ClassVar[int]
     MESH_PROTOCOL_FIELD_NUMBER: _ClassVar[int]
     MAX_SUB_DEVICE_NUM_FIELD_NUMBER: _ClassVar[int]
@@ -293,39 +295,39 @@ class PowerStreamMeshChildNodeInfo(_message.Message):
     parent_mac_id: bytes
     mesh_id: bytes
     sub_device_list: _containers.RepeatedCompositeFieldContainer[PowerStreamNodeMessage]
-    def __init__(self, topology_type: _Optional[int] = ..., mesh_protocol: _Optional[int] = ..., max_sub_device_num: _Optional[int] = ..., parent_mac_id: _Optional[bytes] = ..., mesh_id: _Optional[bytes] = ..., sub_device_list: _Optional[_Iterable[_Union[PowerStreamNodeMessage, _Mapping]]] = ...) -> None: ...
+    def __init__(self, topology_type: int | None = ..., mesh_protocol: int | None = ..., max_sub_device_num: int | None = ..., parent_mac_id: bytes | None = ..., mesh_id: bytes | None = ..., sub_device_list: _Iterable[PowerStreamNodeMessage | _Mapping] | None = ...) -> None: ...
 
 class PowerStreamSetValue(_message.Message):
     __slots__ = ("value",)
     VALUE_FIELD_NUMBER: _ClassVar[int]
     value: int
-    def __init__(self, value: _Optional[int] = ...) -> None: ...
+    def __init__(self, value: int | None = ...) -> None: ...
 
 class PowerStreamEnergyItem(_message.Message):
-    __slots__ = ("timestamp", "watth_type", "watth")
+    __slots__ = ("timestamp", "watth", "watth_type")
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     WATTH_TYPE_FIELD_NUMBER: _ClassVar[int]
     WATTH_FIELD_NUMBER: _ClassVar[int]
     timestamp: int
     watth_type: int
     watth: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, timestamp: _Optional[int] = ..., watth_type: _Optional[int] = ..., watth: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, timestamp: int | None = ..., watth_type: int | None = ..., watth: _Iterable[int] | None = ...) -> None: ...
 
 class PowerStreamEnergyTotalReport(_message.Message):
-    __slots__ = ("watth_seq", "watth_item")
+    __slots__ = ("watth_item", "watth_seq")
     WATTH_SEQ_FIELD_NUMBER: _ClassVar[int]
     WATTH_ITEM_FIELD_NUMBER: _ClassVar[int]
     watth_seq: int
     watth_item: PowerStreamEnergyItem
-    def __init__(self, watth_seq: _Optional[int] = ..., watth_item: _Optional[_Union[PowerStreamEnergyItem, _Mapping]] = ...) -> None: ...
+    def __init__(self, watth_seq: int | None = ..., watth_item: PowerStreamEnergyItem | _Mapping | None = ...) -> None: ...
 
 class PowerStreamBatchEnergyTotalReport(_message.Message):
-    __slots__ = ("watth_seq", "watth_item")
+    __slots__ = ("watth_item", "watth_seq")
     WATTH_SEQ_FIELD_NUMBER: _ClassVar[int]
     WATTH_ITEM_FIELD_NUMBER: _ClassVar[int]
     watth_seq: int
     watth_item: _containers.RepeatedCompositeFieldContainer[PowerStreamEnergyItem]
-    def __init__(self, watth_seq: _Optional[int] = ..., watth_item: _Optional[_Iterable[_Union[PowerStreamEnergyItem, _Mapping]]] = ...) -> None: ...
+    def __init__(self, watth_seq: int | None = ..., watth_item: _Iterable[PowerStreamEnergyItem | _Mapping] | None = ...) -> None: ...
 
 class PowerStreamEnergyTotalReportAck(_message.Message):
     __slots__ = ("result", "watth_seq", "watth_type")
@@ -335,10 +337,10 @@ class PowerStreamEnergyTotalReportAck(_message.Message):
     result: int
     watth_seq: int
     watth_type: int
-    def __init__(self, result: _Optional[int] = ..., watth_seq: _Optional[int] = ..., watth_type: _Optional[int] = ...) -> None: ...
+    def __init__(self, result: int | None = ..., watth_seq: int | None = ..., watth_type: int | None = ...) -> None: ...
 
 class PowerStreamEventRecordItem(_message.Message):
-    __slots__ = ("timestamp", "sys_ms", "event_no", "event_detail")
+    __slots__ = ("event_detail", "event_no", "sys_ms", "timestamp")
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     SYS_MS_FIELD_NUMBER: _ClassVar[int]
     EVENT_NO_FIELD_NUMBER: _ClassVar[int]
@@ -347,39 +349,39 @@ class PowerStreamEventRecordItem(_message.Message):
     sys_ms: int
     event_no: int
     event_detail: _containers.RepeatedScalarFieldContainer[float]
-    def __init__(self, timestamp: _Optional[int] = ..., sys_ms: _Optional[int] = ..., event_no: _Optional[int] = ..., event_detail: _Optional[_Iterable[float]] = ...) -> None: ...
+    def __init__(self, timestamp: int | None = ..., sys_ms: int | None = ..., event_no: int | None = ..., event_detail: _Iterable[float] | None = ...) -> None: ...
 
 class PowerStreamEventRecordReport(_message.Message):
-    __slots__ = ("event_ver", "event_seq", "event_item")
+    __slots__ = ("event_item", "event_seq", "event_ver")
     EVENT_VER_FIELD_NUMBER: _ClassVar[int]
     EVENT_SEQ_FIELD_NUMBER: _ClassVar[int]
     EVENT_ITEM_FIELD_NUMBER: _ClassVar[int]
     event_ver: int
     event_seq: int
     event_item: _containers.RepeatedCompositeFieldContainer[PowerStreamEventRecordItem]
-    def __init__(self, event_ver: _Optional[int] = ..., event_seq: _Optional[int] = ..., event_item: _Optional[_Iterable[_Union[PowerStreamEventRecordItem, _Mapping]]] = ...) -> None: ...
+    def __init__(self, event_ver: int | None = ..., event_seq: int | None = ..., event_item: _Iterable[PowerStreamEventRecordItem | _Mapping] | None = ...) -> None: ...
 
 class PowerStreamEventInfoReportAck(_message.Message):
-    __slots__ = ("result", "event_seq", "event_item_num")
+    __slots__ = ("event_item_num", "event_seq", "result")
     RESULT_FIELD_NUMBER: _ClassVar[int]
     EVENT_SEQ_FIELD_NUMBER: _ClassVar[int]
     EVENT_ITEM_NUM_FIELD_NUMBER: _ClassVar[int]
     result: int
     event_seq: int
     event_item_num: int
-    def __init__(self, result: _Optional[int] = ..., event_seq: _Optional[int] = ..., event_item_num: _Optional[int] = ...) -> None: ...
+    def __init__(self, result: int | None = ..., event_seq: int | None = ..., event_item_num: int | None = ...) -> None: ...
 
 class PowerStreamProductNameSet(_message.Message):
     __slots__ = ("name",)
     NAME_FIELD_NUMBER: _ClassVar[int]
     name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
+    def __init__(self, name: str | None = ...) -> None: ...
 
 class PowerStreamProductNameSetAck(_message.Message):
     __slots__ = ("result",)
     RESULT_FIELD_NUMBER: _ClassVar[int]
     result: int
-    def __init__(self, result: _Optional[int] = ...) -> None: ...
+    def __init__(self, result: int | None = ...) -> None: ...
 
 class PowerStreamProductNameGet(_message.Message):
     __slots__ = ()
@@ -389,7 +391,7 @@ class PowerStreamProductNameGetAck(_message.Message):
     __slots__ = ("name",)
     NAME_FIELD_NUMBER: _ClassVar[int]
     name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
+    def __init__(self, name: str | None = ...) -> None: ...
 
 class PowerStreamRTCTimeGet(_message.Message):
     __slots__ = ()
@@ -401,7 +403,7 @@ class PowerStreamRTCTimeGetAck(_message.Message):
     TIMEZONE_FIELD_NUMBER: _ClassVar[int]
     timestamp: int
     timezone: int
-    def __init__(self, timestamp: _Optional[int] = ..., timezone: _Optional[int] = ...) -> None: ...
+    def __init__(self, timestamp: int | None = ..., timezone: int | None = ...) -> None: ...
 
 class PowerStreamRTCTimeSet(_message.Message):
     __slots__ = ("timestamp", "timezone")
@@ -409,13 +411,13 @@ class PowerStreamRTCTimeSet(_message.Message):
     TIMEZONE_FIELD_NUMBER: _ClassVar[int]
     timestamp: int
     timezone: int
-    def __init__(self, timestamp: _Optional[int] = ..., timezone: _Optional[int] = ...) -> None: ...
+    def __init__(self, timestamp: int | None = ..., timezone: int | None = ...) -> None: ...
 
 class PowerStreamRTCTimeSetAck(_message.Message):
     __slots__ = ("result",)
     RESULT_FIELD_NUMBER: _ClassVar[int]
     result: int
-    def __init__(self, result: _Optional[int] = ...) -> None: ...
+    def __init__(self, result: int | None = ...) -> None: ...
 
 class PowerStreamCountryTownMessage(_message.Message):
     __slots__ = ("country", "town")
@@ -423,4 +425,4 @@ class PowerStreamCountryTownMessage(_message.Message):
     TOWN_FIELD_NUMBER: _ClassVar[int]
     country: int
     town: int
-    def __init__(self, country: _Optional[int] = ..., town: _Optional[int] = ...) -> None: ...
+    def __init__(self, country: int | None = ..., town: int | None = ...) -> None: ...

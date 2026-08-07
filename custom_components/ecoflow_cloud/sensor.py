@@ -2,8 +2,10 @@ import inspect
 import logging
 import re
 import struct
+from collections import OrderedDict
+from collections.abc import Mapping
 from datetime import datetime, timedelta
-from typing import Any, Mapping, OrderedDict, override
+from typing import Any, override
 
 from homeassistant.components.integration.sensor import IntegrationSensor  # pyright: ignore[reportMissingImports]
 from homeassistant.components.sensor import (  # pyright: ignore[reportMissingImports]
@@ -39,9 +41,9 @@ from . import (
     ATTR_DATA_UPDATES,
     ATTR_MQTT_CONNECTED,
     ATTR_QUOTA_REQUESTS,
-    ATTR_STATUS_RECONNECTS,
     ATTR_STATUS_DATA_LAST_UPDATE,
     ATTR_STATUS_LAST_UPDATE,
+    ATTR_STATUS_RECONNECTS,
     ATTR_STATUS_SN,
     ATTR_STATUS_UPDATES,
     ECOFLOW_DOMAIN,
@@ -61,7 +63,7 @@ _INTEGRATION_SENSOR_TAKES_HASS = "hass" in inspect.signature(IntegrationSensor._
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     client: EcoflowApiClient = hass.data[ECOFLOW_DOMAIN][entry.entry_id]
-    for sn, device in client.devices.items():
+    for device in client.devices.values():
         sensors = device.sensors(client)
         # Add regular sensors
         async_add_entities(sensors)

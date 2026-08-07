@@ -1,9 +1,11 @@
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -30,7 +32,7 @@ CMD_ID_SET_BRIGHTNESS: WnCmdId
 CMD_ID_SET_MAX_WATTS: WnCmdId
 
 class SmartPlugHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "dSrc", "dDest", "encType", "checkType", "cmdFunc", "cmdId", "dataLen", "needAck", "isAck", "seq", "productId", "version", "payloadVer", "timeSnap", "isRwCmd", "isQueue", "ackType", "code", "moduleSn", "deviceSn", "srcSn", "destSn")
+    __slots__ = ("ackType", "checkType", "cmdFunc", "cmdId", "code", "dDest", "dSrc", "dataLen", "dest", "destSn", "deviceSn", "encType", "isAck", "isQueue", "isRwCmd", "moduleSn", "needAck", "payloadVer", "pdata", "productId", "seq", "src", "srcSn", "timeSnap", "version")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
     DEST_FIELD_NUMBER: _ClassVar[int]
@@ -82,16 +84,16 @@ class SmartPlugHeader(_message.Message):
     deviceSn: str
     srcSn: str
     destSn: str
-    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., dSrc: _Optional[int] = ..., dDest: _Optional[int] = ..., encType: _Optional[int] = ..., checkType: _Optional[int] = ..., cmdFunc: _Optional[int] = ..., cmdId: _Optional[int] = ..., dataLen: _Optional[int] = ..., needAck: _Optional[int] = ..., isAck: _Optional[int] = ..., seq: _Optional[int] = ..., productId: _Optional[int] = ..., version: _Optional[int] = ..., payloadVer: _Optional[int] = ..., timeSnap: _Optional[int] = ..., isRwCmd: _Optional[int] = ..., isQueue: _Optional[int] = ..., ackType: _Optional[int] = ..., code: _Optional[str] = ..., moduleSn: _Optional[str] = ..., deviceSn: _Optional[str] = ..., srcSn: _Optional[str] = ..., destSn: _Optional[str] = ..., **kwargs) -> None: ...
+    def __init__(self, pdata: bytes | None = ..., src: int | None = ..., dest: int | None = ..., dSrc: int | None = ..., dDest: int | None = ..., encType: int | None = ..., checkType: int | None = ..., cmdFunc: int | None = ..., cmdId: int | None = ..., dataLen: int | None = ..., needAck: int | None = ..., isAck: int | None = ..., seq: int | None = ..., productId: int | None = ..., version: int | None = ..., payloadVer: int | None = ..., timeSnap: int | None = ..., isRwCmd: int | None = ..., isQueue: int | None = ..., ackType: int | None = ..., code: str | None = ..., moduleSn: str | None = ..., deviceSn: str | None = ..., srcSn: str | None = ..., destSn: str | None = ..., **kwargs) -> None: ...
 
 class SendSmartPlugHeaderMsg(_message.Message):
     __slots__ = ("msg",)
     MSG_FIELD_NUMBER: _ClassVar[int]
     msg: _containers.RepeatedCompositeFieldContainer[SmartPlugHeader]
-    def __init__(self, msg: _Optional[_Iterable[_Union[SmartPlugHeader, _Mapping]]] = ...) -> None: ...
+    def __init__(self, msg: _Iterable[SmartPlugHeader | _Mapping] | None = ...) -> None: ...
 
 class WnPlugHeartbeatPack(_message.Message):
-    __slots__ = ("errCode", "warnCode", "country", "town", "maxCur", "temp", "freq", "current", "volt", "watts", "switchSta", "brightness", "maxWatts", "heartbeatFrequency", "meshEnable", "resetReason", "rtcResetReason", "resetCount", "runTime", "lanState", "stackFree", "stackMinFree", "meshId", "meshLevel", "selfMac", "parentMac", "otaDlErr", "otaDlTlsErr", "staIpAddr", "matterFabric", "geneNum", "consNum", "geneWatt", "consWatt", "wifiErr", "wifiErrTime", "mqttErr", "mqttErrTime", "selfEmsSwitch", "parentWifiRssi", "insightsSwitch", "rssiThreshold", "rssiVariance", "utcTime", "timeZone", "dstTime")
+    __slots__ = ("brightness", "consNum", "consWatt", "country", "current", "dstTime", "errCode", "freq", "geneNum", "geneWatt", "heartbeatFrequency", "insightsSwitch", "lanState", "matterFabric", "maxCur", "maxWatts", "meshEnable", "meshId", "meshLevel", "mqttErr", "mqttErrTime", "otaDlErr", "otaDlTlsErr", "parentMac", "parentWifiRssi", "resetCount", "resetReason", "rssiThreshold", "rssiVariance", "rtcResetReason", "runTime", "selfEmsSwitch", "selfMac", "staIpAddr", "stackFree", "stackMinFree", "switchSta", "temp", "timeZone", "town", "utcTime", "volt", "warnCode", "watts", "wifiErr", "wifiErrTime")
     ERRCODE_FIELD_NUMBER: _ClassVar[int]
     WARNCODE_FIELD_NUMBER: _ClassVar[int]
     COUNTRY_FIELD_NUMBER: _ClassVar[int]
@@ -184,25 +186,25 @@ class WnPlugHeartbeatPack(_message.Message):
     utcTime: int
     timeZone: int
     dstTime: int
-    def __init__(self, errCode: _Optional[int] = ..., warnCode: _Optional[int] = ..., country: _Optional[int] = ..., town: _Optional[int] = ..., maxCur: _Optional[int] = ..., temp: _Optional[int] = ..., freq: _Optional[int] = ..., current: _Optional[int] = ..., volt: _Optional[int] = ..., watts: _Optional[int] = ..., switchSta: _Optional[bool] = ..., brightness: _Optional[int] = ..., maxWatts: _Optional[int] = ..., heartbeatFrequency: _Optional[int] = ..., meshEnable: _Optional[int] = ..., resetReason: _Optional[int] = ..., rtcResetReason: _Optional[int] = ..., resetCount: _Optional[int] = ..., runTime: _Optional[int] = ..., lanState: _Optional[int] = ..., stackFree: _Optional[int] = ..., stackMinFree: _Optional[int] = ..., meshId: _Optional[int] = ..., meshLevel: _Optional[int] = ..., selfMac: _Optional[int] = ..., parentMac: _Optional[int] = ..., otaDlErr: _Optional[int] = ..., otaDlTlsErr: _Optional[int] = ..., staIpAddr: _Optional[int] = ..., matterFabric: _Optional[int] = ..., geneNum: _Optional[int] = ..., consNum: _Optional[int] = ..., geneWatt: _Optional[int] = ..., consWatt: _Optional[int] = ..., wifiErr: _Optional[int] = ..., wifiErrTime: _Optional[int] = ..., mqttErr: _Optional[int] = ..., mqttErrTime: _Optional[int] = ..., selfEmsSwitch: _Optional[int] = ..., parentWifiRssi: _Optional[int] = ..., insightsSwitch: _Optional[int] = ..., rssiThreshold: _Optional[int] = ..., rssiVariance: _Optional[int] = ..., utcTime: _Optional[int] = ..., timeZone: _Optional[int] = ..., dstTime: _Optional[int] = ...) -> None: ...
+    def __init__(self, errCode: int | None = ..., warnCode: int | None = ..., country: int | None = ..., town: int | None = ..., maxCur: int | None = ..., temp: int | None = ..., freq: int | None = ..., current: int | None = ..., volt: int | None = ..., watts: int | None = ..., switchSta: bool | None = ..., brightness: int | None = ..., maxWatts: int | None = ..., heartbeatFrequency: int | None = ..., meshEnable: int | None = ..., resetReason: int | None = ..., rtcResetReason: int | None = ..., resetCount: int | None = ..., runTime: int | None = ..., lanState: int | None = ..., stackFree: int | None = ..., stackMinFree: int | None = ..., meshId: int | None = ..., meshLevel: int | None = ..., selfMac: int | None = ..., parentMac: int | None = ..., otaDlErr: int | None = ..., otaDlTlsErr: int | None = ..., staIpAddr: int | None = ..., matterFabric: int | None = ..., geneNum: int | None = ..., consNum: int | None = ..., geneWatt: int | None = ..., consWatt: int | None = ..., wifiErr: int | None = ..., wifiErrTime: int | None = ..., mqttErr: int | None = ..., mqttErrTime: int | None = ..., selfEmsSwitch: int | None = ..., parentWifiRssi: int | None = ..., insightsSwitch: int | None = ..., rssiThreshold: int | None = ..., rssiVariance: int | None = ..., utcTime: int | None = ..., timeZone: int | None = ..., dstTime: int | None = ...) -> None: ...
 
 class WnPlugSwitchMessage(_message.Message):
     __slots__ = ("switchSta",)
     SWITCHSTA_FIELD_NUMBER: _ClassVar[int]
     switchSta: bool
-    def __init__(self, switchSta: _Optional[bool] = ...) -> None: ...
+    def __init__(self, switchSta: bool | None = ...) -> None: ...
 
 class WnBrightnessPack(_message.Message):
     __slots__ = ("brightness",)
     BRIGHTNESS_FIELD_NUMBER: _ClassVar[int]
     brightness: int
-    def __init__(self, brightness: _Optional[int] = ...) -> None: ...
+    def __init__(self, brightness: int | None = ...) -> None: ...
 
 class WnMaxWattsPack(_message.Message):
     __slots__ = ("maxWatts",)
     MAXWATTS_FIELD_NUMBER: _ClassVar[int]
     maxWatts: int
-    def __init__(self, maxWatts: _Optional[int] = ...) -> None: ...
+    def __init__(self, maxWatts: int | None = ...) -> None: ...
 
 class WnTimetaskReadMessage(_message.Message):
     __slots__ = ("task1", "task2", "task3", "task4", "task5", "task6", "task7", "task8", "task9", "task10", "task11")
@@ -228,10 +230,10 @@ class WnTimetaskReadMessage(_message.Message):
     task9: WnTimetaskSetMessage
     task10: WnTimetaskSetMessage
     task11: WnTimetaskSetMessage
-    def __init__(self, task1: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task2: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task3: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task4: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task5: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task6: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task7: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task8: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task9: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task10: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ..., task11: _Optional[_Union[WnTimetaskSetMessage, _Mapping]] = ...) -> None: ...
+    def __init__(self, task1: WnTimetaskSetMessage | _Mapping | None = ..., task2: WnTimetaskSetMessage | _Mapping | None = ..., task3: WnTimetaskSetMessage | _Mapping | None = ..., task4: WnTimetaskSetMessage | _Mapping | None = ..., task5: WnTimetaskSetMessage | _Mapping | None = ..., task6: WnTimetaskSetMessage | _Mapping | None = ..., task7: WnTimetaskSetMessage | _Mapping | None = ..., task8: WnTimetaskSetMessage | _Mapping | None = ..., task9: WnTimetaskSetMessage | _Mapping | None = ..., task10: WnTimetaskSetMessage | _Mapping | None = ..., task11: WnTimetaskSetMessage | _Mapping | None = ...) -> None: ...
 
 class WnTimetaskSetMessage(_message.Message):
-    __slots__ = ("taskIndex", "timeRange", "type", "dstTime")
+    __slots__ = ("dstTime", "taskIndex", "timeRange", "type")
     TASKINDEX_FIELD_NUMBER: _ClassVar[int]
     TIMERANGE_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
@@ -240,16 +242,16 @@ class WnTimetaskSetMessage(_message.Message):
     timeRange: WnTimeRangeStrategy
     type: int
     dstTime: int
-    def __init__(self, taskIndex: _Optional[int] = ..., timeRange: _Optional[_Union[WnTimeRangeStrategy, _Mapping]] = ..., type: _Optional[int] = ..., dstTime: _Optional[int] = ...) -> None: ...
+    def __init__(self, taskIndex: int | None = ..., timeRange: WnTimeRangeStrategy | _Mapping | None = ..., type: int | None = ..., dstTime: int | None = ...) -> None: ...
 
 class WnTimetaskDelMessage(_message.Message):
     __slots__ = ("taskIndex",)
     TASKINDEX_FIELD_NUMBER: _ClassVar[int]
     taskIndex: int
-    def __init__(self, taskIndex: _Optional[int] = ...) -> None: ...
+    def __init__(self, taskIndex: int | None = ...) -> None: ...
 
 class WnTimeRangeStrategy(_message.Message):
-    __slots__ = ("isConfig", "isEnable", "timeMode", "timeData", "startTime", "stopTime")
+    __slots__ = ("isConfig", "isEnable", "startTime", "stopTime", "timeData", "timeMode")
     ISCONFIG_FIELD_NUMBER: _ClassVar[int]
     ISENABLE_FIELD_NUMBER: _ClassVar[int]
     TIMEMODE_FIELD_NUMBER: _ClassVar[int]
@@ -262,10 +264,10 @@ class WnTimeRangeStrategy(_message.Message):
     timeData: int
     startTime: WnTimeRtcData
     stopTime: WnTimeRtcData
-    def __init__(self, isConfig: _Optional[int] = ..., isEnable: _Optional[int] = ..., timeMode: _Optional[int] = ..., timeData: _Optional[int] = ..., startTime: _Optional[_Union[WnTimeRtcData, _Mapping]] = ..., stopTime: _Optional[_Union[WnTimeRtcData, _Mapping]] = ...) -> None: ...
+    def __init__(self, isConfig: int | None = ..., isEnable: int | None = ..., timeMode: int | None = ..., timeData: int | None = ..., startTime: WnTimeRtcData | _Mapping | None = ..., stopTime: WnTimeRtcData | _Mapping | None = ...) -> None: ...
 
 class WnTimeRtcData(_message.Message):
-    __slots__ = ("week", "sec", "min", "hour", "day", "month", "year")
+    __slots__ = ("day", "hour", "min", "month", "sec", "week", "year")
     WEEK_FIELD_NUMBER: _ClassVar[int]
     SEC_FIELD_NUMBER: _ClassVar[int]
     MIN_FIELD_NUMBER: _ClassVar[int]
@@ -280,4 +282,4 @@ class WnTimeRtcData(_message.Message):
     day: int
     month: int
     year: int
-    def __init__(self, week: _Optional[int] = ..., sec: _Optional[int] = ..., min: _Optional[int] = ..., hour: _Optional[int] = ..., day: _Optional[int] = ..., month: _Optional[int] = ..., year: _Optional[int] = ...) -> None: ...
+    def __init__(self, week: int | None = ..., sec: int | None = ..., min: int | None = ..., hour: int | None = ..., day: int | None = ..., month: int | None = ..., year: int | None = ...) -> None: ...

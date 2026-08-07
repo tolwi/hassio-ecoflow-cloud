@@ -1,4 +1,3 @@
-from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
@@ -7,6 +6,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
 from custom_components.ecoflow_cloud.button import EnabledButtonEntity
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.number import SetTempEntity

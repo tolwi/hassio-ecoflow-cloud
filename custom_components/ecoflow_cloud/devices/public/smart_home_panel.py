@@ -24,6 +24,8 @@ from custom_components.ecoflow_cloud.number import (
 )
 from custom_components.ecoflow_cloud.select import DictSelectEntity
 from custom_components.ecoflow_cloud.sensor import (
+    AmpSensorEntity,
+    FrequencySensorEntity,
     InEnergySensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
@@ -33,8 +35,6 @@ from custom_components.ecoflow_cloud.sensor import (
     RemainSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
-    FrequencySensorEntity,
-    AmpSensorEntity,
     WattsSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import EnabledEntity

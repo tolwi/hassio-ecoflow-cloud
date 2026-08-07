@@ -1,8 +1,7 @@
-from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
-from homeassistant.components.binary_sensor import BinarySensorEntity
 import logging
 from typing import Any
 
+from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
@@ -11,6 +10,7 @@ from homeassistant.const import UnitOfPower
 from homeassistant.helpers.entity import EntityCategory
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.number import (
     ChargingPowerEntity,

@@ -1,13 +1,15 @@
-from google.protobuf.internal import containers as _containers
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class AlternatorHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "from_", "module_sn", "device_sn")
+    __slots__ = ("ack_type", "check_type", "cmd_func", "cmd_id", "code", "d_dest", "d_src", "data_len", "dest", "device_sn", "enc_type", "from_", "is_ack", "is_queue", "is_rw_cmd", "module_sn", "need_ack", "payload_ver", "pdata", "product_id", "seq", "src", "time_snap", "version")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
     DEST_FIELD_NUMBER: _ClassVar[int]
@@ -56,16 +58,16 @@ class AlternatorHeader(_message.Message):
     from_: str
     module_sn: str
     device_sn: str
-    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., from_: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ...) -> None: ...
+    def __init__(self, pdata: bytes | None = ..., src: int | None = ..., dest: int | None = ..., d_src: int | None = ..., d_dest: int | None = ..., enc_type: int | None = ..., check_type: int | None = ..., cmd_func: int | None = ..., cmd_id: int | None = ..., data_len: int | None = ..., need_ack: int | None = ..., is_ack: int | None = ..., seq: int | None = ..., product_id: int | None = ..., version: int | None = ..., payload_ver: int | None = ..., time_snap: int | None = ..., is_rw_cmd: int | None = ..., is_queue: int | None = ..., ack_type: int | None = ..., code: str | None = ..., from_: str | None = ..., module_sn: str | None = ..., device_sn: str | None = ...) -> None: ...
 
 class AlternatorMessage(_message.Message):
     __slots__ = ("msg",)
     MSG_FIELD_NUMBER: _ClassVar[int]
     msg: _containers.RepeatedCompositeFieldContainer[AlternatorHeader]
-    def __init__(self, msg: _Optional[_Iterable[_Union[AlternatorHeader, _Mapping]]] = ...) -> None: ...
+    def __init__(self, msg: _Iterable[AlternatorHeader | _Mapping] | None = ...) -> None: ...
 
 class AlternatorHeartbeat(_message.Message):
-    __slots__ = ("status1", "temp", "alternator_power", "switch_off130", "start_voltage", "car_bat_volt", "bat_soc", "charge_to_full268", "unknown269", "station_power", "unknown427", "unknown428", "operation_mode", "start_stop", "permanent_watts", "wifi_rssi", "rated_power", "cable_length608", "unknown609", "sp_charger_car_batt_chg_amp_limit", "sp_charger_dev_batt_chg_amp_limit", "sp_charger_car_batt_chg_amp_max", "sp_charger_dev_batt_chg_amp_max")
+    __slots__ = ("alternator_power", "bat_soc", "cable_length608", "car_bat_volt", "charge_to_full268", "operation_mode", "permanent_watts", "rated_power", "sp_charger_car_batt_chg_amp_limit", "sp_charger_car_batt_chg_amp_max", "sp_charger_dev_batt_chg_amp_limit", "sp_charger_dev_batt_chg_amp_max", "start_stop", "start_voltage", "station_power", "status1", "switch_off130", "temp", "unknown269", "unknown427", "unknown428", "unknown609", "wifi_rssi")
     STATUS1_FIELD_NUMBER: _ClassVar[int]
     TEMP_FIELD_NUMBER: _ClassVar[int]
     ALTERNATOR_POWER_FIELD_NUMBER: _ClassVar[int]
@@ -112,10 +114,10 @@ class AlternatorHeartbeat(_message.Message):
     sp_charger_dev_batt_chg_amp_limit: float
     sp_charger_car_batt_chg_amp_max: float
     sp_charger_dev_batt_chg_amp_max: float
-    def __init__(self, status1: _Optional[int] = ..., temp: _Optional[int] = ..., alternator_power: _Optional[float] = ..., switch_off130: _Optional[int] = ..., start_voltage: _Optional[int] = ..., car_bat_volt: _Optional[float] = ..., bat_soc: _Optional[float] = ..., charge_to_full268: _Optional[int] = ..., unknown269: _Optional[int] = ..., station_power: _Optional[float] = ..., unknown427: _Optional[int] = ..., unknown428: _Optional[int] = ..., operation_mode: _Optional[int] = ..., start_stop: _Optional[int] = ..., permanent_watts: _Optional[float] = ..., wifi_rssi: _Optional[float] = ..., rated_power: _Optional[float] = ..., cable_length608: _Optional[float] = ..., unknown609: _Optional[float] = ..., sp_charger_car_batt_chg_amp_limit: _Optional[float] = ..., sp_charger_dev_batt_chg_amp_limit: _Optional[float] = ..., sp_charger_car_batt_chg_amp_max: _Optional[float] = ..., sp_charger_dev_batt_chg_amp_max: _Optional[float] = ...) -> None: ...
+    def __init__(self, status1: int | None = ..., temp: int | None = ..., alternator_power: float | None = ..., switch_off130: int | None = ..., start_voltage: int | None = ..., car_bat_volt: float | None = ..., bat_soc: float | None = ..., charge_to_full268: int | None = ..., unknown269: int | None = ..., station_power: float | None = ..., unknown427: int | None = ..., unknown428: int | None = ..., operation_mode: int | None = ..., start_stop: int | None = ..., permanent_watts: float | None = ..., wifi_rssi: float | None = ..., rated_power: float | None = ..., cable_length608: float | None = ..., unknown609: float | None = ..., sp_charger_car_batt_chg_amp_limit: float | None = ..., sp_charger_dev_batt_chg_amp_limit: float | None = ..., sp_charger_car_batt_chg_amp_max: float | None = ..., sp_charger_dev_batt_chg_amp_max: float | None = ...) -> None: ...
 
 class AlternatorSet(_message.Message):
-    __slots__ = ("switch_off", "operation_mode", "start_stop", "permanent_watts", "start_voltage", "cable_length", "cfg_sp_charger_car_batt_chg_amp_limit", "cfg_sp_charger_dev_batt_chg_amp_limit")
+    __slots__ = ("cable_length", "cfg_sp_charger_car_batt_chg_amp_limit", "cfg_sp_charger_dev_batt_chg_amp_limit", "operation_mode", "permanent_watts", "start_stop", "start_voltage", "switch_off")
     SWITCH_OFF_FIELD_NUMBER: _ClassVar[int]
     OPERATION_MODE_FIELD_NUMBER: _ClassVar[int]
     START_STOP_FIELD_NUMBER: _ClassVar[int]
@@ -132,4 +134,4 @@ class AlternatorSet(_message.Message):
     cable_length: float
     cfg_sp_charger_car_batt_chg_amp_limit: float
     cfg_sp_charger_dev_batt_chg_amp_limit: float
-    def __init__(self, switch_off: _Optional[int] = ..., operation_mode: _Optional[int] = ..., start_stop: _Optional[int] = ..., permanent_watts: _Optional[float] = ..., start_voltage: _Optional[int] = ..., cable_length: _Optional[float] = ..., cfg_sp_charger_car_batt_chg_amp_limit: _Optional[float] = ..., cfg_sp_charger_dev_batt_chg_amp_limit: _Optional[float] = ...) -> None: ...
+    def __init__(self, switch_off: int | None = ..., operation_mode: int | None = ..., start_stop: int | None = ..., permanent_watts: float | None = ..., start_voltage: int | None = ..., cable_length: float | None = ..., cfg_sp_charger_car_batt_chg_amp_limit: float | None = ..., cfg_sp_charger_dev_batt_chg_amp_limit: float | None = ...) -> None: ...

@@ -1,13 +1,15 @@
-from google.protobuf.internal import containers as _containers
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class GlacierClassicHeader(_message.Message):
-    __slots__ = ("pdata", "src", "dest", "d_src", "d_dest", "enc_type", "check_type", "cmd_func", "cmd_id", "data_len", "need_ack", "is_ack", "seq", "product_id", "version", "payload_ver", "time_snap", "is_rw_cmd", "is_queue", "ack_type", "code", "module_sn", "device_sn")
+    __slots__ = ("ack_type", "check_type", "cmd_func", "cmd_id", "code", "d_dest", "d_src", "data_len", "dest", "device_sn", "enc_type", "is_ack", "is_queue", "is_rw_cmd", "module_sn", "need_ack", "payload_ver", "pdata", "product_id", "seq", "src", "time_snap", "version")
     PDATA_FIELD_NUMBER: _ClassVar[int]
     SRC_FIELD_NUMBER: _ClassVar[int]
     DEST_FIELD_NUMBER: _ClassVar[int]
@@ -55,16 +57,16 @@ class GlacierClassicHeader(_message.Message):
     code: str
     module_sn: str
     device_sn: str
-    def __init__(self, pdata: _Optional[bytes] = ..., src: _Optional[int] = ..., dest: _Optional[int] = ..., d_src: _Optional[int] = ..., d_dest: _Optional[int] = ..., enc_type: _Optional[int] = ..., check_type: _Optional[int] = ..., cmd_func: _Optional[int] = ..., cmd_id: _Optional[int] = ..., data_len: _Optional[int] = ..., need_ack: _Optional[int] = ..., is_ack: _Optional[int] = ..., seq: _Optional[int] = ..., product_id: _Optional[int] = ..., version: _Optional[int] = ..., payload_ver: _Optional[int] = ..., time_snap: _Optional[int] = ..., is_rw_cmd: _Optional[int] = ..., is_queue: _Optional[int] = ..., ack_type: _Optional[int] = ..., code: _Optional[str] = ..., module_sn: _Optional[str] = ..., device_sn: _Optional[str] = ..., **kwargs) -> None: ...
+    def __init__(self, pdata: bytes | None = ..., src: int | None = ..., dest: int | None = ..., d_src: int | None = ..., d_dest: int | None = ..., enc_type: int | None = ..., check_type: int | None = ..., cmd_func: int | None = ..., cmd_id: int | None = ..., data_len: int | None = ..., need_ack: int | None = ..., is_ack: int | None = ..., seq: int | None = ..., product_id: int | None = ..., version: int | None = ..., payload_ver: int | None = ..., time_snap: int | None = ..., is_rw_cmd: int | None = ..., is_queue: int | None = ..., ack_type: int | None = ..., code: str | None = ..., module_sn: str | None = ..., device_sn: str | None = ..., **kwargs) -> None: ...
 
 class GlacierClassicSendHeaderMsg(_message.Message):
     __slots__ = ("msg",)
     MSG_FIELD_NUMBER: _ClassVar[int]
     msg: _containers.RepeatedCompositeFieldContainer[GlacierClassicHeader]
-    def __init__(self, msg: _Optional[_Iterable[_Union[GlacierClassicHeader, _Mapping]]] = ...) -> None: ...
+    def __init__(self, msg: _Iterable[GlacierClassicHeader | _Mapping] | None = ...) -> None: ...
 
 class GlacierClassicBMSHeartBeatReport(_message.Message):
-    __slots__ = ("num", "cell_id", "err_code", "sys_ver", "soc", "vol", "amp", "temp", "open_bms_flag", "design_cap", "remain_cap", "full_cap", "cycles", "soh", "max_cell_vol", "min_cell_vol", "max_cell_temp", "min_cell_temp", "max_mos_temp", "min_mos_temp", "bms_fault", "bq_sys_stat_reg", "tag_chg_amp", "f32_show_soc", "input_watts", "output_watts", "remain_time", "mos_state", "balance_state", "max_vol_diff", "cell_series_num", "cell_vol", "cell_temp", "hw_ver", "bms_sn", "act_soc", "diff_soc", "target_soc", "all_err_code", "all_bms_fault", "pack_sn", "water_in_flag")
+    __slots__ = ("act_soc", "all_bms_fault", "all_err_code", "amp", "balance_state", "bms_fault", "bms_sn", "bq_sys_stat_reg", "cell_id", "cell_series_num", "cell_temp", "cell_vol", "cycles", "design_cap", "diff_soc", "err_code", "f32_show_soc", "full_cap", "hw_ver", "input_watts", "max_cell_temp", "max_cell_vol", "max_mos_temp", "max_vol_diff", "min_cell_temp", "min_cell_vol", "min_mos_temp", "mos_state", "num", "open_bms_flag", "output_watts", "pack_sn", "remain_cap", "remain_time", "soc", "soh", "sys_ver", "tag_chg_amp", "target_soc", "temp", "vol", "water_in_flag")
     NUM_FIELD_NUMBER: _ClassVar[int]
     CELL_ID_FIELD_NUMBER: _ClassVar[int]
     ERR_CODE_FIELD_NUMBER: _ClassVar[int]
@@ -149,10 +151,10 @@ class GlacierClassicBMSHeartBeatReport(_message.Message):
     all_bms_fault: int
     pack_sn: str
     water_in_flag: int
-    def __init__(self, num: _Optional[int] = ..., cell_id: _Optional[int] = ..., err_code: _Optional[int] = ..., sys_ver: _Optional[int] = ..., soc: _Optional[int] = ..., vol: _Optional[int] = ..., amp: _Optional[int] = ..., temp: _Optional[int] = ..., open_bms_flag: _Optional[int] = ..., design_cap: _Optional[int] = ..., remain_cap: _Optional[int] = ..., full_cap: _Optional[int] = ..., cycles: _Optional[int] = ..., soh: _Optional[int] = ..., max_cell_vol: _Optional[int] = ..., min_cell_vol: _Optional[int] = ..., max_cell_temp: _Optional[int] = ..., min_cell_temp: _Optional[int] = ..., max_mos_temp: _Optional[int] = ..., min_mos_temp: _Optional[int] = ..., bms_fault: _Optional[int] = ..., bq_sys_stat_reg: _Optional[int] = ..., tag_chg_amp: _Optional[int] = ..., f32_show_soc: _Optional[float] = ..., input_watts: _Optional[int] = ..., output_watts: _Optional[int] = ..., remain_time: _Optional[int] = ..., mos_state: _Optional[int] = ..., balance_state: _Optional[int] = ..., max_vol_diff: _Optional[int] = ..., cell_series_num: _Optional[int] = ..., cell_vol: _Optional[_Iterable[int]] = ..., cell_temp: _Optional[_Iterable[int]] = ..., hw_ver: _Optional[str] = ..., bms_sn: _Optional[str] = ..., act_soc: _Optional[float] = ..., diff_soc: _Optional[float] = ..., target_soc: _Optional[float] = ..., all_err_code: _Optional[int] = ..., all_bms_fault: _Optional[int] = ..., pack_sn: _Optional[str] = ..., water_in_flag: _Optional[int] = ...) -> None: ...
+    def __init__(self, num: int | None = ..., cell_id: int | None = ..., err_code: int | None = ..., sys_ver: int | None = ..., soc: int | None = ..., vol: int | None = ..., amp: int | None = ..., temp: int | None = ..., open_bms_flag: int | None = ..., design_cap: int | None = ..., remain_cap: int | None = ..., full_cap: int | None = ..., cycles: int | None = ..., soh: int | None = ..., max_cell_vol: int | None = ..., min_cell_vol: int | None = ..., max_cell_temp: int | None = ..., min_cell_temp: int | None = ..., max_mos_temp: int | None = ..., min_mos_temp: int | None = ..., bms_fault: int | None = ..., bq_sys_stat_reg: int | None = ..., tag_chg_amp: int | None = ..., f32_show_soc: float | None = ..., input_watts: int | None = ..., output_watts: int | None = ..., remain_time: int | None = ..., mos_state: int | None = ..., balance_state: int | None = ..., max_vol_diff: int | None = ..., cell_series_num: int | None = ..., cell_vol: _Iterable[int] | None = ..., cell_temp: _Iterable[int] | None = ..., hw_ver: str | None = ..., bms_sn: str | None = ..., act_soc: float | None = ..., diff_soc: float | None = ..., target_soc: float | None = ..., all_err_code: int | None = ..., all_bms_fault: int | None = ..., pack_sn: str | None = ..., water_in_flag: int | None = ...) -> None: ...
 
 class GlacierClassicCMSHeartBeatV1P0(_message.Message):
-    __slots__ = ("chg_state", "chg_cmd", "dsg_cmd", "chg_amp", "fan_level", "max_charge_soc", "bms_model", "lcd_show_soc", "open_ups_flag", "bms_warning_state", "chg_remain_time", "dsg_remain_time", "ems_is_normal_flag", "f32_lcd_show_soc", "bms_is_connt", "max_available_num", "open_bms_idx", "para_vol_min", "para_vol_max", "min_dsg_soc", "min_open_oil_eb_soc", "max_close_oil_eb_soc")
+    __slots__ = ("bms_is_connt", "bms_model", "bms_warning_state", "chg_amp", "chg_cmd", "chg_remain_time", "chg_state", "dsg_cmd", "dsg_remain_time", "ems_is_normal_flag", "f32_lcd_show_soc", "fan_level", "lcd_show_soc", "max_available_num", "max_charge_soc", "max_close_oil_eb_soc", "min_dsg_soc", "min_open_oil_eb_soc", "open_bms_idx", "open_ups_flag", "para_vol_max", "para_vol_min")
     CHG_STATE_FIELD_NUMBER: _ClassVar[int]
     CHG_CMD_FIELD_NUMBER: _ClassVar[int]
     DSG_CMD_FIELD_NUMBER: _ClassVar[int]
@@ -197,10 +199,10 @@ class GlacierClassicCMSHeartBeatV1P0(_message.Message):
     min_dsg_soc: int
     min_open_oil_eb_soc: int
     max_close_oil_eb_soc: int
-    def __init__(self, chg_state: _Optional[int] = ..., chg_cmd: _Optional[int] = ..., dsg_cmd: _Optional[int] = ..., chg_amp: _Optional[int] = ..., fan_level: _Optional[int] = ..., max_charge_soc: _Optional[int] = ..., bms_model: _Optional[int] = ..., lcd_show_soc: _Optional[int] = ..., open_ups_flag: _Optional[int] = ..., bms_warning_state: _Optional[int] = ..., chg_remain_time: _Optional[int] = ..., dsg_remain_time: _Optional[int] = ..., ems_is_normal_flag: _Optional[int] = ..., f32_lcd_show_soc: _Optional[float] = ..., bms_is_connt: _Optional[_Iterable[int]] = ..., max_available_num: _Optional[int] = ..., open_bms_idx: _Optional[int] = ..., para_vol_min: _Optional[int] = ..., para_vol_max: _Optional[int] = ..., min_dsg_soc: _Optional[int] = ..., min_open_oil_eb_soc: _Optional[int] = ..., max_close_oil_eb_soc: _Optional[int] = ...) -> None: ...
+    def __init__(self, chg_state: int | None = ..., chg_cmd: int | None = ..., dsg_cmd: int | None = ..., chg_amp: int | None = ..., fan_level: int | None = ..., max_charge_soc: int | None = ..., bms_model: int | None = ..., lcd_show_soc: int | None = ..., open_ups_flag: int | None = ..., bms_warning_state: int | None = ..., chg_remain_time: int | None = ..., dsg_remain_time: int | None = ..., ems_is_normal_flag: int | None = ..., f32_lcd_show_soc: float | None = ..., bms_is_connt: _Iterable[int] | None = ..., max_available_num: int | None = ..., open_bms_idx: int | None = ..., para_vol_min: int | None = ..., para_vol_max: int | None = ..., min_dsg_soc: int | None = ..., min_open_oil_eb_soc: int | None = ..., max_close_oil_eb_soc: int | None = ...) -> None: ...
 
 class GlacierClassicCMSHeartBeatV1P3(_message.Message):
-    __slots__ = ("chg_disable_cond", "dsg_disable_cond", "chg_line_plug_in_flag", "sys_chg_dsg_state", "ems_heartbeat_ver")
+    __slots__ = ("chg_disable_cond", "chg_line_plug_in_flag", "dsg_disable_cond", "ems_heartbeat_ver", "sys_chg_dsg_state")
     CHG_DISABLE_COND_FIELD_NUMBER: _ClassVar[int]
     DSG_DISABLE_COND_FIELD_NUMBER: _ClassVar[int]
     CHG_LINE_PLUG_IN_FLAG_FIELD_NUMBER: _ClassVar[int]
@@ -211,7 +213,7 @@ class GlacierClassicCMSHeartBeatV1P3(_message.Message):
     chg_line_plug_in_flag: int
     sys_chg_dsg_state: int
     ems_heartbeat_ver: int
-    def __init__(self, chg_disable_cond: _Optional[int] = ..., dsg_disable_cond: _Optional[int] = ..., chg_line_plug_in_flag: _Optional[int] = ..., sys_chg_dsg_state: _Optional[int] = ..., ems_heartbeat_ver: _Optional[int] = ...) -> None: ...
+    def __init__(self, chg_disable_cond: int | None = ..., dsg_disable_cond: int | None = ..., chg_line_plug_in_flag: int | None = ..., sys_chg_dsg_state: int | None = ..., ems_heartbeat_ver: int | None = ...) -> None: ...
 
 class GlacierClassicCMSHeartBeatReport(_message.Message):
     __slots__ = ("v1p0", "v1p3")
@@ -219,10 +221,10 @@ class GlacierClassicCMSHeartBeatReport(_message.Message):
     V1P3_FIELD_NUMBER: _ClassVar[int]
     v1p0: GlacierClassicCMSHeartBeatV1P0
     v1p3: GlacierClassicCMSHeartBeatV1P3
-    def __init__(self, v1p0: _Optional[_Union[GlacierClassicCMSHeartBeatV1P0, _Mapping]] = ..., v1p3: _Optional[_Union[GlacierClassicCMSHeartBeatV1P3, _Mapping]] = ...) -> None: ...
+    def __init__(self, v1p0: GlacierClassicCMSHeartBeatV1P0 | _Mapping | None = ..., v1p3: GlacierClassicCMSHeartBeatV1P3 | _Mapping | None = ...) -> None: ...
 
 class GlacierClassicDisplayPropertyUpload(_message.Message):
-    __slots__ = ("errcode", "sys_status", "pow_in_sum_w", "pow_out_sum_w", "dev_standby_time", "screen_off_time", "bat_temp102", "bms_err_code", "en_beep", "pd_err_code", "cms_batt_soc", "cms_dsg_rem_time", "cms_chg_rem_time", "cms_max_chg_soc", "cms_min_dsg_soc", "cms_chg_dsg_state", "cms_batt_design_cap", "plug_in_info_pv_flag", "plug_in_info_pv_type", "bms_main_sn", "plug_in_info_dcp_in_flag", "temp_unit", "set_point_left", "set_point_right", "child_lock", "simple_mode", "bat_protect", "cooling_mode", "temp_monitor_left", "temp_monitor_right", "lid_status", "zone_status", "temp_alert", "input_volt777")
+    __slots__ = ("bat_protect", "bat_temp102", "bms_err_code", "bms_main_sn", "child_lock", "cms_batt_design_cap", "cms_batt_soc", "cms_chg_dsg_state", "cms_chg_rem_time", "cms_dsg_rem_time", "cms_max_chg_soc", "cms_min_dsg_soc", "cooling_mode", "dev_standby_time", "en_beep", "errcode", "input_volt777", "lid_status", "pd_err_code", "plug_in_info_dcp_in_flag", "plug_in_info_pv_flag", "plug_in_info_pv_type", "pow_in_sum_w", "pow_out_sum_w", "screen_off_time", "set_point_left", "set_point_right", "simple_mode", "sys_status", "temp_alert", "temp_monitor_left", "temp_monitor_right", "temp_unit", "zone_status")
     ERRCODE_FIELD_NUMBER: _ClassVar[int]
     SYS_STATUS_FIELD_NUMBER: _ClassVar[int]
     POW_IN_SUM_W_FIELD_NUMBER: _ClassVar[int]
@@ -291,10 +293,10 @@ class GlacierClassicDisplayPropertyUpload(_message.Message):
     zone_status: int
     temp_alert: int
     input_volt777: float
-    def __init__(self, errcode: _Optional[int] = ..., sys_status: _Optional[int] = ..., pow_in_sum_w: _Optional[float] = ..., pow_out_sum_w: _Optional[float] = ..., dev_standby_time: _Optional[int] = ..., screen_off_time: _Optional[int] = ..., bat_temp102: _Optional[int] = ..., bms_err_code: _Optional[int] = ..., en_beep: _Optional[int] = ..., pd_err_code: _Optional[int] = ..., cms_batt_soc: _Optional[float] = ..., cms_dsg_rem_time: _Optional[int] = ..., cms_chg_rem_time: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., cms_chg_dsg_state: _Optional[int] = ..., cms_batt_design_cap: _Optional[int] = ..., plug_in_info_pv_flag: _Optional[int] = ..., plug_in_info_pv_type: _Optional[int] = ..., bms_main_sn: _Optional[str] = ..., plug_in_info_dcp_in_flag: _Optional[int] = ..., temp_unit: _Optional[int] = ..., set_point_left: _Optional[float] = ..., set_point_right: _Optional[float] = ..., child_lock: _Optional[int] = ..., simple_mode: _Optional[int] = ..., bat_protect: _Optional[int] = ..., cooling_mode: _Optional[int] = ..., temp_monitor_left: _Optional[float] = ..., temp_monitor_right: _Optional[float] = ..., lid_status: _Optional[int] = ..., zone_status: _Optional[int] = ..., temp_alert: _Optional[int] = ..., input_volt777: _Optional[float] = ...) -> None: ...
+    def __init__(self, errcode: int | None = ..., sys_status: int | None = ..., pow_in_sum_w: float | None = ..., pow_out_sum_w: float | None = ..., dev_standby_time: int | None = ..., screen_off_time: int | None = ..., bat_temp102: int | None = ..., bms_err_code: int | None = ..., en_beep: int | None = ..., pd_err_code: int | None = ..., cms_batt_soc: float | None = ..., cms_dsg_rem_time: int | None = ..., cms_chg_rem_time: int | None = ..., cms_max_chg_soc: int | None = ..., cms_min_dsg_soc: int | None = ..., cms_chg_dsg_state: int | None = ..., cms_batt_design_cap: int | None = ..., plug_in_info_pv_flag: int | None = ..., plug_in_info_pv_type: int | None = ..., bms_main_sn: str | None = ..., plug_in_info_dcp_in_flag: int | None = ..., temp_unit: int | None = ..., set_point_left: float | None = ..., set_point_right: float | None = ..., child_lock: int | None = ..., simple_mode: int | None = ..., bat_protect: int | None = ..., cooling_mode: int | None = ..., temp_monitor_left: float | None = ..., temp_monitor_right: float | None = ..., lid_status: int | None = ..., zone_status: int | None = ..., temp_alert: int | None = ..., input_volt777: float | None = ...) -> None: ...
 
 class GlacierClassicRuntimePropertyUpload(_message.Message):
-    __slots__ = ("plug_in_info_ac_in_vol", "display_property_full_upload_period", "display_property_incremental_upload_period", "runtime_property_full_upload_period", "runtime_property_incremental_upload_period")
+    __slots__ = ("display_property_full_upload_period", "display_property_incremental_upload_period", "plug_in_info_ac_in_vol", "runtime_property_full_upload_period", "runtime_property_incremental_upload_period")
     PLUG_IN_INFO_AC_IN_VOL_FIELD_NUMBER: _ClassVar[int]
     DISPLAY_PROPERTY_FULL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
     DISPLAY_PROPERTY_INCREMENTAL_UPLOAD_PERIOD_FIELD_NUMBER: _ClassVar[int]
@@ -305,10 +307,10 @@ class GlacierClassicRuntimePropertyUpload(_message.Message):
     display_property_incremental_upload_period: int
     runtime_property_full_upload_period: int
     runtime_property_incremental_upload_period: int
-    def __init__(self, plug_in_info_ac_in_vol: _Optional[float] = ..., display_property_full_upload_period: _Optional[int] = ..., display_property_incremental_upload_period: _Optional[int] = ..., runtime_property_full_upload_period: _Optional[int] = ..., runtime_property_incremental_upload_period: _Optional[int] = ...) -> None: ...
+    def __init__(self, plug_in_info_ac_in_vol: float | None = ..., display_property_full_upload_period: int | None = ..., display_property_incremental_upload_period: int | None = ..., runtime_property_full_upload_period: int | None = ..., runtime_property_incremental_upload_period: int | None = ...) -> None: ...
 
 class GlacierClassicSetCommand(_message.Message):
-    __slots__ = ("en_beep", "dev_standby_time", "cms_max_chg_soc", "cms_min_dsg_soc", "standby", "set_point_left", "set_point_right", "child_lock", "simple_mode", "bat_protect", "cooling_mode", "temp_alert")
+    __slots__ = ("bat_protect", "child_lock", "cms_max_chg_soc", "cms_min_dsg_soc", "cooling_mode", "dev_standby_time", "en_beep", "set_point_left", "set_point_right", "simple_mode", "standby", "temp_alert")
     EN_BEEP_FIELD_NUMBER: _ClassVar[int]
     DEV_STANDBY_TIME_FIELD_NUMBER: _ClassVar[int]
     CMS_MAX_CHG_SOC_FIELD_NUMBER: _ClassVar[int]
@@ -333,4 +335,4 @@ class GlacierClassicSetCommand(_message.Message):
     bat_protect: int
     cooling_mode: int
     temp_alert: int
-    def __init__(self, en_beep: _Optional[int] = ..., dev_standby_time: _Optional[int] = ..., cms_max_chg_soc: _Optional[int] = ..., cms_min_dsg_soc: _Optional[int] = ..., standby: _Optional[int] = ..., set_point_left: _Optional[float] = ..., set_point_right: _Optional[float] = ..., child_lock: _Optional[int] = ..., simple_mode: _Optional[int] = ..., bat_protect: _Optional[int] = ..., cooling_mode: _Optional[int] = ..., temp_alert: _Optional[int] = ...) -> None: ...
+    def __init__(self, en_beep: int | None = ..., dev_standby_time: int | None = ..., cms_max_chg_soc: int | None = ..., cms_min_dsg_soc: int | None = ..., standby: int | None = ..., set_point_left: float | None = ..., set_point_right: float | None = ..., child_lock: int | None = ..., simple_mode: int | None = ..., bat_protect: int | None = ..., cooling_mode: int | None = ..., temp_alert: int | None = ...) -> None: ...
