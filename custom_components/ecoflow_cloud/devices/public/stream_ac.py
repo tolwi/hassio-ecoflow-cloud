@@ -89,6 +89,11 @@ class StreamAC(BaseDevice):
             # "cmsBattPowInMax": 2114,
             # "cmsBattPowOutMax": 2400,
             # "cmsBattSoc": 43.0,
+            # Actual battery state-of-charge. Stream Ultra / Ultra X report SoC
+            # via cmsBattSoc rather than soc/f32ShowSoc, so expose it directly
+            # as a battery-level sensor (auto_enable so it only activates on
+            # firmware that actually sends the field).
+            LevelSensorEntity(client, self, "cmsBattSoc", const.STREAM_BATTERY_LEVEL, False, True),
             StoredEnergyFromSocSensorEntity(
                 client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY
             ),

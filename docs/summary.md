@@ -1664,7 +1664,7 @@
 
 </p></details>
 
-<details><summary> STREAM_AC <i>(sensors: 40)</i> </summary>
+<details><summary> STREAM_AC <i>(sensors: 42)</i> </summary>
 <p>
 
 *Sensors*
@@ -1673,11 +1673,13 @@
 - Cumulative Capacity Discharge (mAh)  _(disabled)_
 - Cumulative Energy Discharge (Wh)  _(disabled)_
 - Charge Remaining Time  _(disabled)_
-- Discharge Remaining Time  _(disabled)_
-- Stored Energy
+- Discharge Remaining Time
+- Stored Energy  _(auto)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles  _(disabled)_
 - Design Capacity  _(disabled)_
-- Power Battery SOC  _(disabled)_
+- Power Battery SOC
 - Full Capacity  _(disabled)_
 - Power AC
 - Power Volts  _(disabled)_
@@ -1703,7 +1705,7 @@
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time  _(disabled)_
-- Power Battery  _(disabled)_
+- Battery Level
 - State of Health  _(disabled)_
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
@@ -1711,7 +1713,7 @@
 
 </p></details>
 
-<details><summary> STREAM_PRO <i>(sensors: 40)</i> </summary>
+<details><summary> STREAM_PRO <i>(sensors: 42)</i> </summary>
 <p>
 
 *Sensors*
@@ -1720,11 +1722,13 @@
 - Cumulative Capacity Discharge (mAh)  _(disabled)_
 - Cumulative Energy Discharge (Wh)  _(disabled)_
 - Charge Remaining Time  _(disabled)_
-- Discharge Remaining Time  _(disabled)_
-- Stored Energy
+- Discharge Remaining Time
+- Stored Energy  _(auto)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles  _(disabled)_
 - Design Capacity  _(disabled)_
-- Power Battery SOC  _(disabled)_
+- Power Battery SOC
 - Full Capacity  _(disabled)_
 - Power AC
 - Power Volts  _(disabled)_
@@ -1750,7 +1754,7 @@
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time  _(disabled)_
-- Power Battery  _(disabled)_
+- Battery Level
 - State of Health  _(disabled)_
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
@@ -1758,7 +1762,7 @@
 
 </p></details>
 
-<details><summary> STREAM_ULTRA <i>(sensors: 40)</i> </summary>
+<details><summary> STREAM_ULTRA <i>(sensors: 42)</i> </summary>
 <p>
 
 *Sensors*
@@ -1767,11 +1771,13 @@
 - Cumulative Capacity Discharge (mAh)  _(disabled)_
 - Cumulative Energy Discharge (Wh)  _(disabled)_
 - Charge Remaining Time  _(disabled)_
-- Discharge Remaining Time  _(disabled)_
-- Stored Energy
+- Discharge Remaining Time
+- Stored Energy  _(auto)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles  _(disabled)_
 - Design Capacity  _(disabled)_
-- Power Battery SOC  _(disabled)_
+- Power Battery SOC
 - Full Capacity  _(disabled)_
 - Power AC
 - Power Volts  _(disabled)_
@@ -1797,7 +1803,56 @@
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time  _(disabled)_
-- Power Battery  _(disabled)_
+- Battery Level
+- State of Health  _(disabled)_
+- Power AC SYS  _(disabled)_
+- Battery Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+
+</p></details>
+
+<details><summary> STREAM_ULTRA_X <i>(sensors: 42)</i> </summary>
+<p>
+
+*Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)  _(disabled)_
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)  _(disabled)_
+- Charge Remaining Time  _(disabled)_
+- Discharge Remaining Time
+- Stored Energy  _(auto)_
+- Max Charge Level
+- Min Discharge Level
+- Cycles  _(disabled)_
+- Design Capacity  _(disabled)_
+- Power Battery SOC
+- Full Capacity  _(disabled)_
+- Power AC
+- Power Volts  _(disabled)_
+- In Power  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Out Power  _(disabled)_
+- Power Battery
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV Sum
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
+- Power Grid
+- Power Sys Load
+- Power Sys Load From Battery
+- Power Sys Load From Grid
+- Power Sys Load From PV
+- Real State of Health  _(disabled)_
+- Remain Capacity  _(disabled)_
+- Remaining Time  _(disabled)_
+- Battery Level
 - State of Health  _(disabled)_
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
@@ -2809,7 +2864,7 @@
 
 </p></details>
 
-<details><summary> Stream AC (API) <i>(sensors: 54, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream AC (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2819,6 +2874,7 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Battery Level  _(auto)_
 - Stored Energy
 - Max Charge Level
 - Min Discharge Level
@@ -2880,7 +2936,7 @@
 
 </p></details>
 
-<details><summary> Stream PRO (API) <i>(sensors: 54, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream PRO (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2890,6 +2946,7 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Battery Level  _(auto)_
 - Stored Energy
 - Max Charge Level
 - Min Discharge Level
@@ -2951,7 +3008,7 @@
 
 </p></details>
 
-<details><summary> Stream Ultra (API) <i>(sensors: 54, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream Ultra (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2961,6 +3018,79 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Battery Level  _(auto)_
+- Stored Energy
+- Max Charge Level
+- Min Discharge Level
+- Cycles
+- Design Capacity  _(disabled)_
+- Power Battery SOC
+- Full Capacity  _(disabled)_
+- Power AC
+- Power Volts  _(disabled)_
+- In Power
+- Max Cell Temperature  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Out Power
+- Power Battery
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV3 Volts  _(auto)_
+- Power PV4 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Power PV3 In Amps  _(auto)_
+- Power PV4 In Amps  _(auto)_
+- Power PV Sum
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
+- Power Grid
+- Power Sys Load
+- Power Sys Load From Battery
+- Power Sys Load From Grid
+- Power Sys Load From PV
+- Real State of Health  _(disabled)_
+- Remain Capacity  _(disabled)_
+- Remaining Time
+- Power Battery
+- State of Health
+- Power AC SYS
+- Battery Temperature
+- Battery Volts  _(disabled)_
+
+*Switches*
+- AC 1 On
+- AC 2 On
+- Operating mode - Self-powered
+- Operating mode - AI Mode
+- Feed-in control
+
+*Sliders (numbers)*
+- Backup Reserve Level
+
+</p></details>
+
+<details><summary> Stream Ultra X (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
+- Charge Remaining Time  _(disabled)_
+- Discharge Remaining Time  _(disabled)_
+- Battery Level  _(auto)_
 - Stored Energy
 - Max Charge Level
 - Min Discharge Level

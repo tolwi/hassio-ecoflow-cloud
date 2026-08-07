@@ -1,4 +1,4 @@
-## Stream_AC
+## Stream_Ultra_X
 
 *Sensors*
 - Cumulative Capacity Charge (mAh) (`accuChgCap`)   _(disabled)_
