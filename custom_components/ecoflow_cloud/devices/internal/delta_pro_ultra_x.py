@@ -37,7 +37,7 @@ MAX_PACKS = 10
 class _ChargingStateTextEntity(MiscSensorEntity):
     """Translates cms_chg_dsg_state (int) into a descriptive text label."""
 
-    _LABELS: ClassVar[dict[int, str]] = {0: "Zero", 1: "One", 2: "Charging"}
+    _LABELS: ClassVar[dict[int, str]] = {0: "Not Charging", 1: "One", 2: "Charging"}
 
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(self._LABELS.get(int(val), "Unknown"))
