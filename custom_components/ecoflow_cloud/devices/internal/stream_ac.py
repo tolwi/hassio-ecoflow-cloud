@@ -11,6 +11,7 @@ from homeassistant.util import utcnow
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.sensor import (
+    BatteryLimitSensorEntity,
     CapacitySensorEntity,
     CumulativeCapacitySensorEntity,
     CyclesSensorEntity,
@@ -55,7 +56,11 @@ class StreamAC(BaseInternalDevice):
             RemainSensorEntity(client, self, "bmsChgRemTime", const.CHARGE_REMAINING_TIME, False),
             # "bmsDesignCap": 1920,
             # "bmsDsgRemTime": 5939,
-            RemainSensorEntity(client, self, "bmsDsgRemTime", const.DISCHARGE_REMAINING_TIME, False),
+            # Discharge remaining time (minutes). Stream AC emits this as a
+            # top-level value; Stream Ultra / Ultra X carry it inside the nested
+            # Champ_cmd21_2 message (field 13), normalised onto this key by
+            # _normalize_champ_fields(). One sensor works for every variant.
+            RemainSensorEntity(client, self, "bmsDsgRemTime", const.DISCHARGE_REMAINING_TIME),
             # "bmsFault": 0,
             # "bmsFaultState": 0,
             # "bmsHeartbeatVer": 260,
@@ -84,8 +89,13 @@ class StreamAC(BaseInternalDevice):
             # "cmsBattPowInMax": 2114,
             # "cmsBattPowOutMax": 2400,
             # "cmsBattSoc": 43.0,
+            # cmsBattFullEnergy / cmsBattSoc are not emitted on the private API
+            # for Stream Ultra / Ultra X (confirmed absent from both the private
+            # dump and the Public API quota). auto_enable keeps this hidden where
+            # the source fields never arrive, while still surfacing on Stream
+            # models that do report them.
             StoredEnergyFromSocSensorEntity(
-                client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY
+                client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY, False, True
             ),
             # "cmsBattSoh": 100.0,
             # "cmsBmsRunState": 1,
@@ -93,7 +103,13 @@ class StreamAC(BaseInternalDevice):
             # "cmsChgRemTime": 88,
             # "cmsDsgRemTime": 5939,
             # "cmsMaxChgSoc": 100,
+            # Charge/discharge SoC limits. Stream AC emits these top-level;
+            # Stream Ultra / Ultra X carry them inside the nested Champ_cmd21_2
+            # message (field 7 / field 21), normalised onto these keys by
+            # _normalize_champ_fields().
+            BatteryLimitSensorEntity(client, self, "cmsMaxChgSoc", const.MAX_CHARGE_LEVEL),
             # "cmsMinDsgSoc": 5,
+            BatteryLimitSensorEntity(client, self, "cmsMinDsgSoc", const.MIN_DISCHARGE_LEVEL),
             # "curSensorNtcNum": 0,
             # "curSensorTemp": [],
             # "cycleSoh": 100.0,
@@ -114,7 +130,10 @@ class StreamAC(BaseInternalDevice):
             # "energyStrategyOperateMode.operateSelfPoweredOpen": true,
             # "energyStrategyOperateMode.operateTouModeOpen": false,
             # "f32ShowSoc": 46.317574,
-            LevelSensorEntity(client, self, "f32ShowSoc", const.STREAM_POWER_BATTERY_SOC, False),
+            # Precise battery SoC (float). Stream AC emits this top-level; Stream
+            # Ultra / Ultra X carry it inside the nested Champ_cmd21_2 message
+            # (field 15), normalised onto this key by _normalize_champ_fields().
+            LevelSensorEntity(client, self, "f32ShowSoc", const.STREAM_POWER_BATTERY_SOC),
             # "feedGridMode": 2,
             # "feedGridModePowLimit": 800,
             # "feedGridModePowMax": 800,
@@ -229,7 +248,10 @@ class StreamAC(BaseInternalDevice):
             # "seriesConnectDeviceId": 1,
             # "seriesConnectDeviceStatus": "MASTER",
             # "soc": 46,
-            LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY, False)
+            # Integer battery level. Stream AC emits this top-level; Stream
+            # Ultra / Ultra X carry it inside the nested Champ_cmd21_2 message
+            # (field 9), normalised onto this key by _normalize_champ_fields().
+            LevelSensorEntity(client, self, "soc", const.STREAM_BATTERY_LEVEL)
             .attr("designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
@@ -371,7 +393,34 @@ class StreamAC(BaseInternalDevice):
                 str(raw_data),
                 str(raw_data.hex()),
             )
+        self._normalize_champ_fields(raw["params"])
         return raw
+
+    # Newer Stream firmware / models (e.g. Stream Ultra / Ultra X) do not emit
+    # certain battery values as top-level parameters; they only appear inside
+    # the correctly-typed nested Champ_cmd21_2 message, flattened by
+    # _store_fields() into "Champ_cmd21_2_fieldN" leaves. Map those leaves back
+    # onto their canonical parameter names so a single set of sensors works
+    # across every Stream variant. Field meanings verified against a live Public
+    # API read and the on-device display from raw pdata captures:
+    #   field 9  -> soc          (integer battery level)
+    #   field 15 -> f32ShowSoc   (precise SoC, == cmsBattSoc)
+    #   field 13 -> bmsDsgRemTime (discharge remaining time, minutes)
+    #   field 7  -> cmsMaxChgSoc (max charge SoC limit)
+    #   field 21 -> cmsMinDsgSoc (min discharge SoC limit)
+    # Any top-level value emitted by the device always takes precedence.
+    _CHAMP_FIELD_ALIASES = {
+        "soc": "Champ_cmd21_2_field9",
+        "f32ShowSoc": "Champ_cmd21_2_field15",
+        "bmsDsgRemTime": "Champ_cmd21_2_field13",
+        "cmsMaxChgSoc": "Champ_cmd21_2_field7",
+        "cmsMinDsgSoc": "Champ_cmd21_2_field21",
+    }
+
+    def _normalize_champ_fields(self, params: dict[str, Any]) -> None:
+        for canonical, nested in self._CHAMP_FIELD_ALIASES.items():
+            if nested in params and params.get(canonical) is None:
+                params[canonical] = params[nested]
 
     def _parsedata(self, packet, content, raw):
         try:
@@ -386,12 +435,31 @@ class StreamAC(BaseInternalDevice):
                         str(content),
                     )
 
-                for descriptor in content.DESCRIPTOR.fields:
-                    if not content.HasField(descriptor.name):
-                        continue
-
-                    raw["params"][descriptor.name] = getattr(content, descriptor.name)
+                self._store_fields(content, raw)
 
         except Exception as error:
             _LOGGER.debug(error)
             _LOGGER.debug("Erreur parsing pour le flux : %s", str(packet.msg.pdata.hex()))
+
+    def _store_fields(self, content, raw, depth: int = 0) -> None:
+        """Store a parsed protobuf message's fields into ``raw["params"]``.
+
+        Scalar fields are stored under their own name (existing behaviour).
+        Nested sub-messages are stored as-is (backwards compatible) AND their
+        scalar leaves are flattened one level deeper so that values only
+        available inside correctly-typed nested messages (e.g. the battery
+        ``soc`` carried by ``Champ_cmd21_2_field9``) become readable by
+        sensors. Bounded recursion depth guards against pathological nesting.
+        """
+        for descriptor in content.DESCRIPTOR.fields:
+            if not content.HasField(descriptor.name):
+                continue
+
+            value = getattr(content, descriptor.name)
+
+            if descriptor.type == descriptor.TYPE_MESSAGE:
+                raw["params"][descriptor.name] = value
+                if depth < 3:
+                    self._store_fields(value, raw, depth + 1)
+            else:
+                raw["params"][descriptor.name] = value

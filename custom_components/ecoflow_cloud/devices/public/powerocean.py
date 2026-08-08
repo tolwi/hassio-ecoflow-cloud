@@ -82,6 +82,11 @@ class PowerOcean(BaseDevice):
             WattsSensorEntity(client, self, "96_1.pcsCPhase.actPwr", "pcsCPhase.actPwr"),
             WattsSensorEntity(client, self, "96_1.pcsCPhase.reactPwr", "pcsCPhase.reactPwr"),
             WattsSensorEntity(client, self, "96_1.pcsCPhase.apparentPwr", "pcsCPhase.apparentPwr"),
+            # System-level power meters (from EcoFlow MQTT quota, previously unmapped):
+            # grid exchange, whole-house load and system battery power.
+            WattsSensorEntity(client, self, "sysGridPwr", "sysGridPwr"),
+            WattsSensorEntity(client, self, "sysLoadPwr", "sysLoadPwr"),
+            WattsSensorEntity(client, self, "bpPwr", "bpPwr"),
         ]
 
         mppt_prefix, string_count = self._determine_mppt_metadata()

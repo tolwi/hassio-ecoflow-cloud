@@ -167,12 +167,23 @@ message StreamACChamp_cmd21_2 {
     optional uint32 Champ_cmd21_2_field3 = 3;
     optional uint32 Champ_cmd21_2_field4 = 4;
     optional uint32 Champ_cmd21_2_field5 = 5;
+    optional uint32 Champ_cmd21_2_field7 = 7; // cmsMaxChgSoc (max charge %), verified == Public API
     optional uint32 Champ_cmd21_2_field8 = 8;
-    optional uint32 Champ_cmd21_2_field9 = 9;
+    optional uint32 Champ_cmd21_2_field9 = 9; // SOC %, verified == displayed battery level
     optional uint32 Champ_cmd21_2_field10 = 10;
     optional uint32 Champ_cmd21_2_field11 = 11;
+    optional uint32 Champ_cmd21_2_field12 = 12;
+    optional uint32 Champ_cmd21_2_field13 = 13; // discharge remaining time (minutes), verified ~= displayed runtime
+    optional uint32 Champ_cmd21_2_field14 = 14;
+    optional float Champ_cmd21_2_field15 = 15; // precise SOC (float)
     optional uint32 Champ_cmd21_2_field16 = 16;
     optional uint32 Champ_cmd21_2_field17 = 17;
+    optional uint32 Champ_cmd21_2_field18 = 18;
+    optional uint32 Champ_cmd21_2_field19 = 19;
+    optional uint32 Champ_cmd21_2_field20 = 20;
+    optional uint32 Champ_cmd21_2_field21 = 21; // cmsMinDsgSoc (min discharge %), verified == Public API
+    optional uint32 Champ_cmd21_2_field22 = 22;
+    optional uint32 Champ_cmd21_2_field23 = 23;
 }
 
 message StreamACChamp_cmd21 {

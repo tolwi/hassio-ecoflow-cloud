@@ -295,10 +295,16 @@ class DocumentationGenerator:
 class MarkdownRenderer:
     """Handles rendering of entities to markdown format."""
 
+    def sample_command(self, e: EcoFlowBaseCommandEntity) -> dict[str, Any] | PrivateAPIMessageProtocol | None:
+        """Build a sample command, or None for entities that send it themselves."""
+        try:
+            return e.command_dict(MARKER_VALUE)
+        except ValueError:
+            return None
+
     def command_ro(self, e: EcoFlowBaseCommandEntity) -> str:
         """Check if entity is read-only."""
-        command_dict = e.command_dict(MARKER_VALUE)
-        return " _(read-only)_" if command_dict is None else ""
+        return " _(read-only)_" if self.sample_command(e) is None else ""
 
     def prepare_options(self, options: dict[str, Any]) -> str:
         """Prepare options string for display."""
@@ -306,7 +312,7 @@ class MarkdownRenderer:
 
     def prepare_command(self, e: EcoFlowBaseCommandEntity) -> str:
         """Prepare command string for display."""
-        command_dict = e.command_dict(MARKER_VALUE)
+        command_dict = self.sample_command(e)
         if command_dict is not None:
             if isinstance(command_dict, dict):
                 json_dict = command_dict

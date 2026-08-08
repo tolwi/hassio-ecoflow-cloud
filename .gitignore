@@ -11,4 +11,3 @@ tests
 .devcontainer/.env
 tools
 mise.local.toml
-uv.lock
