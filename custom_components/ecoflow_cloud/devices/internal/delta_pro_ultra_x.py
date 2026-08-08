@@ -15,7 +15,6 @@ from custom_components.ecoflow_cloud.devices.internal.proto import (
 from custom_components.ecoflow_cloud.sensor import (
     BatteryLimitSensorEntity,
     FrequencySensorEntity,
-    InRawAmpSolarSensorEntity,
     InRawVoltSolarSensorEntity,
     InRawWattsSolarSensorEntity,
     InWattsSensorEntity,
@@ -75,11 +74,9 @@ class DeltaProUltraX(DeltaPro3):
             # Two symmetric high-voltage PV inputs (80-500 V, 5 kW each) — not HV/LV
             # like the non-X Delta Pro Ultra; name them as circuits 1/2 per the manual.
             InRawWattsSolarSensorEntity(client, self, "pow_get_pv_h", const.SOLAR_1_IN_POWER, False),
-            InRawVoltSolarSensorEntity(client, self, "plug_in_info_pv_h_vol", const.SOLAR_1_IN_VOLTS, False),
-            InRawAmpSolarSensorEntity(client, self, "plug_in_info_pv_h_amp", const.SOLAR_1_IN_AMPS, False),
+            InRawVoltSolarSensorEntity(client, self, "pv_vin_ref", const.SOLAR_1_IN_VOLTS, False),
             InRawWattsSolarSensorEntity(client, self, "pow_get_pv_l", const.SOLAR_2_IN_POWER, False),
-            InRawVoltSolarSensorEntity(client, self, "plug_in_info_pv_l_vol", const.SOLAR_2_IN_VOLTS, False),
-            InRawAmpSolarSensorEntity(client, self, "plug_in_info_pv_l_amp", const.SOLAR_2_IN_AMPS, False),
+            InRawVoltSolarSensorEntity(client, self, "pv2_vin_ref", const.SOLAR_2_IN_VOLTS, False),
             FrequencySensorEntity(client, self, "ac_out_freq", "AC Output Frequency", False),
             # Per-phase output power, signed to preserve direction.
             OutWattsSensorEntity(client, self, "pow_get_l1", "AC Output Power L1", False),
