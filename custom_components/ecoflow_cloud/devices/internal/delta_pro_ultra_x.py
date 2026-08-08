@@ -1,5 +1,5 @@
 import logging
-from typing import Any, override
+from typing import Any, ClassVar, override
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
@@ -17,7 +17,6 @@ from custom_components.ecoflow_cloud.sensor import (
     BatteryLimitSensorEntity,
     FrequencySensorEntity,
     InRawVoltSolarSensorEntity,
-    InRawWattsSolarSensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
     MiscSensorEntity,
@@ -33,6 +32,15 @@ _LOGGER = logging.getLogger(__name__)
 
 # The DPU X supports up to 10 external battery packs.
 MAX_PACKS = 10
+
+
+class _ChargingStateTextEntity(MiscSensorEntity):
+    """Translates cms_chg_dsg_state (int) into a descriptive text label."""
+
+    _LABELS: ClassVar[dict[int, str]] = {0: "Zero", 1: "One", 2: "Charging"}
+
+    def _update_value(self, val: Any) -> bool:
+        return super()._update_value(self._LABELS.get(int(val), "Unknown"))
 
 
 class DeltaProUltraX(DeltaPro3):
@@ -77,9 +85,7 @@ class DeltaProUltraX(DeltaPro3):
             OutWattsSensorEntity(client, self, "pow_get_ac_lv_out", "AC 120V Output Power", False),
             # Two symmetric high-voltage PV inputs (80-500 V, 5 kW each) — not HV/LV
             # like the non-X Delta Pro Ultra; name them as circuits 1/2 per the manual.
-            InRawWattsSolarSensorEntity(client, self, "pow_get_pv_h", const.SOLAR_1_IN_POWER, False),
             InRawVoltSolarSensorEntity(client, self, "pv_vin_ref", const.SOLAR_1_IN_VOLTS, False),
-            InRawWattsSolarSensorEntity(client, self, "pow_get_pv_l", const.SOLAR_2_IN_POWER, False),
             InRawVoltSolarSensorEntity(client, self, "pv2_vin_ref", const.SOLAR_2_IN_VOLTS, False),
             FrequencySensorEntity(client, self, "ac_out_freq", "AC Output Frequency", False),
             # Per-phase output power, signed to preserve direction.
@@ -109,6 +115,7 @@ class DeltaProUltraX(DeltaPro3):
             VoltSensorEntity(client, self, "inv_bus_vol", "Inverter Bus Voltage", False),
             # Charging state (0=idle, 1=discharging, 2=charging per DP3 proto).
             MiscSensorEntity(client, self, "cms_chg_dsg_state", "Charging State", False),
+            _ChargingStateTextEntity(client, self, "cms_chg_dsg_state", "Charging State Text", False),
             # MPPT pause-event counters.
             MiscSensorEntity(client, self, "pv_pause_cnt", "Solar 1 MPPT Pause Count", False),
             MiscSensorEntity(client, self, "pv2_pause_cnt", "Solar 2 MPPT Pause Count", False),
