@@ -37,7 +37,7 @@ MAX_PACKS = 10
 class _ChargingStateTextEntity(MiscSensorEntity):
     """Translates cms_chg_dsg_state (int) into a descriptive text label."""
 
-    _LABELS: ClassVar[dict[int, str]] = {0: "Not Charging", 1: "One", 2: "Charging"}
+    _LABELS: ClassVar[dict[int, str]] = {0: "Not Charging", 1: "Discharging", 2: "Charging"}
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
