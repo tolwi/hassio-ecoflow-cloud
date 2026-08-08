@@ -13,16 +13,20 @@ from custom_components.ecoflow_cloud.devices.internal.proto import (
     ef_delta_pro_ultra_x_pb2 as dpux,
 )
 from custom_components.ecoflow_cloud.sensor import (
+    AmpSensorEntity,
     BatteryLimitSensorEntity,
     FrequencySensorEntity,
     InRawVoltSolarSensorEntity,
     InRawWattsSolarSensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
+    MiscSensorEntity,
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
     TempSensorEntity,
+    VoltSensorEntity,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -88,6 +92,37 @@ class DeltaProUltraX(DeltaPro3):
                 TempSensorEntity(client, self, f"bp_{n}_temp", const.BATTERY_N_TEMP % n, False)
                 for n in range(1, MAX_PACKS + 1)
             ],
+            # Inverter / LLC / PCS temperatures.
+            TempSensorEntity(client, self, "inv_ntc_temp2", "Inverter Temperature 2", False),
+            TempSensorEntity(client, self, "inv_ntc_temp3", "Inverter Temperature 3", False),
+            TempSensorEntity(client, self, "llc_ntc_temp", "LLC Temperature", False),
+            TempSensorEntity(client, self, "temp_pcs_ac", "PCS AC Temperature", False),
+            TempSensorEntity(client, self, "temp_pcs_dc", "PCS DC Temperature", False),
+            # Power conversion bus metrics.
+            VoltSensorEntity(client, self, "llc_bat_vol", "Battery Bus Voltage", False),
+            AmpSensorEntity(client, self, "llc_bat_cur", "Battery Bus Current", False),
+            VoltSensorEntity(client, self, "cms_batt_vol", "CMS Battery Voltage", False),
+            AmpSensorEntity(client, self, "cms_batt_amp", "CMS Battery Current", False),
+            StateOfHealthSensorEntity(client, self, "cms_batt_soh", "Battery State of Health", False),
+            VoltSensorEntity(client, self, "mppt_bat_vol", "MPPT Battery Voltage", False),
+            AmpSensorEntity(client, self, "mppt_bat_amp", "MPPT Battery Current", False),
+            VoltSensorEntity(client, self, "inv_bus_vol", "Inverter Bus Voltage", False),
+            # Charging state (0=idle, 1=discharging, 2=charging per DP3 proto).
+            MiscSensorEntity(client, self, "cms_chg_dsg_state", "Charging State", False),
+            # MPPT pause-event counters.
+            MiscSensorEntity(client, self, "pv_pause_cnt", "Solar 1 MPPT Pause Count", False),
+            MiscSensorEntity(client, self, "pv2_pause_cnt", "Solar 2 MPPT Pause Count", False),
+            # Firmware / hardware versions (diagnostic).
+            MiscSensorEntity(client, self, "bms_firm_ver", "BMS Firmware Version", False),
+            MiscSensorEntity(client, self, "pd_firm_ver", "PD Firmware Version", False),
+            MiscSensorEntity(client, self, "llc_firm_ver", "LLC Firmware Version", False),
+            MiscSensorEntity(client, self, "iot_firm_ver", "IoT Firmware Version", False),
+            MiscSensorEntity(client, self, "mppt_hardware_ver", "MPPT Hardware Version", False),
+            # Error codes (diagnostic).
+            MiscSensorEntity(client, self, "errcode", "Error Code", False),
+            MiscSensorEntity(client, self, "bms_err_code", "BMS Error Code", False),
+            MiscSensorEntity(client, self, "mppt_err_code", "MPPT Error Code", False),
+            MiscSensorEntity(client, self, "pd_err_code", "PD Error Code", False),
         ]
 
     @override
