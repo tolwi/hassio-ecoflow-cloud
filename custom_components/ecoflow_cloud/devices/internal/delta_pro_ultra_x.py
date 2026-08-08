@@ -39,6 +39,10 @@ class _ChargingStateTextEntity(MiscSensorEntity):
 
     _LABELS: ClassVar[dict[int, str]] = {0: "Not Charging", 1: "One", 2: "Charging"}
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._attr_unique_id += "-text"
+
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(self._LABELS.get(int(val), "Unknown"))
 
