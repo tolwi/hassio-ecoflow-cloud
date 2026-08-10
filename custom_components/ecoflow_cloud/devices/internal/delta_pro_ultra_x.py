@@ -34,6 +34,27 @@ _LOGGER = logging.getLogger(__name__)
 MAX_PACKS = 10
 
 
+class _PhaseWattsSensorEntity(InWattsSensorEntity):
+    """Reports phase power (W) by multiplying a voltage key with an amperage key."""
+
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: Any,
+        volt_key: str,
+        amp_key: str,
+        title: str,
+        enabled: bool = False,
+    ) -> None:
+        super().__init__(client, device, volt_key, title, enabled)
+        self._amp_key = amp_key
+        self._attr_unique_id += f"-{amp_key.replace('_', '-')}-watts"
+
+    def _update_value(self, val: Any) -> bool:
+        amp_val = self._device.data.params.get(self._amp_key, 0.0)
+        return super()._update_value(float(val) * float(amp_val))
+
+
 class _ChargingStateTextEntity(MiscSensorEntity):
     """Translates cms_chg_dsg_state (int) into a descriptive text label."""
 
@@ -84,8 +105,10 @@ class DeltaProUltraX(DeltaPro3):
             # AC input: DPU X does not send pow_get_ac_in; expose per-phase V/A instead.
             VoltSensorEntity(client, self, "plug_in_info_l1_vol", "AC Input L1 Voltage", False),
             AmpSensorEntity(client, self, "plug_in_info_l1_amp", "AC Input L1 Current", False),
+            _PhaseWattsSensorEntity(client, self, "plug_in_info_l1_vol", "plug_in_info_l1_amp", "AC Input L1 Power", False),
             VoltSensorEntity(client, self, "plug_in_info_l2_vol", "AC Input L2 Voltage", False),
             AmpSensorEntity(client, self, "plug_in_info_l2_amp", "AC Input L2 Current", False),
+            _PhaseWattsSensorEntity(client, self, "plug_in_info_l2_vol", "plug_in_info_l2_amp", "AC Input L2 Power", False),
             OutWattsSensorEntity(client, self, "pow_get_ac", const.AC_OUT_POWER, False),
             # HV/LV = the 240V (line-to-line) and 120V (line-to-neutral) rails of the
             # split-phase output — the X has no HV/LV concept; name by voltage.
