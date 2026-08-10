@@ -81,7 +81,11 @@ class DeltaProUltraX(DeltaPro3):
                 LevelSensorEntity(client, self, f"bp_{n}_soc", const.BATTERY_N_LEVEL % n, False)
                 for n in range(1, MAX_PACKS + 1)
             ],
-            InWattsSensorEntity(client, self, "pow_get_ac_in", const.AC_IN_POWER, False),
+            # AC input: DPU X does not send pow_get_ac_in; expose per-phase V/A instead.
+            VoltSensorEntity(client, self, "plug_in_info_l1_vol", "AC Input L1 Voltage", False),
+            AmpSensorEntity(client, self, "plug_in_info_l1_amp", "AC Input L1 Current", False),
+            VoltSensorEntity(client, self, "plug_in_info_l2_vol", "AC Input L2 Voltage", False),
+            AmpSensorEntity(client, self, "plug_in_info_l2_amp", "AC Input L2 Current", False),
             OutWattsSensorEntity(client, self, "pow_get_ac", const.AC_OUT_POWER, False),
             # HV/LV = the 240V (line-to-line) and 120V (line-to-neutral) rails of the
             # split-phase output — the X has no HV/LV concept; name by voltage.
