@@ -28,6 +28,7 @@ from custom_components.ecoflow_cloud.devices.internal import (
     smart_meter as internal_smart_meter,
     smart_plug as internal_smart_plug,
     stream_ac as internal_stream_ac,
+    stream_microinverter as internal_stream_microinverter,
     wave2 as internal_wave2,
     wave3 as internal_wave3,
 )
@@ -87,6 +88,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "STREAM_PRO": internal_stream_ac.StreamAC,
         "STREAM_ULTRA": internal_stream_ac.StreamAC,
         "STREAM_ULTRA_X": internal_stream_ac.StreamAC,
+        "STREAM_MICROINVERTER": internal_stream_microinverter.StreamMicroinverter,
         "DIAGNOSTIC": DiagnosticDevice,
     }
 )

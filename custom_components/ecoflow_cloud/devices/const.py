@@ -421,6 +421,12 @@ STREAM_OPERATION_MODE_SELF_POWERED = "Operating mode - Self-powered"
 STREAM_OPERATION_MODE_AI_MODE = "Operating mode - AI Mode"
 STREAM_FEED_IN_CONTROL = "Feed-in control"
 
+# Stream Microinverter (BK-series, internal/App API)
+STREAM_GRID_CONNECTION_STATUS = "Grid Connection Status"
+STREAM_WIFI_RSSI = "WiFi Signal Strength"
+STREAM_FEED_GRID_MODE_POW_LIMIT = "Feed-in Power Limit"
+STREAM_FEED_GRID_MODE_POW_MAX = "Feed-in Power Max"
+
 ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
 ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
 ACCU_DISCHARGE_CAP = "Cumulative Capacity Discharge (mAh)"
