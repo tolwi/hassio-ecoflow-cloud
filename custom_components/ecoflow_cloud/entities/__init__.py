@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import inspect
 from typing import Any, Callable, Mapping, Optional, OrderedDict, Self, cast
 
@@ -142,11 +143,19 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
     def _handle_coordinator_update(self) -> None:
         if self.coordinator.data.changed:
             self._updated(self.coordinator.data.data_holder.params)
-        elif self._device.status_tracker.is_offline:  # Device is offline
+        elif self._device.status_tracker.is_offline and self._device.reset_sensors_when_offline():  # Device is offline
             # Reset sensors that should reset to default values
             if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
-                self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
-                self._updated(self.coordinator.data.data_holder.params)
+                # Work on a deep copy so the shared data_holder.params dict -
+                # and every other entity/diagnostics view backed by it - is
+                # never mutated with a fabricated default value. A shallow
+                # {**params, key: value} copy is not enough here because
+                # self._mqtt_key_expr may address a nested path (flat_json()
+                # == False), so we let the already-parsed jsonpath expression
+                # update a full copy of the params tree instead.
+                params_copy = copy.deepcopy(self.coordinator.data.data_holder.params)
+                self._mqtt_key_expr.update(params_copy, self._attr_default_value)
+                self._updated(params_copy)
 
     def _updated(self, data: dict[str, Any]):
         # update attributes

@@ -92,6 +92,11 @@ class BaseDevice(ABC):
     def flat_json(self) -> bool:
         return True
 
+    def reset_sensors_when_offline(self) -> bool:
+        """Whether measurement sensors should fall back to their default value
+        (usually 0) while the device is considered offline."""
+        return True
+
     async def async_restore_state(self):
         """Restore persisted device state on startup. Override in subclasses."""
         pass

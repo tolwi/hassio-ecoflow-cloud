@@ -22,6 +22,14 @@ from custom_components.ecoflow_cloud.devices.public.stream_pv_helpers import (
 
 
 class StreamMicroinveter(BaseDevice):
+    def reset_sensors_when_offline(self) -> bool:
+        # The Stream family pushes over the Public API irregularly (as
+        # infrequently as every ~15 min while idle), and /device/quota/all
+        # returns an empty dataset for this device. "Offline" is therefore
+        # not a reliable signal here, and holding the last known measurement
+        # is more honest than fabricating a 0. See issues #696 and #651.
+        return False
+
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             WattsSensorEntity(client, self, "gridConnectionPower", const.STREAM_POWER_AC),
