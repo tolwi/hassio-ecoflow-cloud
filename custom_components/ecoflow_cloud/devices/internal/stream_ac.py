@@ -362,6 +362,17 @@ class StreamAC(BaseInternalDevice):
                     if packet.msg.cmd_id > 0:
                         self._parsedata(packet, stream_ac2.StreamACChamp_cmd21(), raw)
 
+                    # Battery telemetry, in whichever shape this model uses.
+                    # Normalised here rather than at the end of the method: the
+                    # parses below re-read the same pdata as unrelated message
+                    # types and overwrite the "Champ_cmd21_2_field*" keys with
+                    # garbage, so the canonical keys have to be pinned first.
+                    if packet.msg.cmd_id > 0:
+                        champ_cmd21_2 = self._extract_champ_cmd21_2(packet, stream_ac2)
+                        if champ_cmd21_2 is not None:
+                            self._store_fields(champ_cmd21_2, raw)
+                            self._normalize_champ_fields(raw["params"])
+
                     # paquet Champ_cmd21_3
                     if packet.msg.cmd_id > 0:
                         self._parsedata(packet, stream_ac2.StreamACChamp_cmd21_3(), raw)
@@ -393,7 +404,6 @@ class StreamAC(BaseInternalDevice):
                 str(raw_data),
                 str(raw_data.hex()),
             )
-        self._normalize_champ_fields(raw["params"])
         return raw
 
     # Newer Stream firmware / models (e.g. Stream Ultra / Ultra X) do not emit
@@ -421,6 +431,65 @@ class StreamAC(BaseInternalDevice):
         for canonical, nested in self._CHAMP_FIELD_ALIASES.items():
             if nested in params and params.get(canonical) is None:
                 params[canonical] = params[nested]
+
+    # Percentage-valued leaves, used to sanity-check a bare Champ_cmd21_2
+    # decode before trusting it.
+    _CHAMP_PERCENT_FIELDS = (
+        "Champ_cmd21_2_field9",  # soc
+        "Champ_cmd21_2_field15",  # f32ShowSoc
+        "Champ_cmd21_2_field7",  # cmsMaxChgSoc
+        "Champ_cmd21_2_field21",  # cmsMinDsgSoc
+    )
+
+    def _extract_champ_cmd21_2(self, packet, stream_ac2):
+        """Return the Champ_cmd21_2 message a frame carries, or None.
+
+        Stream AC / Ultra / Ultra X wrap it in Champ_cmd21 as field 1, but
+        Stream Pro emits it bare - the whole pdata *is* the Champ_cmd21_2, with
+        no wrapper. Parsing that as Champ_cmd21 yields an entirely empty
+        message, which is why the battery leaves never reached the sensors on
+        that model. Prefer the wrapped form, fall back to the bare one.
+
+        Every frame this device sends will parse as *some* Champ_cmd21_2, so
+        both candidates are sanity-checked before being trusted: an unrelated
+        frame reinterpreted under this schema nearly always lands outside 0-100
+        on at least one percentage leaf.
+        """
+        pdata = getattr(packet.msg, "pdata", b"")
+        if not pdata:
+            return None
+
+        candidates = []
+
+        try:
+            wrapped = stream_ac2.StreamACChamp_cmd21()
+            wrapped.ParseFromString(pdata)
+            if wrapped.HasField("Champ_cmd21_champ_cmd21_2"):
+                candidates.append(wrapped.Champ_cmd21_champ_cmd21_2)
+        except Exception as error:
+            _LOGGER.debug(error)
+
+        try:
+            bare = stream_ac2.StreamACChamp_cmd21_2()
+            bare.ParseFromString(pdata)
+            candidates.append(bare)
+        except Exception as error:
+            _LOGGER.debug(error)
+
+        for candidate in candidates:
+            if self._looks_like_battery_telemetry(candidate):
+                return candidate
+
+        return None
+
+    @classmethod
+    def _looks_like_battery_telemetry(cls, msg) -> bool:
+        if not msg.HasField("Champ_cmd21_2_field9"):
+            return False
+        for name in cls._CHAMP_PERCENT_FIELDS:
+            if msg.HasField(name) and not 0 <= getattr(msg, name) <= 100:
+                return False
+        return True
 
     def _parsedata(self, packet, content, raw):
         try:
