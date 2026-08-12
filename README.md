@@ -377,7 +377,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 34, switches: 5, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -401,6 +401,8 @@ from Home Assistant.
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
+- DC Mode
+- MPPT Fault
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time
@@ -436,7 +438,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> RIVER_2_MAX <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER_2_MAX <i>(sensors: 34, switches: 5, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -460,6 +462,8 @@ from Home Assistant.
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
+- DC Mode
+- MPPT Fault
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time
@@ -495,7 +499,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> RIVER_2_PRO <i>(sensors: 30, switches: 4, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER_2_PRO <i>(sensors: 34, switches: 4, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -513,10 +517,14 @@ from Home Assistant.
 - AC In Volts
 - AC Out Volts
 - Type-C In Power
+- Solar In Current
+- Solar In Voltage
 - Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
+- DC Mode
+- MPPT Fault
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time
@@ -2406,7 +2414,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> RIVER 2 Pro (API) <i>(sensors: 30, switches: 4, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER 2 Pro (API) <i>(sensors: 34, switches: 4, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -2424,10 +2432,14 @@ from Home Assistant.
 - AC In Volts
 - AC Out Volts
 - Type-C In Power
+- Solar In Current
+- Solar In Voltage
 - Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
+- DC Mode
+- MPPT Fault
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time

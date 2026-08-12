@@ -1,7 +1,5 @@
-from typing import Any
-from custom_components.ecoflow_cloud.api import EcoflowApiClient
 import logging
-from typing import Final
+from typing import Any, Final
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -9,13 +7,15 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import entity_registry as er
 
+from custom_components.ecoflow_cloud.api import EcoflowApiClient
+
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 from .device_data import DeviceData, DeviceOptions
 
 _LOGGER = logging.getLogger(__name__)
 
 ECOFLOW_DOMAIN = "ecoflow_cloud"
-CONFIG_VERSION = 11
+CONFIG_VERSION = 12
 
 _PLATFORMS = {
     Platform.BINARY_SENSOR,
@@ -173,6 +173,27 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         updated = hass.config_entries.async_update_entry(config_entry, version=11)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
+    if config_entry.version == 11:
+        # River 2 / River 2 Max solar sensors moved off inv.dcIn*, which stays at 0
+        # on these devices, onto the live mppt.* telemetry.
+        if CONF_ACCESS_KEY not in config_entry.data:
+            for sn, device_info in config_entry.data[CONF_DEVICE_LIST].items():
+                if device_info[CONF_DEVICE_TYPE] not in ("RIVER_2", "RIVER_2_MAX"):
+                    continue
+
+                for old_key, new_key in (("inv-dcInAmp", "mppt-inAmp"), ("inv-dcInVol", "mppt-inVol")):
+                    migrated = _migrate_entity_unique_id(
+                        hass,
+                        Platform.SENSOR,
+                        f"ecoflow-{sn}-{old_key}",
+                        f"ecoflow-{sn}-{new_key}",
+                    )
+                    if migrated:
+                        _LOGGER.info("Migrated %s entity unique ID to %s for %s", old_key, new_key, sn)
+
+        updated = hass.config_entries.async_update_entry(config_entry, version=12)
+        _LOGGER.info("Config entries updated to version %d", config_entry.version)
+
     return updated
 
 
@@ -244,11 +265,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     try:
         api_devices = await api_client.fetch_all_available_devices()
         api_devices_map = {d.sn: d for d in api_devices}
-    except Exception as ex:
+    except Exception as ex:  # noqa: BLE001
         _LOGGER.warning("Failed to fetch device statuses: %s", ex)
         api_devices_map = None
 
-    for sn, device_data in devices_list.items():
+    for device_data in devices_list.values():
         device = api_client.configure_device(device_data, api_devices_map)
         device.configure(hass)
 

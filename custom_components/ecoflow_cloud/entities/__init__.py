@@ -97,9 +97,8 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         enabled: bool = True,
         auto_enable: bool = False,
         diagnostic: bool | None = None,
-        entity_key: str | None = None,
     ):
-        super().__init__(client, device, title, entity_key or mqtt_key)
+        super().__init__(client, device, title, mqtt_key)
 
         self.__mqtt_key = mqtt_key
         self._mqtt_key_adopted = self._adopt_json_key(mqtt_key)
@@ -272,9 +271,8 @@ class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):  # type: ignore[misc]
         enabled: bool = True,
         auto_enable: bool = False,
         diagnostic: bool | None = None,
-        entity_key: str | None = None,
     ):
-        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic, entity_key)
+        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic)
         if self._attr_default_value is not None:
             self._attr_native_value = self._attr_default_value
 
