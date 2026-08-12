@@ -17,12 +17,17 @@
 - Battery 8 Level (`bp_8_soc`)   _(disabled)_
 - Battery 9 Level (`bp_9_soc`)   _(disabled)_
 - Battery 10 Level (`bp_10_soc`)   _(disabled)_
-- AC In Power (`pow_get_ac_in`)   _(disabled)_
+- AC Input L1 Voltage (`plug_in_info_l1_vol`)   _(disabled)_
+- AC Input L1 Current (`plug_in_info_l1_amp`)   _(disabled)_
+- AC Input L1 Power (`plug_in_info_l1_vol`)   _(disabled)_
+- AC Input L2 Voltage (`plug_in_info_l2_vol`)   _(disabled)_
+- AC Input L2 Current (`plug_in_info_l2_amp`)   _(disabled)_
+- AC Input L2 Power (`plug_in_info_l2_vol`)   _(disabled)_
 - AC Out Power (`pow_get_ac`)   _(disabled)_
 - AC 240V Output Power (`pow_get_ac_hv_out`)   _(disabled)_
 - AC 120V Output Power (`pow_get_ac_lv_out`)   _(disabled)_
-- Solar (1) In Power (`pow_get_pv_h`)   _(disabled)_
-- Solar (2) In Power (`pow_get_pv_l`)   _(disabled)_
+- Solar (1) In Volts (`pv_vin_ref`)   _(disabled)_
+- Solar (2) In Volts (`pv2_vin_ref`)   _(disabled)_
 - AC Output Frequency (`ac_out_freq`)   _(disabled)_
 - AC Output Power L1 (`pow_get_l1`)   _(disabled)_
 - AC Output Power L2 (`pow_get_l2`)   _(disabled)_
@@ -38,5 +43,31 @@
 - Battery 8 Temperature (`bp_8_temp`)   _(disabled)_
 - Battery 9 Temperature (`bp_9_temp`)   _(disabled)_
 - Battery 10 Temperature (`bp_10_temp`)   _(disabled)_
+- Inverter Temperature 2 (`inv_ntc_temp2`)   _(disabled)_
+- Inverter Temperature 3 (`inv_ntc_temp3`)   _(disabled)_
+- LLC Temperature (`llc_ntc_temp`)   _(disabled)_
+- PCS AC Temperature (`temp_pcs_ac`)   _(disabled)_
+- PCS DC Temperature (`temp_pcs_dc`)   _(disabled)_
+- Battery Bus Voltage (`llc_bat_vol`)   _(disabled)_
+- Battery Bus Current (`llc_bat_cur`)   _(disabled)_
+- CMS Battery Voltage (`cms_batt_vol`)   _(disabled)_
+- CMS Battery Current (`cms_batt_amp`)   _(disabled)_
+- Battery State of Health (`cms_batt_soh`)   _(disabled)_
+- MPPT Battery Voltage (`mppt_bat_vol`)   _(disabled)_
+- MPPT Battery Current (`mppt_bat_amp`)   _(disabled)_
+- Inverter Bus Voltage (`inv_bus_vol`)   _(disabled)_
+- Charging State (`cms_chg_dsg_state`)   _(disabled)_
+- Charging State Text (`cms_chg_dsg_state`)   _(disabled)_
+- Solar 1 MPPT Pause Count (`pv_pause_cnt`)   _(disabled)_
+- Solar 2 MPPT Pause Count (`pv2_pause_cnt`)   _(disabled)_
+- BMS Firmware Version (`bms_firm_ver`)   _(disabled)_
+- PD Firmware Version (`pd_firm_ver`)   _(disabled)_
+- LLC Firmware Version (`llc_firm_ver`)   _(disabled)_
+- IoT Firmware Version (`iot_firm_ver`)   _(disabled)_
+- MPPT Hardware Version (`mppt_hardware_ver`)   _(disabled)_
+- Error Code (`errcode`)   _(disabled)_
+- BMS Error Code (`bms_err_code`)   _(disabled)_
+- MPPT Error Code (`mppt_err_code`)   _(disabled)_
+- PD Error Code (`pd_err_code`)   _(disabled)_
 
 

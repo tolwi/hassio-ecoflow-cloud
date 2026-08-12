@@ -790,7 +790,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> DELTA_PRO_ULTRA_X <i>(sensors: 37)</i> </summary>
+<details><summary> DELTA_PRO_ULTRA_X <i>(sensors: 68)</i> </summary>
 <p>
 
 *Sensors*
@@ -810,12 +810,17 @@ from Home Assistant.
 - Battery 8 Level  _(disabled)_
 - Battery 9 Level  _(disabled)_
 - Battery 10 Level  _(disabled)_
-- AC In Power  _(disabled)_
+- AC Input L1 Voltage  _(disabled)_
+- AC Input L1 Current  _(disabled)_
+- AC Input L1 Power  _(disabled)_
+- AC Input L2 Voltage  _(disabled)_
+- AC Input L2 Current  _(disabled)_
+- AC Input L2 Power  _(disabled)_
 - AC Out Power  _(disabled)_
 - AC 240V Output Power  _(disabled)_
 - AC 120V Output Power  _(disabled)_
-- Solar (1) In Power  _(disabled)_
-- Solar (2) In Power  _(disabled)_
+- Solar (1) In Volts  _(disabled)_
+- Solar (2) In Volts  _(disabled)_
 - AC Output Frequency  _(disabled)_
 - AC Output Power L1  _(disabled)_
 - AC Output Power L2  _(disabled)_
@@ -831,6 +836,32 @@ from Home Assistant.
 - Battery 8 Temperature  _(disabled)_
 - Battery 9 Temperature  _(disabled)_
 - Battery 10 Temperature  _(disabled)_
+- Inverter Temperature 2  _(disabled)_
+- Inverter Temperature 3  _(disabled)_
+- LLC Temperature  _(disabled)_
+- PCS AC Temperature  _(disabled)_
+- PCS DC Temperature  _(disabled)_
+- Battery Bus Voltage  _(disabled)_
+- Battery Bus Current  _(disabled)_
+- CMS Battery Voltage  _(disabled)_
+- CMS Battery Current  _(disabled)_
+- Battery State of Health  _(disabled)_
+- MPPT Battery Voltage  _(disabled)_
+- MPPT Battery Current  _(disabled)_
+- Inverter Bus Voltage  _(disabled)_
+- Charging State  _(disabled)_
+- Charging State Text  _(disabled)_
+- Solar 1 MPPT Pause Count  _(disabled)_
+- Solar 2 MPPT Pause Count  _(disabled)_
+- BMS Firmware Version  _(disabled)_
+- PD Firmware Version  _(disabled)_
+- LLC Firmware Version  _(disabled)_
+- IoT Firmware Version  _(disabled)_
+- MPPT Hardware Version  _(disabled)_
+- Error Code  _(disabled)_
+- BMS Error Code  _(disabled)_
+- MPPT Error Code  _(disabled)_
+- PD Error Code  _(disabled)_
 
 </p></details>
 
