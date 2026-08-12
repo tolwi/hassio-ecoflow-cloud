@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import inspect
-from typing import Any, Callable, Mapping, Optional, OrderedDict, Self, cast
+from collections import OrderedDict
+from collections.abc import Callable, Mapping
+from typing import Any, Self, cast
 
 import jsonpath_ng.ext as jp
 from homeassistant.components.button import ButtonEntity
@@ -11,6 +13,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import DeviceInfo, Entity, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from jsonpath_ng import JSONPath
 
 from .. import ECOFLOW_DOMAIN
 from ..api import EcoflowApiClient, Message
@@ -93,7 +96,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         title: str,
         enabled: bool = True,
         auto_enable: bool = False,
-        diagnostic: Optional[bool] = None,
+        diagnostic: bool | None = None,
     ):
         super().__init__(client, device, title, mqtt_key)
 
@@ -106,13 +109,13 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         self._attr_entity_registry_enabled_default = enabled
         self._attr_entity_registry_visible_default = enabled
         self._attr_available = enabled
-        self.__attributes_mapping: dict[str, str] = {}
+        self.__attributes_mapping: dict[str, tuple[JSONPath, str]] = {}
         self.__attrs = OrderedDict[str, Any]()
         if diagnostic is not None:
             self._attr_entity_category = EntityCategory.DIAGNOSTIC if diagnostic else None
 
     def attr(self, mqtt_key: str, title: str, default: Any) -> Self:
-        self.__attributes_mapping[mqtt_key] = title
+        self.__attributes_mapping[mqtt_key] = (jp.parse(self._adopt_json_key(mqtt_key)), title)
         self.__attrs[title] = default
         return self
 
@@ -142,7 +145,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
     def _handle_coordinator_update(self) -> None:
         if self.coordinator.data.changed:
             self._updated(self.coordinator.data.data_holder.params)
-        elif self._device.status_tracker.is_offline:  # Device is offline
+        elif self._device.status_tracker.is_offline:  # Device is offline  # noqa: SIM102
             # Reset sensors that should reset to default values
             if isinstance(self, BaseSensorEntity) and self._attr_default_value is not None:
                 self._mqtt_key_expr.update(self.coordinator.data.data_holder.params, self._attr_default_value)
@@ -150,8 +153,7 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
 
     def _updated(self, data: dict[str, Any]):
         # update attributes
-        for key, title in self.__attributes_mapping.items():
-            key_expr = jp.parse(self._adopt_json_key(key))
+        for key_expr, title in self.__attributes_mapping.values():
             attr_values = key_expr.find(data)
             if len(attr_values) == 1:
                 self.__attrs[title] = attr_values[0].value
@@ -193,15 +195,15 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         return self._multiple_value_sum
 
 
-class EcoFlowBaseCommandEntity[_CommandArg](EcoFlowDictEntity):
+class EcoFlowBaseCommandEntity[CommandArg](EcoFlowDictEntity):
     def __init__(
         self,
         client: EcoflowApiClient,
         device: BaseDevice,
         mqtt_key: str,
         title: str,
-        command: Callable[[_CommandArg], dict[str, Any] | Message]
-        | Callable[[_CommandArg, dict[str, Any]], dict[str, Any] | Message]
+        command: Callable[[CommandArg], dict[str, Any] | Message]
+        | Callable[[CommandArg, dict[str, Any]], dict[str, Any] | Message]
         | None,
         enabled: bool = True,
         auto_enable: bool = False,
@@ -209,15 +211,15 @@ class EcoFlowBaseCommandEntity[_CommandArg](EcoFlowDictEntity):
         super().__init__(client, device, mqtt_key, title, enabled, auto_enable)
         self._command = command
 
-    def command_dict(self, value: _CommandArg) -> dict[str, Any] | Message:
+    def command_dict(self, value: CommandArg) -> dict[str, Any] | Message:
         if self._command:
             p_count = len(inspect.signature(self._command).parameters)
             if p_count == 1:
-                command_1 = cast(Callable[[_CommandArg], dict[str, Any] | Message], self._command)
+                command_1 = cast(Callable[[CommandArg], dict[str, Any] | Message], self._command)
                 return command_1(value)
             elif p_count == 2:
                 command_2 = cast(
-                    Callable[[_CommandArg, dict[str, Any]], dict[str, Any] | Message],
+                    Callable[[CommandArg, dict[str, Any]], dict[str, Any] | Message],
                     self._command,
                 )
                 return command_2(value, self._device.data.params)
@@ -268,7 +270,7 @@ class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):  # type: ignore[misc]
         title: str,
         enabled: bool = True,
         auto_enable: bool = False,
-        diagnostic: Optional[bool] = None,
+        diagnostic: bool | None = None,
     ):
         super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic)
         if self._attr_default_value is not None:
@@ -282,13 +284,13 @@ class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):  # type: ignore[misc]
             return False
 
 
-class BaseSwitchEntity[_CommandArg](SwitchEntity, EcoFlowBaseCommandEntity[_CommandArg]):
+class BaseSwitchEntity[CommandArg](SwitchEntity, EcoFlowBaseCommandEntity[CommandArg]):
     pass
 
 
-class BaseSelectEntity[_CommandArg](SelectEntity, EcoFlowBaseCommandEntity[_CommandArg]):
+class BaseSelectEntity[CommandArg](SelectEntity, EcoFlowBaseCommandEntity[CommandArg]):
     pass
 
 
-class BaseButtonEntity[_CommandArg](ButtonEntity, EcoFlowBaseCommandEntity[_CommandArg]):
+class BaseButtonEntity[CommandArg](ButtonEntity, EcoFlowBaseCommandEntity[CommandArg]):
     pass
