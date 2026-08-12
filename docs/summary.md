@@ -3347,7 +3347,7 @@
 
 </p></details>
 
-<details><summary> Power Ocean (API) <i>(sensors: 23)</i> </summary>
+<details><summary> Power Ocean (API) <i>(sensors: 26)</i> </summary>
 <p>
 
 *Sensors*
@@ -3367,6 +3367,9 @@
 - pcsCPhase.actPwr
 - pcsCPhase.reactPwr
 - pcsCPhase.apparentPwr
+- sysGridPwr
+- sysLoadPwr
+- bpPwr
 - mpptPv1.pwr
 - mpptPv1.amp
 - mpptPv1.vol

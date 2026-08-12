@@ -2,9 +2,9 @@
 name = "hassio-ecoflow-cloud"
 version = "1.5.0-beta3"
 description = "Home Assistant integration for EcoFlow devices via the cloud MQTT API"
-requires-python = ">=3.13"
+requires-python = ">=3.14.2"
 dependencies = [
-    "homeassistant>=2024.5.5",
+    "homeassistant==2026.8.0",
     "paho-mqtt==2.1.0",
     "protobuf==6.32.0",
     "jsonpath-ng>=1.7.0",
