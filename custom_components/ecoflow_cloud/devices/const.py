@@ -4,10 +4,41 @@ DC_MODE_OPTIONS = {
     "Car Recharging": 2,
 }
 
+DC_MODE_LABELS = {code: label for label, code in DC_MODE_OPTIONS.items()}
+
 DC_ICONS = {
     "Auto": None,
     "MPPT": "mdi:solar-power",
     "DC": "mdi:current-dc",
+}
+
+# River 2 family FT307 MPPT/DC diagnostic bitmask. EcoFlow exposes these as
+# internal rail/input warnings; the integration keeps them diagnostic-only.
+FT307_FAULTS = {
+    1: {
+        "title": "DC input overvoltage",
+        "hint": "Input voltage is above the supported DC/solar range.",
+    },
+    2: {
+        "title": "DC input undervoltage",
+        "hint": "Input voltage is below the supported DC/solar range.",
+    },
+    4: {
+        "title": "DC input overcurrent",
+        "hint": "Input current is above the supported DC/solar range.",
+    },
+    8: {
+        "title": "DC input overtemperature",
+        "hint": "MPPT/DC input path reports overtemperature.",
+    },
+    16: {
+        "title": "DC input reverse polarity",
+        "hint": "Check DC input polarity before reconnecting the source.",
+    },
+    4096: {
+        "title": "No active DC input",
+        "hint": "Auxiliary idle/no-input warning; ignored when voltage/current/power are idle.",
+    },
 }
 
 SCREEN_TIMEOUT_OPTIONS = {
