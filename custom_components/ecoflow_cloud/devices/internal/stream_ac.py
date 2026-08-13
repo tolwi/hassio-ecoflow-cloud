@@ -74,7 +74,7 @@ class StreamAC(BaseInternalDevice):
                 WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
             ]
         return [
-            WattsSensorEntity(client, self, "powGetPv1", const.STREAM_POWER_PV_1),
+            WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1),
             WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2),
             WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3),
             WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4),

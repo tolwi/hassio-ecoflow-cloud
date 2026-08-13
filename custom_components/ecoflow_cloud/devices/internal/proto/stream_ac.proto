@@ -154,7 +154,7 @@ message StreamACChamp_cmd21_3 {
     optional float powGetPv2 = 70; // pv2 power
     optional float inAmpPv2 = 71; // pv2 current
     optional uint32 Champ_cmd21_3_field282 = 282;
-    optional float powGetPv1 = 361; // pv1 power
+    optional float powGetPv = 361; // pv1 power -- named to match the pre-existing (previously dead) powGetPv key/entity, not powGetPv1, so this reuses the same entity_id instead of registering a new one
     optional float inVolPv1 = 380; // pv1 voltage
     optional float inAmpPv1 = 381; // pv1 current
     optional float inVolPv2 = 442; // pv2 voltage
