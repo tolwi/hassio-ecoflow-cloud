@@ -273,11 +273,11 @@ class StreamACCloudMeter(_message.Message):
     def __init__(self, Champ_cmd21_4_field1: _Optional[int] = ..., Champ_cmd21_4_field2: _Optional[int] = ..., sn_metter: _Optional[str] = ..., Champ_cmd21_4_field4: _Optional[int] = ...) -> None: ...
 
 class StreamACChamp_cmd21_3(_message.Message):
-    __slots__ = ("powGetPv2", "inAmpPv2", "Champ_cmd21_3_field282", "powGetPv1", "inVolPv1", "inAmpPv1", "inVolPv2", "Champ_cmd21_3_field460", "powGetSysGrid", "powGetSysLoad", "powGetPvSum", "powGetBpCms", "Champ_cmd21_3_field602", "gridConnectionPower", "cloudMetter", "sysGridConnectionPower", "powGetPv3", "powGetPv4", "inVolPv3", "inAmpPv3", "inVolPv4", "inAmpPv4", "powGetSysLoadFromBp", "powGetSysLoadFromGrid", "powGetSchuko1")
+    __slots__ = ("powGetPv2", "inAmpPv2", "Champ_cmd21_3_field282", "powGetPv", "inVolPv1", "inAmpPv1", "inVolPv2", "Champ_cmd21_3_field460", "powGetSysGrid", "powGetSysLoad", "powGetPvSum", "powGetBpCms", "Champ_cmd21_3_field602", "gridConnectionPower", "cloudMetter", "sysGridConnectionPower", "powGetPv3", "powGetPv4", "inVolPv3", "inAmpPv3", "inVolPv4", "inAmpPv4", "powGetSysLoadFromBp", "powGetSysLoadFromGrid", "powGetSchuko1")
     POWGETPV2_FIELD_NUMBER: _ClassVar[int]
     INAMPPV2_FIELD_NUMBER: _ClassVar[int]
     CHAMP_CMD21_3_FIELD282_FIELD_NUMBER: _ClassVar[int]
-    POWGETPV1_FIELD_NUMBER: _ClassVar[int]
+    POWGETPV_FIELD_NUMBER: _ClassVar[int]
     INVOLPV1_FIELD_NUMBER: _ClassVar[int]
     INAMPPV1_FIELD_NUMBER: _ClassVar[int]
     INVOLPV2_FIELD_NUMBER: _ClassVar[int]
@@ -302,7 +302,7 @@ class StreamACChamp_cmd21_3(_message.Message):
     powGetPv2: float
     inAmpPv2: float
     Champ_cmd21_3_field282: int
-    powGetPv1: float
+    powGetPv: float
     inVolPv1: float
     inAmpPv1: float
     inVolPv2: float
@@ -324,7 +324,7 @@ class StreamACChamp_cmd21_3(_message.Message):
     powGetSysLoadFromBp: float
     powGetSysLoadFromGrid: float
     powGetSchuko1: float
-    def __init__(self, powGetPv2: _Optional[float] = ..., inAmpPv2: _Optional[float] = ..., Champ_cmd21_3_field282: _Optional[int] = ..., powGetPv1: _Optional[float] = ..., inVolPv1: _Optional[float] = ..., inAmpPv1: _Optional[float] = ..., inVolPv2: _Optional[float] = ..., Champ_cmd21_3_field460: _Optional[int] = ..., powGetSysGrid: _Optional[float] = ..., powGetSysLoad: _Optional[float] = ..., powGetPvSum: _Optional[float] = ..., powGetBpCms: _Optional[float] = ..., Champ_cmd21_3_field602: _Optional[float] = ..., gridConnectionPower: _Optional[float] = ..., cloudMetter: _Optional[_Union[StreamACCloudMeter, _Mapping]] = ..., sysGridConnectionPower: _Optional[float] = ..., powGetPv3: _Optional[float] = ..., powGetPv4: _Optional[float] = ..., inVolPv3: _Optional[float] = ..., inAmpPv3: _Optional[float] = ..., inVolPv4: _Optional[float] = ..., inAmpPv4: _Optional[float] = ..., powGetSysLoadFromBp: _Optional[float] = ..., powGetSysLoadFromGrid: _Optional[float] = ..., powGetSchuko1: _Optional[float] = ...) -> None: ...
+    def __init__(self, powGetPv2: _Optional[float] = ..., inAmpPv2: _Optional[float] = ..., Champ_cmd21_3_field282: _Optional[int] = ..., powGetPv: _Optional[float] = ..., inVolPv1: _Optional[float] = ..., inAmpPv1: _Optional[float] = ..., inVolPv2: _Optional[float] = ..., Champ_cmd21_3_field460: _Optional[int] = ..., powGetSysGrid: _Optional[float] = ..., powGetSysLoad: _Optional[float] = ..., powGetPvSum: _Optional[float] = ..., powGetBpCms: _Optional[float] = ..., Champ_cmd21_3_field602: _Optional[float] = ..., gridConnectionPower: _Optional[float] = ..., cloudMetter: _Optional[_Union[StreamACCloudMeter, _Mapping]] = ..., sysGridConnectionPower: _Optional[float] = ..., powGetPv3: _Optional[float] = ..., powGetPv4: _Optional[float] = ..., inVolPv3: _Optional[float] = ..., inAmpPv3: _Optional[float] = ..., inVolPv4: _Optional[float] = ..., inAmpPv4: _Optional[float] = ..., powGetSysLoadFromBp: _Optional[float] = ..., powGetSysLoadFromGrid: _Optional[float] = ..., powGetSchuko1: _Optional[float] = ...) -> None: ...
 
 class StreamACChamp_cmd21_2(_message.Message):
     __slots__ = ("Champ_cmd21_2_champ_cmd21_3", "Champ_cmd21_2_field2", "Champ_cmd21_2_field3", "Champ_cmd21_2_field4", "Champ_cmd21_2_field5", "Champ_cmd21_2_field7", "Champ_cmd21_2_field8", "Champ_cmd21_2_field9", "Champ_cmd21_2_field10", "Champ_cmd21_2_field11", "Champ_cmd21_2_field12", "Champ_cmd21_2_field13", "Champ_cmd21_2_field14", "Champ_cmd21_2_field15", "Champ_cmd21_2_field16", "Champ_cmd21_2_field17", "Champ_cmd21_2_field18", "Champ_cmd21_2_field19", "Champ_cmd21_2_field20", "Champ_cmd21_2_field21", "Champ_cmd21_2_field22", "Champ_cmd21_2_field23")
