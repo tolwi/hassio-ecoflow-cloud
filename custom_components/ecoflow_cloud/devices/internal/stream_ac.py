@@ -11,6 +11,7 @@ from homeassistant.util import utcnow
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.sensor import (
+    AmpSensorEntity,
     BatteryLimitSensorEntity,
     CapacitySensorEntity,
     CumulativeCapacitySensorEntity,
@@ -24,6 +25,7 @@ from custom_components.ecoflow_cloud.sensor import (
     StateOfHealthSensorEntity,
     StoredEnergyFromSocSensorEntity,
     TempSensorEntity,
+    VoltSensorEntity,
     WattsSensorEntity,
 )
 
@@ -190,24 +192,30 @@ class StreamAC(BaseInternalDevice):
             # "plugInInfoPv2Vol": 0.0,
             # "plugInInfoPv3Amp": 0.0,
             # "plugInInfoPv3Flag": false,
-            # "plugInInfoPv3Vol": 0.0,
-            # "plugInInfoPv4Amp": 0.0,
-            # "plugInInfoPv4Flag": false,
-            # "plugInInfoPv4Vol": 0.0,
-            # "plugInInfoPvAmp": 0.0,
-            # "plugInInfoPvFlag": false,
-            # "plugInInfoPvVol": 0.0,
             # "powConsumptionMeasurement": 2,
             # "powGetBpCms": 1915.0862,
             WattsSensorEntity(client, self, "powGetBpCms", const.STREAM_POWER_BATTERY),
-            # "powGetPv": 0.0,
-            WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True),
-            # "powGetPv2": 0.0,
-            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False, True),
-            # "powGetPv3": 0.0,
-            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False, True),
-            # "powGetPv4": 0.0,
-            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
+            # Per-PV power/voltage/current. The previous powGetPv/powGetPv2/
+            # powGetPv3/powGetPv4 keys were never wired to any field in this
+            # class's protobuf schema (StreamACChamp_cmd21_3) -- pure dead
+            # code, always reading a missing dict key -- which is why these
+            # sensors sat at 0 while powGetPvSum (a real field, 517) worked.
+            # Field numbers raw-decoded and cross-checked against the app's
+            # per-panel display and against powGetPvSum (the four powers sum
+            # to it): see stream_ac.proto and
+            # https://github.com/tolwi/hassio-ecoflow-cloud/pull/846#issuecomment-5046026257
+            WattsSensorEntity(client, self, "powGetPv1", const.STREAM_POWER_PV_1),
+            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2),
+            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3),
+            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4),
+            VoltSensorEntity(client, self, "inVolPv1", const.STREAM_IN_VOL_PV_1, False),
+            VoltSensorEntity(client, self, "inVolPv2", const.STREAM_IN_VOL_PV_2, False),
+            VoltSensorEntity(client, self, "inVolPv3", const.STREAM_IN_VOL_PV_3, False),
+            VoltSensorEntity(client, self, "inVolPv4", const.STREAM_IN_VOL_PV_4, False),
+            AmpSensorEntity(client, self, "inAmpPv1", const.STREAM_IN_AMPS_PV_1, False),
+            AmpSensorEntity(client, self, "inAmpPv2", const.STREAM_IN_AMPS_PV_2, False),
+            AmpSensorEntity(client, self, "inAmpPv3", const.STREAM_IN_AMPS_PV_3, False),
+            AmpSensorEntity(client, self, "inAmpPv4", const.STREAM_IN_AMPS_PV_4, False),
             # "powGetPvSum": 2051.3975,
             WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM),
             # "powGetSchuko1": 0.0,
