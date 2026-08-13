@@ -33,6 +33,61 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class StreamAC(BaseInternalDevice):
+    # StreamAC backs every Stream-family model (registry.py maps STREAM_AC,
+    # STREAM_PRO, STREAM_ULTRA and STREAM_ULTRA_X all to this one class), so
+    # any sensor added here applies to all of them unless explicitly gated.
+    # The per-PV field numbers below (see _ultra_x_pv_sensors()) were
+    # raw-decoded against one physical Stream Ultra X and are NOT verified to
+    # mean the same thing -- or to be populated at all -- on Stream AC/PRO,
+    # which are different products with (at minimum) fewer PV inputs. Gating
+    # by device_type so this can't surface a wrong value mislabelled as PV
+    # power on those models.
+    #
+    # Both "STREAM_ULTRA" and "STREAM_ULTRA_X" are included: the private/MQTT
+    # API used by this class reports the former for what the public API and
+    # the EcoFlow app call "Ultra X" (confirmed: the "BK61" serial prefix on
+    # the physical unit the field mapping was decoded from matches units
+    # reporting "STREAM_ULTRA" here) -- the "_X" suffix appears to be a
+    # public-API-only distinction, not a different private-API device_type.
+    _ULTRA_X_DEVICE_TYPES = {"STREAM_ULTRA", "STREAM_ULTRA_X"}
+
+    def _ultra_x_pv_sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+        """Per-PV power/voltage/current for Stream Ultra / Ultra X only.
+
+        The previous powGetPv/powGetPv2/powGetPv3/powGetPv4 keys were never
+        wired to any field in this class's protobuf schema
+        (StreamACChamp_cmd21_3) -- pure dead code, always reading a missing
+        dict key -- which is why these sensors sat at 0 while powGetPvSum (a
+        real field, 517) worked. Field numbers raw-decoded and cross-checked
+        against the app's per-panel display and against powGetPvSum (the
+        four powers sum to it): see stream_ac.proto and
+        https://github.com/tolwi/hassio-ecoflow-cloud/pull/846#issuecomment-5046026257
+        """
+        if self.device_data.device_type not in self._ULTRA_X_DEVICE_TYPES:
+            # Not verified on this model -- fall back to the old dead-but-
+            # harmless wiring so entity ids/behaviour are unchanged for
+            # Stream AC / PRO.
+            return [
+                WattsSensorEntity(client, self, "powGetPv", const.STREAM_POWER_PV_1, False, True),
+                WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2, False, True),
+                WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3, False, True),
+                WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4, False, True),
+            ]
+        return [
+            WattsSensorEntity(client, self, "powGetPv1", const.STREAM_POWER_PV_1),
+            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2),
+            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3),
+            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4),
+            VoltSensorEntity(client, self, "inVolPv1", const.STREAM_IN_VOL_PV_1, False),
+            VoltSensorEntity(client, self, "inVolPv2", const.STREAM_IN_VOL_PV_2, False),
+            VoltSensorEntity(client, self, "inVolPv3", const.STREAM_IN_VOL_PV_3, False),
+            VoltSensorEntity(client, self, "inVolPv4", const.STREAM_IN_VOL_PV_4, False),
+            AmpSensorEntity(client, self, "inAmpPv1", const.STREAM_IN_AMPS_PV_1, False),
+            AmpSensorEntity(client, self, "inAmpPv2", const.STREAM_IN_AMPS_PV_2, False),
+            AmpSensorEntity(client, self, "inAmpPv3", const.STREAM_IN_AMPS_PV_3, False),
+            AmpSensorEntity(client, self, "inAmpPv4", const.STREAM_IN_AMPS_PV_4, False),
+        ]
+
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             # "accuChgCap": 198511,
@@ -195,27 +250,8 @@ class StreamAC(BaseInternalDevice):
             # "powConsumptionMeasurement": 2,
             # "powGetBpCms": 1915.0862,
             WattsSensorEntity(client, self, "powGetBpCms", const.STREAM_POWER_BATTERY),
-            # Per-PV power/voltage/current. The previous powGetPv/powGetPv2/
-            # powGetPv3/powGetPv4 keys were never wired to any field in this
-            # class's protobuf schema (StreamACChamp_cmd21_3) -- pure dead
-            # code, always reading a missing dict key -- which is why these
-            # sensors sat at 0 while powGetPvSum (a real field, 517) worked.
-            # Field numbers raw-decoded and cross-checked against the app's
-            # per-panel display and against powGetPvSum (the four powers sum
-            # to it): see stream_ac.proto and
-            # https://github.com/tolwi/hassio-ecoflow-cloud/pull/846#issuecomment-5046026257
-            WattsSensorEntity(client, self, "powGetPv1", const.STREAM_POWER_PV_1),
-            WattsSensorEntity(client, self, "powGetPv2", const.STREAM_POWER_PV_2),
-            WattsSensorEntity(client, self, "powGetPv3", const.STREAM_POWER_PV_3),
-            WattsSensorEntity(client, self, "powGetPv4", const.STREAM_POWER_PV_4),
-            VoltSensorEntity(client, self, "inVolPv1", const.STREAM_IN_VOL_PV_1, False),
-            VoltSensorEntity(client, self, "inVolPv2", const.STREAM_IN_VOL_PV_2, False),
-            VoltSensorEntity(client, self, "inVolPv3", const.STREAM_IN_VOL_PV_3, False),
-            VoltSensorEntity(client, self, "inVolPv4", const.STREAM_IN_VOL_PV_4, False),
-            AmpSensorEntity(client, self, "inAmpPv1", const.STREAM_IN_AMPS_PV_1, False),
-            AmpSensorEntity(client, self, "inAmpPv2", const.STREAM_IN_AMPS_PV_2, False),
-            AmpSensorEntity(client, self, "inAmpPv3", const.STREAM_IN_AMPS_PV_3, False),
-            AmpSensorEntity(client, self, "inAmpPv4", const.STREAM_IN_AMPS_PV_4, False),
+            # Per-PV power/voltage/current -- see _ultra_x_pv_sensors().
+            *self._ultra_x_pv_sensors(client),
             # "powGetPvSum": 2051.3975,
             WattsSensorEntity(client, self, "powGetPvSum", const.STREAM_POWER_PV_SUM),
             # "powGetSchuko1": 0.0,
