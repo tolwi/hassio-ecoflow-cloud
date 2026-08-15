@@ -70,7 +70,8 @@
                     "refresh_period_sec": "Data refresh period (sec)",
                     "diagnostic_mode": "Diagnostic mode",
                     "assume_offline_sec": "Assume offline timeout (sec)",
-                    "verbose_status_mode": "Verbose status mode"
+                    "verbose_status_mode": "Verbose status mode",
+                    "reset_sensors_on_offline": "Reset sensors when offline"
                 }
             }
         }

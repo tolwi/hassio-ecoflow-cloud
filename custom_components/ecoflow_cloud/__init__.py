@@ -15,7 +15,7 @@ from .device_data import DeviceData, DeviceOptions
 _LOGGER = logging.getLogger(__name__)
 
 ECOFLOW_DOMAIN = "ecoflow_cloud"
-CONFIG_VERSION = 12
+CONFIG_VERSION = 13
 
 _PLATFORMS = {
     Platform.BINARY_SENSOR,
@@ -60,9 +60,11 @@ OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
 OPTS_ASSUME_OFFLINE_SEC: Final = "assume_offline_sec"
 OPTS_VERBOSE_STATUS_MODE: Final = "verbose_status_mode"
+OPTS_RESET_SENSORS_ON_OFFLINE: Final = "reset_sensors_on_offline"
 
 DEFAULT_REFRESH_PERIOD_SEC: Final = 5
 DEFAULT_ASSUME_OFFLINE_SEC: Final = 300  # 5 minutes
+DEFAULT_RESET_SENSORS_ON_OFFLINE: Final = True
 
 _STATUS_COORDINATOR_KEY = "__status_coordinator"
 
@@ -194,6 +196,14 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         updated = hass.config_entries.async_update_entry(config_entry, version=12)
         _LOGGER.info("Config entries updated to version %d", config_entry.version)
 
+    if config_entry.version == 12:
+        new_options = dict(config_entry.options)
+        for device_options in new_options[CONF_DEVICE_LIST].values():
+            device_options[OPTS_RESET_SENSORS_ON_OFFLINE] = DEFAULT_RESET_SENSORS_ON_OFFLINE
+
+        updated = hass.config_entries.async_update_entry(config_entry, version=13, options=new_options)
+        _LOGGER.info("Config entries updated to version %d", config_entry.version)
+
     return updated
 
 
@@ -210,6 +220,7 @@ def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_DIAGNOSTIC_MODE],
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_VERBOSE_STATUS_MODE],
                 entry.options[CONF_DEVICE_LIST][sn][OPTS_ASSUME_OFFLINE_SEC],
+                entry.options[CONF_DEVICE_LIST][sn][OPTS_RESET_SENSORS_ON_OFFLINE],
             ),
             None,
             None,
@@ -265,7 +276,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     try:
         api_devices = await api_client.fetch_all_available_devices()
         api_devices_map = {d.sn: d for d in api_devices}
-    except Exception as ex:  # noqa: BLE001
+    except Exception as ex:
         _LOGGER.warning("Failed to fetch device statuses: %s", ex)
         api_devices_map = None
 

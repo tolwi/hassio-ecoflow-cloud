@@ -68,5 +68,8 @@ Use the **Configure** button to adjust specific settings for your devices, such 
     *   Enables the display of the intermediate `assume_offline` status in the Main Status Entity.
     *   If disabled (default), the status will remain `online` during the assume offline timeout, and then switch directly to `offline`.
     *   If enabled, the status will change to `assume_offline` as soon as the initial data timeout is reached.
+*   **Reset sensors when offline**:
+    *   Enabled by default. While the device is offline, sensors that define a default value (most power and current sensors, which default to `0`) are reset to it, so the dashboard does not keep showing stale power readings.
+    *   If disabled, those sensors keep their last received value until new data arrives.
 
 Click **Submit** to save your changes. The integration will reload with the new settings.

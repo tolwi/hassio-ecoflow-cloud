@@ -70,7 +70,8 @@
                     "refresh_period_sec": "データ更新間隔（秒）",
                     "diagnostic_mode": "診断モード",
                     "assume_offline_sec": "オフラインとみなす待機時間（秒）",
-                    "verbose_status_mode": "ステータス詳細モード"
+                    "verbose_status_mode": "ステータス詳細モード",
+                    "reset_sensors_on_offline": "オフライン時にセンサーをリセット"
                 }
             }
         }

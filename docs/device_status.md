@@ -168,6 +168,7 @@ Per device, through the integration's Configure flow:
 |---|---|---|
 | `assume_offline_sec` | 300 | Silence threshold for `ASSUME_OFFLINE`. 3× this (900s) means `OFFLINE`. |
 | `verbose_status_mode` | off | Shows the `assume_offline` label and the extra counters. |
+| `reset_sensors_on_offline` | on | While `OFFLINE`, resets sensors that declare a default value to it. Off keeps the last received value. |
 
 The global coordinator takes the lowest `assume_offline_sec` across all devices
 as its poll cadence, so lowering it on one device speeds up everyone.

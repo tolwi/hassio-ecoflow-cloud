@@ -70,7 +70,8 @@
                     "refresh_period_sec": "Період оновлення даних (сек)",
                     "diagnostic_mode": "Діагностичний режим",
                     "assume_offline_sec": "Тайм-аут умовного офлайну (сек)",
-                    "verbose_status_mode": "Детальний режим статусу"
+                    "verbose_status_mode": "Детальний режим статусу",
+                    "reset_sensors_on_offline": "Скидати сенсори в офлайні"
                 }
             }
         }
