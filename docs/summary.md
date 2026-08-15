@@ -1899,6 +1899,30 @@
 
 </p></details>
 
+<details><summary> STREAM_MICROINVERTER <i>(sensors: 17)</i> </summary>
+<p>
+
+*Sensors*
+- Power AC
+- Power Volts  _(disabled)_
+- Power In Amps  _(disabled)_
+- Grid Frequency
+- Grid Connection Status
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- WiFi Signal Strength
+- Feed-in Power Limit
+- Feed-in Power Max
+- Status (Scheduled)
+
+</p></details>
+
 ### Devices available with public_api
 <details><summary> DELTA Max (API) <i>(sensors: 70, switches: 7, sliders: 5)</i> </summary>
 <p>
