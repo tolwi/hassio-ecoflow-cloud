@@ -70,7 +70,8 @@
                     "refresh_period_sec": "Okres odświeżania danych (sek)",
                     "diagnostic_mode": "Tryb diagnostyczny",
                     "assume_offline_sec": "Czas do domniemania offline (sek)",
-                    "verbose_status_mode": "Szczegółowy opis statusu"
+                    "verbose_status_mode": "Szczegółowy opis statusu",
+                    "reset_sensors_on_offline": "Resetuj sensory po przejściu w offline"
                 }
             }
         }

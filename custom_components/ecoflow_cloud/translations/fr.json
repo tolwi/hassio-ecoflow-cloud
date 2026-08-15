@@ -70,7 +70,8 @@
                     "refresh_period_sec": "Période de rafraîchissement des données (sec)",
                     "diagnostic_mode": "Mode diagnostic",
                     "assume_offline_sec": "Délai avant supposition hors ligne (sec)",
-                    "verbose_status_mode": "Mode de statut détaillé"
+                    "verbose_status_mode": "Mode de statut détaillé",
+                    "reset_sensors_on_offline": "Réinitialiser les capteurs hors ligne"
                 }
             }
         }

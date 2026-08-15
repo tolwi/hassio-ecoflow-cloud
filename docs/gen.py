@@ -1,16 +1,16 @@
-from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
 import asyncio
 import json
 import logging
 import os
 import re
-from typing import Any, List
+from typing import Any
 from unittest.mock import Mock
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.frame import async_setup as frame_setup
 
 from custom_components.ecoflow_cloud.api.message import PrivateAPIMessageProtocol
+from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
 from custom_components.ecoflow_cloud.device_data import DeviceData, DeviceOptions
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo
 from custom_components.ecoflow_cloud.devices.registry import (
@@ -80,7 +80,7 @@ MULTI_DEVICE_CONFIGURATIONS = {
 }
 
 # Initialize configurations
-device_options = DeviceOptions(0, 0, False, False, 600)
+device_options = DeviceOptions(0, 0, False, False, 600, True)
 
 
 class MockSetup:
@@ -103,7 +103,7 @@ class MockSetup:
 class DocumentationGenerator:
     """Handles generation of device documentation."""
 
-    def get_device_data(self, device_type: str) -> List[DeviceData]:
+    def get_device_data(self, device_type: str) -> list[DeviceData]:
         """Get device data for a given device type."""
         if device_type in device_support_sub_devices:
             if device_type in MULTI_DEVICE_CONFIGURATIONS:
@@ -138,7 +138,7 @@ class DocumentationGenerator:
                 )
             ]
 
-    def get_devices(self, hass: HomeAssistant, device_type: str, dev: type[BaseDevice]) -> List[BaseDevice]:
+    def get_devices(self, hass: HomeAssistant, device_type: str, dev: type[BaseDevice]) -> list[BaseDevice]:
         real_devices = []
         device_info = create_test_device_info()
         for device_data in self.get_device_data(device_type):
@@ -147,7 +147,7 @@ class DocumentationGenerator:
             real_devices.append(device)
         return real_devices
 
-    def device_summary(self, base_devices: List[BaseDevice]) -> str:
+    def device_summary(self, base_devices: list[BaseDevice]) -> str:
         """Generate a summary string for devices."""
         if not base_devices:
             return "No devices available"
@@ -193,10 +193,7 @@ class DocumentationGenerator:
                     if len(real_devices) > 1:
                         content = content + f"\n### {device.device_data.device_type}\n"
                     content = content + render_device_summary(device, True)
-                content_summary += "<details><summary> %s <i>(%s)</i> </summary>" % (
-                    dt,
-                    self.device_summary(real_devices),
-                )
+                content_summary += f"<details><summary> {dt} <i>({self.device_summary(real_devices)})</i> </summary>"
                 content_summary += "\n<p>\n"
                 content_summary += content
                 content_summary += "\n</p></details>\n"
@@ -211,10 +208,7 @@ class DocumentationGenerator:
                     if len(real_devices) > 1:
                         content = content + f"\n### {device.device_data.device_type}\n"
                     content = content + render_device_summary(device, True)
-                content_summary += "<details><summary> %s (API) <i>(%s)</i> </summary>" % (
-                    dt,
-                    self.device_summary(real_devices),
-                )
+                content_summary += f"<details><summary> {dt} (API) <i>({self.device_summary(real_devices)})</i> </summary>"
 
                 content_summary += "\n<p>\n"
                 content_summary += content
@@ -267,11 +261,11 @@ class DocumentationGenerator:
 
                 filename = f"{OUTPUT_DIR}/{dt}.md"
                 with open(filename, "w+", encoding="utf-8") as f:
-                    f.write("## %s\n" % dt)
+                    f.write(f"## {dt}\n")
                     f.write(content)
                     f.write("\n\n")
 
-                print("- [%s](devices/%s.md)" % (dt, dt))
+                print(f"- [{dt}](devices/{dt}.md)")
 
         for dt, dev in device_by_product.items():
             if not dt.upper().startswith("DIAGNOSTIC"):
@@ -285,11 +279,11 @@ class DocumentationGenerator:
                 name = dt.replace(" ", "_")
                 filename = f"{OUTPUT_DIR}/{name}-Public.md"
                 with open(filename, "w+", encoding="utf-8") as f:
-                    f.write("## %s\n" % name)
+                    f.write(f"## {name}\n")
                     f.write(content)
                     f.write("\n\n")
 
-                print("- [%s](devices/%s-Public.md)" % (name, name))
+                print(f"- [{name}](devices/{name}-Public.md)")
 
 
 class MarkdownRenderer:
@@ -308,7 +302,7 @@ class MarkdownRenderer:
 
     def prepare_options(self, options: dict[str, Any]) -> str:
         """Prepare options string for display."""
-        return ", ".join(["%s (%s)" % (k, v) for k, v in options.items()])
+        return ", ".join([f"{k} ({v})" for k, v in options.items()])
 
     def prepare_command(self, e: EcoFlowBaseCommandEntity) -> str:
         """Prepare command string for display."""
@@ -319,7 +313,7 @@ class MarkdownRenderer:
             elif isinstance(command_dict, PrivateAPIMessageProtocol):
                 json_dict = command_dict.to_dict()
             else:
-                raise TypeError("Unsupported command_dict type: %s" % type(command_dict).__name__)
+                raise TypeError(f"Unsupported command_dict type: {type(command_dict).__name__}")
 
             # Check if params exist and update marker values
             if "params" in json_dict:
@@ -334,73 +328,69 @@ class MarkdownRenderer:
     def render_sensor(self, sw: BaseSensorEntity, brief: bool = False) -> str:
         """Render sensor entity to markdown."""
         if not isinstance(sw, EcoFlowDictEntity):
-            res = "- %s" % sw.name
+            res = f"- {sw.name}"
         elif brief:
             if sw.enabled_default:
-                res = "- %s" % sw.name
+                res = f"- {sw.name}"
             else:
                 if sw.auto_enable:
-                    res = "- %s  _(auto)_" % sw.name
+                    res = f"- {sw.name}  _(auto)_"
                 else:
-                    res = "- %s  _(disabled)_" % sw.name
+                    res = f"- {sw.name}  _(disabled)_"
         else:
             if sw.enabled_default:
-                res = "- %s (`%s`)" % (sw.name, sw.mqtt_key)
+                res = f"- {sw.name} (`{sw.mqtt_key}`)"
             else:
                 if sw.auto_enable:
-                    res = "- %s (`%s`)   _(auto)_" % (sw.name, sw.mqtt_key)
+                    res = f"- {sw.name} (`{sw.mqtt_key}`)   _(auto)_"
                 else:
-                    res = "- %s (`%s`)   _(disabled)_" % (sw.name, sw.mqtt_key)
+                    res = f"- {sw.name} (`{sw.mqtt_key}`)   _(disabled)_"
 
         # Check for energy sensor on all sensor types
         if hasattr(sw, "energy_sensor"):
-            sw.entity_id = "sensor.%s" % sw._attr_unique_id
+            sw.entity_id = f"sensor.{sw._attr_unique_id}"
             energy_sensor = sw.energy_sensor()
             if energy_sensor is not None:
-                res = res + " (energy:  %s)" % energy_sensor.name
+                res = res + f" (energy:  {energy_sensor.name})"
 
         return res
 
     def render_binary_sensor(self, sw: MiscBinarySensorEntity, brief: bool = False) -> str:
         """Render sensor entity to markdown."""
         if not isinstance(sw, EcoFlowDictEntity):
-            res = "- %s" % sw.name
+            res = f"- {sw.name}"
         elif brief:
             if sw.enabled_default:
-                res = "- %s" % sw.name
+                res = f"- {sw.name}"
             else:
                 if sw.auto_enable:
-                    res = "- %s  _(auto)_" % sw.name
+                    res = f"- {sw.name}  _(auto)_"
                 else:
-                    res = "- %s  _(disabled)_" % sw.name
+                    res = f"- {sw.name}  _(disabled)_"
         else:
             if sw.enabled_default:
-                res = "- %s (`%s`)" % (sw.name, sw.mqtt_key)
+                res = f"- {sw.name} (`{sw.mqtt_key}`)"
             else:
                 if sw.auto_enable:
-                    res = "- %s (`%s`)   _(auto)_" % (sw.name, sw.mqtt_key)
+                    res = f"- {sw.name} (`{sw.mqtt_key}`)   _(auto)_"
                 else:
-                    res = "- %s (`%s`)   _(disabled)_" % (sw.name, sw.mqtt_key)
+                    res = f"- {sw.name} (`{sw.mqtt_key}`)   _(disabled)_"
 
         return res
 
     def render_switch(self, sw: BaseSwitchEntity, brief: bool = False) -> str:
         """Render switch entity to markdown."""
         if brief:
-            return "- %s%s" % (sw.name, self.command_ro(sw))
+            return f"- {sw.name}{self.command_ro(sw)}"
         else:
-            return "- %s (`%s` -> `%s`)" % (
-                sw.name,
-                sw.mqtt_key,
-                self.prepare_command(sw),
-            )
+            return f"- {sw.name} (`{sw.mqtt_key}` -> `{self.prepare_command(sw)}`)"
 
     def render_number(self, sw: BaseNumberEntity, brief: bool = False) -> str:
         """Render number entity to markdown."""
         if brief:
-            return "- %s%s" % (sw.name, self.command_ro(sw))
+            return f"- {sw.name}{self.command_ro(sw)}"
         else:
-            return "- %s (`%s` -> `%s` [%d - %d])" % (
+            return "- %s (`%s` -> `%s` [%d - %d])" % (  # noqa: UP031
                 sw.name,
                 sw.mqtt_key,
                 self.prepare_command(sw),
@@ -411,9 +401,9 @@ class MarkdownRenderer:
     def render_select(self, sw: BaseSelectEntity, brief: bool = False) -> str:
         """Render select entity to markdown."""
         if brief:
-            return "- %s%s" % (sw.name, self.command_ro(sw))
+            return f"- {sw.name}{self.command_ro(sw)}"
         else:
-            return "- %s (`%s` -> `%s` [%s])" % (
+            return "- %s (`%s` -> `%s` [%s])" % (  # noqa: UP031
                 sw.name,
                 sw.mqtt_key,
                 self.prepare_command(sw),

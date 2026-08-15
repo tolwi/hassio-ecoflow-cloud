@@ -70,7 +70,8 @@
                     "refresh_period_sec": "Datenaktualisierungsperiode (Sek.)",
                     "diagnostic_mode": "Diagnosemodus",
                     "assume_offline_sec": "Zeit bis zur Offline-Annahme (Sek.)",
-                    "verbose_status_mode": "Detaillierter Statusmodus"
+                    "verbose_status_mode": "Detaillierter Statusmodus",
+                    "reset_sensors_on_offline": "Sensoren bei Offline-Status zurücksetzen"
                 }
             }
         }

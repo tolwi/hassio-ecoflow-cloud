@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from copy import deepcopy
-from typing import Any, Dict
+from typing import Any
 
 import voluptuous as vol
 from homeassistant.config_entries import (
@@ -33,11 +33,13 @@ from custom_components.ecoflow_cloud import (
     CONFIG_VERSION,
     DEFAULT_ASSUME_OFFLINE_SEC,
     DEFAULT_REFRESH_PERIOD_SEC,
+    DEFAULT_RESET_SENSORS_ON_OFFLINE,
     ECOFLOW_DOMAIN,
     OPTS_ASSUME_OFFLINE_SEC,
     OPTS_DIAGNOSTIC_MODE,
     OPTS_POWER_STEP,
     OPTS_REFRESH_PERIOD_SEC,
+    OPTS_RESET_SENSORS_ON_OFFLINE,
     OPTS_VERBOSE_STATUS_MODE,
     DeviceData,
     DeviceOptions,
@@ -230,7 +232,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             self.new_data[CONF_GROUP],
         )
 
-        errors: Dict[str, str] = {}
+        errors: dict[str, str] = {}
         try:
             await self.auth.login()
         except EcoflowException as e:  # pylint: disable=broad-except
@@ -295,6 +297,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_DIAGNOSTIC_MODE: False,
             OPTS_VERBOSE_STATUS_MODE: False,
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
+            OPTS_RESET_SENSORS_ON_OFFLINE: DEFAULT_RESET_SENSORS_ON_OFFLINE,
         }
 
         return await self.update_or_create()
@@ -331,7 +334,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             self.new_data[CONF_GROUP],
         )
 
-        errors: Dict[str, str] = {}
+        errors: dict[str, str] = {}
         try:
             await self.auth.login()
         except EcoflowException as e:  # pylint: disable=broad-except
@@ -438,6 +441,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_DIAGNOSTIC_MODE: ("Diagnostic".lower() == user_input[CONF_DEVICE_TYPE].lower()),
             OPTS_VERBOSE_STATUS_MODE: False,
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
+            OPTS_RESET_SENSORS_ON_OFFLINE: DEFAULT_RESET_SENSORS_ON_OFFLINE,
         }
 
         return await self.update_or_create()
@@ -459,7 +463,7 @@ class EcoflowOptionsFlow(OptionsFlow):
     def _ensure_devices_loaded(self) -> None:
         if not self.device_selector:
             self.devices = extract_devices(self.config_entry)
-            for _, device in self.devices.items():
+            for device in self.devices.values():
                 self.device_selector[f"{device.name} ({device.sn})"] = device
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
@@ -492,6 +496,10 @@ class EcoflowOptionsFlow(OptionsFlow):
                         vol.Required(OPTS_DIAGNOSTIC_MODE, default=device_options.diagnostic_mode): bool,
                         vol.Required(OPTS_VERBOSE_STATUS_MODE, default=device_options.verbose_status_mode): bool,
                         vol.Required(OPTS_ASSUME_OFFLINE_SEC, default=device_options.assume_offline_sec): int,
+                        vol.Required(
+                            OPTS_RESET_SENSORS_ON_OFFLINE,
+                            default=device_options.reset_sensors_on_offline,
+                        ): bool,
                     }
                 ),
             )
@@ -503,6 +511,7 @@ class EcoflowOptionsFlow(OptionsFlow):
             OPTS_DIAGNOSTIC_MODE: user_input[OPTS_DIAGNOSTIC_MODE],
             OPTS_VERBOSE_STATUS_MODE: user_input[OPTS_VERBOSE_STATUS_MODE],
             OPTS_ASSUME_OFFLINE_SEC: user_input[OPTS_ASSUME_OFFLINE_SEC],
+            OPTS_RESET_SENSORS_ON_OFFLINE: user_input[OPTS_RESET_SENSORS_ON_OFFLINE],
         }
 
         return self.async_create_entry(title="", data=new_options)
