@@ -24,6 +24,10 @@ package = false
 line-length = 120
 indent-width = 4
 
+[tool.ruff.lint]
+ignore = ["BLE001"]
+
+
 [tool.mypy]
 allow_untyped_calls = true
 check_untyped_defs = true

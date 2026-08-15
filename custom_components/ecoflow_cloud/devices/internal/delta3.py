@@ -1,24 +1,22 @@
-from homeassistant.components.select import SelectEntity
-from homeassistant.components.switch import SwitchEntity
-from homeassistant.components.number import NumberEntity
-from custom_components.ecoflow_cloud.entities import BaseSensorEntity
-from homeassistant.components.sensor import SensorEntity
-from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
-from custom_components.ecoflow_cloud.api.message import Message
-from custom_components.ecoflow_cloud.api.message import PrivateAPIMessageProtocol
 import logging
 import time
 from typing import Any, override
 
 from google.protobuf.json_format import MessageToDict
-from homeassistant.helpers.entity import EntityCategory  # pyright: ignore[reportMissingImports]
+from homeassistant.components.number import NumberEntity
+from homeassistant.components.select import SelectEntity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.switch import SwitchEntity
+from homeassistant.helpers.entity import EntityCategory
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.internal.proto import (
     ef_delta3_pb2 as delta3_pb2,
 )
-
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity
 from custom_components.ecoflow_cloud.number import (
     BatteryBackupLevel,
     ChargingPowerEntity,
@@ -113,7 +111,7 @@ def _create_delta3_proto_command(field_name: str, value: int, device_sn: str, da
     return Delta3CommandMessage(payload, packet)
 
 
-def _create_delta3_ac_charging_power_command(value: int, device_sn: str) -> "Delta3CommandMessage":
+def _create_delta3_ac_charging_power_command(value: int, device_sn: str) -> Delta3CommandMessage:
     """Create a protobuf command for AC charging power on DELTA 3.
 
     The EcoFlow DELTA 3 firmware silently ignores SET commands that only
@@ -168,7 +166,7 @@ def _create_delta3_ac_charging_power_command(value: int, device_sn: str) -> "Del
     return Delta3CommandMessage(dummy_payload, packet)
 
 
-def _create_delta3_get_quota_command() -> "Delta3CommandMessage":
+def _create_delta3_get_quota_command() -> Delta3CommandMessage:
     """Build a protobuf 'get all' request that fetches the full device snapshot.
 
     Mirrors the EcoFlow mobile app behavior when opening the device page:
@@ -234,7 +232,7 @@ def _create_delta3_energy_backup_command(energy_backup_en: int | None, energy_ba
     return Delta3CommandMessage(payload, packet)
 
 
-def _create_delta3_energy_strategy_command(mode: int, device_sn: str) -> "Delta3CommandMessage":
+def _create_delta3_energy_strategy_command(mode: int, device_sn: str) -> Delta3CommandMessage:
     """Create a protobuf command that selects the energy strategy mode.
 
     mode: 0 = standard (no strategy, grid passthrough), 1 = self-powered,
@@ -639,7 +637,7 @@ class Delta3(BaseInternalDevice):
         }
 
     @override
-    def get_quota_message(self) -> "Delta3CommandMessage":
+    def get_quota_message(self) -> Delta3CommandMessage:
         """Return the protobuf 'get all' request used by quota_all().
 
         The base ``BaseInternalDevice`` returns a JSON ``latestQuotas``
@@ -671,9 +669,9 @@ class Delta3(BaseInternalDevice):
 
             try:
                 raw_data = base64.b64decode(raw_data, validate=True)
-            except Exception:
+            except Exception as e:
                 # Most payloads are raw protobuf, not base64; silent fall-through.
-                pass
+                _LOGGER.debug("[Delta3] b64decode failed: %s", e)
 
             header_msg = delta3_pb2.Delta3HeaderMessage()
             header_msg.ParseFromString(raw_data)
@@ -716,9 +714,9 @@ class Delta3(BaseInternalDevice):
             try:
                 decoded_payload = base64.b64decode(raw_data, validate=True)
                 raw_data = decoded_payload
-            except Exception:
+            except Exception as e:
                 # Most payloads are raw protobuf, not base64; silent fall-through.
-                pass
+                _LOGGER.debug("[Delta3] b64decode failed: %s", e)
 
             try:
                 header_msg = delta3_pb2.Delta3HeaderMessage()
@@ -943,9 +941,9 @@ class Delta3(BaseInternalDevice):
             try:
                 decoded_payload = base64.b64decode(raw_data, validate=True)
                 raw_data = decoded_payload
-            except Exception:
+            except Exception as e:
                 # Most payloads are raw protobuf, not base64; silent fall-through.
-                pass
+                _LOGGER.debug("[Delta3] b64decode failed: %s", e)
 
             header_msg = delta3_pb2.Delta3SendHeaderMsg()
             header_msg.ParseFromString(raw_data)
