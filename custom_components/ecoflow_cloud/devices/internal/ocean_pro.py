@@ -49,11 +49,11 @@ _LOGGER = logging.getLogger(__name__)
 # --- Panel (HR61) -----------------------------------------------------------
 # 40 monitored load circuits — the SHP3 layout (fields 1015..1054) widened by 8.
 OCEAN_PANEL_CIRCUITS = 40
-# Circuit label / split-phase metadata blocks. SHP3 carries 32 labels across
-# fields 794..805 + 920..939; the 8 extra Ocean Pro labels are assumed to
-# continue the second block (920..947). Unconfirmed labels fall back to
-# "Circuit N", so a wrong guess is cosmetic, never a decode failure.
-# TODO(capture): confirm the name-field block for circuits 33..40.
+# Circuit label / split-phase metadata blocks, positional (circuit N ->
+# NAME_FIELDS[N-1]). Confirmed against a live panel config broadcast: circuits
+# 1..12 -> fields 794..805, circuits 13..40 -> fields 920..947 (SHP3's 32-circuit
+# 794..805 + 920..939, extended by 8). Self-calibrated from the panel's own
+# "Circuit N" defaults and cross-checked against the app-set names.
 OCEAN_PANEL_NAME_FIELDS = list(range(794, 806)) + list(range(920, 948))
 
 # --- Inverter (HR51) --------------------------------------------------------
