@@ -72,9 +72,10 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "DELTA_PRO_3": internal_delta_pro_3.DeltaPro3,
         "DELTA_PRO_ULTRA_X": internal_delta_pro_ultra_x.DeltaProUltraX,
         "SMART_HOME_PANEL_3": internal_smart_home_panel_3.SmartHomePanel3,
-        # TODO(capture): confirm the device-type string the app device-list
-        # returns for Ocean Pro (product type 88) — "OCEAN_PRO" is a placeholder.
-        "OCEAN_PRO": internal_ocean_pro.OceanPro,
+        # Ocean Pro is two devices on two MQTT streams; the user selects the
+        # matching type per serial number in the manual (app-API) flow.
+        "OCEAN_SMART_PANEL": internal_ocean_pro.OceanPanel,      # HR61 — circuits
+        "OCEAN_PRO": internal_ocean_pro.OceanProInverter,        # HR51 — solar/battery
         "RIVER_MAX": internal_river_max.RiverMax,
         "RIVER_PRO": internal_river_pro.RiverPro,
         "RIVER_MINI": internal_river_mini.RiverMini,
