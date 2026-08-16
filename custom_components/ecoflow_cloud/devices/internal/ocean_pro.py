@@ -115,19 +115,15 @@ class OceanProInverter(DeltaPro3):
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         out: list[SensorEntity] = [
             # Inverter AC output; sign follows production (negative = export).
-            WattsSensorEntity(client, self, "ocean_pcs_pwr", "Inverter Output Power")
-            .with_icon("mdi:sine-wave"),
+            WattsSensorEntity(client, self, "ocean_pcs_pwr", "Inverter Output Power").with_icon("mdi:sine-wave"),
             # Pack-reported battery power (signed: + charge / - discharge).
-            WattsSensorEntity(client, self, "ocean_batt_pwr", "Battery Power")
-            .with_icon("mdi:home-battery"),
+            WattsSensorEntity(client, self, "ocean_batt_pwr", "Battery Power").with_icon("mdi:home-battery"),
             QuotaStatusSensorEntity(client, self),
         ]
         # PV strings: per-string production power with integrated energy (kWh,
         # total_increasing) for the HA Energy dashboard.
         for i in range(1, PV_STRINGS + 1):
-            out.append(
-                SolarPowerSensorEntity(client, self, f"pv{i}_pwr", f"PV{i} Power").with_energy()
-            )
+            out.append(SolarPowerSensorEntity(client, self, f"pv{i}_pwr", f"PV{i} Power").with_energy())
         return out
 
     @override
