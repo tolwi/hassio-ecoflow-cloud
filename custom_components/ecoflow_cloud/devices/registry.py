@@ -16,6 +16,7 @@ from custom_components.ecoflow_cloud.devices.internal import (
     delta_pro_ultra_x as internal_delta_pro_ultra_x,
     glacier as internal_glacier,
     glacier_classic as internal_glacier_classic,
+    ocean_pro as internal_ocean_pro,
     powerstream as internal_powerstream,
     river2 as internal_river2,
     river2_max as internal_river2_max,
@@ -71,6 +72,9 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "DELTA_PRO_3": internal_delta_pro_3.DeltaPro3,
         "DELTA_PRO_ULTRA_X": internal_delta_pro_ultra_x.DeltaProUltraX,
         "SMART_HOME_PANEL_3": internal_smart_home_panel_3.SmartHomePanel3,
+        # TODO(capture): confirm the device-type string the app device-list
+        # returns for Ocean Pro (product type 88) — "OCEAN_PRO" is a placeholder.
+        "OCEAN_PRO": internal_ocean_pro.OceanPro,
         "RIVER_MAX": internal_river_max.RiverMax,
         "RIVER_PRO": internal_river_pro.RiverPro,
         "RIVER_MINI": internal_river_mini.RiverMini,
