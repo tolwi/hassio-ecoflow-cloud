@@ -26,17 +26,13 @@ from custom_components.ecoflow_cloud.sensor import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# SHP3 has 32 monitored load circuits.
-CIRCUITS = 32
-# Circuit metadata submessages (sub-field 5 = the app's circuit label,
-# sub-field 2 = split-phase link) in two field blocks, in the same order as
-# the power array: circuit N (1-based) -> NAME_FIELDS[N - 1].
-NAME_FIELDS = list(range(794, 806)) + list(range(920, 940))
 # DisplayPropertyUpload (cmdFunc 254 / cmdId 21) per-circuit array: fields
-# 1015..1046, one submessage per circuit {1: volt, 2: watt (signed), 3: amp}.
+# 1015.., one submessage per circuit {1: volt, 2: watt (signed), 3: amp}.
 # These fields are absent from the DP3 proto (dropped on ParseFromString),
 # so they are recovered with a second raw pass over the payload.
-CIRCUIT_FIELD_BASE = 1015
+# The circuit count, name-field blocks and array base are class attributes on
+# SmartHomePanel3 (below) so wider variants (e.g. Ocean Pro, 40 circuits) can
+# extend this device by overriding them rather than duplicating the decoders.
 # Aggregate flow and grid per-leg fields (float, wiretype 5).
 F_GRID_PWR = 515
 F_LOAD_PWR = 516
@@ -176,7 +172,20 @@ class SmartHomePanel3(DeltaPro3):
     load array plus aggregate flow powers — lives in fields the DP3 proto
     doesn't declare, so it is recovered with a second raw pass per frame.
     Read-only: no control entities until actuation is deliberately in scope.
+
+    Circuit geometry is expressed as class attributes so wider panels (e.g.
+    Ocean Pro, 40 circuits) can subclass and override without touching the
+    decoders.
     """
+
+    # SHP3 has 32 monitored load circuits.
+    CIRCUITS = 32
+    # Circuit metadata submessages (sub-field 5 = the app's circuit label,
+    # sub-field 2 = split-phase link) in two field blocks, in the same order as
+    # the power array: circuit N (1-based) -> NAME_FIELDS[N - 1].
+    NAME_FIELDS = list(range(794, 806)) + list(range(920, 940))
+    # Per-circuit array base field in DisplayPropertyUpload (254/21).
+    CIRCUIT_FIELD_BASE = 1015
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -219,7 +228,7 @@ class SmartHomePanel3(DeltaPro3):
         def circuit_label(n: int) -> str:
             return params.get(f"ch_{n}_name") or f"Circuit {n}"
 
-        for n in range(1, CIRCUITS + 1):
+        for n in range(1, self.CIRCUITS + 1):
             label = circuit_label(n)
             out.append(
                 NamedCircuitWatts(client, self, f"ch_{n}_pwr", f"{label} Power").for_circuit(n, "Power").with_energy()
@@ -329,8 +338,8 @@ class SmartHomePanel3(DeltaPro3):
 
     def _decode_circuits(self, fields: FieldMap, result: dict[str, Any]) -> None:
         """Per-circuit volt / watt / amp from the 32-entry array."""
-        for i in range(CIRCUITS):
-            entry = _first(fields, CIRCUIT_FIELD_BASE + i, WIRE_LEN)
+        for i in range(self.CIRCUITS):
+            entry = _first(fields, self.CIRCUIT_FIELD_BASE + i, WIRE_LEN)
             if entry is None:
                 continue
             sub = _parse_fields(entry)
@@ -349,7 +358,7 @@ class SmartHomePanel3(DeltaPro3):
     def _decode_metadata(self, fields: FieldMap, result: dict[str, Any]) -> None:
         """Circuit labels + 240V partner links (rotate in over several frames)."""
         before = {n: dict(m) for n, m in self._meta.items()}
-        for n, field_no in enumerate(NAME_FIELDS, 1):
+        for n, field_no in enumerate(self.NAME_FIELDS, 1):
             entry = _first(fields, field_no, WIRE_LEN)
             if entry is None:
                 continue
