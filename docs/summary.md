@@ -930,6 +930,162 @@
 
 </p></details>
 
+<details><summary> OCEAN_SMART_PANEL <i>(sensors: 131)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Home Load Power (energy:  _[Device Name]_ Home Load  Energy)
+- Grid Power (energy:  _[Device Name]_ Grid  Energy)
+- Storage Output Power
+- Status
+- Grid L1 Power  _(disabled)_
+- Grid L2 Power  _(disabled)_
+- Grid L1 Voltage  _(disabled)_
+- Grid L2 Voltage  _(disabled)_
+- Grid L1 Current  _(disabled)_
+- Grid L2 Current  _(disabled)_
+- Circuit 1 Power (energy:  _[Device Name]_ Circuit 1  Energy)
+- Circuit 1 Voltage  _(disabled)_
+- Circuit 1 Current  _(disabled)_
+- Circuit 2 Power (energy:  _[Device Name]_ Circuit 2  Energy)
+- Circuit 2 Voltage  _(disabled)_
+- Circuit 2 Current  _(disabled)_
+- Circuit 3 Power (energy:  _[Device Name]_ Circuit 3  Energy)
+- Circuit 3 Voltage  _(disabled)_
+- Circuit 3 Current  _(disabled)_
+- Circuit 4 Power (energy:  _[Device Name]_ Circuit 4  Energy)
+- Circuit 4 Voltage  _(disabled)_
+- Circuit 4 Current  _(disabled)_
+- Circuit 5 Power (energy:  _[Device Name]_ Circuit 5  Energy)
+- Circuit 5 Voltage  _(disabled)_
+- Circuit 5 Current  _(disabled)_
+- Circuit 6 Power (energy:  _[Device Name]_ Circuit 6  Energy)
+- Circuit 6 Voltage  _(disabled)_
+- Circuit 6 Current  _(disabled)_
+- Circuit 7 Power (energy:  _[Device Name]_ Circuit 7  Energy)
+- Circuit 7 Voltage  _(disabled)_
+- Circuit 7 Current  _(disabled)_
+- Circuit 8 Power (energy:  _[Device Name]_ Circuit 8  Energy)
+- Circuit 8 Voltage  _(disabled)_
+- Circuit 8 Current  _(disabled)_
+- Circuit 9 Power (energy:  _[Device Name]_ Circuit 9  Energy)
+- Circuit 9 Voltage  _(disabled)_
+- Circuit 9 Current  _(disabled)_
+- Circuit 10 Power (energy:  _[Device Name]_ Circuit 10  Energy)
+- Circuit 10 Voltage  _(disabled)_
+- Circuit 10 Current  _(disabled)_
+- Circuit 11 Power (energy:  _[Device Name]_ Circuit 11  Energy)
+- Circuit 11 Voltage  _(disabled)_
+- Circuit 11 Current  _(disabled)_
+- Circuit 12 Power (energy:  _[Device Name]_ Circuit 12  Energy)
+- Circuit 12 Voltage  _(disabled)_
+- Circuit 12 Current  _(disabled)_
+- Circuit 13 Power (energy:  _[Device Name]_ Circuit 13  Energy)
+- Circuit 13 Voltage  _(disabled)_
+- Circuit 13 Current  _(disabled)_
+- Circuit 14 Power (energy:  _[Device Name]_ Circuit 14  Energy)
+- Circuit 14 Voltage  _(disabled)_
+- Circuit 14 Current  _(disabled)_
+- Circuit 15 Power (energy:  _[Device Name]_ Circuit 15  Energy)
+- Circuit 15 Voltage  _(disabled)_
+- Circuit 15 Current  _(disabled)_
+- Circuit 16 Power (energy:  _[Device Name]_ Circuit 16  Energy)
+- Circuit 16 Voltage  _(disabled)_
+- Circuit 16 Current  _(disabled)_
+- Circuit 17 Power (energy:  _[Device Name]_ Circuit 17  Energy)
+- Circuit 17 Voltage  _(disabled)_
+- Circuit 17 Current  _(disabled)_
+- Circuit 18 Power (energy:  _[Device Name]_ Circuit 18  Energy)
+- Circuit 18 Voltage  _(disabled)_
+- Circuit 18 Current  _(disabled)_
+- Circuit 19 Power (energy:  _[Device Name]_ Circuit 19  Energy)
+- Circuit 19 Voltage  _(disabled)_
+- Circuit 19 Current  _(disabled)_
+- Circuit 20 Power (energy:  _[Device Name]_ Circuit 20  Energy)
+- Circuit 20 Voltage  _(disabled)_
+- Circuit 20 Current  _(disabled)_
+- Circuit 21 Power (energy:  _[Device Name]_ Circuit 21  Energy)
+- Circuit 21 Voltage  _(disabled)_
+- Circuit 21 Current  _(disabled)_
+- Circuit 22 Power (energy:  _[Device Name]_ Circuit 22  Energy)
+- Circuit 22 Voltage  _(disabled)_
+- Circuit 22 Current  _(disabled)_
+- Circuit 23 Power (energy:  _[Device Name]_ Circuit 23  Energy)
+- Circuit 23 Voltage  _(disabled)_
+- Circuit 23 Current  _(disabled)_
+- Circuit 24 Power (energy:  _[Device Name]_ Circuit 24  Energy)
+- Circuit 24 Voltage  _(disabled)_
+- Circuit 24 Current  _(disabled)_
+- Circuit 25 Power (energy:  _[Device Name]_ Circuit 25  Energy)
+- Circuit 25 Voltage  _(disabled)_
+- Circuit 25 Current  _(disabled)_
+- Circuit 26 Power (energy:  _[Device Name]_ Circuit 26  Energy)
+- Circuit 26 Voltage  _(disabled)_
+- Circuit 26 Current  _(disabled)_
+- Circuit 27 Power (energy:  _[Device Name]_ Circuit 27  Energy)
+- Circuit 27 Voltage  _(disabled)_
+- Circuit 27 Current  _(disabled)_
+- Circuit 28 Power (energy:  _[Device Name]_ Circuit 28  Energy)
+- Circuit 28 Voltage  _(disabled)_
+- Circuit 28 Current  _(disabled)_
+- Circuit 29 Power (energy:  _[Device Name]_ Circuit 29  Energy)
+- Circuit 29 Voltage  _(disabled)_
+- Circuit 29 Current  _(disabled)_
+- Circuit 30 Power (energy:  _[Device Name]_ Circuit 30  Energy)
+- Circuit 30 Voltage  _(disabled)_
+- Circuit 30 Current  _(disabled)_
+- Circuit 31 Power (energy:  _[Device Name]_ Circuit 31  Energy)
+- Circuit 31 Voltage  _(disabled)_
+- Circuit 31 Current  _(disabled)_
+- Circuit 32 Power (energy:  _[Device Name]_ Circuit 32  Energy)
+- Circuit 32 Voltage  _(disabled)_
+- Circuit 32 Current  _(disabled)_
+- Circuit 33 Power (energy:  _[Device Name]_ Circuit 33  Energy)
+- Circuit 33 Voltage  _(disabled)_
+- Circuit 33 Current  _(disabled)_
+- Circuit 34 Power (energy:  _[Device Name]_ Circuit 34  Energy)
+- Circuit 34 Voltage  _(disabled)_
+- Circuit 34 Current  _(disabled)_
+- Circuit 35 Power (energy:  _[Device Name]_ Circuit 35  Energy)
+- Circuit 35 Voltage  _(disabled)_
+- Circuit 35 Current  _(disabled)_
+- Circuit 36 Power (energy:  _[Device Name]_ Circuit 36  Energy)
+- Circuit 36 Voltage  _(disabled)_
+- Circuit 36 Current  _(disabled)_
+- Circuit 37 Power (energy:  _[Device Name]_ Circuit 37  Energy)
+- Circuit 37 Voltage  _(disabled)_
+- Circuit 37 Current  _(disabled)_
+- Circuit 38 Power (energy:  _[Device Name]_ Circuit 38  Energy)
+- Circuit 38 Voltage  _(disabled)_
+- Circuit 38 Current  _(disabled)_
+- Circuit 39 Power (energy:  _[Device Name]_ Circuit 39  Energy)
+- Circuit 39 Voltage  _(disabled)_
+- Circuit 39 Current  _(disabled)_
+- Circuit 40 Power (energy:  _[Device Name]_ Circuit 40  Energy)
+- Circuit 40 Voltage  _(disabled)_
+- Circuit 40 Current  _(disabled)_
+
+</p></details>
+
+<details><summary> OCEAN_PRO <i>(sensors: 11)</i> </summary>
+<p>
+
+*Sensors*
+- Inverter Output Power
+- Battery Power
+- Status
+- PV1 Power (energy:  _[Device Name]_ PV1  Energy)
+- PV2 Power (energy:  _[Device Name]_ PV2  Energy)
+- PV3 Power (energy:  _[Device Name]_ PV3  Energy)
+- PV4 Power (energy:  _[Device Name]_ PV4  Energy)
+- PV5 Power (energy:  _[Device Name]_ PV5  Energy)
+- PV6 Power (energy:  _[Device Name]_ PV6  Energy)
+- PV7 Power (energy:  _[Device Name]_ PV7  Energy)
+- PV8 Power (energy:  _[Device Name]_ PV8  Energy)
+
+</p></details>
+
 <details><summary> RIVER_MAX <i>(sensors: 49, switches: 5, sliders: 1, selects: 3)</i> </summary>
 <p>
 
