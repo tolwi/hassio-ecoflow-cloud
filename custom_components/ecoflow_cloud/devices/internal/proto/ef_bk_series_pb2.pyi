@@ -5,18 +5,18 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class PANEL_GRID_STA(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class BK_SERIES_PANEL_GRID_STA(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
-    PANEL_GRID_STA_NO_VALID: _ClassVar[PANEL_GRID_STA]
-    PANEL_GRID_IN: _ClassVar[PANEL_GRID_STA]
-    PANEL_GRID_NOT_ONLINE: _ClassVar[PANEL_GRID_STA]
-    PANEL_FEED_GRID: _ClassVar[PANEL_GRID_STA]
-PANEL_GRID_STA_NO_VALID: PANEL_GRID_STA
-PANEL_GRID_IN: PANEL_GRID_STA
-PANEL_GRID_NOT_ONLINE: PANEL_GRID_STA
-PANEL_FEED_GRID: PANEL_GRID_STA
+    PANEL_GRID_STA_NO_VALID: _ClassVar[BK_SERIES_PANEL_GRID_STA]
+    PANEL_GRID_IN: _ClassVar[BK_SERIES_PANEL_GRID_STA]
+    PANEL_GRID_NOT_ONLINE: _ClassVar[BK_SERIES_PANEL_GRID_STA]
+    PANEL_FEED_GRID: _ClassVar[BK_SERIES_PANEL_GRID_STA]
+PANEL_GRID_STA_NO_VALID: BK_SERIES_PANEL_GRID_STA
+PANEL_GRID_IN: BK_SERIES_PANEL_GRID_STA
+PANEL_GRID_NOT_ONLINE: BK_SERIES_PANEL_GRID_STA
+PANEL_FEED_GRID: BK_SERIES_PANEL_GRID_STA
 
-class DisplayPropertyUpload(_message.Message):
+class BkSeriesDisplayPropertyUpload(_message.Message):
     __slots__ = ("pow_get_pv", "pow_get_pv2", "plug_in_info_pv_vol", "plug_in_info_pv_amp", "plug_in_info_pv2_vol", "plug_in_info_pv2_amp", "grid_connection_power", "grid_connection_vol", "grid_connection_amp", "grid_connection_freq", "grid_connection_sta", "module_wifi_rssi", "feed_grid_mode_pow_limit", "feed_grid_mode_pow_max")
     POW_GET_PV_FIELD_NUMBER: _ClassVar[int]
     POW_GET_PV2_FIELD_NUMBER: _ClassVar[int]
@@ -42,17 +42,17 @@ class DisplayPropertyUpload(_message.Message):
     grid_connection_vol: float
     grid_connection_amp: float
     grid_connection_freq: float
-    grid_connection_sta: PANEL_GRID_STA
+    grid_connection_sta: BK_SERIES_PANEL_GRID_STA
     module_wifi_rssi: float
     feed_grid_mode_pow_limit: int
     feed_grid_mode_pow_max: int
-    def __init__(self, pow_get_pv: _Optional[float] = ..., pow_get_pv2: _Optional[float] = ..., plug_in_info_pv_vol: _Optional[float] = ..., plug_in_info_pv_amp: _Optional[float] = ..., plug_in_info_pv2_vol: _Optional[float] = ..., plug_in_info_pv2_amp: _Optional[float] = ..., grid_connection_power: _Optional[float] = ..., grid_connection_vol: _Optional[float] = ..., grid_connection_amp: _Optional[float] = ..., grid_connection_freq: _Optional[float] = ..., grid_connection_sta: _Optional[_Union[PANEL_GRID_STA, str]] = ..., module_wifi_rssi: _Optional[float] = ..., feed_grid_mode_pow_limit: _Optional[int] = ..., feed_grid_mode_pow_max: _Optional[int] = ...) -> None: ...
+    def __init__(self, pow_get_pv: _Optional[float] = ..., pow_get_pv2: _Optional[float] = ..., plug_in_info_pv_vol: _Optional[float] = ..., plug_in_info_pv_amp: _Optional[float] = ..., plug_in_info_pv2_vol: _Optional[float] = ..., plug_in_info_pv2_amp: _Optional[float] = ..., grid_connection_power: _Optional[float] = ..., grid_connection_vol: _Optional[float] = ..., grid_connection_amp: _Optional[float] = ..., grid_connection_freq: _Optional[float] = ..., grid_connection_sta: _Optional[_Union[BK_SERIES_PANEL_GRID_STA, str]] = ..., module_wifi_rssi: _Optional[float] = ..., feed_grid_mode_pow_limit: _Optional[int] = ..., feed_grid_mode_pow_max: _Optional[int] = ...) -> None: ...
 
-class RuntimePropertyUpload(_message.Message):
+class BkSeriesRuntimePropertyUpload(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class ConfigWrite(_message.Message):
+class BkSeriesConfigWrite(_message.Message):
     __slots__ = ("cfg_utc_time", "cfg_inv_target_pwr", "cfg_feed_grid_mode_pow_limit")
     CFG_UTC_TIME_FIELD_NUMBER: _ClassVar[int]
     CFG_INV_TARGET_PWR_FIELD_NUMBER: _ClassVar[int]
