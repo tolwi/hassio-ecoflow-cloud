@@ -75,6 +75,12 @@ F_PCS_TOTAL = 53
 BATTERY_PACK_CMD = (32, 177)  # (cmdFunc, cmdId)
 F_BATT_SLOT = 5
 F_BATT_PWR = 44
+# field 44 usually carries a sane per-pack power (watts), but intermittently
+# emits an implausible spike (tens to hundreds of kW for a single pack) that the
+# per-slot sum then amplifies. Reject any read beyond a pack's realistic share of
+# the inverter's rating (~24 kW / 4 packs, with generous headroom) as decode
+# noise, and keep the slot's last good value — same guard used for PV strings.
+BATT_PACK_MAX_W = 10_000
 
 
 def _first_num(fields: FieldMap, no: int) -> float | None:
@@ -170,7 +176,9 @@ class OceanProInverter(DeltaPro3):
     def _decode_battery(self, fields: FieldMap, result: dict[str, Any]) -> None:
         """Pack-reported battery power, summed across slots (cmdFunc 32 / cmdId 177)."""
         pwr = _first_num(fields, F_BATT_PWR)
-        if pwr is None:
+        # Missing, or an implausible spike (field-44 decode noise) — keep the
+        # last good per-slot values rather than poisoning the sum.
+        if pwr is None or abs(pwr) > BATT_PACK_MAX_W:
             return
         slot = _first_num(fields, F_BATT_SLOT)
         self._pack_pwr[int(slot) if slot is not None else 0] = round(pwr, 2)
