@@ -22,7 +22,7 @@ errors, all fields plausible, e.g. ``grid_connection_power`` ~207 W,
 ``pow_get_pv`` ~104 W, ``grid_connection_vol`` ~232 V).
 
 For ``cmd_func == 254 and cmd_id == 21``, ``plain`` is a
-``DisplayPropertyUpload`` message (see ``proto/bk_series.proto``, a slim
+``BkSeriesDisplayPropertyUpload`` message (see ``proto/ef_bk_series.proto``, a slim
 subset extracted from rabits/ha-ef-ble, Apache-2.0, and verified by
 round-tripping against the original generated module).
 """
@@ -41,7 +41,7 @@ from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.devices.internal.proto import AddressId
-from custom_components.ecoflow_cloud.devices.internal.proto import bk_series_pb2
+from custom_components.ecoflow_cloud.devices.internal.proto import ef_bk_series_pb2
 from custom_components.ecoflow_cloud.devices.internal.proto import stream_ac_pb2
 from custom_components.ecoflow_cloud.sensor import (
     FrequencySensorEntity,
@@ -55,7 +55,7 @@ from custom_components.ecoflow_cloud.sensor import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# cmd_func/cmd_id pair identifying the DisplayPropertyUpload telemetry push.
+# cmd_func/cmd_id pair identifying the BkSeriesDisplayPropertyUpload telemetry push.
 _CMD_FUNC_DISPLAY_PROPERTY = 254
 _CMD_ID_DISPLAY_PROPERTY = 21
 
@@ -106,7 +106,7 @@ class _BkSeriesPvWattsSensorEntity(WattsSensorEntity):
 
 
 class StreamMicroinverterCommandMessage(PrivateAPIMessageProtocol):
-    """Envelope requesting a re-publish of ``DisplayPropertyUpload``.
+    """Envelope requesting a re-publish of ``BkSeriesDisplayPropertyUpload``.
 
     Modeled on ``PowerStreamCommandMessage`` / ``Command.INVERTER_HEARTBEAT``
     in devices/internal/powerstream.py: same ``cmd_func``/``cmd_id`` as the
@@ -228,7 +228,7 @@ class StreamMicroinverter(BaseInternalDevice):
                     self._parse_display_property(packet, raw)
                 else:
                     _LOGGER.debug(
-                        "Ignoring EcoPacket cmd_func %u cmd_id %u (not DisplayPropertyUpload)",
+                        "Ignoring EcoPacket cmd_func %u cmd_id %u (not BkSeriesDisplayPropertyUpload)",
                         packet.msg.cmd_func,
                         packet.msg.cmd_id,
                     )
@@ -255,13 +255,13 @@ class StreamMicroinverter(BaseInternalDevice):
             key = packet.msg.seq & 0xFF
             plain = bytes(b ^ key for b in packet.msg.pdata)
 
-            content = bk_series_pb2.DisplayPropertyUpload()
+            content = ef_bk_series_pb2.BkSeriesDisplayPropertyUpload()
             content.ParseFromString(plain)
 
             self._store_fields(content, raw)
             raw["timestamp"] = utcnow()
         except Exception as error:
-            _LOGGER.debug("Failed to parse DisplayPropertyUpload: %s", error)
+            _LOGGER.debug("Failed to parse BkSeriesDisplayPropertyUpload: %s", error)
             _LOGGER.debug('pdata.hex(): "%s"', packet.msg.pdata.hex())
 
     @staticmethod

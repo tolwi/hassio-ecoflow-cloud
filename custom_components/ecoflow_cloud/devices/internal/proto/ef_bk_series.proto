@@ -11,10 +11,8 @@
 
 syntax = "proto3";
 
-package bk_series;
-
-// Grid connection status, referenced by DisplayPropertyUpload.grid_connection_sta.
-enum PANEL_GRID_STA {
+// Grid connection status, referenced by BkSeriesDisplayPropertyUpload.grid_connection_sta.
+enum BK_SERIES_PANEL_GRID_STA {
   PANEL_GRID_STA_NO_VALID = 0;
   PANEL_GRID_IN = 1;
   PANEL_GRID_NOT_ONLINE = 2;
@@ -25,7 +23,7 @@ enum PANEL_GRID_STA {
 // Only the fields consumed by the STREAM Microinverter entity are kept;
 // the original message defines ~100 additional fields for other BK-series
 // products (batteries, controllable loads, timers, etc.).
-message DisplayPropertyUpload {
+message BkSeriesDisplayPropertyUpload {
   optional float pow_get_pv = 361;              // PV string 1 power (W)
   optional float pow_get_pv2 = 70;               // PV string 2 power (W)
 
@@ -39,7 +37,7 @@ message DisplayPropertyUpload {
   optional float grid_connection_vol = 613;      // Grid voltage (V)
   optional float grid_connection_amp = 614;      // Grid current (A)
   optional float grid_connection_freq = 615;     // Grid frequency (Hz)
-  optional PANEL_GRID_STA grid_connection_sta = 619; // Grid connection status
+  optional BK_SERIES_PANEL_GRID_STA grid_connection_sta = 619; // Grid connection status
 
   optional float module_wifi_rssi = 602;         // WiFi RSSI
 
@@ -52,13 +50,13 @@ message DisplayPropertyUpload {
 // fields could be derived for it from that file; it is kept as an empty
 // placeholder purely to satisfy the "three messages" requirement. See the
 // final report for this explicit caveat.
-message RuntimePropertyUpload {
+message BkSeriesRuntimePropertyUpload {
 }
 
 // Config/command message sent to the device (src=0x20, cmd_set=0x02,
 // cmd_id=0xFE/0x11 in the reference code's Packet framing). Only the
 // fields actually written by stream_microinverter.py are kept.
-message ConfigWrite {
+message BkSeriesConfigWrite {
   optional uint32 cfg_utc_time = 6;                    // Unix time (s), set on every write
   optional float cfg_inv_target_pwr = 220;             // Target inverter output power (W)
   optional uint32 cfg_feed_grid_mode_pow_limit = 169;  // Feed-in power limit to set (W)
