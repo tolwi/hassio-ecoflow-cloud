@@ -106,6 +106,20 @@ class EcoFlowDictEntity(EcoFlowAbstractDataEntity):
         self._multiple_value_sum = False
 
         self._auto_enable = auto_enable
+        if auto_enable and not enabled:
+            # auto_enable is meant to let whichever key variant actually
+            # reports data win, by flipping enabled_default once _updated()
+            # sees a value. But HA decides whether a *new* registry entry
+            # starts enabled/visible at the moment this entity is first
+            # added to hass - which happens synchronously, before any
+            # coordinator update (and therefore before _updated() could ever
+            # have run) can occur. So on a real first-time setup, that flip
+            # always came too late and the entity always started hidden and
+            # disabled, regardless of auto_enable. quota_all() already
+            # populated device.data.params before sensors() is called, so
+            # check it directly here instead of waiting for the first
+            # coordinator tick.
+            enabled = len(self._mqtt_key_expr.find(device.data.params)) > 0
         self._attr_entity_registry_enabled_default = enabled
         self._attr_entity_registry_visible_default = enabled
         self._attr_available = enabled
