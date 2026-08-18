@@ -95,7 +95,8 @@
                     "diagnostic_mode": "Diagnosemodus",
                     "assume_offline_sec": "Zeit bis zur Offline-Annahme (Sek.)",
                     "verbose_status_mode": "Detaillierter Statusmodus",
-                    "reset_sensors_on_offline": "Sensoren bei Offline-Status zurücksetzen"
+                    "reset_sensors_on_offline": "Sensoren bei Offline-Status zurücksetzen",
+                    "stall_sec": "Zeit bis Datenstrom als abgerissen gilt (Sek., 0 = automatisch)"
                 }
             }
         }

@@ -45,6 +45,7 @@ class EcoflowApiClient(ABC):
         self.mqtt_client: EcoflowMQTTClient
         self._mqtt_reconnect_last_attempt = 0.0
         self._mqtt_reconnect_count = 0
+        self._mqtt_reconnect_streak = 0
 
     @abstractmethod
     async def login(self):
@@ -99,7 +100,10 @@ class EcoflowApiClient(ABC):
         self.devices.pop(device.device_data.sn, None)
 
     def _accept_mqqt_certification(self, resp_json: dict):
-        _LOGGER.info(f"Received MQTT credentials: {resp_json}")
+        # Never log the raw response -- it carries certificatePassword, which
+        # grants MQTT access to the account. Users routinely attach debug logs
+        # to bug reports, so this ran at INFO straight into public issues.
+        _LOGGER.info("Received MQTT credentials")
         try:
             mqtt_url = resp_json["data"]["url"]
             mqtt_port = int(resp_json["data"]["port"])
@@ -151,17 +155,41 @@ class EcoflowApiClient(ABC):
 
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
 
-    def schedule_mqtt_reconnect(self, cooldown_sec: int = 60) -> int | None:
-        if self.mqtt_client.is_connected():
+    def schedule_mqtt_reconnect(self, data_stale: bool = False, cooldown_sec: int = 300) -> int | None:
+        """Return the new reconnect count if a recovery cycle should run, else None.
+
+        ``data_stale`` is needed because a dead socket is not the common failure
+        mode: EcoFlow's cloud stops telling a device to report once the client
+        last registered for it disappears (typically after the mobile app is
+        opened and closed). MQTT stays connected and subscribed and simply
+        receives nothing, so is_connected() never notices.
+        """
+        if not data_stale and self.mqtt_client.is_connected():
+            self._mqtt_reconnect_streak = 0
             return None
 
+        # Backoff so a genuinely offline device is not hammered with a login
+        # round trip every cooldown period.
+        backoff = cooldown_sec * (2 ** min(self._mqtt_reconnect_streak, 4))
+
         now = time.monotonic()
-        if now - self._mqtt_reconnect_last_attempt < cooldown_sec:
+        if now - self._mqtt_reconnect_last_attempt < backoff:
             return None
 
         self._mqtt_reconnect_last_attempt = now
+        self._mqtt_reconnect_streak += 1
         self._mqtt_reconnect_count += 1
         return self._mqtt_reconnect_count
+
+    async def async_recover(self, hass) -> None:
+        """Full stop/login/start cycle -- the path verified to recover a stall.
+
+        mqtt_client.reconnect() may well be enough, but this is what the
+        Reconnect button does and what was tested against a stalled STREAM.
+        """
+        await hass.async_add_executor_job(self.stop)
+        await self.login()
+        await hass.async_add_executor_job(self.start)
 
     @property
     def mqtt_reconnect_count(self) -> int:
