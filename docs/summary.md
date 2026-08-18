@@ -1736,7 +1736,7 @@
 
 </p></details>
 
-<details><summary> WAVE_2 <i>(sensors: 27, sliders: 1, selects: 4)</i> </summary>
+<details><summary> WAVE_2 <i>(sensors: 27, sliders: 1, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -1776,6 +1776,7 @@
 - Main mode
 - Remote startup/shutdown
 - Sub-mode
+- Temperature unit
 
 </p></details>
 
@@ -2688,7 +2689,7 @@
 
 </p></details>
 
-<details><summary> WAVE 2 (API) <i>(sensors: 27, sliders: 1, selects: 4)</i> </summary>
+<details><summary> WAVE 2 (API) <i>(sensors: 27, sliders: 1, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -2728,6 +2729,7 @@
 - Main mode
 - Remote startup/shutdown
 - Sub-mode
+- Temperature unit
 
 </p></details>
 
