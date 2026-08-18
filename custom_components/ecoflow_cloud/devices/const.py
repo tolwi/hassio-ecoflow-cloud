@@ -154,6 +154,11 @@ POWER_SUB_MODE_OPTIONS = {
     "Manual": 3
 }
 
+TEMP_UNIT_OPTIONS = {
+    "Celsius": 0,
+    "Fahrenheit": 1
+}
+
 POWER_SUPPLY_PRIORITY_OPTIONS = {
     "Prioritize power supply": 0,
     "Prioritize power storage": 1
@@ -348,6 +353,7 @@ FAN_MODE = "Wind speed"
 MAIN_MODE = "Main mode"
 REMOTE_MODE = "Remote startup/shutdown"
 POWER_SUB_MODE = "Sub-mode"
+TEMP_UNIT = "Temperature unit"
 
 
 # Smart Meter

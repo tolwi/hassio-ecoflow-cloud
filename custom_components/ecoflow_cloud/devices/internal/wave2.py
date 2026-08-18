@@ -1,7 +1,10 @@
+from typing import Any
+
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.const import UnitOfTemperature
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
@@ -16,6 +19,44 @@ from custom_components.ecoflow_cloud.sensor import (
     TempSensorEntity,
     WattsSensorEntity,
 )
+
+SETPOINT_RANGE_CELSIUS = (16, 30)
+SETPOINT_RANGE_FAHRENHEIT = (60, 86)
+
+
+class Wave2SetTempEntity(SetTempEntity):
+    """Setpoint entity that follows the unit the device itself is set to."""
+
+    _reported_unit: UnitOfTemperature | None = None
+
+    def _current_unit(self) -> UnitOfTemperature:
+        if str(self._device.data.params.get("pd.tempSys")).strip().lower() in {"1", "f", "fahrenheit"}:
+            return UnitOfTemperature.FAHRENHEIT
+        return UnitOfTemperature.CELSIUS
+
+    def _current_range(self) -> tuple[int, int]:
+        if self._current_unit() == UnitOfTemperature.FAHRENHEIT:
+            return SETPOINT_RANGE_FAHRENHEIT
+        return SETPOINT_RANGE_CELSIUS
+
+    @property
+    def native_unit_of_measurement(self) -> UnitOfTemperature | None:
+        return self._current_unit()
+
+    @property
+    def native_min_value(self) -> float:
+        return self._current_range()[0]
+
+    @property
+    def native_max_value(self) -> float:
+        return self._current_range()[1]
+
+    def _updated(self, data: dict[str, Any]):
+        super()._updated(data)
+        # A unit flip alone leaves setTemp untouched, so nothing else would repaint the entity.
+        if self._reported_unit != self._current_unit():
+            self._reported_unit = self._current_unit()
+            self.schedule_update_ha_state()
 
 
 class Wave2(BaseInternalDevice):
@@ -61,13 +102,12 @@ class Wave2(BaseInternalDevice):
 
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
-            SetTempEntity(
+            Wave2SetTempEntity(
                 client,
                 self,
                 "pd.setTemp",
                 "Set Temperature",
-                0,
-                40,
+                *SETPOINT_RANGE_CELSIUS,
                 lambda value: {
                     "moduleType": 1,
                     "operateType": "setTemp",
@@ -129,6 +169,19 @@ class Wave2(BaseInternalDevice):
                     "operateType": "subMode",
                     "sn": self.device_info.sn,
                     "params": {"subMode": value},
+                },
+            ),
+            DictSelectEntity(
+                client,
+                self,
+                "pd.tempSys",
+                const.TEMP_UNIT,
+                const.TEMP_UNIT_OPTIONS,
+                lambda value: {
+                    "moduleType": 1,
+                    "operateType": "tempSys",
+                    "sn": self.device_info.sn,
+                    "params": {"mode": value},
                 },
             ),
         ]
