@@ -1,13 +1,18 @@
 import logging
 from typing import Any, Final
 
+import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import entity_registry as er
 
-from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.api import (
+    EcoflowApiClient,
+    EcoflowAuthException,
+    EcoflowException,
+)
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
 from .device_data import DeviceData, DeviceOptions
@@ -267,10 +272,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # Try to connect and authenticate
     try:
         await api_client.login()
-    except (ConnectionError, TimeoutError) as ex:
-        # Transient network issues - retry later
+    except (ConnectionError, TimeoutError, aiohttp.ClientError) as ex:
+        # Transient network issues - retry later. aiohttp's connector errors are not
+        # ConnectionError subclasses, so they need naming separately
         _LOGGER.warning("Failed to connect to EcoFlow API: %s", ex)
         raise ConfigEntryNotReady(f"Connection failed: {ex}") from ex
+    except EcoflowAuthException as ex:
+        # Ask the user for new credentials instead of retrying with the rejected ones
+        raise ConfigEntryAuthFailed(str(ex)) from ex
+    except EcoflowException as ex:
+        # Any other API error may well be transient - let HA retry with backoff
+        _LOGGER.warning("EcoFlow API login failed: %s", ex)
+        raise ConfigEntryNotReady(f"Login failed: {ex}") from ex
 
     # Fetch current device statuses from API
     try:

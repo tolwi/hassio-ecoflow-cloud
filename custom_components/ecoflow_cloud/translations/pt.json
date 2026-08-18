@@ -1,7 +1,29 @@
 {
     "title": "EcoFlow-Cloud",
     "config": {
+        "error": {
+            "invalid_access_key": "A EcoFlow rejeitou a chave de acesso (erro 8513). Verifique se a chave de acesso e a chave secreta não têm erros de escrita e confirme que o host da API corresponde à região da sua conta de programador: api-e.ecoflow.com para a Europa, api-a.ecoflow.com para as Américas."
+        },
+        "abort": {
+            "reauth_successful": "Reautenticação bem sucedida",
+            "reconfigure_successful": "A reconfiguração foi bem sucedida",
+            "do_reconfigure_existing": "Já existe um grupo de dispositivos com este nome. Reconfigure a entrada existente.",
+            "no_device_to_add": "Não há novos dispositivos para adicionar: todos os dispositivos desta conta já foram adicionados.",
+            "remove_last_device": "Não é possível remover o último dispositivo. Elimine a entrada da integração.",
+            "unknown": "Erro inesperado"
+        },
         "step": {
+            "reauth_confirm": {
+                "title": "Credenciais EcoFlow rejeitadas",
+                "description": "A EcoFlow já não aceita as credenciais guardadas para {name}. Introduza as credenciais atuais para voltar a ligar.",
+                "data": {
+                    "api_host": "Host da API",
+                    "access_key": "Chave de acesso",
+                    "secret_key": "Chave secreta",
+                    "username": "E-mail do usuário",
+                    "password": "Senha do usuário"
+                }
+            },
             "user": {
                 "data": {
                     "group": "Grupo de dispositivos"
@@ -14,6 +36,7 @@
                     "finish": "Concluir"
                 },
                 "data": {
+                    "api_host": "Host da API",
                     "access_key": "Chave de acesso",
                     "secret_key": "Chave secreta",
                     "load_all_devices": "Carregamento automático de dispositivos"
@@ -44,6 +67,7 @@
                     "finish": "Concluir"
                 },
                 "data": {
+                    "api_host": "Host da API",
                     "username": "E-mail do usuário",
                     "password": "Senha do usuário"
                 }

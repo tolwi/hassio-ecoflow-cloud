@@ -12,8 +12,19 @@ from .message import JSONMessage, Message
 _LOGGER = logging.getLogger(__name__)
 
 
+# EcoFlow returns 8513 both for a bad access key and for one issued in another region
+PUBLIC_API_AUTH_ERROR_CODES = frozenset({"8513"})
+
+
 class EcoflowException(Exception):
-    pass
+    def __init__(self, message: str, code: str | None = None):
+        super().__init__(message)
+        # EcoFlow's numeric error code, when the failure came from an API response
+        self.code = code
+
+
+class EcoflowAuthException(EcoflowException):
+    """Credentials were rejected - retrying with the same ones will not help."""
 
 
 @dataclass
@@ -113,7 +124,11 @@ class EcoflowApiClient(ABC):
             raise EcoflowException(f"Failed to parse response: {resp.text} Error: {error}")
 
         if response_message.lower() != "success":
-            raise EcoflowException(f"{response_message}")
+            raw_code = json_resp.get("code")
+            code = None if raw_code is None else str(raw_code)
+            if code in PUBLIC_API_AUTH_ERROR_CODES:
+                raise EcoflowAuthException(f"{response_message}", code=code)
+            raise EcoflowException(f"{response_message}", code=code)
 
         return json_resp
 

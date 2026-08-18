@@ -1,7 +1,29 @@
 {
     "title": "EcoFlow-Cloud",
     "config": {
+        "error": {
+            "invalid_access_key": "EcoFlow a rejeté la clé d'accès (erreur 8513). Vérifiez que la clé d'accès et la clé secrète ne contiennent pas de fautes de frappe, et assurez-vous que l'hôte API correspond à la région de votre compte développeur : api-e.ecoflow.com pour l'Europe, api-a.ecoflow.com pour les Amériques."
+        },
+        "abort": {
+            "reauth_successful": "La réauthentification a réussi",
+            "reconfigure_successful": "La reconfiguration a réussi",
+            "do_reconfigure_existing": "Un groupe d'appareils portant ce nom existe déjà. Reconfigurez plutôt l'entrée existante.",
+            "no_device_to_add": "Aucun nouvel appareil à ajouter : tous les appareils de ce compte ont déjà été ajoutés.",
+            "remove_last_device": "Le dernier appareil ne peut pas être supprimé. Supprimez plutôt l'entrée d'intégration.",
+            "unknown": "Erreur inattendue"
+        },
         "step": {
+            "reauth_confirm": {
+                "title": "Identifiants EcoFlow rejetés",
+                "description": "EcoFlow n'accepte plus les identifiants enregistrés pour {name}. Saisissez les identifiants actuels pour rétablir la connexion.",
+                "data": {
+                    "api_host": "Hôte API",
+                    "access_key": "Clé d'accès",
+                    "secret_key": "Clé secrète",
+                    "username": "E-mail de l'utilisateur",
+                    "password": "Mot de passe de l'utilisateur"
+                }
+            },
             "user": {
                 "data": {
                     "group": "Groupe d'appareils"
@@ -14,6 +36,7 @@
                     "finish": "Terminer"
                 },
                 "data": {
+                    "api_host": "Hôte API",
                     "access_key": "Clé d'accès",
                     "secret_key": "Clé secrète",
                     "load_all_devices": "Chargement automatique des appareils"
@@ -44,6 +67,7 @@
                     "finish": "Terminer"
                 },
                 "data": {
+                    "api_host": "Hôte API",
                     "username": "E-mail de l'utilisateur",
                     "password": "Mot de passe de l'utilisateur"
                 }

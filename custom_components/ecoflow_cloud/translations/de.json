@@ -1,7 +1,29 @@
 {
     "title": "EcoFlow-Cloud",
     "config": {
+        "error": {
+            "invalid_access_key": "EcoFlow hat den Zugriffsschlüssel abgelehnt (Fehler 8513). Zugriffs- und Geheimschlüssel auf Tippfehler prüfen und sicherstellen, dass der API-Host zur Region des Entwicklerkontos passt: api-e.ecoflow.com für Europa, api-a.ecoflow.com für Amerika."
+        },
+        "abort": {
+            "reauth_successful": "Die erneute Authentifizierung war erfolgreich",
+            "reconfigure_successful": "Die Neukonfiguration war erfolgreich",
+            "do_reconfigure_existing": "Eine Gerätegruppe mit diesem Namen existiert bereits. Stattdessen den vorhandenen Eintrag neu konfigurieren.",
+            "no_device_to_add": "Keine neuen Geräte zum Hinzufügen: Alle Geräte dieses Kontos wurden bereits hinzugefügt.",
+            "remove_last_device": "Das letzte Gerät kann nicht entfernt werden. Stattdessen den Integrationseintrag löschen.",
+            "unknown": "Unerwarteter Fehler"
+        },
         "step": {
+            "reauth_confirm": {
+                "title": "EcoFlow-Zugangsdaten abgelehnt",
+                "description": "EcoFlow akzeptiert die gespeicherten Zugangsdaten für {name} nicht mehr. Bitte die aktuellen Zugangsdaten eingeben, um die Verbindung wiederherzustellen.",
+                "data": {
+                    "api_host": "API-Host",
+                    "access_key": "Zugriffsschlüssel",
+                    "secret_key": "Geheimschlüssel",
+                    "username": "Benutzer-E-Mail",
+                    "password": "Benutzerpasswort"
+                }
+            },
             "user": {
                 "data": {
                     "group": "Gerätegruppe"
@@ -14,6 +36,7 @@
                     "finish": "Abschließen"
                 },
                 "data": {
+                    "api_host": "API-Host",
                     "access_key": "Zugriffsschlüssel",
                     "secret_key": "Geheimschlüssel",
                     "load_all_devices": "Automatisches Laden von Geräten"
@@ -44,6 +67,7 @@
                     "finish": "Abschließen"
                 },
                 "data": {
+                    "api_host": "API-Host",
                     "username": "Benutzer-E-Mail",
                     "password": "Benutzerpasswort"
                 }
