@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from copy import deepcopy
 from typing import Any
 
@@ -46,7 +47,7 @@ from custom_components.ecoflow_cloud import (
     extract_devices,
 )
 
-from .api import EcoflowException
+from .api import EcoflowAuthException, EcoflowException
 from .devices import EcoflowDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
@@ -197,6 +198,55 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         self.set_current_config_entry(self.hass.config_entries.async_get_entry(self.context["entry_id"]))
         return await self.async_step_user()
 
+    async def async_step_reauth(self, entry_data: Mapping[str, Any] | None = None):
+        self.set_current_config_entry(self.hass.config_entries.async_get_entry(self.context["entry_id"]))
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(self, user_input: dict[str, Any] | None = None):
+        public_api = CONF_ACCESS_KEY in self.new_data
+
+        # HA fills "name" from the entry title on newer cores; set it so older ones match
+        placeholders = {"name": self.new_data.get(CONF_GROUP, "")}
+
+        if not user_input:
+            return self.async_show_form(
+                step_id="reauth_confirm",
+                data_schema=self._schema_for(public_api),
+                description_placeholders=placeholders,
+            )
+
+        if public_api:
+            self._set_api_credentials(user_input)
+            self.auth = self._create_api_client()
+        else:
+            self._set_manual_credentials(user_input)
+            self.auth = self._create_manual_client()
+
+        errors: dict[str, str] = {}
+        try:
+            await self.auth.login()
+        except EcoflowAuthException as e:
+            errors["base"] = "invalid_access_key" if public_api else str(e)
+        except EcoflowException as e:
+            errors["base"] = str(e)
+        except Exception:  # pylint: disable=broad-except
+            _LOGGER.exception("Unexpected exception in reauth login action")
+            return self.async_abort(reason="unknown")
+
+        if errors:
+            return self.async_show_form(
+                step_id="reauth_confirm",
+                data_schema=self._schema_for(public_api),
+                errors=errors,
+                description_placeholders=placeholders,
+            )
+
+        # credentials only: the device list and its options stay as they were
+        self.hass.config_entries.async_update_entry(entry=self.config_entry, data=self.new_data)
+        # unconditional: the entry is in a failed state even when the data did not change
+        self.hass.config_entries.async_schedule_reload(self.config_entry.entry_id)
+        return self.async_abort(reason="reauth_successful")
+
     async def async_step_choose_type(self, user_input: dict[str, Any] | None = None):
         if self.config_entry:  # reconfig flow
             if CONF_ACCESS_KEY in self.config_entry.data:
@@ -207,30 +257,71 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         if not user_input:
             return self.async_show_menu(step_id="choose_type", menu_options=["api", "manual"])
 
-    async def async_step_manual(self, user_input: dict[str, Any] | None = None):
-        user_auth_schema = vol.Schema(
+    def _manual_schema(self) -> vol.Schema:
+        return vol.Schema(
             {
-                vol.Required(CONF_API_HOST, default="api.ecoflow.com"): str,
+                vol.Required(CONF_API_HOST, default=self.new_data.get(CONF_API_HOST, "api.ecoflow.com")): str,
                 vol.Required(CONF_USERNAME, default=self.new_data.get(CONF_USERNAME, "")): str,
                 vol.Required(CONF_PASSWORD, default=self.new_data.get(CONF_PASSWORD, "")): str,
             }
         )
 
-        if not user_input:
-            return self.async_show_form(step_id="manual", data_schema=user_auth_schema)
+    def _api_schema(self) -> vol.Schema:
+        return vol.Schema(
+            {
+                vol.Required(
+                    CONF_API_HOST, default=self.new_data.get(CONF_API_HOST, "api-e.ecoflow.com")
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=["api-e.ecoflow.com", "api-a.ecoflow.com"],
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    ),
+                ),
+                vol.Required(CONF_ACCESS_KEY, default=self.new_data.get(CONF_ACCESS_KEY, "")): str,
+                vol.Required(CONF_SECRET_KEY, default=self.new_data.get(CONF_SECRET_KEY, "")): str,
+            }
+        )
 
+    def _schema_for(self, public_api: bool) -> vol.Schema:
+        return self._api_schema() if public_api else self._manual_schema()
+
+    def _set_manual_credentials(self, user_input: dict[str, Any]) -> None:
         self.new_data[CONF_API_HOST] = user_input.get(CONF_API_HOST)
         self.new_data[CONF_USERNAME] = user_input.get(CONF_USERNAME)
         self.new_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD)
 
+    def _set_api_credentials(self, user_input: dict[str, Any]) -> None:
+        self.new_data[CONF_API_HOST] = user_input.get(CONF_API_HOST)
+        # keys get pasted from the developer portal, often with stray whitespace that breaks the signature
+        self.new_data[CONF_ACCESS_KEY] = user_input.get(CONF_ACCESS_KEY, "").strip()
+        self.new_data[CONF_SECRET_KEY] = user_input.get(CONF_SECRET_KEY, "").strip()
+
+    def _create_manual_client(self):
         from .api.private_api import EcoflowPrivateApiClient
 
-        self.auth = EcoflowPrivateApiClient(
+        return EcoflowPrivateApiClient(
             self.new_data[CONF_API_HOST],
             self.new_data[CONF_USERNAME],
             self.new_data[CONF_PASSWORD],
             self.new_data[CONF_GROUP],
         )
+
+    def _create_api_client(self):
+        from .api.public_api import EcoflowPublicApiClient
+
+        return EcoflowPublicApiClient(
+            self.new_data[CONF_API_HOST],
+            self.new_data[CONF_ACCESS_KEY],
+            self.new_data[CONF_SECRET_KEY],
+            self.new_data[CONF_GROUP],
+        )
+
+    async def async_step_manual(self, user_input: dict[str, Any] | None = None):
+        if not user_input:
+            return self.async_show_form(step_id="manual", data_schema=self._manual_schema())
+
+        self._set_manual_credentials(user_input)
+        self.auth = self._create_manual_client()
 
         errors: dict[str, str] = {}
         try:
@@ -242,7 +333,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             return self.async_abort(reason="unknown")
 
         if errors:
-            return self.async_show_form(step_id="manual", data_schema=user_auth_schema, errors=errors)
+            return self.async_show_form(step_id="manual", data_schema=self._manual_schema(), errors=errors)
 
         if self.config_entry:  # reconfig flow
             devices = extract_devices(self.config_entry)
@@ -303,40 +394,17 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         return await self.update_or_create()
 
     async def async_step_api(self, user_input: dict[str, Any] | None = None):
-        api_keys_auth_schema = vol.Schema(
-            {
-                vol.Required(
-                    CONF_API_HOST, default=self.new_data.get(CONF_API_HOST, "api-e.ecoflow.com")
-                ): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=["api-e.ecoflow.com", "api-a.ecoflow.com"],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
-                    ),
-                ),
-                vol.Required(CONF_ACCESS_KEY, default=self.new_data.get(CONF_ACCESS_KEY, "")): str,
-                vol.Required(CONF_SECRET_KEY, default=self.new_data.get(CONF_SECRET_KEY, "")): str,
-            }
-        )
-
         if not user_input:
-            return self.async_show_form(step_id="api", data_schema=api_keys_auth_schema)
+            return self.async_show_form(step_id="api", data_schema=self._api_schema())
 
-        self.new_data[CONF_API_HOST] = user_input.get(CONF_API_HOST)
-        self.new_data[CONF_ACCESS_KEY] = user_input.get(CONF_ACCESS_KEY)
-        self.new_data[CONF_SECRET_KEY] = user_input.get(CONF_SECRET_KEY)
-
-        from .api.public_api import EcoflowPublicApiClient
-
-        self.auth = EcoflowPublicApiClient(
-            self.new_data[CONF_API_HOST],
-            self.new_data[CONF_ACCESS_KEY],
-            self.new_data[CONF_SECRET_KEY],
-            self.new_data[CONF_GROUP],
-        )
+        self._set_api_credentials(user_input)
+        self.auth = self._create_api_client()
 
         errors: dict[str, str] = {}
         try:
             await self.auth.login()
+        except EcoflowAuthException:
+            errors["base"] = "invalid_access_key"
         except EcoflowException as e:  # pylint: disable=broad-except
             errors["base"] = str(e)
         except Exception:  # pylint: disable=broad-except
@@ -344,7 +412,8 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             return self.async_abort(reason="unknown")
 
         if errors:
-            return self.async_show_form(step_id="api", data_schema=api_keys_auth_schema, errors=errors)
+            # rebuilt, not reused: the schema defaults now carry the credentials just entered
+            return self.async_show_form(step_id="api", data_schema=self._api_schema(), errors=errors)
 
         if self.config_entry:  # reconfig flow
             devices = extract_devices(self.config_entry)

@@ -1,7 +1,29 @@
 {
     "title": "EcoFlow-Cloud",
     "config": {
+        "error": {
+            "invalid_access_key": "EcoFlow rejected the access key (error 8513). Check the key and secret for typos, and make sure the API host matches the region your developer account belongs to: api-e.ecoflow.com for Europe, api-a.ecoflow.com for the Americas."
+        },
+        "abort": {
+            "reauth_successful": "Re-authentication was successful",
+            "reconfigure_successful": "Reconfiguration was successful",
+            "do_reconfigure_existing": "A device group with this name already exists. Reconfigure that entry instead.",
+            "no_device_to_add": "No new devices to add: every device in this account has already been added.",
+            "remove_last_device": "The last device cannot be removed. Delete the integration entry instead.",
+            "unknown": "Unexpected error"
+        },
         "step": {
+            "reauth_confirm": {
+                "title": "EcoFlow credentials rejected",
+                "description": "EcoFlow no longer accepts the stored credentials for {name}. Enter the current ones to reconnect.",
+                "data": {
+                    "api_host": "API host",
+                    "access_key": "Access key",
+                    "secret_key": "Secret key",
+                    "username": "User email",
+                    "password": "User password"
+                }
+            },
             "user": {
                 "data": {
                     "group": "Device group"
@@ -14,6 +36,7 @@
                     "finish": "Finish"
                 },
                 "data": {
+                    "api_host": "API host",
                     "access_key": "Access key",
                     "secret_key": "Secret key",
                     "load_all_devices": "Automatic device loading"
@@ -44,6 +67,7 @@
                     "finish": "Finish"
                 },
                 "data": {
+                    "api_host": "API host",
                     "username": "User email",
                     "password": "User password"
                 }

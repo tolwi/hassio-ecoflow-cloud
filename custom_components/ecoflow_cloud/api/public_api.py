@@ -1,13 +1,13 @@
-from typing import Any
-
-from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 import hashlib
 import hmac
 import logging
 import random
 import time
+from typing import Any
 
 import aiohttp
+
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 
 from ..devices import EcoflowDeviceInfo
 from . import EcoflowApiClient
@@ -26,8 +26,9 @@ class EcoflowPublicApiClient(EcoflowApiClient):
     def __init__(self, api_domain: str, access_key: str, secret_key: str, group: str):
         super().__init__()
         self.api_domain = api_domain
-        self.access_key = access_key
-        self.secret_key = secret_key
+        # strip here too: entries stored before the config flow sanitized them
+        self.access_key = access_key.strip()
+        self.secret_key = secret_key.strip()
         self.group = group
         self.nonce = str(random.randint(10000, 1000000))
         self.timestamp = str(int(time.time() * 1000))
@@ -42,7 +43,7 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         _LOGGER.info("Requesting all devices")
         response = await self.call_api("/device/list")
         _LOGGER.info(f"Received devices: \n {response}")
-        result = list()
+        result = []
         for device in response["data"]:
             _LOGGER.debug(str(device))
             sn = device["sn"]
@@ -74,9 +75,8 @@ class EcoflowPublicApiClient(EcoflowApiClient):
                 raw = await self.call_api("/device/quota/all", {"sn": sn})
                 if "data" in raw:
                     self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw, False))
-            except Exception as exception:
-                _LOGGER.error(exception, exc_info=True)
-                _LOGGER.error("Error retrieving %s", sn)
+            except Exception:
+                _LOGGER.exception("Error retrieving %s", sn)
 
     async def call_api(self, endpoint: str, params: dict[str, str] | None = None) -> dict:
         self.nonce = str(random.randint(10000, 1000000))

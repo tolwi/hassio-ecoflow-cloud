@@ -1,7 +1,29 @@
 {
     "title": "EcoFlow-Cloud",
     "config": {
+        "error": {
+            "invalid_access_key": "EcoFlow відхилив access key (помилка 8513). Перевірте access key і secret key на помилки та переконайтеся, що хост API відповідає регіону вашого облікового запису розробника: api-e.ecoflow.com для Європи, api-a.ecoflow.com для Америки."
+        },
+        "abort": {
+            "reauth_successful": "Повторна автентифікація пройшла успішно",
+            "reconfigure_successful": "Переналаштування пройшло успішно",
+            "do_reconfigure_existing": "Група пристроїв з такою назвою вже існує. Переналаштуйте наявний запис.",
+            "no_device_to_add": "Немає нових пристроїв для додавання: усі пристрої цього облікового запису вже додано.",
+            "remove_last_device": "Останній пристрій не можна видалити. Замість цього видаліть запис інтеграції.",
+            "unknown": "Неочікувана помилка"
+        },
         "step": {
+            "reauth_confirm": {
+                "title": "EcoFlow відхилив облікові дані",
+                "description": "EcoFlow більше не приймає збережені облікові дані для {name}. Введіть актуальні, щоб відновити з'єднання.",
+                "data": {
+                    "api_host": "Хост API",
+                    "access_key": "Access key",
+                    "secret_key": "Secret key",
+                    "username": "Email користувача",
+                    "password": "Password користувача"
+                }
+            },
             "user": {
                 "data": {
                     "group": "Група пристроїв"
@@ -14,6 +36,7 @@
                     "finish": "Завершити"
                 },
                 "data": {
+                    "api_host": "Хост API",
                     "access_key": "Access key",
                     "secret_key": "Secret key",
                     "load_all_devices": "Автоматичне завантаження пристроїв"
@@ -44,6 +67,7 @@
                     "finish": "Завершити"
                 },
                 "data": {
+                    "api_host": "Хост API",
                     "username": "Email користувача",
                     "password": "Password користувача"
                 }

@@ -1,7 +1,29 @@
 {
     "title": "EcoFlow-Cloud",
     "config": {
+        "error": {
+            "invalid_access_key": "EcoFlow ha rifiutato la access key (errore 8513). Controlla che access key e secret key non contengano errori di battitura e verifica che l'host API corrisponda alla regione del tuo account sviluppatore: api-e.ecoflow.com per l'Europa, api-a.ecoflow.com per le Americhe."
+        },
+        "abort": {
+            "reauth_successful": "La riautenticazione è avvenuta con successo",
+            "reconfigure_successful": "La riconfigurazione è avvenuta con successo",
+            "do_reconfigure_existing": "Esiste già un gruppo di dispositivi con questo nome. Riconfigura invece la voce esistente.",
+            "no_device_to_add": "Nessun nuovo dispositivo da aggiungere: tutti i dispositivi di questo account sono già stati aggiunti.",
+            "remove_last_device": "L'ultimo dispositivo non può essere rimosso. Elimina invece la voce dell'integrazione.",
+            "unknown": "Errore imprevisto"
+        },
         "step": {
+            "reauth_confirm": {
+                "title": "Credenziali EcoFlow rifiutate",
+                "description": "EcoFlow non accetta più le credenziali salvate per {name}. Inserisci quelle attuali per riconnetterti.",
+                "data": {
+                    "api_host": "Host API",
+                    "access_key": "Access key",
+                    "secret_key": "Secret key",
+                    "username": "Email utente",
+                    "password": "Password utente"
+                }
+            },
             "user": {
                 "data": {
                     "group": "Gruppo di dispositivi"
@@ -14,6 +36,7 @@
                     "finish": "Fine"
                 },
                 "data": {
+                    "api_host": "Host API",
                     "access_key": "Access key",
                     "secret_key": "Secret key",
                     "load_all_devices": "Caricamento automatico dei dispositivi"
@@ -44,6 +67,7 @@
                     "finish": "Fine"
                 },
                 "data": {
+                    "api_host": "Host API",
                     "username": "Email utente",
                     "password": "Password utente"
                 }
