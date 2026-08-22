@@ -433,6 +433,26 @@ STREAM_WIFI_RSSI = "WiFi Signal Strength"
 STREAM_FEED_GRID_MODE_POW_LIMIT = "Feed-in Power Limit"
 STREAM_FEED_GRID_MODE_POW_MAX = "Feed-in Power Max"
 
+# Stream AC 5000 (SN prefix "ES22", internal/App API)
+# Grid-port power is signed from the *battery's* point of view: >0 means power
+# flowing into the port (charging), <0 means flowing out (discharging). This is
+# the opposite of STREAM_POWER_AC's documented convention, hence its own name.
+STREAM_AC5000_GRID_PORT_POWER = "Grid Port Power"
+STREAM_AC5000_BATTERY_POWER = "Battery Power"
+# Tapers as the pack fills (observed 2550 W -> 558 W -> 270 W approaching 100%),
+# so this is the currently-allowed charge power, not a fixed rating.
+STREAM_AC5000_CHARGE_POWER_LIMIT = "Charge Power Limit"
+STREAM_AC5000_MAX_DISCHARGE_POWER = "Max Discharge Power"
+STREAM_AC5000_BMS_BATTERY_LEVEL = "Battery Level (BMS)"
+# Controls. Names follow the EcoFlow app's own wording ("net power in/out").
+STREAM_AC5000_NET_POWER_IN = "Net Power In Limit"
+STREAM_AC5000_NET_POWER_OUT = "Net Power Out Limit"
+STREAM_AC5000_AC_OUTPUT = "AC Output"
+STREAM_AC5000_XBOOST = "X-Boost"
+STREAM_AC5000_UPS = "UPS Mode"
+STREAM_AC5000_WORK_MODE = "Work Mode"
+STREAM_AC5000_WORK_MODE_OPTIONS = {"Self-powered": 0, "Intelligent": 1, "Scheduled": 2}
+
 ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
 ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
 ACCU_DISCHARGE_CAP = "Cumulative Capacity Discharge (mAh)"
