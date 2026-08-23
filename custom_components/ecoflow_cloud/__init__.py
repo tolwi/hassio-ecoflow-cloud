@@ -256,7 +256,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     api_client: EcoflowApiClient
     if ECOFLOW_DOMAIN not in hass.data:
         hass.data[ECOFLOW_DOMAIN] = {}
-    if CONF_USERNAME in entry.data and CONF_PASSWORD in entry.data:
+    is_private_api = CONF_USERNAME in entry.data and CONF_PASSWORD in entry.data
+    if is_private_api:
         from .api.private_api import EcoflowPrivateApiClient
 
         api_client = EcoflowPrivateApiClient(
@@ -288,7 +289,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         _LOGGER.warning("Failed to connect to EcoFlow API: %s", ex)
         raise ConfigEntryNotReady(f"Connection failed: {ex}") from ex
     except EcoflowAuthException as ex:
-        # Ask the user for new credentials instead of retrying with the rejected ones
+        # EcoFlow's private endpoint also returns auth errors for transient service
+        # failures. Keep an already-configured entry retryable; users can still run
+        # Reconfigure when their credentials actually changed.
+        if is_private_api:
+            _LOGGER.warning("EcoFlow private API login rejected: %s", ex)
+            raise ConfigEntryNotReady(f"Private API login failed: {ex}") from ex
+
+        # Public API credential failures are deterministic enough to request reauth.
         raise ConfigEntryAuthFailed(str(ex)) from ex
     except EcoflowException as ex:
         # Any other API error may well be transient - let HA retry with backoff
