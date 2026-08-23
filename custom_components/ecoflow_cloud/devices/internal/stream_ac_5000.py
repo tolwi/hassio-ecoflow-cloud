@@ -61,7 +61,6 @@ from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatte
 from custom_components.ecoflow_cloud.select import PowerDictSelectEntity
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 from custom_components.ecoflow_cloud.sensor import (
-    BatteryLimitSensorEntity,
     CumulativeCapacitySensorEntity,
     EnergySensorEntity,
     FrequencySensorEntity,
@@ -213,8 +212,10 @@ class StreamAC5000(BaseInternalDevice):
             StoredEnergyFromSocSensorEntity(
                 client, self, "cmsBattFullEnergy", "f32ShowSoc", const.STREAM_STORED_ENERGY
             ),
-            BatteryLimitSensorEntity(client, self, "cmsMaxChgSoc", const.MAX_CHARGE_LEVEL),
-            BatteryLimitSensorEntity(client, self, "cmsMinDsgSoc", const.MIN_DISCHARGE_LEVEL),
+            # cmsMaxChgSoc / cmsMinDsgSoc are NOT sensors here: they are writable,
+            # so they live in numbers() instead. Exposing them in both places put
+            # a read-only "Max Charge Level" under Sensors next to the identically
+            # named slider under Controls, which is just confusing.
             # RemainSensorEntity already clamps the device's 5939 ("unknown",
             # = 99 h 59 m) sentinel to 0, so it is passed through as-is.
             RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME),
@@ -230,7 +231,8 @@ class StreamAC5000(BaseInternalDevice):
             WattsSensorEntity(client, self, "bpPower", const.STREAM_AC5000_BATTERY_POWER, False),
             WattsSensorEntity(client, self, "maxChgPow", const.STREAM_AC5000_CHARGE_POWER_LIMIT, False),
             WattsSensorEntity(client, self, "maxDsgPow", const.STREAM_AC5000_MAX_DISCHARGE_POWER, False),
-            WattsSensorEntity(client, self, "feedGridModePowLimit", const.STREAM_FEED_GRID_MODE_POW_LIMIT, False),
+            # feedGridModePowLimit is writable and lives in numbers() as
+            # "Net Power Out Limit"; only the read-only ceiling stays a sensor.
             WattsSensorEntity(client, self, "feedGridModePowMax", const.STREAM_FEED_GRID_MODE_POW_MAX, False),
             # --- paired P1 meter ----------------------------------------
             # The meter (SN prefix "ES41") has no MQTT topic of its own; it
