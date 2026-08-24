@@ -137,6 +137,12 @@ message StreamAC5000Runtime {
     // observed following a change through in both directions (out 800 -> 700 ->
     // 800, in 2500 -> 2400 -> 2500), so both sliders read real state.
     optional StreamAC5000SetPowerLimits powerLimits = 10;
+    // Field 19 and field 25 likewise read back the AC-output and work-mode
+    // properties the app writes, under the same field numbers. Field 25 appears
+    // within ~2s of a write; field 43 (not declared) mirrors it a couple of
+    // seconds later, so one source is enough and they cannot fight each other.
+    optional StreamAC5000SetAcOut acOut = 19;
+    optional uint32 workMode = 25;
     optional StreamAC5000Meter meter = 16;
     optional StreamAC5000SysConfig sysConfig = 33;
     optional StreamAC5000BmsPack bmsPack = 38;

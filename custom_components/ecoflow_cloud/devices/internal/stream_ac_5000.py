@@ -99,13 +99,10 @@ _SET_CMD_ID = 38
 _OUT_LIMIT_FIELD4 = 4
 _OUT_LIMIT_MAX = 800
 
-# AC output and work mode are not echoed anywhere in the decoded telemetry, so
-# these keys exist only locally: the entity base writes the target value under
-# its own key after a successful send, making their state optimistic rather than
-# confirmed. Change either from the EcoFlow app and Home Assistant will not
-# notice until it is changed from here again.
-# X-Boost and UPS are different -- both come back in runtime block 23, so they
-# use their real parameter names and reflect changes made from the app.
+# Every control is read back from telemetry, so none of them are optimistic:
+# AC output and work mode come from runtime fields 19 and 25, X-Boost and UPS
+# from block 23. These constants only exist to keep the parameter name in one
+# place, since the protobuf field names differ from the entity keys.
 _KEY_AC_OUT = "acOutEnabled"
 _KEY_XBOOST = "xboostEnabled"
 _KEY_WORK_MODE = "workMode"
@@ -223,12 +220,16 @@ class StreamAC5000(BaseInternalDevice):
             RemainSensorEntity(client, self, "bmsDsgRemTime", const.DISCHARGE_REMAINING_TIME, False),
             # --- power --------------------------------------------------
             WattsSensorEntity(client, self, "gridPortPower", const.STREAM_AC5000_GRID_PORT_POWER),
-            # Battery-side power. The device only reports its *magnitude* (an
-            # unsigned half-watt field); the capture contained no BMS/CMS frames
-            # during discharge, so the sign convention could not be confirmed.
-            # Disabled by default rather than shipped with a guessed sign --
-            # enable it if you have verified the behaviour on your own unit.
-            WattsSensorEntity(client, self, "bpPower", const.STREAM_AC5000_BATTERY_POWER, False),
+            # Battery-side power, unsigned MAGNITUDE -- the device has no signed
+            # variant. Confirmed across 58 same-second pairs where the grid port
+            # was discharging: the field stayed positive throughout, and never
+            # exceeded 2^31 (which is how a negative varint would show up).
+            # Both directions carry a ~60 W conversion+standby loss, in the
+            # direction that always costs the battery: charging 640 W at the port
+            # put 583 W into the pack, while discharging 101 W out of the port
+            # drew 162 W from it. Direction must come from Grid Port Power's
+            # sign; a template sensor multiplying the two gives a signed value.
+            WattsSensorEntity(client, self, "bpPower", const.STREAM_AC5000_BATTERY_POWER),
             WattsSensorEntity(client, self, "maxChgPow", const.STREAM_AC5000_CHARGE_POWER_LIMIT, False),
             WattsSensorEntity(client, self, "maxDsgPow", const.STREAM_AC5000_MAX_DISCHARGE_POWER, False),
             # feedGridModePowLimit is writable and lives in numbers() as
@@ -483,6 +484,8 @@ class StreamAC5000(BaseInternalDevice):
         self._copy(message.powerPack.power, params, "gridPortPower")
         self._copy(message.deviceCfg, params, "upsEnabled", ("xboostEnabled", _KEY_XBOOST))
         self._copy(message.powerLimits, params, "feedGridModePowLimit", "chgPowLimit")
+        self._copy(message.acOut, params, ("enabled", _KEY_AC_OUT))
+        self._copy(message, params, ("workMode", _KEY_WORK_MODE))
 
         # Battery-side power arrives only in half-watts; normalise to watts so
         # the sensor carries the unit Home Assistant expects. The CMS copy is

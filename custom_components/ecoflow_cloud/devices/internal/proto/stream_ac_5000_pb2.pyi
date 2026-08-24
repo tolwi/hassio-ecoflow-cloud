@@ -141,9 +141,11 @@ class StreamAC5000StatPack(_message.Message):
     def __init__(self, stat: _Optional[_Union[StreamAC5000DeviceStat, _Mapping]] = ...) -> None: ...
 
 class StreamAC5000Runtime(_message.Message):
-    __slots__ = ("deviceCfg", "powerLimits", "meter", "sysConfig", "bmsPack", "cms", "powerPack", "statPack")
+    __slots__ = ("deviceCfg", "powerLimits", "acOut", "workMode", "meter", "sysConfig", "bmsPack", "cms", "powerPack", "statPack")
     DEVICECFG_FIELD_NUMBER: _ClassVar[int]
     POWERLIMITS_FIELD_NUMBER: _ClassVar[int]
+    ACOUT_FIELD_NUMBER: _ClassVar[int]
+    WORKMODE_FIELD_NUMBER: _ClassVar[int]
     METER_FIELD_NUMBER: _ClassVar[int]
     SYSCONFIG_FIELD_NUMBER: _ClassVar[int]
     BMSPACK_FIELD_NUMBER: _ClassVar[int]
@@ -152,13 +154,15 @@ class StreamAC5000Runtime(_message.Message):
     STATPACK_FIELD_NUMBER: _ClassVar[int]
     deviceCfg: StreamAC5000SetDeviceCfg
     powerLimits: StreamAC5000SetPowerLimits
+    acOut: StreamAC5000SetAcOut
+    workMode: int
     meter: StreamAC5000Meter
     sysConfig: StreamAC5000SysConfig
     bmsPack: StreamAC5000BmsPack
     cms: StreamAC5000Cms
     powerPack: StreamAC5000PowerPack
     statPack: StreamAC5000StatPack
-    def __init__(self, deviceCfg: _Optional[_Union[StreamAC5000SetDeviceCfg, _Mapping]] = ..., powerLimits: _Optional[_Union[StreamAC5000SetPowerLimits, _Mapping]] = ..., meter: _Optional[_Union[StreamAC5000Meter, _Mapping]] = ..., sysConfig: _Optional[_Union[StreamAC5000SysConfig, _Mapping]] = ..., bmsPack: _Optional[_Union[StreamAC5000BmsPack, _Mapping]] = ..., cms: _Optional[_Union[StreamAC5000Cms, _Mapping]] = ..., powerPack: _Optional[_Union[StreamAC5000PowerPack, _Mapping]] = ..., statPack: _Optional[_Union[StreamAC5000StatPack, _Mapping]] = ...) -> None: ...
+    def __init__(self, deviceCfg: _Optional[_Union[StreamAC5000SetDeviceCfg, _Mapping]] = ..., powerLimits: _Optional[_Union[StreamAC5000SetPowerLimits, _Mapping]] = ..., acOut: _Optional[_Union[StreamAC5000SetAcOut, _Mapping]] = ..., workMode: _Optional[int] = ..., meter: _Optional[_Union[StreamAC5000Meter, _Mapping]] = ..., sysConfig: _Optional[_Union[StreamAC5000SysConfig, _Mapping]] = ..., bmsPack: _Optional[_Union[StreamAC5000BmsPack, _Mapping]] = ..., cms: _Optional[_Union[StreamAC5000Cms, _Mapping]] = ..., powerPack: _Optional[_Union[StreamAC5000PowerPack, _Mapping]] = ..., statPack: _Optional[_Union[StreamAC5000StatPack, _Mapping]] = ...) -> None: ...
 
 class StreamAC5000Pack(_message.Message):
     __slots__ = ("f32ShowSoc", "version", "bmsSn", "realSoh", "cycleSoh", "calendarSoh", "accuChgCap", "accuDsgCap", "accuChgEnergy", "accuDsgEnergy", "inverterSn")
