@@ -112,12 +112,16 @@ class CeilingBoundPowerEntity(ChargingPowerEntity):
     """A power slider whose upper bound follows a ceiling the device reports.
 
     The AC 5000's output limit is a compliance setting, not a fixed rating: it
-    ships at the 800 W EU plug-in-inverter ceiling, and the owner can raise it
-    (in the EcoFlow app, behind a toggle and a signed declaration) to 2600 W, or
-    to 7400 W if an installer authorises it. Hard-coding 800 here would stop
-    Home Assistant from ever using headroom the owner has legitimately unlocked,
-    so the bound follows the device instead. Mirrors how BatteryBackupLevel
-    tracks its limits from sibling keys.
+    ships at the 800 W EU plug-in-inverter ceiling, the owner can raise it to
+    2500 W in the EcoFlow app behind a toggle and a signed declaration, and
+    anything above that needs an installer (up to 7400 W). Hard-coding 800 here
+    would stop Home Assistant from ever using headroom the owner has
+    legitimately unlocked, so the bound follows the device instead.
+
+    The constructor value is only the bound before any telemetry arrives; once
+    the ceiling key is seen the bound tracks it in both directions, so an
+    installer-raised limit widens the slider without a code change. Mirrors how
+    BatteryBackupLevel tracks its limits from sibling keys.
     """
 
     def __init__(
@@ -342,17 +346,18 @@ class StreamAC5000(BaseInternalDevice):
             # Partial writes are accepted for property 10 -- the app changed the
             # input limit by sending that field alone -- so each of these sends
             # only what it owns.
-            # 2600 W is the highest the owner can unlock themselves; an
-            # installer can authorise 7400 W, which is beyond what this slider
-            # offers on purpose -- that setup should raise the ceiling in the
-            # app, and feedGridModePowMax then widens this bound to match.
+            # 2500 W is the highest the owner can unlock themselves (a signed
+            # declaration in the app); above that needs an installer and a
+            # review. Starting there rather than at 7400 keeps the slider honest
+            # for the common case -- feedGridModePowMax widens it if the device
+            # ever reports a higher ceiling.
             CeilingBoundPowerEntity(
                 client,
                 self,
                 "feedGridModePowLimit",
                 const.STREAM_AC5000_NET_POWER_OUT,
                 0,
-                2600,
+                2500,
                 "feedGridModePowMax",
                 lambda value: self._command(
                     propertyId=_PROP_POWER_LIMITS,
