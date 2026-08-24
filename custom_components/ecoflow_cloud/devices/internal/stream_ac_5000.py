@@ -108,47 +108,6 @@ _KEY_XBOOST = "xboostEnabled"
 _KEY_WORK_MODE = "workMode"
 
 
-class CeilingBoundPowerEntity(ChargingPowerEntity):
-    """A power slider whose upper bound follows a ceiling the device reports.
-
-    The AC 5000's output limit is a compliance setting, not a fixed rating: it
-    ships at the 800 W EU plug-in-inverter ceiling, the owner can raise it to
-    2500 W in the EcoFlow app behind a toggle and a signed declaration, and
-    anything above that needs an installer (up to 7400 W). Hard-coding 800 here
-    would stop Home Assistant from ever using headroom the owner has
-    legitimately unlocked, so the bound follows the device instead.
-
-    The constructor value is only the bound before any telemetry arrives; once
-    the ceiling key is seen the bound tracks it in both directions, so an
-    installer-raised limit widens the slider without a code change. Mirrors how
-    BatteryBackupLevel tracks its limits from sibling keys.
-    """
-
-    def __init__(
-        self,
-        client: EcoflowApiClient,
-        device: Any,
-        mqtt_key: str,
-        title: str,
-        min_value: int,
-        max_value: int,
-        ceiling_key: str,
-        command: Any,
-    ):
-        super().__init__(client, device, mqtt_key, title, min_value, max_value, command)
-        self._ceiling_key = ceiling_key
-
-    def _updated(self, data: dict[str, Any]) -> None:
-        if self._ceiling_key in data:
-            try:
-                ceiling = int(data[self._ceiling_key])
-            except TypeError, ValueError:
-                ceiling = 0
-            if ceiling > 0:
-                self._attr_native_max_value = ceiling
-        super()._updated(data)
-
-
 class StreamAC5000CommandMessage(PrivateAPIMessageProtocol):
     """One property write, wrapped in the envelope the EcoFlow app uses.
 
@@ -346,19 +305,28 @@ class StreamAC5000(BaseInternalDevice):
             # Partial writes are accepted for property 10 -- the app changed the
             # input limit by sending that field alone -- so each of these sends
             # only what it owns.
-            # 2500 W is the highest the owner can unlock themselves (a signed
-            # declaration in the app); above that needs an installer and a
-            # review. Starting there rather than at 7400 keeps the slider honest
-            # for the common case -- feedGridModePowMax widens it if the device
-            # ever reports a higher ceiling.
-            CeilingBoundPowerEntity(
+            # 2500 W is the highest the owner can unlock themselves, via a signed
+            # declaration in the app; above that needs an installer and a review.
+            #
+            # This bound is static because NOTHING in the telemetry reports the
+            # approved ceiling. Watching a live 800 -> 2500 -> 800 change settled
+            # it: block 33 arrived as an incremental upload carrying only field
+            # 12, while fields 9 and 10 (feedGridModePowMax) were absent and so
+            # unchanged at 800 -- they describe the default regulatory limit, not
+            # what the owner is cleared for. Driving the slider's bound from
+            # field 10 would have pinned it to 800 and blocked the very headroom
+            # the owner had just unlocked.
+            #
+            # Compliance is therefore the owner's responsibility here: the device
+            # accepts what it is sent, and it is the app that gates the paperwork.
+            # An installer-raised system needs this constant raised to match.
+            ChargingPowerEntity(
                 client,
                 self,
                 "feedGridModePowLimit",
                 const.STREAM_AC5000_NET_POWER_OUT,
                 0,
                 2500,
-                "feedGridModePowMax",
                 lambda value: self._command(
                     propertyId=_PROP_POWER_LIMITS,
                     powerLimits=stream_ac_5000_pb2.StreamAC5000SetPowerLimits(
