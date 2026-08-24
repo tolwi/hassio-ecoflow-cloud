@@ -453,17 +453,26 @@ class StreamAC5000(BaseInternalDevice):
             "f32ShowSoc",
             "cmsMaxChgSoc",
             "cmsMinDsgSoc",
-            "feedGridModePowLimit",
+            # feedGridModePowLimit is NOT taken from this block. Field 33.9 read
+            # 800 throughout, including while the limit was set to 700 -- but
+            # block 33 is sparse enough that "it is a ceiling" and "it was not
+            # sampled during the 6-second window" are indistinguishable here.
+            # Block 10 is unambiguous (it is the structure the app writes, and it
+            # tracked 800 -> 700 -> 800), so it owns the key alone. Letting an
+            # ambiguous source share it risks fighting the user's own setting.
             "feedGridModePowMax",
         )
-        # The BMS reports SoC ~1% below the CMS/app value, so it lands under its
-        # own key: letting it share "soc" made the battery level jitter by a
-        # percent depending on which block arrived last.
+        # Neither SoC nor the max-charge limit is taken from the BMS block.
+        # The BMS reports SoC ~1% below the CMS/app value, and its field 2 is a
+        # fixed 100 -- it never followed a change to 95, across every frame in
+        # two captures, while 33.7 and the cmd_id 2 status both did. Sharing
+        # those keys made the battery level jitter and, worse, snapped the Max
+        # Charge Level slider back to 100 a few seconds after any change.
         self._copy(
             message.bmsPack.bms,
             params,
             ("soc", "bmsBattSoc"),
-            "cmsMaxChgSoc",
+            ("cmsMaxChgSoc", "bmsMaxChgSoc"),
             "cmsBattFullEnergy",
             "bmsDsgRemTime",
             "bmsChgRemTime",
