@@ -107,6 +107,14 @@ _KEY_AC_OUT = "acOutEnabled"
 _KEY_XBOOST = "xboostEnabled"
 _KEY_WORK_MODE = "workMode"
 
+# The device reports TWO SoC scales. The system scale (runtime blocks 33/44/50/54)
+# is what the EcoFlow app displays; the pack scale (cmd_id 2, and cmd_id 50 field
+# 25) runs above it near the bottom of the range -- 16% against the app's 13% with
+# the pack sitting on its 5% floor. They agree at high charge, which is why the
+# split only shows up on a nearly empty battery. Keeping them apart stops the
+# battery level flipping between the two depending on which frame arrived last.
+_KEY_PACK_SOC = "packSoc"
+
 
 class StreamAC5000CommandMessage(PrivateAPIMessageProtocol):
     """One property write, wrapped in the envelope the EcoFlow app uses.
@@ -206,6 +214,7 @@ class StreamAC5000(BaseInternalDevice):
             LevelSensorEntity(client, self, "soc", const.STREAM_BATTERY_LEVEL),
             LevelSensorEntity(client, self, "f32ShowSoc", const.STREAM_POWER_BATTERY_SOC, False),
             LevelSensorEntity(client, self, "bmsBattSoc", const.STREAM_AC5000_BMS_BATTERY_LEVEL, False),
+            LevelSensorEntity(client, self, _KEY_PACK_SOC, const.STREAM_AC5000_PACK_BATTERY_LEVEL, False),
             StoredEnergyFromSocSensorEntity(
                 client, self, "cmsBattFullEnergy", "f32ShowSoc", const.STREAM_STORED_ENERGY
             ),
@@ -427,8 +436,12 @@ class StreamAC5000(BaseInternalDevice):
         if cmd_id == _CMD_ID_STATUS:
             message = stream_ac_5000_pb2.StreamAC5000StatusPack()
             message.ParseFromString(pdata)
-            self._copy(message.battery, params, "cmsMaxChgSoc", "soc", "bmsChgRemTime", "bmsDsgRemTime")
-            self._copy(message.battery, params, "f32ShowSoc", "cmsMinDsgSoc")
+            # This frame's SoC fields are the raw PACK scale, which sits above
+            # the system scale the app shows -- 16% here against the app's 13%,
+            # diverging only near the bottom of the range. They land on their
+            # own key so they cannot fight the app-facing value.
+            self._copy(message.battery, params, "cmsMaxChgSoc", "bmsChgRemTime", "bmsDsgRemTime")
+            self._copy(message.battery, params, ("f32ShowSoc", _KEY_PACK_SOC), "cmsMinDsgSoc")
 
         elif cmd_id == _CMD_ID_RUNTIME:
             message = stream_ac_5000_pb2.StreamAC5000Runtime()
@@ -441,7 +454,7 @@ class StreamAC5000(BaseInternalDevice):
             self._copy(
                 message,
                 params,
-                "f32ShowSoc",
+                ("f32ShowSoc", _KEY_PACK_SOC),
                 "realSoh",
                 "cycleSoh",
                 "calendarSoh",
@@ -499,7 +512,10 @@ class StreamAC5000(BaseInternalDevice):
             "minCellVol",
             "maxCellVol",
         )
-        self._copy(message.cms, params, "soc", "cmsBattFullEnergy", "remainTime")
+        self._copy(message.cms, params, "cmsBattFullEnergy", "remainTime")
+        # soc comes from block 54 alone: same system scale as block 44 but sent
+        # far more often (23 frames against 1 over the same 90 seconds).
+        self._copy(message.statPack.stat, params, "soc")
         self._copy(message.powerPack.power, params, "gridPortPower")
         self._copy(message.deviceCfg, params, "upsEnabled", ("xboostEnabled", _KEY_XBOOST))
         self._copy(message.powerLimits, params, "feedGridModePowLimit", "chgPowLimit")
