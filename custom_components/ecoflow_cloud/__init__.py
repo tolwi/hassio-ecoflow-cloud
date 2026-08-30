@@ -13,6 +13,7 @@ from custom_components.ecoflow_cloud.api import (
     EcoflowApiClient,
     EcoflowAuthException,
     EcoflowException,
+    EcoflowPrivateApiLoginRejected,
 )
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
@@ -256,8 +257,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     api_client: EcoflowApiClient
     if ECOFLOW_DOMAIN not in hass.data:
         hass.data[ECOFLOW_DOMAIN] = {}
-    is_private_api = CONF_USERNAME in entry.data and CONF_PASSWORD in entry.data
-    if is_private_api:
+    if CONF_USERNAME in entry.data and CONF_PASSWORD in entry.data:
         from .api.private_api import EcoflowPrivateApiClient
 
         api_client = EcoflowPrivateApiClient(
@@ -288,15 +288,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         # ConnectionError subclasses, so they need naming separately
         _LOGGER.warning("Failed to connect to EcoFlow API: %s", ex)
         raise ConfigEntryNotReady(f"Connection failed: {ex}") from ex
+    except EcoflowPrivateApiLoginRejected as ex:
+        # EcoFlow does not distinguish a transient private-service rejection from
+        # invalid stored credentials. Keep setup retryable; Reconfigure remains the
+        # explicit path for validating and replacing private credentials.
+        _LOGGER.warning("EcoFlow private API login rejected ambiguously: %s", ex)
+        raise ConfigEntryNotReady(f"Private API login rejected: {ex}") from ex
     except EcoflowAuthException as ex:
-        # EcoFlow's private endpoint also returns auth errors for transient service
-        # failures. Keep an already-configured entry retryable; users can still run
-        # Reconfigure when their credentials actually changed.
-        if is_private_api:
-            _LOGGER.warning("EcoFlow private API login rejected: %s", ex)
-            raise ConfigEntryNotReady(f"Private API login failed: {ex}") from ex
-
-        # Public API credential failures are deterministic enough to request reauth.
+        # Public API credential failures have a specific code and can request reauth.
         raise ConfigEntryAuthFailed(str(ex)) from ex
     except EcoflowException as ex:
         # Any other API error may well be transient - let HA retry with backoff
