@@ -446,6 +446,9 @@ STREAM_AC5000_MAX_DISCHARGE_POWER = "Max Discharge Power"
 STREAM_AC5000_BMS_BATTERY_LEVEL = "Battery Level (BMS)"
 # The raw pack scale, which reads above the app-facing level near empty.
 STREAM_AC5000_PACK_BATTERY_LEVEL = "Battery Level (pack)"
+# Off when the device reports its meter block empty, i.e. the P1 link is down
+# and every Power Grid reading is stale.
+STREAM_AC5000_METER_LINK = "P1 Meter Link"
 # Controls. Names follow the EcoFlow app's own wording ("net power in/out").
 STREAM_AC5000_NET_POWER_IN = "Net Power In Limit"
 STREAM_AC5000_NET_POWER_OUT = "Net Power Out Limit"

@@ -47,6 +47,7 @@ from typing import Any, Iterator, override
 
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message as ProtoMessageRaw
+from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
@@ -55,6 +56,7 @@ from homeassistant.util import utcnow
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
+from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.devices.internal.proto import stream_ac_5000_pb2, stream_ac_pb2
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
@@ -114,6 +116,14 @@ _KEY_WORK_MODE = "workMode"
 # split only shows up on a nearly empty battery. Keeping them apart stops the
 # battery level flipping between the two depending on which frame arrived last.
 _KEY_PACK_SOC = "packSoc"
+
+# When the link to the P1 meter fails, the device keeps emitting meter block 16
+# but with NOTHING inside it -- a zero-length submessage, seen on all 13
+# occurrences during a 21-minute outage while the AC 5000 itself kept publishing
+# ~40 frames a minute. Because the decoder only copies fields that are present,
+# an empty block leaves every meter sensor holding its last reading, so a dead
+# feed looks like a live one. This key exposes the difference.
+_KEY_METER_LINK = "meterLinkUp"
 
 
 class StreamAC5000CommandMessage(PrivateAPIMessageProtocol):
@@ -291,6 +301,11 @@ class StreamAC5000(BaseInternalDevice):
             ),
         )
 
+    def binary_sensors(self, client: EcoflowApiClient) -> list[BinarySensorEntity]:
+        return [
+            MiscBinarySensorEntity(client, self, _KEY_METER_LINK, const.STREAM_AC5000_METER_LINK),
+        ]
+
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
             MaxBatteryLevelEntity(
@@ -465,6 +480,11 @@ class StreamAC5000(BaseInternalDevice):
             )
 
     def _decode_runtime(self, message: Any, params: dict[str, Any]) -> None:
+        if message.HasField("meter"):
+            # ByteSize() is 0 exactly when the block arrived empty, which is how
+            # the device signals that it has a meter configured but is not
+            # hearing from it.
+            params[_KEY_METER_LINK] = 1 if message.meter.ByteSize() > 0 else 0
         self._copy(
             message.meter,
             params,
