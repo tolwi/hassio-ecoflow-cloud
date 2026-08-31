@@ -43,7 +43,7 @@ class StreamMicroinveter(BaseDevice):
             InAmpSensorEntity(client, self, "plugInInfoPv2Amp", const.STREAM_IN_AMPS_PV_2, False, True),
             CelsiusSensorEntity(client, self, "invNtcTemp3", "Inverter NTC Temperature"),
             FrequencySensorEntity(client, self, "gridConnectionFreq", "Grid Frequency"),
-            StatusSensorEntity(client, self),
+            self._status_sensor(client),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
