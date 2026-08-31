@@ -61,4 +61,5 @@ class StreamMicroinveter(BaseDevice):
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return StatusSensorEntity(client, self)
+        # Same cloud-side stall behaviour as StreamAC.
+        return StatusSensorEntity(client, self, reconnect_when_stale=True)

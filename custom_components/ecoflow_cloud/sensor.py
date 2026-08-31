@@ -712,6 +712,7 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
         key: str = "status",
         poll_when_silent: bool = False,
         scheduled_refresh_sec: int | None = None,
+        reconnect_when_stale: bool = False,
     ):
         from .devices.status_tracker import OnlineStatus
 
@@ -721,6 +722,10 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
         self._prev_status: OnlineStatus | None = None
         self._poll_when_silent = poll_when_silent
         self._scheduled_refresh_sec = scheduled_refresh_sec
+        # Opt-in per device class: only devices known to be affected by the
+        # cloud-side stall reconnect on stale data alone.
+        self._reconnect_when_stale = reconnect_when_stale
+        self._reconnect_since = dt.utcnow()
         self._last_poll = dt.utcnow().replace(year=2000, month=1, day=1, hour=0, minute=0, second=0)
         self._last_scheduled = dt.utcnow()
         self._poll_count = 0
@@ -774,10 +779,24 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
                 self.schedule_update_ha_state()
 
     def _schedule_mqtt_reconnect(self) -> bool:
-        reconnect_count = self._client.schedule_mqtt_reconnect()
+        threshold = self._tracker.assume_offline_sec
+
+        # _reconnect_since covers the two moments where last_data_time is no
+        # reference -- just after setup and just after a reconnect -- which
+        # would otherwise look infinitely stale and reconnect straight away.
+        reference = max(self._tracker.last_data_time, self._reconnect_since)
+        data_stale = (
+            self._reconnect_when_stale
+            and (dt.utcnow() - reference).total_seconds() >= threshold
+        )
+
+        reconnect_count = self._client.schedule_mqtt_reconnect(
+            data_stale=data_stale, cooldown_sec=threshold
+        )
         if reconnect_count is None:
             return False
 
+        self._reconnect_since = dt.utcnow()
         self._attrs[ATTR_STATUS_RECONNECTS] = reconnect_count
         self.hass.async_create_background_task(
             self._async_reconnect_mqtt(),

@@ -450,4 +450,7 @@ class StreamAC(BaseDevice):
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return StatusSensorEntity(client, self)
+        # A healthy STREAM reports several times a minute, so silence
+        # here means the cloud stopped asking it to report -- see
+        # schedule_mqtt_reconnect().
+        return StatusSensorEntity(client, self, reconnect_when_stale=True)
