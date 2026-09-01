@@ -1,6 +1,7 @@
 import logging
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from typing import Any
 
 from aiohttp import ClientResponse
@@ -45,6 +46,8 @@ class EcoflowApiClient(ABC):
         self.mqtt_client: EcoflowMQTTClient
         self._mqtt_reconnect_last_attempt = 0.0
         self._mqtt_reconnect_count = 0
+        # set by the integration, the only layer that can reach hass and the config entry
+        self.on_auth_failure: Callable[[], None] | None = None
 
     @abstractmethod
     async def login(self):
@@ -150,9 +153,11 @@ class EcoflowApiClient(ABC):
         from custom_components.ecoflow_cloud.api.ecoflow_mqtt import EcoflowMQTTClient
 
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
+        self.mqtt_client.on_auth_failure = self.on_auth_failure
 
     def schedule_mqtt_reconnect(self, cooldown_sec: int = 60) -> int | None:
-        if self.mqtt_client.is_connected():
+        # reconnecting with rejected credentials only repeats the rejection
+        if self.mqtt_client.is_connected() or self.mqtt_client.auth_failed:
             return None
 
         now = time.monotonic()

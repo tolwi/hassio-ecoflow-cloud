@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import ssl
+from collections.abc import Callable
 from typing import Any
 
 from homeassistant.core import callback
@@ -15,10 +16,15 @@ from . import EcoflowMqttInfo
 
 _LOGGER = logging.getLogger(__name__)
 
+# paho maps the v3.1.1 CONNACK codes 4 and 5 onto these names; "Banned" is MQTT 5 only
+AUTH_FAILURE_REASONS = frozenset({"Bad user name or password", "Not authorized", "Banned"})
+
 
 class EcoflowMQTTClient:
     def __init__(self, mqtt_info: EcoflowMqttInfo, devices: dict[str, BaseDevice]):
         self.connected = False
+        self.auth_failed = False
+        self.on_auth_failure: Callable[[], None] | None = None
         self.__mqtt_info = mqtt_info
         self.__devices: dict[str, BaseDevice] = devices
 
@@ -74,9 +80,12 @@ class EcoflowMQTTClient:
     ):
         if rc == 0:
             self.connected = True
+            self.auth_failed = False
             target_topics = [(topic, 1) for topic in self.__target_topics()]
             self.__client.subscribe(target_topics)
             _LOGGER.info(f"Subscribed to MQTT topics {target_topics}")
+        elif rc.getName() in AUTH_FAILURE_REASONS:
+            self.__handle_auth_failure(client, userdata, rc)
         else:
             self.__log_with_reason("connect", client, userdata, rc)
 
@@ -113,6 +122,16 @@ class EcoflowMQTTClient:
         self.__client.unsubscribe(self.__target_topics())
         self.__client.loop_stop()
         self.__client.disconnect()
+
+    def __handle_auth_failure(self, client, userdata, reason_code: ReasonCode) -> None:
+        if self.auth_failed:
+            return
+        self.auth_failed = True
+        # paho would otherwise retry the rejected credentials forever
+        self.__client.loop_stop()
+        self.__log_with_reason("connect", client, userdata, reason_code)
+        if self.on_auth_failure is not None:
+            self.on_auth_failure()
 
     def __log_with_reason(self, action: str, client, userdata, reason_code: ReasonCode):
         _LOGGER.error(f"MQTT {action}: {reason_code.getName()} ({self.__mqtt_info.client_id}) - {userdata}")

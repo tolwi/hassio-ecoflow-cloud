@@ -297,6 +297,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         device = api_client.configure_device(device_data, api_devices_map)
         device.configure(hass)
 
+    def request_reauth() -> None:
+        # called from the paho thread once EcoFlow rejects the MQTT credentials
+        hass.loop.call_soon_threadsafe(entry.async_start_reauth, hass)
+
+    api_client.on_auth_failure = request_reauth
     await hass.async_add_executor_job(api_client.start)
     hass.data[ECOFLOW_DOMAIN][entry.entry_id] = api_client
 
