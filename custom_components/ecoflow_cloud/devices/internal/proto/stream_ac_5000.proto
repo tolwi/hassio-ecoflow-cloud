@@ -2,46 +2,33 @@ syntax = "proto3";
 
 // EcoFlow STREAM AC 5000 (SN prefix "ES22") -- internal/App API payloads.
 //
-// The MQTT envelope is the *same* as every other Stream device, so it is not
-// redeclared here: reuse StreamACSendHeaderMsg from stream_ac.proto. Only
-// msg.pdata differs, and unlike the STREAM Microinverter it is NOT obfuscated
-// -- pdata parses as plain protobuf.
+// The MQTT envelope is shared with every other Stream device: reuse
+// StreamACSendHeaderMsg from stream_ac.proto. Only msg.pdata differs, and
+// unlike the STREAM Microinverter it is not obfuscated.
 //
-// pdata carries a different message per cmd_id, so the decoder dispatches on
-// cmd_id instead of blind-parsing every schema (which is what produced the
-// junk "cmd_id"/"enc_type"/"need_ack" params when this device was mistakenly
-// configured as STREAM_AC):
+// pdata carries a different message per cmd_id:
 //
 //   cmd_id  2, cmd_func 32   -> StreamAC5000StatusPack   (SoC + remaining time)
 //   cmd_id 39, cmd_func 254  -> StreamAC5000Runtime      (power, meter, BMS/CMS)
 //   cmd_id 40, cmd_func 254  -> not yet decoded (blocks 60/61/62)
 //   cmd_id 50, cmd_func 32   -> StreamAC5000Pack         (pack totals, serials)
 //
-// Field meanings were derived from a two-hour capture of one physical unit
-// cross-checked against app readings taken at noted wall-clock times
-// (2026-08-22 14:29-14:42: 1.02 kW grid-port input, a deliberate load spike
-// flipping it to 162 W output, and a 96% -> 99% SoC ramp). Fields that could
-// not be pinned to an observed quantity are deliberately omitted rather than
-// guessed -- protobuf skips unknown fields, so omitting is lossless and keeps
-// wrong labels out of Home Assistant.
+// Fields that could not be pinned to an observed quantity are omitted rather
+// than guessed; protobuf skips unknown fields, so this is lossless.
 //
-// Unit note: floats are watts. Several integer fields carry the same quantity
-// in HALF-watts (verified exactly: block 54 field 4 == 2 x block 50 field 4,
-// zero deviation across every overlapping sample). The decoder converts those
-// to watts; they are named ...HalfW here to keep the wire unit explicit.
+// Floats are watts. Some integer fields carry the same quantity in half-watts
+// and are named ...HalfW to keep the wire unit explicit.
 
 // ---------------------------------------------------------------- cmd_id 2 --
 
-// The 66-byte inner message. Byte-for-byte the same layout Stream Ultra / Ultra
-// X use for their nested Champ_cmd21_2 block, which is why a STREAM_AC-typed
-// AC 5000 still produced a working SoC via _normalize_champ_fields().
+// Same layout Stream Ultra / Ultra X use for their nested Champ_cmd21_2 block.
 message StreamAC5000BatteryStatus {
-    optional uint32 cmsMaxChgSoc = 7;    // max charge %, verified == app
-    optional uint32 soc = 9;             // integer battery level, verified == app
+    optional uint32 cmsMaxChgSoc = 7;    // max charge %
+    optional uint32 soc = 9;             // pack scale, not the app-facing one
     optional uint32 bmsChgRemTime = 12;  // minutes to full; 5939 == "unknown"
     optional uint32 bmsDsgRemTime = 13;  // minutes to empty; 5939 == "unknown"
-    optional float f32ShowSoc = 15;      // precise SoC, verified == app
-    optional uint32 cmsMinDsgSoc = 21;   // min discharge %, verified == app
+    optional float f32ShowSoc = 15;      // pack scale
+    optional uint32 cmsMinDsgSoc = 21;   // min discharge %
 }
 
 message StreamAC5000StatusPack {
@@ -50,9 +37,9 @@ message StreamAC5000StatusPack {
 
 // --------------------------------------------------------------- cmd_id 39 --
 
-// Block 16 -- the paired EcoFlow P1 meter (SN prefix "ES41"). The meter has no
-// MQTT topic of its own; it reports through the battery's stream, so it needs
-// no separate device entry in the registry.
+// Block 16 -- the paired EcoFlow P1 meter (SN prefix "ES41"). It has no MQTT
+// topic of its own and needs no separate registry entry. Arrives empty when the
+// meter link is down.
 message StreamAC5000Meter {
     optional string meterSn = 3;
     optional float meterPhaseAPower = 4;  // W, signed
@@ -62,22 +49,22 @@ message StreamAC5000Meter {
     optional float meterPhaseBVol = 8;    // V
     optional float meterPhaseCVol = 9;    // V
     optional uint32 meterFreq = 15;       // Hz
-    optional float meterTotalPower = 16;  // W, signed; == A+B+C in 200/200 frames
+    optional float meterTotalPower = 16;  // W, signed; equals A+B+C
 }
 
 // Block 33 -- configured limits and system state, all floats.
 message StreamAC5000SysConfig {
-    optional float maxChgPow = 1;             // 2550 W on the captured unit
-    optional float maxDsgPow = 2;             // 2700 W on the captured unit
-    optional float cmsBattFullEnergy = 5;     // 5024 Wh usable ("5000")
-    optional float f32ShowSoc = 6;            // precise SoC
+    optional float maxChgPow = 1;             // tapers as the pack fills
+    optional float maxDsgPow = 2;
+    optional float cmsBattFullEnergy = 5;     // Wh usable
+    optional float f32ShowSoc = 6;            // system scale, matches the app
     optional float cmsMaxChgSoc = 7;
     optional float cmsMinDsgSoc = 8;
-    optional float feedGridModePowLimit = 9;  // 800 W (EU feed-in limit)
-    optional float feedGridModePowMax = 10;
+    optional float feedGridModePowLimit = 9;  // default regulatory limit, not
+    optional float feedGridModePowMax = 10;   // the owner's approved ceiling
 }
 
-// Block 38.1 -- BMS view. Reads ~1% below the CMS SoC, as on other EcoFlow gear.
+// Block 38.1 -- BMS view. SoC reads ~1% below the CMS value.
 message StreamAC5000Bms {
     optional uint32 soc = 1;
     optional uint32 cmsMaxChgSoc = 2;
@@ -85,7 +72,7 @@ message StreamAC5000Bms {
     optional uint32 cmsBattFullEnergy = 5;  // Wh
     optional uint32 bmsDsgRemTime = 7;      // minutes; 5939 == "unknown"
     optional uint32 bmsChgRemTime = 8;      // minutes; 5939 == "unknown"
-    optional uint32 minCellVol = 9;         // mV (~3274-3284 -> LFP)
+    optional uint32 minCellVol = 9;         // mV
     optional uint32 maxCellVol = 10;        // mV
     optional string bmsSn = 17;
 }
@@ -102,9 +89,7 @@ message StreamAC5000Cms {
     optional uint32 remainTime = 7;         // minutes for the CURRENT direction
 }
 
-// Block 50.1 -- per-serial power. gridPortPower is the headline number: it
-// matched the app's "grid port input 1.02 kW" (1011.9 / 1018.0 W at 14:29:10-20)
-// and "grid port output 162 W" (-159 / -157 W at 14:31) on the same unit.
+// Block 50.1 -- per-serial power.
 message StreamAC5000DevicePower {
     optional string sn = 1;
     optional float soc = 2;
@@ -128,19 +113,11 @@ message StreamAC5000StatPack {
 }
 
 message StreamAC5000Runtime {
-    // Block 23 is the same device-settings struct the app writes to (see
-    // StreamAC5000SetDeviceCfg below), echoed back in telemetry -- which is how
-    // the UPS switch gets real state rather than an optimistic guess. Fields 1/2
-    // of this block are the clock and are not declared, so they are skipped.
+    // Blocks 10, 19, 23 and 25 mirror the properties the app writes, under the
+    // same field numbers, so every control reads real state. Fields 1/2 of block
+    // 23 are the clock and are left undeclared.
     optional StreamAC5000SetDeviceCfg deviceCfg = 23;
-    // Block 10 likewise mirrors the power-limit property the app writes, and was
-    // observed following a change through in both directions (out 800 -> 700 ->
-    // 800, in 2500 -> 2400 -> 2500), so both sliders read real state.
     optional StreamAC5000SetPowerLimits powerLimits = 10;
-    // Field 19 and field 25 likewise read back the AC-output and work-mode
-    // properties the app writes, under the same field numbers. Field 25 appears
-    // within ~2s of a write; field 43 (not declared) mirrors it a couple of
-    // seconds later, so one source is enough and they cannot fight each other.
     optional StreamAC5000SetAcOut acOut = 19;
     optional uint32 workMode = 25;
     optional StreamAC5000Meter meter = 16;
@@ -153,13 +130,10 @@ message StreamAC5000Runtime {
 
 // --------------------------------------------------------------- cmd_id 50 --
 
-// Flat pack-level message. Layout matches stream_ac.proto's
-// StreamACChamp_cmd50_3 closely enough that the shared fields line up, but it
-// arrives unwrapped here (pdata *is* this message, not nested two levels deep).
-// Fields 50/51/79/80 were verified strictly monotonic across 181 frames spanning
-// 18 hours, which is what identifies them as lifetime counters.
+// Flat pack-level message. Shared fields line up with stream_ac.proto's
+// StreamACChamp_cmd50_3, but it arrives unwrapped here rather than nested.
 message StreamAC5000Pack {
-    optional float f32ShowSoc = 25;        // precise SoC
+    optional float f32ShowSoc = 25;        // pack scale
     optional string version = 36;
     optional string bmsSn = 39;
     optional float realSoh = 52;           // %
@@ -174,28 +148,21 @@ message StreamAC5000Pack {
 
 // ------------------------------------------------------------ set commands --
 //
-// Outgoing writes go to /app/<user_id>/<sn>/thing/property/set with
-// cmd_func 254 and cmd_id 38. pdata always carries the property id in field 1;
-// the value then rides in the field whose NUMBER EQUALS THAT PROPERTY ID
-// (property 29 -> field 29, property 25 -> field 25, ...). Success comes back
-// on .../set_reply as field 1 = property id, field 2 = 1.
-//
-// Every shape below was captured from the EcoFlow iOS app on 2026-08-22
-// 15:18-15:21 while each setting was changed to a known value and back, so both
-// the field numbers and the encodings are observed rather than inferred.
+// Writes go to /app/<user_id>/<sn>/thing/property/set with cmd_func 254 and
+// cmd_id 38. pdata carries the property id in field 1, and the value rides in
+// the field whose number equals that property id. Success comes back on
+// .../set_reply as field 1 = property id, field 2 = 1.
 
-// Property 29. The app always sends BOTH limits together, so the entities here
-// do the same, reading whichever value is not being changed from current state.
+// Property 29. The app always sends both limits together, so the entities do too.
 message StreamAC5000SetSocLimits {
-    optional uint32 cmsMaxChgSoc = 1;  // observed 100 -> 95 -> 100
-    optional uint32 cmsMinDsgSoc = 2;  // observed 5 -> 10 -> 5
+    optional uint32 cmsMaxChgSoc = 1;
+    optional uint32 cmsMinDsgSoc = 2;
 }
 
-// Property 10. Partial writes are accepted: changing the input limit alone was
-// sent as field 2 by itself, with no other field present.
+// Property 10. Partial writes are accepted.
 message StreamAC5000SetPowerLimits {
-    optional uint32 feedGridModePowLimit = 1;  // "net power out" W, 800 -> 700
-    optional uint32 chgPowLimit = 2;           // "net power in"  W, 2500 -> 2400
+    optional uint32 feedGridModePowLimit = 1;  // "net power out" W
+    optional uint32 chgPowLimit = 2;           // "net power in" W
     optional uint32 outLimitField4 = 4;        // constant 4 alongside field 1
     optional uint32 outLimitMax = 5;           // constant 800 alongside field 1
 }
@@ -205,9 +172,8 @@ message StreamAC5000SetAcOut {
     optional uint32 enabled = 1;
 }
 
-// Property 23 -- general device settings. Fields 1/2 of this same property are
-// the periodic clock sync the app sends on its own; only 5 and 6 are user
-// controls, so nothing else here is ever written by this integration.
+// Property 23 -- general device settings. Fields 1/2 are the app's clock sync;
+// only 5 and 6 are user controls.
 message StreamAC5000SetDeviceCfg {
     optional uint32 xboostEnabled = 5;
     optional uint32 upsEnabled = 6;
@@ -223,9 +189,7 @@ message StreamAC5000SetCommand {
 }
 
 // Envelope for outgoing commands. Declared here rather than reusing
-// StreamACHeader because the AC 5000's app repeats the serial in fields 26 and
-// 27, which that shared schema does not define -- and extending a schema three
-// other devices parse with, purely for this one's writes, is not worth it.
+// StreamACHeader, which lacks the serial repeats in fields 26 and 27.
 message StreamAC5000SetHeader {
     optional bytes pdata = 1;
     optional int32 src = 2;
@@ -240,9 +204,8 @@ message StreamAC5000SetHeader {
     optional int32 seq = 14;
     optional int32 version = 16;
     optional int32 payload_ver = 17;
-    // Named with a trailing underscore because "from" is a Python keyword and
-    // would be unreachable as an attribute; powerstream.proto does the same.
-    // Only the field number reaches the wire, so this is purely cosmetic.
+    // Trailing underscore because "from" is a Python keyword; powerstream.proto
+    // does the same. Only the field number reaches the wire.
     optional string from_ = 23;
     optional string device_sn = 25;
     optional string device_sn_2 = 26;

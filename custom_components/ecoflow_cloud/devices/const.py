@@ -434,20 +434,16 @@ STREAM_FEED_GRID_MODE_POW_LIMIT = "Feed-in Power Limit"
 STREAM_FEED_GRID_MODE_POW_MAX = "Feed-in Power Max"
 
 # Stream AC 5000 (SN prefix "ES22", internal/App API)
-# Grid-port power is signed from the *battery's* point of view: >0 means power
-# flowing into the port (charging), <0 means flowing out (discharging). This is
-# the opposite of STREAM_POWER_AC's documented convention, hence its own name.
+# >0 charging, <0 discharging -- opposite to STREAM_POWER_AC, hence its own name.
 STREAM_AC5000_GRID_PORT_POWER = "Grid Port Power"
 STREAM_AC5000_BATTERY_POWER = "Battery Power"
-# Tapers as the pack fills (observed 2550 W -> 558 W -> 270 W approaching 100%),
-# so this is the currently-allowed charge power, not a fixed rating.
+# Currently-allowed charge power; tapers as the pack fills, not a fixed rating.
 STREAM_AC5000_CHARGE_POWER_LIMIT = "Charge Power Limit"
 STREAM_AC5000_MAX_DISCHARGE_POWER = "Max Discharge Power"
 STREAM_AC5000_BMS_BATTERY_LEVEL = "Battery Level (BMS)"
 # The raw pack scale, which reads above the app-facing level near empty.
 STREAM_AC5000_PACK_BATTERY_LEVEL = "Battery Level (pack)"
-# Off when the device reports its meter block empty, i.e. the P1 link is down
-# and every Power Grid reading is stale.
+# Off when the P1 link is down and every Power Grid reading is stale.
 STREAM_AC5000_METER_LINK = "P1 Meter Link"
 # Controls. Names follow the EcoFlow app's own wording ("net power in/out").
 STREAM_AC5000_NET_POWER_IN = "Net Power In Limit"

@@ -5,41 +5,17 @@ Transport: MQTT topic ``/app/device/property/<SN>``, envelope protobuf
 every Stream device uses. Unlike the STREAM Microinverter, ``msg.pdata`` is
 **not** XOR-obfuscated; it parses as plain protobuf.
 
-Why this is a separate class rather than another ``STREAM_AC`` registry alias:
-the AC 5000's telemetry (``cmd_id`` 39/40) uses a completely different message
-shape from ``StreamACChamp_cmd21_3``. That message is flat with field numbers in
-the 500-1200 range (``powGetSysGrid`` = 515, ``powGetPvSum`` = 517); the AC 5000
-instead sends small nested blocks keyed by serial number. Only the ``cmd_id``
-50 pack frame resembles the existing schema. Configuring an AC 5000 as
-``STREAM_AC`` therefore yields a handful of SoC values and nothing else, plus
-spurious ``cmd_id``/``enc_type``/``need_ack`` params -- artefacts of
-``stream_ac.py`` blind-parsing one payload under five different schemas.
+Not a ``STREAM_AC`` alias: the AC 5000's telemetry (``cmd_id`` 39/40) sends
+small nested blocks keyed by serial number, where ``StreamACChamp_cmd21_3`` is
+flat with field numbers in the 500-1200 range. Only the ``cmd_id`` 50 pack frame
+resembles the existing schema, so configuring one as ``STREAM_AC`` yields a
+handful of SoC values and little else. This decoder dispatches on ``cmd_id``
+rather than blind-parsing every schema, so a frame is either understood or
+skipped, never mislabelled.
 
-This decoder dispatches on ``cmd_id`` instead, so a frame is either understood
-or skipped, never mislabelled.
-
-Field derivation
-----------------
-Decoded from a 2026-08-21/22 capture of one physical unit (~2200 frames),
-anchored to app readings taken at noted wall-clock times:
-
-* ``gridPortPower`` -- app showed "grid port input 1.02 kW" at 14:29; the field
-  read 1011.9 / 1018.0 W at 14:29:10-20. After a deliberate load spike flipped
-  the unit to discharging, the app showed "162 W grid port output" and the field
-  read -159 / -157 W at 14:31. Sign convention confirmed in both directions.
-* ``soc`` -- 96% -> 99% across 14:29-14:42, matching the reported ramp, on six
-  independent fields that agree with each other.
-* ``remainTime`` -- counted 15 -> 9 minutes during the app's "17 min to full",
-  then jumped to ~3540 (= 2 d 11 h) the moment the load flipped it to
-  discharging, matching the app exactly.
-* Half-watt fields -- block 54 field 4 is *exactly* 2x block 50 field 4 (zero
-  deviation on every overlapping sample), which is what establishes the unit.
-* Lifetime counters -- fields 50/51/79/80 of the pack frame were strictly
-  monotonic across 181 frames spanning 18 hours.
-
-Blocks 60/61/62 (``cmd_id`` 40) correlate with power (r ~= 0.78-0.81) but at
-ratios that resolve to no clean unit, so they are deliberately left undecoded
-rather than shipped under a guessed name.
+Field meanings were decoded from MQTT captures anchored to app readings; the
+commit history carries the evidence for each. Blocks 60/61/62 (``cmd_id`` 40)
+are deliberately left undecoded.
 """
 
 import logging
@@ -93,46 +69,28 @@ _PROP_DEVICE_CFG = 23
 _PROP_WORK_MODE = 25
 _PROP_SOC_LIMITS = 29
 
-# Envelope constants copied verbatim from the app's own writes. cmd_id 38 with
-# cmd_func 254 is what the device acknowledges; the two constants that ride
-# alongside the "net power out" value are sent unchanged for the same reason.
+# Envelope constants, copied verbatim from the app's own writes.
 _SET_CMD_FUNC = 254
 _SET_CMD_ID = 38
 _OUT_LIMIT_FIELD4 = 4
 _OUT_LIMIT_MAX = 800
 
-# Every control is read back from telemetry, so none of them are optimistic:
-# AC output and work mode come from runtime fields 19 and 25, X-Boost and UPS
-# from block 23. These constants only exist to keep the parameter name in one
-# place, since the protobuf field names differ from the entity keys.
+# Entity keys for controls whose protobuf field name differs.
 _KEY_AC_OUT = "acOutEnabled"
 _KEY_XBOOST = "xboostEnabled"
 _KEY_WORK_MODE = "workMode"
 
-# The device reports TWO SoC scales. The system scale (runtime blocks 33/44/50/54)
-# is what the EcoFlow app displays; the pack scale (cmd_id 2, and cmd_id 50 field
-# 25) runs above it near the bottom of the range -- 16% against the app's 13% with
-# the pack sitting on its 5% floor. They agree at high charge, which is why the
-# split only shows up on a nearly empty battery. Keeping them apart stops the
-# battery level flipping between the two depending on which frame arrived last.
+# Raw pack SoC. Reads above the app-facing system scale near empty, so it is kept
+# on its own key rather than fighting it.
 _KEY_PACK_SOC = "packSoc"
 
-# When the link to the P1 meter fails, the device keeps emitting meter block 16
-# but with NOTHING inside it -- a zero-length submessage, seen on all 13
-# occurrences during a 21-minute outage while the AC 5000 itself kept publishing
-# ~40 frames a minute. Because the decoder only copies fields that are present,
-# an empty block leaves every meter sensor holding its last reading, so a dead
-# feed looks like a live one. This key exposes the difference.
+# On a P1 outage the device still sends meter block 16, but empty -- which would
+# otherwise leave every meter sensor holding a stale reading.
 _KEY_METER_LINK = "meterLinkUp"
 
 
 class StreamAC5000CommandMessage(PrivateAPIMessageProtocol):
-    """One property write, wrapped in the envelope the EcoFlow app uses.
-
-    Verified by round-trip: every payload this builds is byte-identical to the
-    frame the iOS app sent for the same action (16/16 commands compared against
-    a capture in which each setting was changed to a known value and back).
-    """
+    """One property write, in the envelope the EcoFlow app uses."""
 
     def __init__(self, device_sn: str, payload: ProtoMessageRaw):
         self._payload = payload
@@ -192,11 +150,8 @@ def _read_varint(buf: bytes, pos: int) -> tuple[int, int]:
 def _iter_packets(payload: bytes) -> Iterator[Any]:
     """Split a payload into EcoPackets and yield each parsed header.
 
-    One MQTT message can carry several concatenated EcoPackets. They cannot be
-    parsed by handing the whole buffer to ``ParseFromString``: protobuf *merges*
-    repeated occurrences of a singular submessage field, silently blending
-    frames together. Boundaries are found by reading each packet's own
-    length prefix instead.
+    One MQTT message can carry several concatenated packets, and handing the
+    whole buffer to ``ParseFromString`` would merge them into one instead.
     """
     offset = 0
     while offset < len(payload):
@@ -228,36 +183,23 @@ class StreamAC5000(BaseInternalDevice):
             StoredEnergyFromSocSensorEntity(
                 client, self, "cmsBattFullEnergy", "f32ShowSoc", const.STREAM_STORED_ENERGY
             ),
-            # cmsMaxChgSoc / cmsMinDsgSoc are NOT sensors here: they are writable,
-            # so they live in numbers() instead. Exposing them in both places put
-            # a read-only "Max Charge Level" under Sensors next to the identically
-            # named slider under Controls, which is just confusing.
-            # RemainSensorEntity already clamps the device's 5939 ("unknown",
-            # = 99 h 59 m) sentinel to 0, so it is passed through as-is.
+            # cmsMaxChgSoc / cmsMinDsgSoc are writable, so they live in numbers().
+            # RemainSensorEntity clamps the device's 5939 "unknown" sentinel to 0.
             RemainSensorEntity(client, self, "remainTime", const.REMAINING_TIME),
             RemainSensorEntity(client, self, "bmsChgRemTime", const.CHARGE_REMAINING_TIME, False),
             RemainSensorEntity(client, self, "bmsDsgRemTime", const.DISCHARGE_REMAINING_TIME, False),
             # --- power --------------------------------------------------
             WattsSensorEntity(client, self, "gridPortPower", const.STREAM_AC5000_GRID_PORT_POWER),
-            # Battery-side power, unsigned MAGNITUDE -- the device has no signed
-            # variant. Confirmed across 58 same-second pairs where the grid port
-            # was discharging: the field stayed positive throughout, and never
-            # exceeded 2^31 (which is how a negative varint would show up).
-            # Both directions carry a ~60 W conversion+standby loss, in the
-            # direction that always costs the battery: charging 640 W at the port
-            # put 583 W into the pack, while discharging 101 W out of the port
-            # drew 162 W from it. Direction must come from Grid Port Power's
-            # sign; a template sensor multiplying the two gives a signed value.
+            # Unsigned magnitude; the device has no signed variant. Direction has
+            # to come from Grid Port Power's sign.
             WattsSensorEntity(client, self, "bpPower", const.STREAM_AC5000_BATTERY_POWER),
             WattsSensorEntity(client, self, "maxChgPow", const.STREAM_AC5000_CHARGE_POWER_LIMIT, False),
             WattsSensorEntity(client, self, "maxDsgPow", const.STREAM_AC5000_MAX_DISCHARGE_POWER, False),
-            # feedGridModePowLimit is writable and lives in numbers() as
-            # "Net Power Out Limit"; only the read-only ceiling stays a sensor.
+            # feedGridModePowLimit is writable and lives in numbers().
             WattsSensorEntity(client, self, "feedGridModePowMax", const.STREAM_FEED_GRID_MODE_POW_MAX, False),
             # --- paired P1 meter ----------------------------------------
-            # The meter (SN prefix "ES41") has no MQTT topic of its own; it
-            # reports inside this device's stream, so its sensors live here and
-            # it must NOT be added as a separate device.
+            # The meter has no MQTT topic of its own; it reports inside this
+            # device's stream and must not be added as a separate device.
             WattsSensorEntity(client, self, "meterTotalPower", const.SMART_METER_POWER_GLOBAL),
             WattsSensorEntity(client, self, "meterPhaseAPower", const.SMART_METER_POWER_L1),
             WattsSensorEntity(client, self, "meterPhaseBPower", const.SMART_METER_POWER_L2),
@@ -286,13 +228,7 @@ class StreamAC5000(BaseInternalDevice):
         )
 
     def _soc_limits_command(self, max_chg: int, min_dsg: int) -> StreamAC5000CommandMessage:
-        """Write both SoC limits at once.
-
-        The app never sends one without the other, so neither does this. The
-        entities pass the unchanged limit through from current state rather than
-        omitting it, which avoids relying on the device to preserve a field that
-        was left absent.
-        """
+        """Write both SoC limits at once, as the app does."""
         return self._command(
             propertyId=_PROP_SOC_LIMITS,
             socLimits=stream_ac_5000_pb2.StreamAC5000SetSocLimits(
@@ -326,24 +262,10 @@ class StreamAC5000(BaseInternalDevice):
                 30,
                 lambda value, params: self._soc_limits_command(int(params.get("cmsMaxChgSoc", 100)), value),
             ),
-            # Partial writes are accepted for property 10 -- the app changed the
-            # input limit by sending that field alone -- so each of these sends
-            # only what it owns.
-            # 2500 W is the highest the owner can unlock themselves, via a signed
-            # declaration in the app; above that needs an installer and a review.
-            #
-            # This bound is static because NOTHING in the telemetry reports the
-            # approved ceiling. Watching a live 800 -> 2500 -> 800 change settled
-            # it: block 33 arrived as an incremental upload carrying only field
-            # 12, while fields 9 and 10 (feedGridModePowMax) were absent and so
-            # unchanged at 800 -- they describe the default regulatory limit, not
-            # what the owner is cleared for. Driving the slider's bound from
-            # field 10 would have pinned it to 800 and blocked the very headroom
-            # the owner had just unlocked.
-            #
-            # Compliance is therefore the owner's responsibility here: the device
-            # accepts what it is sent, and it is the app that gates the paperwork.
-            # An installer-raised system needs this constant raised to match.
+            # Property 10 accepts partial writes, so each slider sends only its
+            # own field. 2500 W is the most an owner can unlock without an
+            # installer; nothing in the telemetry reports the approved ceiling,
+            # so the bound is static and compliance stays the owner's business.
             ChargingPowerEntity(
                 client,
                 self,
@@ -360,10 +282,8 @@ class StreamAC5000(BaseInternalDevice):
                     ),
                 ),
             ),
-            # The app lets this go to 7200 W, but the hardware tops out at
-            # 2500 W (3000 W with a second battery), so the slider stops at 3000
-            # rather than accepting setpoints the device silently cannot meet --
-            # which would quietly mislead a scheduler like EMHASS.
+            # The app allows 7200 W but the hardware does 2500 W, or 3000 W with a
+            # second battery, so the slider stops where the device can deliver.
             ChargingPowerEntity(
                 client,
                 self,
@@ -451,10 +371,7 @@ class StreamAC5000(BaseInternalDevice):
         if cmd_id == _CMD_ID_STATUS:
             message = stream_ac_5000_pb2.StreamAC5000StatusPack()
             message.ParseFromString(pdata)
-            # This frame's SoC fields are the raw PACK scale, which sits above
-            # the system scale the app shows -- 16% here against the app's 13%,
-            # diverging only near the bottom of the range. They land on their
-            # own key so they cannot fight the app-facing value.
+            # This frame's SoC is the pack scale, not the app-facing one.
             self._copy(message.battery, params, "cmsMaxChgSoc", "bmsChgRemTime", "bmsDsgRemTime")
             self._copy(message.battery, params, ("f32ShowSoc", _KEY_PACK_SOC), "cmsMinDsgSoc")
 
@@ -481,9 +398,7 @@ class StreamAC5000(BaseInternalDevice):
 
     def _decode_runtime(self, message: Any, params: dict[str, Any]) -> None:
         if message.HasField("meter"):
-            # ByteSize() is 0 exactly when the block arrived empty, which is how
-            # the device signals that it has a meter configured but is not
-            # hearing from it.
+            # An empty block means the meter is configured but not responding.
             params[_KEY_METER_LINK] = 1 if message.meter.ByteSize() > 0 else 0
         self._copy(
             message.meter,
@@ -506,21 +421,12 @@ class StreamAC5000(BaseInternalDevice):
             "f32ShowSoc",
             "cmsMaxChgSoc",
             "cmsMinDsgSoc",
-            # feedGridModePowLimit is NOT taken from this block. Field 33.9 read
-            # 800 throughout, including while the limit was set to 700 -- but
-            # block 33 is sparse enough that "it is a ceiling" and "it was not
-            # sampled during the 6-second window" are indistinguishable here.
-            # Block 10 is unambiguous (it is the structure the app writes, and it
-            # tracked 800 -> 700 -> 800), so it owns the key alone. Letting an
-            # ambiguous source share it risks fighting the user's own setting.
+            # feedGridModePowLimit deliberately absent: block 10 owns that key,
+            # being the structure the app writes and the only unambiguous source.
             "feedGridModePowMax",
         )
-        # Neither SoC nor the max-charge limit is taken from the BMS block.
-        # The BMS reports SoC ~1% below the CMS/app value, and its field 2 is a
-        # fixed 100 -- it never followed a change to 95, across every frame in
-        # two captures, while 33.7 and the cmd_id 2 status both did. Sharing
-        # those keys made the battery level jitter and, worse, snapped the Max
-        # Charge Level slider back to 100 a few seconds after any change.
+        # The BMS SoC runs ~1% low and its max-charge field is a fixed ceiling,
+        # so neither may share the app-facing key.
         self._copy(
             message.bmsPack.bms,
             params,
@@ -533,8 +439,7 @@ class StreamAC5000(BaseInternalDevice):
             "maxCellVol",
         )
         self._copy(message.cms, params, "cmsBattFullEnergy", "remainTime")
-        # soc comes from block 54 alone: same system scale as block 44 but sent
-        # far more often (23 frames against 1 over the same 90 seconds).
+        # Block 54 owns soc: same scale as block 44 but sent far more often.
         self._copy(message.statPack.stat, params, "soc")
         self._copy(message.powerPack.power, params, "gridPortPower")
         self._copy(message.deviceCfg, params, "upsEnabled", ("xboostEnabled", _KEY_XBOOST))
@@ -542,9 +447,7 @@ class StreamAC5000(BaseInternalDevice):
         self._copy(message.acOut, params, ("enabled", _KEY_AC_OUT))
         self._copy(message, params, ("workMode", _KEY_WORK_MODE))
 
-        # Battery-side power arrives only in half-watts; normalise to watts so
-        # the sensor carries the unit Home Assistant expects. The CMS copy is
-        # preferred because it is emitted more often than the BMS one.
+        # Half-watts on the wire; the CMS copy is emitted more often than the BMS.
         for source, field in ((message.cms, "cmsPowerHalfW"), (message.bmsPack.bms, "bmsPowerHalfW")):
             if source.HasField(field):
                 params["bpPower"] = getattr(source, field) / 2
@@ -552,16 +455,11 @@ class StreamAC5000(BaseInternalDevice):
 
     @staticmethod
     def _copy(source: Any, params: dict[str, Any], *fields: str | tuple[str, str]) -> None:
-        """Copy set protobuf fields onto canonical parameter names.
+        """Copy set protobuf fields onto parameter names.
 
-        A field may be given as ``"name"`` (copied as-is) or ``("name", "alias")``
-        to land under a different parameter name -- needed where two blocks carry
-        the same quantity under one proto field name but must not overwrite each
-        other.
-
-        ``HasField`` is what keeps a block that arrived without a given field
-        from overwriting a good value with a proto3 default -- the incremental
-        uploads send only what changed, so most blocks are mostly empty.
+        Fields are ``"name"`` or ``("name", "alias")``. The ``HasField`` guard
+        matters: incremental uploads carry only what changed, so an absent field
+        must not overwrite a good value with a proto3 default.
         """
         for field in fields:
             name, alias = field if isinstance(field, tuple) else (field, field)
