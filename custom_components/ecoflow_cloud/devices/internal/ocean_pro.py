@@ -37,8 +37,10 @@ from custom_components.ecoflow_cloud.devices.internal.smart_home_panel_3 import 
     _parse_fields,
 )
 from custom_components.ecoflow_cloud.sensor import (
+    AmpSensorEntity,
     QuotaStatusSensorEntity,
     SolarPowerSensorEntity,
+    VoltSensorEntity,
     WattsSensorEntity,
 )
 
@@ -65,6 +67,23 @@ PV_MAX_W = 5_500  # per-string MPPT ceiling; anything above is field-reuse noise
 # Inverter AC output (PCS total active power), 254/21 field 53, signed
 # (negative = production/export).
 F_PCS_TOTAL = 53
+
+# Per-leg PCS AC telemetry on the SAME 254/21 stream (fields 1463..1468). A/B phase
+# assignment is provisional (per the meter-validated fieldmap). Voltage/current are
+# positive; per-leg power is signed and follows F_PCS_TOTAL (negative = production/export).
+# These leaf numbers recur inside unrelated nested submessages, so out-of-range values
+# are that reuse leaking through and are rejected (same guard idea as PV).
+PCS_LEG_FIELDS: dict[str, int] = {
+    "pcsA_voltage": 1463,
+    "pcsA_current": 1464,
+    "pcsB_voltage": 1465,
+    "pcsB_current": 1466,
+    "pcsA_power": 1467,
+    "pcsB_power": 1468,
+}
+PCS_V_MAX = 300.0  # split-phase leg is ~120-125 V; anything above is field-reuse noise
+PCS_A_MAX = 300.0  # per-leg current is well under 100 A; guard generously
+PCS_P_MAX = 20_000.0  # per-leg magnitude ceiling; abs above this is reuse noise
 
 # Battery power is NOT read from per-pack field 44 (cmdFunc=32 / cmdId=177). That field
 # decodes to physically impossible values while charging — ~122 kW per pack and ~15 kA of
@@ -110,6 +129,15 @@ class OceanProInverter(DeltaPro3):
             # Battery power, derived from PV + PCS on the 254/21 stream (signed:
             # + charge / - discharge). See the module note on why field 44 is not used.
             WattsSensorEntity(client, self, "ocean_batt_pwr", "Battery Power").with_icon("mdi:home-battery"),
+            # Per-leg AC (PCS phase A/B): voltage, current and active power. Same 254/21
+            # stream as PV/PCS-total; not exposed by upstream — the split-phase grid
+            # voltage HA otherwise lacks entirely.
+            VoltSensorEntity(client, self, "pcsA_voltage", "PCS Phase A Voltage").with_icon("mdi:sine-wave"),
+            AmpSensorEntity(client, self, "pcsA_current", "PCS Phase A Current"),
+            WattsSensorEntity(client, self, "pcsA_power", "PCS Phase A Power").with_icon("mdi:sine-wave"),
+            VoltSensorEntity(client, self, "pcsB_voltage", "PCS Phase B Voltage").with_icon("mdi:sine-wave"),
+            AmpSensorEntity(client, self, "pcsB_current", "PCS Phase B Current"),
+            WattsSensorEntity(client, self, "pcsB_power", "PCS Phase B Power").with_icon("mdi:sine-wave"),
             QuotaStatusSensorEntity(client, self),
         ]
         # PV strings: per-string production power with integrated energy (kWh,
@@ -139,6 +167,7 @@ class OceanProInverter(DeltaPro3):
                 fields = _parse_fields(pdata)
                 self._decode_pv(fields, result)
                 self._decode_pcs(fields, result)
+                self._decode_pcs_legs(fields, result)
                 self._derive_battery_power(result)
         except Exception as e:  # reverse-engineered payload; never break the base decode
             _LOGGER.debug("Ocean Pro inverter field parse skipped: %s", e)
@@ -157,6 +186,25 @@ class OceanProInverter(DeltaPro3):
         v = _first(fields, F_PCS_TOTAL, WIRE_F32)
         if v is not None:
             result["ocean_pcs_pwr"] = round(v, 2)
+
+    def _decode_pcs_legs(self, fields: FieldMap, result: dict[str, Any]) -> None:
+        """Per-leg PCS AC voltage/current/power (fields 1463..1468).
+
+        Same 254/21 stream and F32 wire type as PV/PCS-total. Voltage and current are
+        positive; per-leg power is signed (negative = production/export). Range guards
+        reject the same field-number reuse from nested submessages that PV guards against.
+        """
+        for key, fnum in PCS_LEG_FIELDS.items():
+            v = _first(fields, fnum, WIRE_F32)
+            if v is None:
+                continue
+            if key.endswith("_voltage") and not (0 <= v <= PCS_V_MAX):
+                continue
+            if key.endswith("_current") and not (0 <= v <= PCS_A_MAX):
+                continue
+            if key.endswith("_power") and abs(v) > PCS_P_MAX:
+                continue
+            result[key] = round(v, 2)
 
     def _derive_battery_power(self, result: dict[str, Any]) -> None:
         """Battery power from the DC-bus balance: sum(pv1..pv8) + PCS total.
