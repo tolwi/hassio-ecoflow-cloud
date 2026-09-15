@@ -40,6 +40,7 @@ from custom_components.ecoflow_cloud.devices.internal.smart_home_panel_3 import 
 from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
     CentivoltSensorEntity,
+    FrequencySensorEntity,
     MiscSensorEntity,
     QuotaStatusSensorEntity,
     SolarPowerSensorEntity,
@@ -148,6 +149,47 @@ WORK_MODE_CODES: dict[int, str] = {
     9: "intelligent",  # Intelligent (app)
 }
 
+# --- Status frame (254/22): grid metering, DC-bus, fault register ------------
+# These ride cmdFunc=254 cmdId=22 (the status frame), NOT the 254/21 telemetry burst that
+# _decode_message_by_type consumes via _parse_fields. So they are read from the SAME raw
+# frame using the collector's proven full-path flatten (path 1.1.<field>), matched on
+# cmdFunc==254 (mirrors the mini collector, which harvests on any cmdFunc=254 frame). The
+# range guards reject field-number reuse leaking from nested submessages.
+STATUS_CMDFUNC = 254
+# key -> (field, min, max). Grid-side metering (per split-phase leg) + DC-bus voltage.
+STATUS_GUARDED_FIELDS: dict[str, tuple[int, float, float]] = {
+    "grid_freq": (641, 55.0, 65.0),
+    "grid_voltage_l1": (643, 100.0, 300.0),
+    "grid_voltage_l2": (644, 100.0, 300.0),
+    "grid_current_l1": (645, 0.0, 300.0),
+    "grid_current_l2": (646, 0.0, 300.0),
+    "dc_bus_voltage": (1502, 300.0, 500.0),
+    "dc_bus_voltage2": (1503, 300.0, 500.0),
+}
+# Fault/status register, 8 slots (fields 1512..1519). Baseline 0,0,0,0,0,2,0,2 — a bank of
+# per-subsystem err/warn codes (the EU PowerOcean JSON carries the same shape as parallel
+# bpErrCode/pcsAcErrCode/mppt*FaultCode fields). No public dictionary maps the code numbers,
+# so a nonzero needs EcoFlow to decode. Varints; surfaced as-is (no guard) so a change shows.
+FAULT_FIELD_BASE = 1512
+FAULT_SLOTS = 8
+# Candidate-unknown fields: live-varying but unidentified, collected raw for later ID (they
+# feed an "unknown fields" dashboard). The two devices carry different sets on their streams.
+INVERTER_UNKNOWN_FIELDS: tuple[int, ...] = (22, 50, 518, 1469, 1472, 1557, 1560, 1682)
+PANEL_UNKNOWN_FIELDS: tuple[int, ...] = (
+    518, 962, 963, 964, 965, 966, 967, 1227, 1462, 1485, 1486,
+)
+
+
+def _flat_num(flat: dict[str, Any], field: int) -> int | float | None:
+    """Read a numeric leaf at the exact nested path 1.1.<field>, or None."""
+    v = flat.get(f"1.1.{field}")
+    return v if isinstance(v, (int, float)) else None
+
+
+def _store_raw(params: dict[str, Any], key: str, v: int | float) -> None:
+    """Store a numeric field as int when it is one, else a 2-dp float."""
+    params[key] = int(v) if isinstance(v, int) else round(float(v), 2)
+
 
 class OceanPanel(SmartHomePanel3):
     """OCEAN Smart Panel (HR61…, private / app API). Read-only.
@@ -172,6 +214,10 @@ class OceanPanel(SmartHomePanel3):
         # if/when upstreamed, flip to enabled=False to match tolwi convention.
         return super().sensors(client) + [
             MiscSensorEntity(client, self, "ocean_work_mode", "Work Mode", diagnostic=True).with_icon("mdi:home-lightning-bolt"),
+        ] + [
+            # Candidate-unknown fields on the panel stream, collected raw for identification.
+            MiscSensorEntity(client, self, f"ef_unknown_{f}", f"Unknown 254/{f}", diagnostic=True)
+            for f in PANEL_UNKNOWN_FIELDS
         ]
 
     @override
@@ -192,6 +238,13 @@ class OceanPanel(SmartHomePanel3):
                     result.setdefault("params", {})["ocean_work_mode"] = WORK_MODE_CODES.get(
                         int(v), f"unknown_{int(v)}"
                     )
+            # Candidate-unknown fields ride the 254 status frames (any cmdId); collect raw.
+            if flat.get(P_CMDFUNC) == STATUS_CMDFUNC:
+                params = result.setdefault("params", {})
+                for field in PANEL_UNKNOWN_FIELDS:
+                    v = _flat_num(flat, field)
+                    if v is not None:
+                        _store_raw(params, f"ef_unknown_{field}", v)
         except Exception as e:  # reverse-engineered payload; never break the base decode
             _LOGGER.debug("Ocean Panel work-mode decode skipped: %s", e)
         return result
@@ -243,6 +296,29 @@ class OceanProInverter(DeltaPro3):
             WattsSensorEntity(client, self, "pcsB_power", "PCS Phase B Power").with_icon("mdi:sine-wave"),
             QuotaStatusSensorEntity(client, self),
         ]
+        # Grid-side metering (254/22 status frame): frequency + per-leg voltage/current.
+        # Distinct from the PCS/inverter-output legs above — this is the grid connection.
+        out += [
+            FrequencySensorEntity(client, self, "grid_freq", "Grid Frequency"),
+            VoltSensorEntity(client, self, "grid_voltage_l1", "Grid Voltage L1").with_icon("mdi:sine-wave"),
+            VoltSensorEntity(client, self, "grid_voltage_l2", "Grid Voltage L2").with_icon("mdi:sine-wave"),
+            AmpSensorEntity(client, self, "grid_current_l1", "Grid Current L1"),
+            AmpSensorEntity(client, self, "grid_current_l2", "Grid Current L2"),
+            # DC-bus (DC-link) voltage — diagnostic; boosted ~5 V above battery terminal.
+            VoltSensorEntity(client, self, "dc_bus_voltage", "DC Bus Voltage", diagnostic=True).with_icon("mdi:current-dc"),
+            VoltSensorEntity(client, self, "dc_bus_voltage2", "DC Bus Voltage 2", diagnostic=True).with_icon("mdi:current-dc"),
+        ]
+        # Fault/status register — 8 per-subsystem err/warn slots. No public code dictionary
+        # exists, so a nonzero value needs EcoFlow to decode. Diagnostic.
+        out += [
+            MiscSensorEntity(client, self, f"fault_{FAULT_FIELD_BASE + i}", f"Fault Reg {i}", diagnostic=True).with_icon("mdi:alert-circle-outline")
+            for i in range(FAULT_SLOTS)
+        ]
+        # Candidate-unknown fields on the inverter stream, collected raw for identification.
+        out += [
+            MiscSensorEntity(client, self, f"ef_unknown_{f}", f"Unknown 254/{f}", diagnostic=True)
+            for f in INVERTER_UNKNOWN_FIELDS
+        ]
         # PV strings: per-string production power with integrated energy (kWh,
         # total_increasing) for the HA Energy dashboard.
         for i in range(1, PV_STRINGS + 1):
@@ -281,9 +357,33 @@ class OceanProInverter(DeltaPro3):
                 # HA reads entity values from result["params"][mqtt_key]; a pack-only frame
                 # makes the base return {}, so materialise "params" before writing into it.
                 self._decode_battery_pack(flat, result.setdefault("params", {}))
+            # Grid metering, DC-bus and the fault register ride the 254 status frame(s),
+            # not the 254/21 telemetry burst; read them here from the same flattened frame.
+            if flat.get(P_CMDFUNC) == STATUS_CMDFUNC:
+                self._decode_status_fields(flat, result.setdefault("params", {}))
         except Exception as e:  # reverse-engineered payload; never break the base decode
             _LOGGER.debug("Ocean Pro raw-frame decode skipped: %s", e)
         return result
+
+    def _decode_status_fields(self, flat: dict[str, Any], params: dict[str, Any]) -> None:
+        """Grid metering + DC-bus + fault register from a 254 status frame (path 1.1.<field>).
+
+        Grid/DC-bus values are range-guarded to reject field-number reuse from nested
+        submessages; the fault register and candidate-unknown fields are surfaced raw so a
+        change is always visible.
+        """
+        for key, (field, lo, hi) in STATUS_GUARDED_FIELDS.items():
+            v = _flat_num(flat, field)
+            if v is not None and lo <= v <= hi:
+                params[key] = round(float(v), 2)
+        for i in range(FAULT_SLOTS):
+            v = _flat_num(flat, FAULT_FIELD_BASE + i)
+            if v is not None:
+                params[f"fault_{FAULT_FIELD_BASE + i}"] = int(v)
+        for field in INVERTER_UNKNOWN_FIELDS:
+            v = _flat_num(flat, field)
+            if v is not None:
+                _store_raw(params, f"ef_unknown_{field}", v)
 
     @override
     def _decode_message_by_type(self, pdata: bytes, header_info: dict[str, Any]) -> dict[str, Any]:
