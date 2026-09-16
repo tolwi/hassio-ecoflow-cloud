@@ -148,6 +148,15 @@ OPERATING_MODE_CODES: dict[int, str] = {
     3: "intelligent",
 }
 
+# Grid-connect / island status — HR61 field 619 (254 status frame). Confirmed 2026-09-16
+# across two manual off-grid -> on-grid cycles: reads 1 while grid-tied, 2 while islanded,
+# and flips on BOTH edges in BOTH cycles. Clean binary flag; NEW (was not previously collected).
+P_GRID_STATUS = "1.1.619"
+GRID_STATUS_CODES: dict[int, str] = {
+    1: "on_grid",
+    2: "islanded",
+}
+
 # --- Status frame (254/22): grid metering, DC-bus, fault register ------------
 # These ride cmdFunc=254 cmdId=22 (the status frame), NOT the 254/21 telemetry burst that
 # _decode_message_by_type consumes via _parse_fields. So they are read from the SAME raw
@@ -175,8 +184,17 @@ FAULT_SLOTS = 8
 # feed an "unknown fields" dashboard). The two devices carry different sets on their streams.
 INVERTER_UNKNOWN_FIELDS: tuple[int, ...] = (22, 50, 518, 1469, 1472, 1557, 1560, 1682)
 PANEL_UNKNOWN_FIELDS: tuple[int, ...] = (
-    518, 962, 963, 964, 965, 966, 967, 1227, 1462, 1470, 1485, 1486,
+    518, 962, 963, 1227, 1462, 1470, 1485, 1486,
 )
+# Live grid-side metering block — HR61 fields 964..967 (254 status frame). Confirmed
+# 2026-09-16 across two off-grid/on-grid cycles: they carry real signed values while grid-tied
+# and collapse to ~0 (±5) when islanded — UNLIKE the cached 643-646 block on the inverter,
+# which is a stale quota echo (byte-identical across a whole cycle) and does NOT track grid
+# state. Promoted out of PANEL_UNKNOWN_FIELDS. Unit UNCONFIRMED: signed, hundreds-range,
+# a 2x2-looking group (on-grid ~ 112 / -415 / 296 / 647; likely per-leg P/Q). They ride a
+# separate frame from 643-646 so no cross-correlation was possible — kept raw as diagnostics
+# until EcoFlow's register map or more capture pins the unit; do NOT stamp V/A/W yet.
+GRID_METER_FIELDS: tuple[int, ...] = (964, 965, 966, 967)
 # (1470 = the old mislabeled "work mode"; kept as a raw unknown — it's constant on HR61,
 # stale on HR51, and NOT the operating-mode selector, which is field 900.)
 
@@ -204,6 +222,11 @@ class OceanPanel(SmartHomePanel3):
     Decoded HERE on the panel stream. (The old field 1470 "work mode" was WRONG —
     it stays constant on HR61 across all three modes and is stale on HR51 — so it is
     no longer surfaced as the mode, only kept as a raw unknown.)
+
+    Grid-connect status (254 field 619: on_grid / islanded) and the live grid-side
+    metering block (254 fields 964..967) are also decoded here — confirmed 2026-09-16
+    across two off-grid/on-grid cycles. The metering fields are kept raw pending unit
+    ID; see GRID_STATUS_CODES and GRID_METER_FIELDS.
     """
 
     CIRCUITS = OCEAN_PANEL_CIRCUITS
@@ -216,6 +239,13 @@ class OceanPanel(SmartHomePanel3):
         # if/when upstreamed, flip to enabled=False to match tolwi convention.
         return super().sensors(client) + [
             MiscSensorEntity(client, self, "ocean_operating_mode", "Operating Mode", diagnostic=True).with_icon("mdi:home-lightning-bolt"),
+            # Grid-connect / island status (254 field 619): on_grid / islanded. Diagnostic.
+            MiscSensorEntity(client, self, "ocean_grid_status", "Grid Connection", diagnostic=True).with_icon("mdi:transmission-tower"),
+        ] + [
+            # Live grid-side metering (254 fields 964..967): confirmed to track grid-tied vs
+            # islanded, kept raw pending unit ID — see GRID_METER_FIELDS note. Diagnostic.
+            MiscSensorEntity(client, self, f"grid_meter_{f}", f"Grid Meter {f}", diagnostic=True).with_icon("mdi:transmission-tower")
+            for f in GRID_METER_FIELDS
         ] + [
             # Candidate-unknown fields on the panel stream, collected raw for identification.
             MiscSensorEntity(client, self, f"ef_unknown_{f}", f"Unknown 254/{f}", diagnostic=True)
@@ -240,9 +270,19 @@ class OceanPanel(SmartHomePanel3):
                     result.setdefault("params", {})["ocean_operating_mode"] = OPERATING_MODE_CODES.get(
                         int(v), f"unknown_{int(v)}"
                     )
-            # Candidate-unknown fields ride the 254 status frames (any cmdId); collect raw.
+            # Grid status, live grid metering and candidate-unknowns ride the 254 status
+            # frames (any cmdId); read from the same flatten.
             if flat.get(P_CMDFUNC) == STATUS_CMDFUNC:
                 params = result.setdefault("params", {})
+                # Grid-connect / island status (field 619), mapped to on_grid / islanded.
+                gs = flat.get(P_GRID_STATUS)
+                if isinstance(gs, (int, float)):
+                    params["ocean_grid_status"] = GRID_STATUS_CODES.get(int(gs), f"unknown_{int(gs)}")
+                # Live grid-side metering (fields 964..967), raw pending unit ID.
+                for field in GRID_METER_FIELDS:
+                    v = _flat_num(flat, field)
+                    if v is not None:
+                        _store_raw(params, f"grid_meter_{field}", v)
                 for field in PANEL_UNKNOWN_FIELDS:
                     v = _flat_num(flat, field)
                     if v is not None:
