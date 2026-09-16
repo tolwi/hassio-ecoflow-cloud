@@ -129,24 +129,23 @@ PCS_P_MAX = 20_000.0  # per-leg magnitude ceiling; abs above this is reuse noise
 # so bank figures accumulate per slot: voltage AVERAGES, current SUMS, packs = slot count.
 BATTERY_PACK_CMD = (32, 177)
 P_CMDFUNC, P_CMDID = "1.8", "1.9"  # header cmdFunc / cmdId in the flattened frame
-P_WORK_MODE = "1.1.1470"  # 254/21: EMS operating mode code
+# App operating-mode selector = HR61 field 900 (254/21). Confirmed 2026-09-15 by toggling
+# the app live: 900 tracked 2->3->1->2 across Scheduled->Intelligent->Self-powered->Scheduled
+# (and reads 2 in two independent Scheduled-mode captures). Field 1470 — the OLD "work_mode"
+# — is NOT the selector: it sits constant (2) on HR61 through all three modes and is stale
+# garbage on HR51, so it is no longer surfaced as the mode (kept only as a raw unknown).
+P_OPERATING_MODE = "1.1.900"  # 254/21 (HR61): app operating mode — see OPERATING_MODE_CODES
 P_BP_SLOT = "1.1.5"  # 32/177: pack slot index
 P_BP_VOLTAGE = "1.1.45"  # 32/177: pack voltage, 10 mV/count -> V = /100
 P_BP_CURRENT = "1.1.43"  # 32/177: pack current, RAW (scale unsettled)
 BP_V_RAW_MIN, BP_V_RAW_MAX = 30_000.0, 60_000.0  # 300-600 V at /100; guard bad frames
 
-# US app work-mode names (field 1470), confirmed via live Self-powered <-> Backup toggles.
-WORK_MODE_CODES: dict[int, str] = {
-    0: "self_use",  # Self-powered
-    1: "time_of_use",
-    2: "backup",  # Emergency Backup
-    3: "debug",
-    4: "ac_makeup",
-    5: "drm",
-    6: "remote_schedule",
-    7: "standby",
-    8: "soc_calibration",
-    9: "intelligent",  # Intelligent (app)
+# App operating-mode names, field 900 (HR61, 254/21). Confirmed 2026-09-15 by live toggling —
+# these match the app's exact three operating-mode options.
+OPERATING_MODE_CODES: dict[int, str] = {
+    1: "self_powered",
+    2: "scheduled_tasks",
+    3: "intelligent",
 }
 
 # --- Status frame (254/22): grid metering, DC-bus, fault register ------------
@@ -176,8 +175,10 @@ FAULT_SLOTS = 8
 # feed an "unknown fields" dashboard). The two devices carry different sets on their streams.
 INVERTER_UNKNOWN_FIELDS: tuple[int, ...] = (22, 50, 518, 1469, 1472, 1557, 1560, 1682)
 PANEL_UNKNOWN_FIELDS: tuple[int, ...] = (
-    518, 962, 963, 964, 965, 966, 967, 1227, 1462, 1485, 1486,
+    518, 962, 963, 964, 965, 966, 967, 1227, 1462, 1470, 1485, 1486,
 )
+# (1470 = the old mislabeled "work mode"; kept as a raw unknown — it's constant on HR61,
+# stale on HR51, and NOT the operating-mode selector, which is field 900.)
 
 
 def _flat_num(flat: dict[str, Any], field: int) -> int | float | None:
@@ -198,10 +199,11 @@ class OceanPanel(SmartHomePanel3):
     per-circuit array, circuit labels, grid/load flows and SoC are all inherited
     unchanged (only the circuit geometry is overridden).
 
-    Also carries the authoritative EMS work mode (254/21 field 1470): on the panel
-    stream it reads the real mode (e.g. backup), whereas the same field on the
-    inverter (HR51) stream is a stale default (self_use) — confirmed from live
-    captures — so work mode is decoded HERE, not on OceanProInverter.
+    Also carries the app operating mode (254/21 field 900): 1=Self-powered,
+    2=Scheduled tasks, 3=Intelligent — confirmed by live app toggling 2026-09-15.
+    Decoded HERE on the panel stream. (The old field 1470 "work mode" was WRONG —
+    it stays constant on HR61 across all three modes and is stale on HR51 — so it is
+    no longer surfaced as the mode, only kept as a raw unknown.)
     """
 
     CIRCUITS = OCEAN_PANEL_CIRCUITS
@@ -209,11 +211,11 @@ class OceanPanel(SmartHomePanel3):
 
     @override
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
-        # EMS operating mode (254/21 field 1470), mapped to the app's mode names.
+        # App operating mode (254/21 field 900), mapped to the app's three mode names.
         # Enabled (diagnostic) — collect-all rule, local patch, not upstreamed to tolwi yet;
         # if/when upstreamed, flip to enabled=False to match tolwi convention.
         return super().sensors(client) + [
-            MiscSensorEntity(client, self, "ocean_work_mode", "Work Mode", diagnostic=True).with_icon("mdi:home-lightning-bolt"),
+            MiscSensorEntity(client, self, "ocean_operating_mode", "Operating Mode", diagnostic=True).with_icon("mdi:home-lightning-bolt"),
         ] + [
             # Candidate-unknown fields on the panel stream, collected raw for identification.
             MiscSensorEntity(client, self, f"ef_unknown_{f}", f"Unknown 254/{f}", diagnostic=True)
@@ -222,20 +224,20 @@ class OceanPanel(SmartHomePanel3):
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
-        """Augment the base panel decode with the authoritative EMS work mode.
+        """Augment the base panel decode with the app operating mode (field 900).
 
-        Field 1470 is a small number that collides in nested submessages, so it is read
-        from the SAME raw frame using the collector's proven full-path flatten (``1.1.1470``),
-        not a shallow top-level match — the same rule OceanProInverter uses for its scalars.
+        Field 900 is read from the SAME raw frame using the collector's proven full-path
+        flatten (``1.1.900``), not a shallow top-level match — the same rule OceanProInverter
+        uses for its scalars.
         """
         result = super()._prepare_data(raw_data)
         try:
             flat = _pb_flatten(list(_pb_parse(raw_data)))
             if (flat.get(P_CMDFUNC), flat.get(P_CMDID)) == (254, 21):
-                v = flat.get(P_WORK_MODE)
+                v = flat.get(P_OPERATING_MODE)
                 if isinstance(v, (int, float)):
                     # HA reads entity values from result["params"][mqtt_key]; materialise it.
-                    result.setdefault("params", {})["ocean_work_mode"] = WORK_MODE_CODES.get(
+                    result.setdefault("params", {})["ocean_operating_mode"] = OPERATING_MODE_CODES.get(
                         int(v), f"unknown_{int(v)}"
                     )
             # Candidate-unknown fields ride the 254 status frames (any cmdId); collect raw.
