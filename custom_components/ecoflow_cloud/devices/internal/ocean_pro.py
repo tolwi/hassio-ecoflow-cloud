@@ -612,6 +612,9 @@ class OceanProInverter(DeltaPro3):
         if isinstance(amp, (int, float)):
             pack["a"] = float(amp)  # raw; scale unsettled
 
+        # Recompute the whole bank from scratch each frame rather than
+        # incrementally: N is tiny (a handful of packs) and this is not a hot
+        # loop, so a full re-walk is simpler and can never drift from _bp_slots.
         volts = [p["v"] for p in self._bp_slots.values() if "v" in p]
         if volts:
             params["bp_voltage_raw"] = round(sum(volts) / len(volts), 1)
