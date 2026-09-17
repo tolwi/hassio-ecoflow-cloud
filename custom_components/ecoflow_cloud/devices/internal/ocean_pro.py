@@ -167,6 +167,14 @@ GRID_STATUS_CODES: dict[int, str] = {
 STATUS_CMDFUNC = 254
 # key -> (field, min, max). Grid-side metering (per split-phase leg) + DC-bus voltage.
 STATUS_GUARDED_FIELDS: dict[str, tuple[int, float, float]] = {
+    # Whole-house grid exchange power (field 515), signed: + import (buying) / - export (selling).
+    # The meter-validated mini's `grid_power`. Must be read on the full path (1.1.515) like every
+    # field here — a shallow leaf match grabs a 0 from a nested submessage and freezes. It reads
+    # ~1.8x HIGH vs the CenterPoint revenue meter — a CONSISTENT multiplicative bias (1.71x total /
+    # 1.88x daytime, verified vs the 08/10-09/09 bill: 2173 kWh billed vs 3714 integrated), not an
+    # additive offset, so it still reads ~0 when self-sufficient: a directional live "is the house
+    # buying right now?" signal, not billing-grade. Signed range guard rejects field-number reuse.
+    "ocean_grid_pwr": (515, -60_000.0, 60_000.0),
     "grid_freq": (641, 55.0, 65.0),
     "grid_voltage_l1": (643, 100.0, 300.0),
     "grid_voltage_l2": (644, 100.0, 300.0),
@@ -394,6 +402,11 @@ class OceanProInverter(DeltaPro3):
             # No energy integration: the per-string PV sensors already feed the Energy dashboard,
             # so integrating this too would double-count. Mirror for parity with the mini.
             SolarPowerSensorEntity(client, self, "ocean_solar_total", "Total Solar").with_icon("mdi:solar-power"),
+            # Whole-house grid exchange (field 515, decoded in STATUS_GUARDED_FIELDS), signed:
+            # + import / - export. The meter-validated mini's `grid_power`; reads ~1.8x high vs the
+            # revenue meter (a consistent multiplicative bias — see that entry), so it is a
+            # directional live signal, not billing-grade.
+            WattsSensorEntity(client, self, "ocean_grid_pwr", "Grid Power").with_icon("mdi:transmission-tower"),
             # Work mode is NOT read here: field 1470 on the inverter stream is a stale default
             # (self_use). The authoritative EMS mode lives on the HR61 panel stream and is
             # decoded on OceanPanel instead. See that class + the module note.
