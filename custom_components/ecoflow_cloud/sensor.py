@@ -31,7 +31,10 @@ from homeassistant.core import (  # pyright: ignore[reportMissingImports]
 )
 from homeassistant.helpers.entity import EntityCategory  # pyright: ignore[reportMissingImports]
 from homeassistant.helpers.entity_platform import AddEntitiesCallback  # pyright: ignore[reportMissingImports]
-from homeassistant.helpers.event import async_track_state_change_event  # pyright: ignore[reportMissingImports]
+from homeassistant.helpers.event import (  # pyright: ignore[reportMissingImports]
+    async_track_state_change_event,
+    async_track_time_interval,
+)
 from homeassistant.util import dt  # pyright: ignore[reportMissingImports]
 
 from . import (
@@ -505,6 +508,21 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
         self._attrs[ATTR_MQTT_CONNECTED] = None
         if poll_when_silent or scheduled_refresh_sec is not None:
             self._attrs[ATTR_QUOTA_REQUESTS] = 0
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        # Re-evaluate on a timer, not only when a frame arrives: if the MQTT
+        # client thread dies, no frame ever calls _handle_coordinator_update,
+        # and the status froze at 'online' (seen 2026-09-21, 3.5 h). The
+        # tracker's age check already yields assume_offline/offline; it just
+        # needed something to ask. Writes only when the label changes.
+        self.async_on_remove(
+            async_track_time_interval(self.hass, self._on_status_timer, timedelta(seconds=60))
+        )
+
+    @callback
+    def _on_status_timer(self, _now: datetime) -> None:
+        self._handle_coordinator_update()
 
     def _handle_coordinator_update(self) -> None:
         from .devices.status_tracker import OnlineStatus
