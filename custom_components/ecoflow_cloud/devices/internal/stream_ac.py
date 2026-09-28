@@ -151,8 +151,10 @@ class StreamAC(BaseInternalDevice):
             # dump and the Public API quota). auto_enable keeps this hidden where
             # the source fields never arrive, while still surfacing on Stream
             # models that do report them.
+            # cmsBattSoc is not emitted on Stream Ultra / Ultra X. Use 'soc' instead so
+            # StoredEnergyFromSocSensorEntity can compute stored Wh across all variants.
             StoredEnergyFromSocSensorEntity(
-                client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY, False, True
+                client, self, "cmsBattFullEnergy", "soc", const.STREAM_STORED_ENERGY, False, True
             ),
             # "cmsBattSoh": 100.0,
             # "cmsBmsRunState": 1,
