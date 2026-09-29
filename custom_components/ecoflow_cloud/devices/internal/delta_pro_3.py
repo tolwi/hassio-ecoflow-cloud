@@ -348,6 +348,10 @@ class DeltaPro3(BaseInternalDevice):
         """Prepare Delta Pro 3 data by decoding protobuf and flattening fields."""
         _LOGGER.debug(f"[DeltaPro3] _prepare_data called with {len(raw_data)} bytes")
 
+        # Status messages and command replies can be JSON rather than protobuf.
+        if raw_data.lstrip().startswith(b"{"):
+            return super()._prepare_data(raw_data)
+
         flat_dict: dict[str, Any] | None = None
         decoded_data: dict[str, Any] | None = None
         try:
