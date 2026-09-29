@@ -7,6 +7,7 @@ only difference is solar: the Plus reports a second MPPT channel (channel 2)
 in addition to channel 1. This subclass adds the channel-2 solar sensors on
 top of the inherited Delta 3 entity set.
 """
+
 from typing import override
 
 from homeassistant.components.sensor import SensorEntity
