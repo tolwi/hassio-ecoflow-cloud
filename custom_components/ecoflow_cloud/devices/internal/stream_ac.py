@@ -917,6 +917,10 @@ class StreamAC(BaseInternalDevice):
         1628: ("feedGridMode", int),
     }
 
+    # _MANUAL_FIELD_MAP entries that are percentages; values outside 0-100
+    # are dropped by _decode_manual_fields (see the note there).
+    _MANUAL_PERCENT_FIELDS: frozenset = frozenset({6, 270, 271, 461})
+
     # Radio-button-group sub-messages: outer field number → group definition.
     # Inner fields in such a group are mutually exclusive; the device clears
     # the others when one is set to 1. For each group:
@@ -1070,6 +1074,17 @@ class StreamAC(BaseInternalDevice):
                     value, pos = decode_varint(pdata, pos)
                     if field_num in self._MANUAL_FIELD_MAP:
                         name, cast = self._MANUAL_FIELD_MAP[field_num]
+                        # This walk runs on every frame, whatever its cmd_id,
+                        # and field 6 is SOC only in DisplayPropertyUpload. A
+                        # boot-time frame carries an unrelated field 6 that
+                        # surfaced as SOC 100683 (2026-09-21) and 107226
+                        # (2026-09-30), so drop out-of-range percentages here.
+                        if field_num in self._MANUAL_PERCENT_FIELDS and not 0 <= value <= 100:
+                            _LOGGER.debug(
+                                "Ignoring out-of-range %s=%d (field %d, cmd_id-agnostic walk)",
+                                name, value, field_num,
+                            )
+                            continue
                         raw["params"][name] = cast(value)
                 elif wire_type == 2:
                     length, pos = decode_varint(pdata, pos)
