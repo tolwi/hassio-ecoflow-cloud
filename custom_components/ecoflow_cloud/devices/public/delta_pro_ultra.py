@@ -7,7 +7,7 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.const import UnitOfElectricPotential
+from homeassistant.const import UnitOfElectricCurrent, UnitOfElectricPotential
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
@@ -116,16 +116,23 @@ class _BatteryLevelSensorEntity(_BatterySensorEntity, LevelSensorEntity):
     pass
 
 
-class _BatteryInWattsSensorEntity(_BatterySensorEntity, InWattsSensorEntity):
-    pass
+class _BatteryChargePowerSensorEntity(_BatterySensorEntity, InWattsSensorEntity):
+    # Power flowing into this battery. It can come from the grid or solar, or from the other
+    # batteries in the stack when the inverter evens out their levels, so use a battery icon
+    # rather than the grid icon InWattsSensorEntity carries.
+    _attr_icon = "mdi:battery-arrow-up"
 
 
-class _BatteryOutWattsSensorEntity(_BatterySensorEntity, OutWattsSensorEntity):
-    pass
+class _BatteryDischargePowerSensorEntity(_BatterySensorEntity, OutWattsSensorEntity):
+    # Power flowing out of this battery, measured on the battery (DC) side of the inverter.
+    _attr_icon = "mdi:battery-arrow-down"
 
 
 class _BatteryCurrentSensorEntity(_BatterySensorEntity, MilliampSensorEntity):
-    pass
+    # Reported in mA (negative while discharging); battery voltage is ~105 V, so amps with
+    # two decimals reads more naturally.
+    _attr_suggested_unit_of_measurement = UnitOfElectricCurrent.AMPERE
+    _attr_suggested_display_precision = 2
 
 
 class _BatteryTempSensorEntity(_BatterySensorEntity, TempSensorEntity):
@@ -181,8 +188,8 @@ class DeltaProUltra(BaseDevice):
             sensors += [
                 _BatteryPositionSensorEntity(client, self, sn, _POSITION, "Position"),
                 _BatteryLevelSensorEntity(client, self, sn, "soc", "Level"),
-                _BatteryInWattsSensorEntity(client, self, sn, "inputWatts", "Input Power"),
-                _BatteryOutWattsSensorEntity(client, self, sn, "outputWatts", "Output Power"),
+                _BatteryChargePowerSensorEntity(client, self, sn, "inputWatts", "Charge Power"),
+                _BatteryDischargePowerSensorEntity(client, self, sn, "outputWatts", "Discharge Power"),
                 # mA, negative while discharging
                 _BatteryCurrentSensorEntity(client, self, sn, "amp", "Current"),
                 _BatteryTempSensorEntity(client, self, sn, "temp", "Temperature"),
