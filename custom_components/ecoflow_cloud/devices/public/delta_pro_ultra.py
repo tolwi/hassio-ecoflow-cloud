@@ -1,6 +1,10 @@
 # import logging
 # _LOGGER = logging.getLogger(__name__)
 
+import re
+import time
+from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 
 from homeassistant.components.number import NumberEntity
@@ -10,7 +14,9 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import UnitOfElectricCurrent, UnitOfElectricPotential
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.device_data import DeviceData
+from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo, const
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.public import data_bridge
 from custom_components.ecoflow_cloud.entities import BaseSensorEntity
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
@@ -39,6 +45,36 @@ _BMS = "hs_yj751_bms_slave_addr"
 _BATTERY_COUNT = "hs_yj751_pd_appshow_addr.bpNum"
 _POSITION = "position"
 
+# Besides the BMS records returned by quota/all every 5 minutes (hs_yj751_bms_slave_addr.<slot>.*),
+# two MQTT messages carry per-battery data:
+# - each battery's BMS heartbeat, one battery at a time, every ~3 minutes per battery. It arrives as
+#   hs_yj751_bms_slave_addr_<n>.*, where <n> is not the slot; the record names its battery by packSn and
+#   has no timestamp, current, pack temperature, probe lists or cycle count.
+# - the inverter's per-slot summary, every ~60 seconds: level, signed power and temperature for each
+#   slot (bpNo), as hs_yj751_pd_bp_addr.bpInfo.<i>.*
+# The quota/all records are the cloud's copy of the latest heartbeats, so they are already up to
+# ~3 minutes old when polled. For each value the most recently reported one is used.
+_LIVE_BMS_KEY = re.compile(rf"^{_BMS}_(\d+)\.(.+)$")
+_BP_INFO = "hs_yj751_pd_bp_addr.bpInfo"
+_BP_INFO_KEY = re.compile(rf"^{re.escape(_BP_INFO)}\.(\d+)\.(.+)$")
+
+# BMS field -> (per-slot summary field, conversion to the BMS field's meaning)
+_SLOT_SUMMARY_FIELDS: dict[str, tuple[str, Callable[[float], Any]]] = {
+    "soc": ("bpSoc", lambda v: v),
+    "temp": ("bpTemp", lambda v: v),
+    # bpPwr is signed (positive while the battery charges, negative while it discharges) and arrives
+    # as a float (-165.0); the BMS reports whole watts, so round to match.
+    "inputWatts": ("bpPwr", lambda v: max(round(v), 0)),
+    "outputWatts": ("bpPwr", lambda v: max(-round(v), 0)),
+}
+
+# Temperature probe lists in the BMS record, with the count to assume if a record lacks the list.
+_TEMP_PROBES: tuple[tuple[str, str, int], ...] = (
+    ("cellTemp", "Cell Temperature", 7),
+    ("mosTemp", "MOSFET Temperature", 4),
+    ("ptcTemp", "Heater Temperature", 4),
+)
+
 
 def _battery_slot(params: dict[str, Any], serial: str) -> int | None:
     """Return the BMS slot (1-based position in the stack) currently reporting this battery serial.
@@ -61,6 +97,40 @@ def _battery_slot(params: dict[str, Any], serial: str) -> int | None:
     return slot
 
 
+@dataclass
+class _Reading:
+    value: Any
+    time: float  # seconds since the epoch
+
+
+class _LiveBatteryReadings:
+    """Per-battery values from the inverter's MQTT messages, with the time each one arrived."""
+
+    def __init__(self) -> None:
+        self.by_serial: dict[str, dict[str, _Reading]] = {}
+        self.by_slot: dict[int, dict[str, _Reading]] = {}
+
+    def observe(self, message: dict[str, Any], params: dict[str, Any], now: float) -> None:
+        """Record the per-battery values in one flattened MQTT message."""
+        heartbeats: dict[str, dict[str, Any]] = {}
+        for key, value in message.items():
+            if match := _LIVE_BMS_KEY.match(key):
+                heartbeats.setdefault(match.group(1), {})[match.group(2)] = value
+            elif match := _BP_INFO_KEY.match(key):
+                index = int(match.group(1))
+                slot = message.get(f"{_BP_INFO}.{index}.bpNo", params.get(f"{_BP_INFO}.{index}.bpNo"))
+                if not isinstance(slot, int):
+                    slot = index + 1  # bpInfo is ordered by slot
+                self.by_slot.setdefault(slot, {})[match.group(2)] = _Reading(value, now)
+        for fields in heartbeats.values():
+            serial = fields.get("packSn")
+            # A heartbeat that doesn't name its battery can't be attributed to one.
+            if isinstance(serial, str) and serial:
+                readings = self.by_serial.setdefault(serial, {})
+                for field, value in fields.items():
+                    readings[field] = _Reading(value, now)
+
+
 class _BatterySensorEntity(BaseSensorEntity):
     """Per-battery sensor identified by the battery's serial number rather than its slot.
 
@@ -74,18 +144,22 @@ class _BatterySensorEntity(BaseSensorEntity):
     def __init__(
         self,
         client: EcoflowApiClient,
-        device: BaseDevice,
+        device: "DeltaProUltra",
         serial: str,
         field: str,
         title: str,
         enabled: bool = True,
         diagnostic: bool | None = None,
+        index: int | None = None,
     ):
+        key = field if index is None else f"{field}.{index}"
         super().__init__(
-            client, device, f"{_BMS}.{serial}.{field}", f"Battery {serial} {title}", enabled, False, diagnostic
+            client, device, f"{_BMS}.{serial}.{key}", f"Battery {serial} {title}", enabled, False, diagnostic
         )
+        self._dpu = device
         self._serial = serial
         self._field = field
+        self._index = index
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -99,7 +173,10 @@ class _BatterySensorEntity(BaseSensorEntity):
                 self._attr_available = False
                 self.schedule_update_ha_state()
             return
-        value = slot if self._field == _POSITION else data.get(f"{_BMS}.{slot}.{self._field}")
+        if self._field == _POSITION:
+            value: Any = slot
+        else:
+            value = self._dpu.battery_value(data, self._serial, slot, self._field, self._index)
         if value is None:
             return
         became_available = not self._attr_available
@@ -163,6 +240,46 @@ class _BatteryCapacitySensorEntity(_BatterySensorEntity, CapacitySensorEntity):
 
 
 class DeltaProUltra(BaseDevice):
+    def __init__(self, device_info: EcoflowDeviceInfo, device_data: DeviceData) -> None:
+        super().__init__(device_info, device_data)
+        self._live_batteries = _LiveBatteryReadings()
+
+    def _prepare_data_data_topic(self, raw_data: bytes) -> PreparedData:
+        prepared = super()._prepare_data_data_topic(raw_data)
+        message = prepared.params.get("params") if prepared.params is not None else None
+        if isinstance(message, dict):
+            self._live_batteries.observe(message, self.data.params, time.time())
+        return prepared
+
+    def battery_value(
+        self, params: dict[str, Any], serial: str, slot: int, field: str, index: int | None = None
+    ) -> Any:
+        """Return the most recently reported value of a BMS field for this battery.
+
+        Sources: the quota/all BMS record for the battery's slot (timestamped by the battery), the
+        battery's last MQTT heartbeat, and, for level, power and temperature, the inverter's
+        per-slot summary (both timestamped on arrival).
+        """
+        candidates: list[tuple[float, Any]] = []
+        polled = params.get(f"{_BMS}.{slot}.{field}")
+        if polled is not None:
+            reported = params.get(f"{_BMS}.{slot}.unixTime")
+            candidates.append((reported if isinstance(reported, int | float) else 0, polled))
+        heartbeat = self._live_batteries.by_serial.get(serial, {}).get(field)
+        if heartbeat is not None:
+            candidates.append((heartbeat.time, heartbeat.value))
+        if field in _SLOT_SUMMARY_FIELDS:
+            summary_field, convert = _SLOT_SUMMARY_FIELDS[field]
+            summary = self._live_batteries.by_slot.get(slot, {}).get(summary_field)
+            if summary is not None and isinstance(summary.value, int | float):
+                candidates.append((summary.time, convert(summary.value)))
+        if not candidates:
+            return None
+        value = max(candidates, key=lambda candidate: candidate[0])[1]
+        if index is None:
+            return value
+        return value[index] if isinstance(value, list) and index < len(value) else None
+
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             *self._base_sensors(client),
@@ -180,6 +297,11 @@ class DeltaProUltra(BaseDevice):
                 serials.append(serial)
         return serials
 
+    def _probe_count(self, serial: str, field: str, default: int) -> int:
+        slot = _battery_slot(self.data.params, serial)
+        probes = self.data.params.get(f"{_BMS}.{slot}.{field}") if slot is not None else None
+        return len(probes) if isinstance(probes, list) and probes else default
+
     def _battery_sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         # One set of sensors per installed battery, keyed by serial number. A battery added
         # later gets its sensors when the integration is reloaded.
@@ -192,7 +314,7 @@ class DeltaProUltra(BaseDevice):
                 _BatteryDischargePowerSensorEntity(client, self, sn, "outputWatts", "Discharge Power"),
                 # mA, negative while discharging
                 _BatteryCurrentSensorEntity(client, self, sn, "amp", "Current"),
-                _BatteryTempSensorEntity(client, self, sn, "temp", "Temperature"),
+                _BatteryTempSensorEntity(client, self, sn, "temp", "Temperature", diagnostic=False),
                 _BatteryStateOfHealthSensorEntity(client, self, sn, "actSoh", "State of Health"),
                 _BatteryCyclesSensorEntity(client, self, sn, "cycles", "Cycles"),
                 _BatteryCellVoltageDifferenceSensorEntity(
@@ -202,7 +324,17 @@ class DeltaProUltra(BaseDevice):
                 _BatteryMilliVoltSensorEntity(client, self, sn, "maxCellVol", "Max Cell Volts", False),
                 _BatteryCapacitySensorEntity(client, self, sn, "fullCap", "Full Capacity", False),
                 _BatteryCapacitySensorEntity(client, self, sn, "remainCap", "Remaining Capacity", False),
+                # Every temperature probe the BMS reports, as diagnostics
+                _BatteryTempSensorEntity(client, self, sn, "maxCellTemp", "Max Cell Temperature", diagnostic=True),
+                _BatteryTempSensorEntity(client, self, sn, "minCellTemp", "Min Cell Temperature", diagnostic=True),
+                _BatteryTempSensorEntity(client, self, sn, "hwBoardTemp", "Board Temperature", diagnostic=True),
+                _BatteryTempSensorEntity(client, self, sn, "curResTemp", "Shunt Temperature", diagnostic=True),
             ]
+            for field, title, default_count in _TEMP_PROBES:
+                sensors += [
+                    _BatteryTempSensorEntity(client, self, sn, field, f"{title} {i + 1}", diagnostic=True, index=i)
+                    for i in range(self._probe_count(sn, field, default_count))
+                ]
         return sensors
 
     def _base_sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
