@@ -3,6 +3,7 @@
 
 import re
 import time
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -153,8 +154,15 @@ class _BatterySensorEntity(BaseSensorEntity):
         index: int | None = None,
     ):
         key = field if index is None else f"{field}.{index}"
+        # The unique id keeps the full serial; the name uses the shorter label (see battery_label).
         super().__init__(
-            client, device, f"{_BMS}.{serial}.{key}", f"Battery {serial} {title}", enabled, False, diagnostic
+            client,
+            device,
+            f"{_BMS}.{serial}.{key}",
+            f"Battery {device.battery_label(serial)} {title}",
+            enabled,
+            False,
+            diagnostic,
         )
         self._dpu = device
         self._serial = serial
@@ -243,6 +251,7 @@ class DeltaProUltra(BaseDevice):
     def __init__(self, device_info: EcoflowDeviceInfo, device_data: DeviceData) -> None:
         super().__init__(device_info, device_data)
         self._live_batteries = _LiveBatteryReadings()
+        self._battery_labels: dict[str, str] = {}
 
     def _prepare_data_data_topic(self, raw_data: bytes) -> PreparedData:
         prepared = super()._prepare_data_data_topic(raw_data)
@@ -297,6 +306,13 @@ class DeltaProUltra(BaseDevice):
                 serials.append(serial)
         return serials
 
+    def battery_label(self, serial: str) -> str:
+        """Short name for a battery in sensor names: the last 4 characters of its serial.
+
+        If two installed batteries share those, both use their full serial instead.
+        """
+        return self._battery_labels.get(serial, serial)
+
     def _probe_count(self, serial: str, field: str, default: int) -> int:
         slot = _battery_slot(self.data.params, serial)
         probes = self.data.params.get(f"{_BMS}.{slot}.{field}") if slot is not None else None
@@ -305,8 +321,11 @@ class DeltaProUltra(BaseDevice):
     def _battery_sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         # One set of sensors per installed battery, keyed by serial number. A battery added
         # later gets its sensors when the integration is reloaded.
+        serials = self._installed_battery_serials()
+        suffixes = Counter(sn[-4:] for sn in serials)
+        self._battery_labels = {sn: sn[-4:] if suffixes[sn[-4:]] == 1 else sn for sn in serials}
         sensors: list[SensorEntity] = []
-        for sn in self._installed_battery_serials():
+        for sn in serials:
             sensors += [
                 _BatteryPositionSensorEntity(client, self, sn, _POSITION, "Position"),
                 _BatteryLevelSensorEntity(client, self, sn, "soc", "Level"),
