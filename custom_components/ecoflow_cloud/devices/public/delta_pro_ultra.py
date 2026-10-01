@@ -7,27 +7,198 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.const import UnitOfElectricPotential
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseDevice, const
 from custom_components.ecoflow_cloud.devices.public import data_bridge
+from custom_components.ecoflow_cloud.entities import BaseSensorEntity
 from custom_components.ecoflow_cloud.number import ChargingPowerEntity, MaxBatteryLevelEntity, MinBatteryLevelEntity
 from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
+    CapacitySensorEntity,
+    CyclesSensorEntity,
     FrequencySensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
+    MilliampSensorEntity,
+    MilliVoltSensorEntity,
     MiscSensorEntity,
     OutWattsSensorEntity,
     QuotaScheduledStatusSensorEntity,
     RemainSensorEntity,
+    StateOfHealthSensorEntity,
+    TempSensorEntity,
     VoltSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import EnabledEntity
 
+# One DELTA Pro Ultra inverter takes up to 5 batteries.
+MAX_BATTERIES = 5
+_BMS = "hs_yj751_bms_slave_addr"
+_BATTERY_COUNT = "hs_yj751_pd_appshow_addr.bpNum"
+_POSITION = "position"
+
+
+def _battery_slot(params: dict[str, Any], serial: str) -> int | None:
+    """Return the BMS slot (1-based position in the stack) currently reporting this battery serial.
+
+    Only slots up to the installed battery count are considered: the cloud can keep returning a
+    stale BMS record for a slot that no longer holds a battery, sometimes repeating a serial that
+    has since moved. If a serial still appears twice, the most recent record wins.
+    """
+    count = params.get(_BATTERY_COUNT)
+    last = count if isinstance(count, int) and count > 0 else MAX_BATTERIES
+    slot: int | None = None
+    newest = -1
+    for n in range(1, last + 1):
+        if params.get(f"{_BMS}.{n}.packSn") != serial:
+            continue
+        reported = params.get(f"{_BMS}.{n}.unixTime")
+        reported = reported if isinstance(reported, int | float) else 0
+        if reported > newest:
+            slot, newest = n, reported
+    return slot
+
+
+class _BatterySensorEntity(BaseSensorEntity):
+    """Per-battery sensor identified by the battery's serial number rather than its slot.
+
+    Each update looks up the slot that currently holds the serial, so history follows the
+    battery when batteries are swapped between positions in the stack.
+    """
+
+    # Keep the last reading when the device goes offline instead of writing a default value.
+    _attr_default_value: Any = None
+
+    def __init__(
+        self,
+        client: EcoflowApiClient,
+        device: BaseDevice,
+        serial: str,
+        field: str,
+        title: str,
+        enabled: bool = True,
+        diagnostic: bool | None = None,
+    ):
+        super().__init__(
+            client, device, f"{_BMS}.{serial}.{field}", f"Battery {serial} {title}", enabled, False, diagnostic
+        )
+        self._serial = serial
+        self._field = field
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+        self._updated(self._device.data.params)
+
+    def _updated(self, data: dict[str, Any]):
+        slot = _battery_slot(data, self._serial)
+        if slot is None:
+            # battery no longer reported by this inverter
+            if self._attr_available:
+                self._attr_available = False
+                self.schedule_update_ha_state()
+            return
+        value = slot if self._field == _POSITION else data.get(f"{_BMS}.{slot}.{self._field}")
+        if value is None:
+            return
+        became_available = not self._attr_available
+        self._attr_available = True
+        if self._update_value(value) or became_available:
+            self.schedule_update_ha_state()
+
+
+class _BatteryPositionSensorEntity(_BatterySensorEntity, MiscSensorEntity):
+    _attr_icon = "mdi:numeric"
+
+
+class _BatteryLevelSensorEntity(_BatterySensorEntity, LevelSensorEntity):
+    pass
+
+
+class _BatteryInWattsSensorEntity(_BatterySensorEntity, InWattsSensorEntity):
+    pass
+
+
+class _BatteryOutWattsSensorEntity(_BatterySensorEntity, OutWattsSensorEntity):
+    pass
+
+
+class _BatteryCurrentSensorEntity(_BatterySensorEntity, MilliampSensorEntity):
+    pass
+
+
+class _BatteryTempSensorEntity(_BatterySensorEntity, TempSensorEntity):
+    pass
+
+
+class _BatteryStateOfHealthSensorEntity(_BatterySensorEntity, StateOfHealthSensorEntity):
+    # actSoh is reported with ~5 decimals (e.g. 98.71886)
+    _attr_suggested_display_precision = 1
+
+
+class _BatteryCyclesSensorEntity(_BatterySensorEntity, CyclesSensorEntity):
+    pass
+
+
+class _BatteryMilliVoltSensorEntity(_BatterySensorEntity, MilliVoltSensorEntity):
+    pass
+
+
+class _BatteryCellVoltageDifferenceSensorEntity(_BatterySensorEntity, MilliVoltSensorEntity):
+    # Spread between the highest and lowest cell is a few mV, so keep it in mV
+    # rather than the V that MilliVoltSensorEntity suggests.
+    _attr_suggested_unit_of_measurement = UnitOfElectricPotential.MILLIVOLT
+
+
+class _BatteryCapacitySensorEntity(_BatterySensorEntity, CapacitySensorEntity):
+    pass
+
 
 class DeltaProUltra(BaseDevice):
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+        return [
+            *self._base_sensors(client),
+            *self._battery_sensors(client),
+        ]
+
+    def _installed_battery_serials(self) -> list[str]:
+        params = self.data.params
+        count = params.get(_BATTERY_COUNT)
+        last = count if isinstance(count, int) and count > 0 else MAX_BATTERIES
+        serials: list[str] = []
+        for n in range(1, last + 1):
+            serial = params.get(f"{_BMS}.{n}.packSn")
+            if isinstance(serial, str) and serial and serial not in serials:
+                serials.append(serial)
+        return serials
+
+    def _battery_sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
+        # One set of sensors per installed battery, keyed by serial number. A battery added
+        # later gets its sensors when the integration is reloaded.
+        sensors: list[SensorEntity] = []
+        for sn in self._installed_battery_serials():
+            sensors += [
+                _BatteryPositionSensorEntity(client, self, sn, _POSITION, "Position"),
+                _BatteryLevelSensorEntity(client, self, sn, "soc", "Level"),
+                _BatteryInWattsSensorEntity(client, self, sn, "inputWatts", "Input Power"),
+                _BatteryOutWattsSensorEntity(client, self, sn, "outputWatts", "Output Power"),
+                # mA, negative while discharging
+                _BatteryCurrentSensorEntity(client, self, sn, "amp", "Current"),
+                _BatteryTempSensorEntity(client, self, sn, "temp", "Temperature"),
+                _BatteryStateOfHealthSensorEntity(client, self, sn, "actSoh", "State of Health"),
+                _BatteryCyclesSensorEntity(client, self, sn, "cycles", "Cycles"),
+                _BatteryCellVoltageDifferenceSensorEntity(
+                    client, self, sn, "maxVolDiff", "Cell Voltage Difference", diagnostic=True
+                ),
+                _BatteryMilliVoltSensorEntity(client, self, sn, "minCellVol", "Min Cell Volts", False),
+                _BatteryMilliVoltSensorEntity(client, self, sn, "maxCellVol", "Max Cell Volts", False),
+                _BatteryCapacitySensorEntity(client, self, sn, "fullCap", "Full Capacity", False),
+                _BatteryCapacitySensorEntity(client, self, sn, "remainCap", "Remaining Capacity", False),
+            ]
+        return sensors
+
+    def _base_sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             QuotaScheduledStatusSensorEntity(client, self, 300),  # required to call quota/all every 5 minutes
             RemainSensorEntity(client, self, "hs_yj751_pd_appshow_addr.remainTime", const.REMAINING_TIME),
