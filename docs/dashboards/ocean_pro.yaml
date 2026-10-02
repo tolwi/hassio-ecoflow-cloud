@@ -1,0 +1,156 @@
+# Example dashboard: EcoFlow PowerOcean Pro (US) — inverter + Smart Panel
+#
+# Setup: see docs/dashboards/README.md. In short:
+#   1. Replace every INVERTER with your Ocean Pro inverter's entity prefix
+#      (e.g. sensor.hr51xxxxxxxxxxxx_pv1_power -> INVERTER = hr51xxxxxxxxxxxx).
+#   2. Replace every PANEL with your Smart Panel's entity prefix (hr61...).
+#   3. Replace PANEL_DEVICE_NAME with the panel's device name as HA shows it.
+#   4. Settings -> Dashboards -> Add dashboard -> open it -> Edit -> Raw configuration
+#      editor -> paste.
+#
+# Needs two HACS frontend cards: power-flow-card-plus and auto-entities.
+# Everything else is a built-in card.
+
+title: Ocean Pro
+views:
+  - title: Live
+    path: live
+    icon: mdi:flash
+    cards:
+      # Battery Power from this integration is + charging / - discharging;
+      # the card expects the opposite, hence invert_state.
+      - type: custom:power-flow-card-plus
+        title: Live power flow
+        watt_threshold: 1000
+        w_decimals: 0
+        kw_decimals: 1
+        clickable_entities: true
+        entities:
+          grid:
+            entity: sensor.PANEL_grid_power
+          solar:
+            entity: sensor.INVERTER_total_solar
+            display_zero_state: true
+          battery:
+            entity: sensor.INVERTER_battery_power
+            state_of_charge: sensor.PANEL_battery_level
+            invert_state: true
+          home:
+            entity: sensor.PANEL_home_load_power
+
+      - type: tile
+        entity: sensor.PANEL_operating_mode
+        name: Operating mode
+      - type: tile
+        entity: sensor.PANEL_grid_connection
+        name: Grid connection
+      - type: tile
+        entity: sensor.INVERTER_grid_frequency
+        name: Grid frequency
+
+      - type: history-graph
+        title: Power — last 24 h
+        hours_to_show: 24
+        entities:
+          - entity: sensor.INVERTER_total_solar
+            name: Solar
+          - entity: sensor.PANEL_home_load_power
+            name: Home
+          - entity: sensor.PANEL_grid_power
+            name: Grid
+          - entity: sensor.INVERTER_battery_power
+            name: Battery
+
+  - title: Strings
+    path: strings
+    icon: mdi:solar-panel
+    cards:
+      # V and A arrive with the inverter's full snapshot (about every 5 min); W is live.
+      # One row per string, written out, so a find/replace (or a renamed entity) is
+      # visible here rather than hidden inside a loop.
+      - type: markdown
+        title: Strings — live
+        content: |-
+          | String | V | A | W | MPPT |
+          |:--|--:|--:|--:|:-:|
+          | PV1 | {{ states('sensor.INVERTER_pv1_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv1_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv1_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv1_mppt_state') }}/{{ states('sensor.INVERTER_pv1_mppt_fault_code') }} |
+          | PV2 | {{ states('sensor.INVERTER_pv2_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv2_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv2_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv2_mppt_state') }}/{{ states('sensor.INVERTER_pv2_mppt_fault_code') }} |
+          | PV3 | {{ states('sensor.INVERTER_pv3_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv3_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv3_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv3_mppt_state') }}/{{ states('sensor.INVERTER_pv3_mppt_fault_code') }} |
+          | PV4 | {{ states('sensor.INVERTER_pv4_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv4_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv4_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv4_mppt_state') }}/{{ states('sensor.INVERTER_pv4_mppt_fault_code') }} |
+          | PV5 | {{ states('sensor.INVERTER_pv5_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv5_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv5_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv5_mppt_state') }}/{{ states('sensor.INVERTER_pv5_mppt_fault_code') }} |
+          | PV6 | {{ states('sensor.INVERTER_pv6_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv6_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv6_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv6_mppt_state') }}/{{ states('sensor.INVERTER_pv6_mppt_fault_code') }} |
+          | PV7 | {{ states('sensor.INVERTER_pv7_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv7_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv7_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv7_mppt_state') }}/{{ states('sensor.INVERTER_pv7_mppt_fault_code') }} |
+          | PV8 | {{ states('sensor.INVERTER_pv8_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv8_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv8_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv8_mppt_state') }}/{{ states('sensor.INVERTER_pv8_mppt_fault_code') }} |
+
+          _MPPT = the inverter's own state/fault code for that string. EcoFlow
+          publishes no meanings; seen so far: **8/0** tracking, **5/2** stood
+          down (every string at night)._
+
+      - type: history-graph
+        title: Power per string — last 24 h
+        hours_to_show: 24
+        entities:
+          - sensor.INVERTER_pv1_power
+          - sensor.INVERTER_pv2_power
+          - sensor.INVERTER_pv3_power
+          - sensor.INVERTER_pv4_power
+          - sensor.INVERTER_pv5_power
+          - sensor.INVERTER_pv6_power
+          - sensor.INVERTER_pv7_power
+          - sensor.INVERTER_pv8_power
+
+      - type: history-graph
+        title: Voltage per string — last 24 h
+        hours_to_show: 24
+        entities:
+          - sensor.INVERTER_pv1_voltage
+          - sensor.INVERTER_pv2_voltage
+          - sensor.INVERTER_pv3_voltage
+          - sensor.INVERTER_pv4_voltage
+          - sensor.INVERTER_pv5_voltage
+          - sensor.INVERTER_pv6_voltage
+          - sensor.INVERTER_pv7_voltage
+          - sensor.INVERTER_pv8_voltage
+
+      - type: markdown
+        title: Reading the signatures
+        content: |-
+          - **Normal V, normal A** — healthy.
+          - **Normal V, low A** — less light: shade, dirt, clouds.
+          - **Low V at full A** — part of the string is bypassed (debris,
+            a wet junction box, a damaged panel).
+          - **~0 A while the others produce** — open circuit (connector,
+            wire, disconnect).
+          - **Several strings at the same voltage below 60 V** — under the
+            inverter's MPPT floor; identical readings on separate strings
+            point at the inverter rather than the roof.
+
+  - title: Circuits
+    path: circuits
+    icon: mdi:electric-switch
+    cards:
+      # Matches on the device, not on entity_id: circuits you named in the EcoFlow
+      # app get name-based entity_ids (e.g. ..._dryer_power), so a
+      # "*_circuit_*" pattern would silently miss them.
+      - type: custom:auto-entities
+        card:
+          type: entities
+          title: Circuits drawing now
+          state_color: true
+        filter:
+          include:
+            - device: PANEL_DEVICE_NAME
+              attributes:
+                device_class: power
+              state: "> 0"
+          exclude:
+            - entity_id: "*_home_load_power"
+            - entity_id: "*_grid_power"
+            - entity_id: "*_grid_l1_power"
+            - entity_id: "*_grid_l2_power"
+            - entity_id: "*_storage_output_power"
+        sort:
+          method: state
+          numeric: true
+          reverse: true
+        show_empty: true

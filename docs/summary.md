@@ -930,7 +930,7 @@
 
 </p></details>
 
-<details><summary> OCEAN_SMART_PANEL <i>(sensors: 131)</i> </summary>
+<details><summary> OCEAN_SMART_PANEL <i>(sensors: 145)</i> </summary>
 <p>
 
 *Sensors*
@@ -1065,16 +1065,73 @@
 - Circuit 40 Power (energy:  _[Device Name]_ Circuit 40  Energy)
 - Circuit 40 Voltage  _(disabled)_
 - Circuit 40 Current  _(disabled)_
+- Operating Mode
+- Grid Connection
+- Grid Meter 964
+- Grid Meter 965
+- Grid Meter 966
+- Grid Meter 967
+- Unknown 254/518
+- Unknown 254/962
+- Unknown 254/963
+- Unknown 254/1227
+- Unknown 254/1462
+- Unknown 254/1470
+- Unknown 254/1485
+- Unknown 254/1486
 
 </p></details>
 
-<details><summary> OCEAN_PRO <i>(sensors: 11)</i> </summary>
+<details><summary> OCEAN_PRO <i>(sensors: 70)</i> </summary>
 <p>
 
 *Sensors*
 - Inverter Output Power
+- Total Solar
+- Grid Power
+- Battery Pack Voltage
+- Battery Packs Online
+- Battery Pack Current (raw)
 - Battery Power
+- PCS Phase A Voltage
+- PCS Phase A Current
+- PCS Phase A Power
+- PCS Phase B Voltage
+- PCS Phase B Current
+- PCS Phase B Power
 - Status
+- Grid Frequency
+- Grid Voltage L1
+- Grid Voltage L2
+- Grid Current L1
+- Grid Current L2
+- DC Bus Voltage
+- DC Bus Voltage 2
+- PV1 MPPT Fault Code
+- PV1 MPPT State
+- PV2 MPPT Fault Code
+- PV2 MPPT State
+- PV3 MPPT Fault Code
+- PV3 MPPT State
+- PV4 MPPT Fault Code
+- PV4 MPPT State
+- PV5 MPPT Fault Code
+- PV5 MPPT State
+- PV6 MPPT Fault Code
+- PV6 MPPT State
+- PV7 MPPT Fault Code
+- PV7 MPPT State
+- PV8 MPPT Fault Code
+- PV8 MPPT State
+- MPPT Parallel Detect
+- Unknown 254/22
+- Unknown 254/50
+- Unknown 254/518
+- Unknown 254/1469
+- Unknown 254/1472
+- Unknown 254/1557
+- Unknown 254/1560
+- Unknown 254/1682
 - PV1 Power (energy:  _[Device Name]_ PV1  Energy)
 - PV2 Power (energy:  _[Device Name]_ PV2  Energy)
 - PV3 Power (energy:  _[Device Name]_ PV3  Energy)
@@ -1083,6 +1140,22 @@
 - PV6 Power (energy:  _[Device Name]_ PV6  Energy)
 - PV7 Power (energy:  _[Device Name]_ PV7  Energy)
 - PV8 Power (energy:  _[Device Name]_ PV8  Energy)
+- PV1 Voltage
+- PV1 Current
+- PV2 Voltage
+- PV2 Current
+- PV3 Voltage
+- PV3 Current
+- PV4 Voltage
+- PV4 Current
+- PV5 Voltage
+- PV5 Current
+- PV6 Voltage
+- PV6 Current
+- PV7 Voltage
+- PV7 Current
+- PV8 Voltage
+- PV8 Current
 
 </p></details>
 
