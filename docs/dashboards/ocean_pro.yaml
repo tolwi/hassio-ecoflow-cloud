@@ -89,27 +89,43 @@ views:
         title: Power per string — last 24 h
         hours_to_show: 24
         entities:
-          - sensor.INVERTER_pv1_power
-          - sensor.INVERTER_pv2_power
-          - sensor.INVERTER_pv3_power
-          - sensor.INVERTER_pv4_power
-          - sensor.INVERTER_pv5_power
-          - sensor.INVERTER_pv6_power
-          - sensor.INVERTER_pv7_power
-          - sensor.INVERTER_pv8_power
+          - entity: sensor.INVERTER_pv1_power
+            name: PV1
+          - entity: sensor.INVERTER_pv2_power
+            name: PV2
+          - entity: sensor.INVERTER_pv3_power
+            name: PV3
+          - entity: sensor.INVERTER_pv4_power
+            name: PV4
+          - entity: sensor.INVERTER_pv5_power
+            name: PV5
+          - entity: sensor.INVERTER_pv6_power
+            name: PV6
+          - entity: sensor.INVERTER_pv7_power
+            name: PV7
+          - entity: sensor.INVERTER_pv8_power
+            name: PV8
 
       - type: history-graph
         title: Voltage per string — last 24 h
         hours_to_show: 24
         entities:
-          - sensor.INVERTER_pv1_voltage
-          - sensor.INVERTER_pv2_voltage
-          - sensor.INVERTER_pv3_voltage
-          - sensor.INVERTER_pv4_voltage
-          - sensor.INVERTER_pv5_voltage
-          - sensor.INVERTER_pv6_voltage
-          - sensor.INVERTER_pv7_voltage
-          - sensor.INVERTER_pv8_voltage
+          - entity: sensor.INVERTER_pv1_voltage
+            name: PV1
+          - entity: sensor.INVERTER_pv2_voltage
+            name: PV2
+          - entity: sensor.INVERTER_pv3_voltage
+            name: PV3
+          - entity: sensor.INVERTER_pv4_voltage
+            name: PV4
+          - entity: sensor.INVERTER_pv5_voltage
+            name: PV5
+          - entity: sensor.INVERTER_pv6_voltage
+            name: PV6
+          - entity: sensor.INVERTER_pv7_voltage
+            name: PV7
+          - entity: sensor.INVERTER_pv8_voltage
+            name: PV8
 
       - type: markdown
         title: Reading the signatures
