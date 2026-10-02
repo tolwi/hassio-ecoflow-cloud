@@ -183,6 +183,26 @@ STATUS_GUARDED_FIELDS: dict[str, tuple[int, float, float]] = {
     "dc_bus_voltage": (1502, 300.0, 500.0),
     "dc_bus_voltage2": (1503, 300.0, 500.0),
 }
+# Per-string PV voltage + current — RuntimePropertyUpload (254/22), fields 691..722: a block of
+# four F32 fields per string, pv1 first: +0 voltage, +1 voltage ref, +2 current, +3 power (the
+# app's dt_pv{n}_vol_current / _vol_current_ref / _cur_current / _pwr_current). Layout from the
+# app-decompiled dev_apl_comm.proto (GnoX/ha-ef-ble, branch add-support-for-ocean-pro), whose
+# DisplayPropertyUpload declares exactly our pv power fields 1476..1483 — same schema as this
+# unit. Verified on our HR51 captures: V x A matches the frame's own W (pv1 395.27 V x 4.01 A =
+# 1585 W vs 1591.8 W). Cadence: a delta every ~60 s carrying only the voltages that changed,
+# plus a full V/A/W snapshot every ~5 min. ONLY on cmdId 22: other 254 frames reuse these leaf
+# numbers. Power is not re-read here — 254/21 already supplies pv{n}_pwr at a faster cadence.
+# Voltage is what tells a dropped-out string (low V: open circuit or bypassed panels) from a
+# shaded or soiled one (normal V, low A); the inverter's MPPT window is 60-550 V.
+PV_STATUS_CMD = (254, 22)
+PV_STATUS_FIELD_BASE = 691
+PV_STATUS_STRIDE = 4
+PV_STATUS_OFFSETS: dict[str, tuple[int, float, float]] = {
+    # suffix -> (offset in the per-string block, min, max). Current dips a few hundredths
+    # negative at night (sensor offset), so the guard admits it rather than dropping the reading.
+    "vol": (0, 0.0, 600.0),
+    "amp": (2, -1.0, 25.0),
+}
 # Fault/status register, 8 slots (fields 1512..1519). Baseline 0,0,0,0,0,2,0,2 — a bank of
 # per-subsystem err/warn codes (the EU PowerOcean JSON carries the same shape as parallel
 # bpErrCode/pcsAcErrCode/mppt*FaultCode fields). No public dictionary maps the code numbers,
@@ -457,6 +477,12 @@ class OceanProInverter(DeltaPro3):
         # total_increasing) for the HA Energy dashboard.
         for i in range(1, PV_STRINGS + 1):
             out.append(SolarPowerSensorEntity(client, self, f"pv{i}_pwr", f"PV{i} Power").with_energy())
+        # PV strings: per-string voltage + current (254/22 — see PV_STATUS_OFFSETS). Diagnostic;
+        # enabled for the local collect-all rule — if/when upstreamed, flip to enabled=False to
+        # match tolwi's convention for secondary per-channel metrics.
+        for i in range(1, PV_STRINGS + 1):
+            out.append(VoltSensorEntity(client, self, f"pv{i}_vol", f"PV{i} Voltage", diagnostic=True).with_icon("mdi:solar-panel"))
+            out.append(AmpSensorEntity(client, self, f"pv{i}_amp", f"PV{i} Current", diagnostic=True))
         return out
 
     @override
@@ -497,6 +523,8 @@ class OceanProInverter(DeltaPro3):
             # not the 254/21 telemetry burst; read them here from the same flattened frame.
             if cmd_func == STATUS_CMDFUNC:
                 extracted |= self._decode_status_fields(flat, result.setdefault("params", {}))
+            if (cmd_func, cmd_id) == PV_STATUS_CMD:
+                extracted |= self._decode_pv_status(flat, result.setdefault("params", {}))
         except Exception as e:  # reverse-engineered payload; never break the base decode
             exc = e
         if extracted:
@@ -528,6 +556,23 @@ class OceanProInverter(DeltaPro3):
             if v is not None:
                 _store_raw(params, f"ef_unknown_{field}", v)
                 wrote = True
+        return wrote
+
+    def _decode_pv_status(self, flat: dict[str, Any], params: dict[str, Any]) -> bool:
+        """Per-string PV voltage + current from the 254/22 frame (path 1.1.<field>).
+
+        Delta frames carry only the strings whose values changed, so an absent field leaves
+        that sensor at its last value (the HA sensors persist between frames). Returns whether
+        at least one field was written (for the decode-health tracker).
+        """
+        wrote = False
+        for i in range(PV_STRINGS):
+            base = PV_STATUS_FIELD_BASE + PV_STATUS_STRIDE * i
+            for suffix, (offset, lo, hi) in PV_STATUS_OFFSETS.items():
+                v = _flat_num(flat, base + offset)
+                if v is not None and lo <= v <= hi:
+                    params[f"pv{i + 1}_{suffix}"] = round(float(v), 2)
+                    wrote = True
         return wrote
 
     @override
