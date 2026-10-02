@@ -31,8 +31,7 @@ Everything else is a built-in card.
    (`sensor.hr61xxxxxxxxxxxx_battery_level`).
 2. In `ocean_pro.yaml`, replace every `INVERTER` with the inverter prefix and every `PANEL`
    with the panel prefix.
-3. Replace `PANEL_DEVICE_NAME` with the panel's device name exactly as HA shows it.
-4. Settings → Dashboards → Add dashboard → open it → ⋮ → Edit dashboard → ⋮ → Raw
+3. Settings → Dashboards → Add dashboard → open it → ⋮ → Edit dashboard → ⋮ → Raw
    configuration editor → paste → Save.
 
 ### If a card says "Entity not available"
