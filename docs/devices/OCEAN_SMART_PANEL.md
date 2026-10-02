@@ -132,5 +132,19 @@
 - Circuit 40 Power (`ch_40_pwr`) (energy:  _[Device Name]_ Circuit 40  Energy)
 - Circuit 40 Voltage (`ch_40_vol`)   _(disabled)_
 - Circuit 40 Current (`ch_40_amp`)   _(disabled)_
+- Operating Mode (`ocean_operating_mode`)
+- Grid Connection (`ocean_grid_status`)
+- Grid Meter 964 (`grid_meter_964`)
+- Grid Meter 965 (`grid_meter_965`)
+- Grid Meter 966 (`grid_meter_966`)
+- Grid Meter 967 (`grid_meter_967`)
+- Unknown 254/518 (`ef_unknown_518`)
+- Unknown 254/962 (`ef_unknown_962`)
+- Unknown 254/963 (`ef_unknown_963`)
+- Unknown 254/1227 (`ef_unknown_1227`)
+- Unknown 254/1462 (`ef_unknown_1462`)
+- Unknown 254/1470 (`ef_unknown_1470`)
+- Unknown 254/1485 (`ef_unknown_1485`)
+- Unknown 254/1486 (`ef_unknown_1486`)
 
 
