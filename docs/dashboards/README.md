@@ -14,6 +14,10 @@ For the Ocean Pro inverter (HR51…) together with its Smart Panel (HR61…). Th
   shade from a bypassed or open string; the view includes a short guide.
 - **Circuits** — every Smart Panel circuit drawing power right now, highest first.
 
+| Live | Strings | Circuits |
+|:--:|:--:|:--:|
+| ![Live](images/ocean_pro_live.png) | ![Strings](images/ocean_pro_strings.png) | ![Circuits](images/ocean_pro_circuits.png) |
+
 ### Requirements
 
 Two frontend cards from HACS (Frontend section):
