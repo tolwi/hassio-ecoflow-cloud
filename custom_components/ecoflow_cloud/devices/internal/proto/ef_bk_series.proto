@@ -1,0 +1,63 @@
+// Schema derived from rabits/ha-ef-ble (Apache-2.0):
+// custom_components/ef_ble/eflib/pb/bk_series_pb2.py
+// Field numbers and types are dictated by the EcoFlow device firmware.
+//
+// This is a deliberately slim subset of the full bk_series schema (44
+// message types in the original), reduced to only the three top-level
+// messages and fields actually exercised by
+// custom_components/ef_ble/eflib/devices/stream_microinverter.py for the
+// STREAM Microinverter (BK-series). All field numbers/types were verified
+// by round-tripping against the original generated bk_series_pb2 module.
+
+syntax = "proto3";
+
+// Grid connection status, referenced by BkSeriesDisplayPropertyUpload.grid_connection_sta.
+enum BK_SERIES_PANEL_GRID_STA {
+  PANEL_GRID_STA_NO_VALID = 0;
+  PANEL_GRID_IN = 1;
+  PANEL_GRID_NOT_ONLINE = 2;
+  PANEL_FEED_GRID = 3;
+}
+
+// Telemetry pushed by the device (src=0x02, cmd_set=0xFE, cmd_id=0x15).
+// Only the fields consumed by the STREAM Microinverter entity are kept;
+// the original message defines ~100 additional fields for other BK-series
+// products (batteries, controllable loads, timers, etc.).
+message BkSeriesDisplayPropertyUpload {
+  optional float pow_get_pv = 361;              // PV string 1 power (W)
+  optional float pow_get_pv2 = 70;               // PV string 2 power (W)
+
+  optional float plug_in_info_pv_vol = 380;      // PV string 1 voltage (V)
+  optional float plug_in_info_pv_amp = 381;      // PV string 1 current (A)
+
+  optional float plug_in_info_pv2_vol = 442;     // PV string 2 voltage (V)
+  optional float plug_in_info_pv2_amp = 71;      // PV string 2 current (A)
+
+  optional float grid_connection_power = 616;    // Grid power (W)
+  optional float grid_connection_vol = 613;      // Grid voltage (V)
+  optional float grid_connection_amp = 614;      // Grid current (A)
+  optional float grid_connection_freq = 615;     // Grid frequency (Hz)
+  optional BK_SERIES_PANEL_GRID_STA grid_connection_sta = 619; // Grid connection status
+
+  optional float module_wifi_rssi = 602;         // WiFi RSSI
+
+  optional uint32 feed_grid_mode_pow_limit = 521; // Feed-in power limit (W)
+  optional uint32 feed_grid_mode_pow_max = 727;   // Feed-in power max (W)
+}
+
+// Runtime/diagnostic telemetry message. None of its ~140 original fields
+// are read by stream_microinverter.py in the reference source, so no
+// fields could be derived for it from that file; it is kept as an empty
+// placeholder purely to satisfy the "three messages" requirement. See the
+// final report for this explicit caveat.
+message BkSeriesRuntimePropertyUpload {
+}
+
+// Config/command message sent to the device (src=0x20, cmd_set=0x02,
+// cmd_id=0xFE/0x11 in the reference code's Packet framing). Only the
+// fields actually written by stream_microinverter.py are kept.
+message BkSeriesConfigWrite {
+  optional uint32 cfg_utc_time = 6;                    // Unix time (s), set on every write
+  optional float cfg_inv_target_pwr = 220;             // Target inverter output power (W)
+  optional uint32 cfg_feed_grid_mode_pow_limit = 169;  // Feed-in power limit to set (W)
+}

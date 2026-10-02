@@ -172,7 +172,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> DELTA_3 <i>(sensors: 32, switches: 8, sliders: 4, selects: 5)</i> </summary>
+<details><summary> DELTA_3 <i>(sensors: 32, switches: 8, sliders: 5, selects: 7)</i> </summary>
 <p>
 
 *Sensors*
@@ -224,9 +224,12 @@ from Home Assistant.
 - Min Discharge Level
 - AC Charging Power
 - Backup Reserve Level
+- Backup Reserve SOC
 
 *Selects*
 - DC (12V) Charge Current
+- Energy Strategy
+- AC Charging Mode
 - Screen Timeout
 - Unit Timeout
 - AC Timeout
@@ -309,7 +312,72 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
+<details><summary> DELTA_3_MAX_PLUS <i>(sensors: 32, switches: 8, sliders: 5, selects: 7)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Solar In Power
+- Solar In Current
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- DC Out Power
+- Type-C (1) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- PCS DC Temperature
+- PCS AC Temperature
+- Battery Temperature
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Cycles
+- Solar In Energy
+- Status
+
+*Switches*
+- Beeper
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
+- USB Enabled
+- AC Always On
+- Backup Reserve Enabled
+- Grid Bypass
+
+*Sliders (numbers)*
+- Max Charge Level
+- Min Discharge Level
+- AC Charging Power
+- Backup Reserve Level
+- Backup Reserve SOC
+
+*Selects*
+- DC (12V) Charge Current
+- Energy Strategy
+- AC Charging Mode
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
+- DC (12V) Timeout
+
+</p></details>
+
+<details><summary> RIVER_2 <i>(sensors: 34, switches: 5, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -333,6 +401,8 @@ from Home Assistant.
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
+- DC Mode
+- MPPT Fault
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time
@@ -368,7 +438,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> RIVER_2_MAX <i>(sensors: 32, switches: 5, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER_2_MAX <i>(sensors: 34, switches: 5, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -392,6 +462,8 @@ from Home Assistant.
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
+- DC Mode
+- MPPT Fault
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time
@@ -427,7 +499,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> RIVER_2_PRO <i>(sensors: 30, switches: 4, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER_2_PRO <i>(sensors: 34, switches: 4, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -445,10 +517,14 @@ from Home Assistant.
 - AC In Volts
 - AC Out Volts
 - Type-C In Power
+- Solar In Current
+- Solar In Voltage
 - Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
+- DC Mode
+- MPPT Fault
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time
@@ -719,6 +795,351 @@ from Home Assistant.
 - AC Timeout
 - DC Timeout
 - AC Output Type
+
+</p></details>
+
+<details><summary> DELTA_PRO_ULTRA_X <i>(sensors: 68)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Charge Remaining Time
+- Discharge Remaining Time
+- Status
+- Battery 1 Level  _(disabled)_
+- Battery 2 Level  _(disabled)_
+- Battery 3 Level  _(disabled)_
+- Battery 4 Level  _(disabled)_
+- Battery 5 Level  _(disabled)_
+- Battery 6 Level  _(disabled)_
+- Battery 7 Level  _(disabled)_
+- Battery 8 Level  _(disabled)_
+- Battery 9 Level  _(disabled)_
+- Battery 10 Level  _(disabled)_
+- AC Input L1 Voltage  _(disabled)_
+- AC Input L1 Current  _(disabled)_
+- AC Input L1 Power  _(disabled)_
+- AC Input L2 Voltage  _(disabled)_
+- AC Input L2 Current  _(disabled)_
+- AC Input L2 Power  _(disabled)_
+- AC Out Power  _(disabled)_
+- AC 240V Output Power  _(disabled)_
+- AC 120V Output Power  _(disabled)_
+- Solar (1) In Volts  _(disabled)_
+- Solar (2) In Volts  _(disabled)_
+- AC Output Frequency  _(disabled)_
+- AC Output Power L1  _(disabled)_
+- AC Output Power L2  _(disabled)_
+- Max Charge Level  _(disabled)_
+- Min Discharge Level  _(disabled)_
+- Battery 1 Temperature  _(disabled)_
+- Battery 2 Temperature  _(disabled)_
+- Battery 3 Temperature  _(disabled)_
+- Battery 4 Temperature  _(disabled)_
+- Battery 5 Temperature  _(disabled)_
+- Battery 6 Temperature  _(disabled)_
+- Battery 7 Temperature  _(disabled)_
+- Battery 8 Temperature  _(disabled)_
+- Battery 9 Temperature  _(disabled)_
+- Battery 10 Temperature  _(disabled)_
+- Inverter Temperature 2  _(disabled)_
+- Inverter Temperature 3  _(disabled)_
+- LLC Temperature  _(disabled)_
+- PCS AC Temperature  _(disabled)_
+- PCS DC Temperature  _(disabled)_
+- Battery Bus Voltage  _(disabled)_
+- Battery Bus Current  _(disabled)_
+- CMS Battery Voltage  _(disabled)_
+- CMS Battery Current  _(disabled)_
+- Battery State of Health  _(disabled)_
+- MPPT Battery Voltage  _(disabled)_
+- MPPT Battery Current  _(disabled)_
+- Inverter Bus Voltage  _(disabled)_
+- Charging State  _(disabled)_
+- Charging State Text  _(disabled)_
+- Solar 1 MPPT Pause Count  _(disabled)_
+- Solar 2 MPPT Pause Count  _(disabled)_
+- BMS Firmware Version  _(disabled)_
+- PD Firmware Version  _(disabled)_
+- LLC Firmware Version  _(disabled)_
+- IoT Firmware Version  _(disabled)_
+- MPPT Hardware Version  _(disabled)_
+- Error Code  _(disabled)_
+- BMS Error Code  _(disabled)_
+- MPPT Error Code  _(disabled)_
+- PD Error Code  _(disabled)_
+
+</p></details>
+
+<details><summary> SMART_HOME_PANEL_3 <i>(sensors: 107)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Home Load Power (energy:  _[Device Name]_ Home Load  Energy)
+- Grid Power (energy:  _[Device Name]_ Grid  Energy)
+- Storage Output Power
+- Status
+- Grid L1 Power  _(disabled)_
+- Grid L2 Power  _(disabled)_
+- Grid L1 Voltage  _(disabled)_
+- Grid L2 Voltage  _(disabled)_
+- Grid L1 Current  _(disabled)_
+- Grid L2 Current  _(disabled)_
+- Circuit 1 Power (energy:  _[Device Name]_ Circuit 1  Energy)
+- Circuit 1 Voltage  _(disabled)_
+- Circuit 1 Current  _(disabled)_
+- Circuit 2 Power (energy:  _[Device Name]_ Circuit 2  Energy)
+- Circuit 2 Voltage  _(disabled)_
+- Circuit 2 Current  _(disabled)_
+- Circuit 3 Power (energy:  _[Device Name]_ Circuit 3  Energy)
+- Circuit 3 Voltage  _(disabled)_
+- Circuit 3 Current  _(disabled)_
+- Circuit 4 Power (energy:  _[Device Name]_ Circuit 4  Energy)
+- Circuit 4 Voltage  _(disabled)_
+- Circuit 4 Current  _(disabled)_
+- Circuit 5 Power (energy:  _[Device Name]_ Circuit 5  Energy)
+- Circuit 5 Voltage  _(disabled)_
+- Circuit 5 Current  _(disabled)_
+- Circuit 6 Power (energy:  _[Device Name]_ Circuit 6  Energy)
+- Circuit 6 Voltage  _(disabled)_
+- Circuit 6 Current  _(disabled)_
+- Circuit 7 Power (energy:  _[Device Name]_ Circuit 7  Energy)
+- Circuit 7 Voltage  _(disabled)_
+- Circuit 7 Current  _(disabled)_
+- Circuit 8 Power (energy:  _[Device Name]_ Circuit 8  Energy)
+- Circuit 8 Voltage  _(disabled)_
+- Circuit 8 Current  _(disabled)_
+- Circuit 9 Power (energy:  _[Device Name]_ Circuit 9  Energy)
+- Circuit 9 Voltage  _(disabled)_
+- Circuit 9 Current  _(disabled)_
+- Circuit 10 Power (energy:  _[Device Name]_ Circuit 10  Energy)
+- Circuit 10 Voltage  _(disabled)_
+- Circuit 10 Current  _(disabled)_
+- Circuit 11 Power (energy:  _[Device Name]_ Circuit 11  Energy)
+- Circuit 11 Voltage  _(disabled)_
+- Circuit 11 Current  _(disabled)_
+- Circuit 12 Power (energy:  _[Device Name]_ Circuit 12  Energy)
+- Circuit 12 Voltage  _(disabled)_
+- Circuit 12 Current  _(disabled)_
+- Circuit 13 Power (energy:  _[Device Name]_ Circuit 13  Energy)
+- Circuit 13 Voltage  _(disabled)_
+- Circuit 13 Current  _(disabled)_
+- Circuit 14 Power (energy:  _[Device Name]_ Circuit 14  Energy)
+- Circuit 14 Voltage  _(disabled)_
+- Circuit 14 Current  _(disabled)_
+- Circuit 15 Power (energy:  _[Device Name]_ Circuit 15  Energy)
+- Circuit 15 Voltage  _(disabled)_
+- Circuit 15 Current  _(disabled)_
+- Circuit 16 Power (energy:  _[Device Name]_ Circuit 16  Energy)
+- Circuit 16 Voltage  _(disabled)_
+- Circuit 16 Current  _(disabled)_
+- Circuit 17 Power (energy:  _[Device Name]_ Circuit 17  Energy)
+- Circuit 17 Voltage  _(disabled)_
+- Circuit 17 Current  _(disabled)_
+- Circuit 18 Power (energy:  _[Device Name]_ Circuit 18  Energy)
+- Circuit 18 Voltage  _(disabled)_
+- Circuit 18 Current  _(disabled)_
+- Circuit 19 Power (energy:  _[Device Name]_ Circuit 19  Energy)
+- Circuit 19 Voltage  _(disabled)_
+- Circuit 19 Current  _(disabled)_
+- Circuit 20 Power (energy:  _[Device Name]_ Circuit 20  Energy)
+- Circuit 20 Voltage  _(disabled)_
+- Circuit 20 Current  _(disabled)_
+- Circuit 21 Power (energy:  _[Device Name]_ Circuit 21  Energy)
+- Circuit 21 Voltage  _(disabled)_
+- Circuit 21 Current  _(disabled)_
+- Circuit 22 Power (energy:  _[Device Name]_ Circuit 22  Energy)
+- Circuit 22 Voltage  _(disabled)_
+- Circuit 22 Current  _(disabled)_
+- Circuit 23 Power (energy:  _[Device Name]_ Circuit 23  Energy)
+- Circuit 23 Voltage  _(disabled)_
+- Circuit 23 Current  _(disabled)_
+- Circuit 24 Power (energy:  _[Device Name]_ Circuit 24  Energy)
+- Circuit 24 Voltage  _(disabled)_
+- Circuit 24 Current  _(disabled)_
+- Circuit 25 Power (energy:  _[Device Name]_ Circuit 25  Energy)
+- Circuit 25 Voltage  _(disabled)_
+- Circuit 25 Current  _(disabled)_
+- Circuit 26 Power (energy:  _[Device Name]_ Circuit 26  Energy)
+- Circuit 26 Voltage  _(disabled)_
+- Circuit 26 Current  _(disabled)_
+- Circuit 27 Power (energy:  _[Device Name]_ Circuit 27  Energy)
+- Circuit 27 Voltage  _(disabled)_
+- Circuit 27 Current  _(disabled)_
+- Circuit 28 Power (energy:  _[Device Name]_ Circuit 28  Energy)
+- Circuit 28 Voltage  _(disabled)_
+- Circuit 28 Current  _(disabled)_
+- Circuit 29 Power (energy:  _[Device Name]_ Circuit 29  Energy)
+- Circuit 29 Voltage  _(disabled)_
+- Circuit 29 Current  _(disabled)_
+- Circuit 30 Power (energy:  _[Device Name]_ Circuit 30  Energy)
+- Circuit 30 Voltage  _(disabled)_
+- Circuit 30 Current  _(disabled)_
+- Circuit 31 Power (energy:  _[Device Name]_ Circuit 31  Energy)
+- Circuit 31 Voltage  _(disabled)_
+- Circuit 31 Current  _(disabled)_
+- Circuit 32 Power (energy:  _[Device Name]_ Circuit 32  Energy)
+- Circuit 32 Voltage  _(disabled)_
+- Circuit 32 Current  _(disabled)_
+
+</p></details>
+
+<details><summary> OCEAN_SMART_PANEL <i>(sensors: 131)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Home Load Power (energy:  _[Device Name]_ Home Load  Energy)
+- Grid Power (energy:  _[Device Name]_ Grid  Energy)
+- Storage Output Power
+- Status
+- Grid L1 Power  _(disabled)_
+- Grid L2 Power  _(disabled)_
+- Grid L1 Voltage  _(disabled)_
+- Grid L2 Voltage  _(disabled)_
+- Grid L1 Current  _(disabled)_
+- Grid L2 Current  _(disabled)_
+- Circuit 1 Power (energy:  _[Device Name]_ Circuit 1  Energy)
+- Circuit 1 Voltage  _(disabled)_
+- Circuit 1 Current  _(disabled)_
+- Circuit 2 Power (energy:  _[Device Name]_ Circuit 2  Energy)
+- Circuit 2 Voltage  _(disabled)_
+- Circuit 2 Current  _(disabled)_
+- Circuit 3 Power (energy:  _[Device Name]_ Circuit 3  Energy)
+- Circuit 3 Voltage  _(disabled)_
+- Circuit 3 Current  _(disabled)_
+- Circuit 4 Power (energy:  _[Device Name]_ Circuit 4  Energy)
+- Circuit 4 Voltage  _(disabled)_
+- Circuit 4 Current  _(disabled)_
+- Circuit 5 Power (energy:  _[Device Name]_ Circuit 5  Energy)
+- Circuit 5 Voltage  _(disabled)_
+- Circuit 5 Current  _(disabled)_
+- Circuit 6 Power (energy:  _[Device Name]_ Circuit 6  Energy)
+- Circuit 6 Voltage  _(disabled)_
+- Circuit 6 Current  _(disabled)_
+- Circuit 7 Power (energy:  _[Device Name]_ Circuit 7  Energy)
+- Circuit 7 Voltage  _(disabled)_
+- Circuit 7 Current  _(disabled)_
+- Circuit 8 Power (energy:  _[Device Name]_ Circuit 8  Energy)
+- Circuit 8 Voltage  _(disabled)_
+- Circuit 8 Current  _(disabled)_
+- Circuit 9 Power (energy:  _[Device Name]_ Circuit 9  Energy)
+- Circuit 9 Voltage  _(disabled)_
+- Circuit 9 Current  _(disabled)_
+- Circuit 10 Power (energy:  _[Device Name]_ Circuit 10  Energy)
+- Circuit 10 Voltage  _(disabled)_
+- Circuit 10 Current  _(disabled)_
+- Circuit 11 Power (energy:  _[Device Name]_ Circuit 11  Energy)
+- Circuit 11 Voltage  _(disabled)_
+- Circuit 11 Current  _(disabled)_
+- Circuit 12 Power (energy:  _[Device Name]_ Circuit 12  Energy)
+- Circuit 12 Voltage  _(disabled)_
+- Circuit 12 Current  _(disabled)_
+- Circuit 13 Power (energy:  _[Device Name]_ Circuit 13  Energy)
+- Circuit 13 Voltage  _(disabled)_
+- Circuit 13 Current  _(disabled)_
+- Circuit 14 Power (energy:  _[Device Name]_ Circuit 14  Energy)
+- Circuit 14 Voltage  _(disabled)_
+- Circuit 14 Current  _(disabled)_
+- Circuit 15 Power (energy:  _[Device Name]_ Circuit 15  Energy)
+- Circuit 15 Voltage  _(disabled)_
+- Circuit 15 Current  _(disabled)_
+- Circuit 16 Power (energy:  _[Device Name]_ Circuit 16  Energy)
+- Circuit 16 Voltage  _(disabled)_
+- Circuit 16 Current  _(disabled)_
+- Circuit 17 Power (energy:  _[Device Name]_ Circuit 17  Energy)
+- Circuit 17 Voltage  _(disabled)_
+- Circuit 17 Current  _(disabled)_
+- Circuit 18 Power (energy:  _[Device Name]_ Circuit 18  Energy)
+- Circuit 18 Voltage  _(disabled)_
+- Circuit 18 Current  _(disabled)_
+- Circuit 19 Power (energy:  _[Device Name]_ Circuit 19  Energy)
+- Circuit 19 Voltage  _(disabled)_
+- Circuit 19 Current  _(disabled)_
+- Circuit 20 Power (energy:  _[Device Name]_ Circuit 20  Energy)
+- Circuit 20 Voltage  _(disabled)_
+- Circuit 20 Current  _(disabled)_
+- Circuit 21 Power (energy:  _[Device Name]_ Circuit 21  Energy)
+- Circuit 21 Voltage  _(disabled)_
+- Circuit 21 Current  _(disabled)_
+- Circuit 22 Power (energy:  _[Device Name]_ Circuit 22  Energy)
+- Circuit 22 Voltage  _(disabled)_
+- Circuit 22 Current  _(disabled)_
+- Circuit 23 Power (energy:  _[Device Name]_ Circuit 23  Energy)
+- Circuit 23 Voltage  _(disabled)_
+- Circuit 23 Current  _(disabled)_
+- Circuit 24 Power (energy:  _[Device Name]_ Circuit 24  Energy)
+- Circuit 24 Voltage  _(disabled)_
+- Circuit 24 Current  _(disabled)_
+- Circuit 25 Power (energy:  _[Device Name]_ Circuit 25  Energy)
+- Circuit 25 Voltage  _(disabled)_
+- Circuit 25 Current  _(disabled)_
+- Circuit 26 Power (energy:  _[Device Name]_ Circuit 26  Energy)
+- Circuit 26 Voltage  _(disabled)_
+- Circuit 26 Current  _(disabled)_
+- Circuit 27 Power (energy:  _[Device Name]_ Circuit 27  Energy)
+- Circuit 27 Voltage  _(disabled)_
+- Circuit 27 Current  _(disabled)_
+- Circuit 28 Power (energy:  _[Device Name]_ Circuit 28  Energy)
+- Circuit 28 Voltage  _(disabled)_
+- Circuit 28 Current  _(disabled)_
+- Circuit 29 Power (energy:  _[Device Name]_ Circuit 29  Energy)
+- Circuit 29 Voltage  _(disabled)_
+- Circuit 29 Current  _(disabled)_
+- Circuit 30 Power (energy:  _[Device Name]_ Circuit 30  Energy)
+- Circuit 30 Voltage  _(disabled)_
+- Circuit 30 Current  _(disabled)_
+- Circuit 31 Power (energy:  _[Device Name]_ Circuit 31  Energy)
+- Circuit 31 Voltage  _(disabled)_
+- Circuit 31 Current  _(disabled)_
+- Circuit 32 Power (energy:  _[Device Name]_ Circuit 32  Energy)
+- Circuit 32 Voltage  _(disabled)_
+- Circuit 32 Current  _(disabled)_
+- Circuit 33 Power (energy:  _[Device Name]_ Circuit 33  Energy)
+- Circuit 33 Voltage  _(disabled)_
+- Circuit 33 Current  _(disabled)_
+- Circuit 34 Power (energy:  _[Device Name]_ Circuit 34  Energy)
+- Circuit 34 Voltage  _(disabled)_
+- Circuit 34 Current  _(disabled)_
+- Circuit 35 Power (energy:  _[Device Name]_ Circuit 35  Energy)
+- Circuit 35 Voltage  _(disabled)_
+- Circuit 35 Current  _(disabled)_
+- Circuit 36 Power (energy:  _[Device Name]_ Circuit 36  Energy)
+- Circuit 36 Voltage  _(disabled)_
+- Circuit 36 Current  _(disabled)_
+- Circuit 37 Power (energy:  _[Device Name]_ Circuit 37  Energy)
+- Circuit 37 Voltage  _(disabled)_
+- Circuit 37 Current  _(disabled)_
+- Circuit 38 Power (energy:  _[Device Name]_ Circuit 38  Energy)
+- Circuit 38 Voltage  _(disabled)_
+- Circuit 38 Current  _(disabled)_
+- Circuit 39 Power (energy:  _[Device Name]_ Circuit 39  Energy)
+- Circuit 39 Voltage  _(disabled)_
+- Circuit 39 Current  _(disabled)_
+- Circuit 40 Power (energy:  _[Device Name]_ Circuit 40  Energy)
+- Circuit 40 Voltage  _(disabled)_
+- Circuit 40 Current  _(disabled)_
+
+</p></details>
+
+<details><summary> OCEAN_PRO <i>(sensors: 11)</i> </summary>
+<p>
+
+*Sensors*
+- Inverter Output Power
+- Battery Power
+- Status
+- PV1 Power (energy:  _[Device Name]_ PV1  Energy)
+- PV2 Power (energy:  _[Device Name]_ PV2  Energy)
+- PV3 Power (energy:  _[Device Name]_ PV3  Energy)
+- PV4 Power (energy:  _[Device Name]_ PV4  Energy)
+- PV5 Power (energy:  _[Device Name]_ PV5  Energy)
+- PV6 Power (energy:  _[Device Name]_ PV6  Energy)
+- PV7 Power (energy:  _[Device Name]_ PV7  Energy)
+- PV8 Power (energy:  _[Device Name]_ PV8  Energy)
 
 </p></details>
 
@@ -1372,7 +1793,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> WAVE_2 <i>(sensors: 27, sliders: 1, selects: 4)</i> </summary>
+<details><summary> WAVE_2 <i>(sensors: 27, sliders: 1, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -1412,6 +1833,7 @@ from Home Assistant.
 - Main mode
 - Remote startup/shutdown
 - Sub-mode
+- Temperature unit
 
 </p></details>
 
@@ -1495,7 +1917,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> STREAM_AC <i>(sensors: 39)</i> </summary>
+<details><summary> STREAM_AC <i>(sensors: 42)</i> </summary>
 <p>
 
 *Sensors*
@@ -1504,10 +1926,13 @@ from Home Assistant.
 - Cumulative Capacity Discharge (mAh)  _(disabled)_
 - Cumulative Energy Discharge (Wh)  _(disabled)_
 - Charge Remaining Time  _(disabled)_
-- Discharge Remaining Time  _(disabled)_
+- Discharge Remaining Time
+- Stored Energy  _(auto)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles  _(disabled)_
 - Design Capacity  _(disabled)_
-- Power Battery SOC  _(disabled)_
+- Power Battery SOC
 - Full Capacity  _(disabled)_
 - Power AC
 - Power Volts  _(disabled)_
@@ -1533,7 +1958,7 @@ from Home Assistant.
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time  _(disabled)_
-- Power Battery  _(disabled)_
+- Battery Level
 - State of Health  _(disabled)_
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
@@ -1541,7 +1966,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> STREAM_PRO <i>(sensors: 39)</i> </summary>
+<details><summary> STREAM_PRO <i>(sensors: 42)</i> </summary>
 <p>
 
 *Sensors*
@@ -1550,10 +1975,13 @@ from Home Assistant.
 - Cumulative Capacity Discharge (mAh)  _(disabled)_
 - Cumulative Energy Discharge (Wh)  _(disabled)_
 - Charge Remaining Time  _(disabled)_
-- Discharge Remaining Time  _(disabled)_
+- Discharge Remaining Time
+- Stored Energy  _(auto)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles  _(disabled)_
 - Design Capacity  _(disabled)_
-- Power Battery SOC  _(disabled)_
+- Power Battery SOC
 - Full Capacity  _(disabled)_
 - Power AC
 - Power Volts  _(disabled)_
@@ -1579,7 +2007,7 @@ from Home Assistant.
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time  _(disabled)_
-- Power Battery  _(disabled)_
+- Battery Level
 - State of Health  _(disabled)_
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
@@ -1587,7 +2015,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> STREAM_ULTRA <i>(sensors: 39)</i> </summary>
+<details><summary> STREAM_ULTRA <i>(sensors: 42)</i> </summary>
 <p>
 
 *Sensors*
@@ -1596,10 +2024,13 @@ from Home Assistant.
 - Cumulative Capacity Discharge (mAh)  _(disabled)_
 - Cumulative Energy Discharge (Wh)  _(disabled)_
 - Charge Remaining Time  _(disabled)_
-- Discharge Remaining Time  _(disabled)_
+- Discharge Remaining Time
+- Stored Energy  _(auto)_
+- Max Charge Level
+- Min Discharge Level
 - Cycles  _(disabled)_
 - Design Capacity  _(disabled)_
-- Power Battery SOC  _(disabled)_
+- Power Battery SOC
 - Full Capacity  _(disabled)_
 - Power AC
 - Power Volts  _(disabled)_
@@ -1625,11 +2056,84 @@ from Home Assistant.
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time  _(disabled)_
-- Power Battery  _(disabled)_
+- Battery Level
 - State of Health  _(disabled)_
 - Power AC SYS  _(disabled)_
 - Battery Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
+
+</p></details>
+
+<details><summary> STREAM_ULTRA_X <i>(sensors: 42)</i> </summary>
+<p>
+
+*Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)  _(disabled)_
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)  _(disabled)_
+- Charge Remaining Time  _(disabled)_
+- Discharge Remaining Time
+- Stored Energy  _(auto)_
+- Max Charge Level
+- Min Discharge Level
+- Cycles  _(disabled)_
+- Design Capacity  _(disabled)_
+- Power Battery SOC
+- Full Capacity  _(disabled)_
+- Power AC
+- Power Volts  _(disabled)_
+- In Power  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Out Power  _(disabled)_
+- Power Battery
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV Sum
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
+- Power Grid
+- Power Sys Load
+- Power Sys Load From Battery
+- Power Sys Load From Grid
+- Power Sys Load From PV
+- Real State of Health  _(disabled)_
+- Remain Capacity  _(disabled)_
+- Remaining Time  _(disabled)_
+- Battery Level
+- State of Health  _(disabled)_
+- Power AC SYS  _(disabled)_
+- Battery Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+
+</p></details>
+
+<details><summary> STREAM_MICROINVERTER <i>(sensors: 17)</i> </summary>
+<p>
+
+*Sensors*
+- Power AC
+- Power Volts  _(disabled)_
+- Power In Amps  _(disabled)_
+- Grid Frequency
+- Grid Connection Status
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- WiFi Signal Strength
+- Feed-in Power Limit
+- Feed-in Power Max
+- Status (Scheduled)
 
 </p></details>
 
@@ -2091,7 +2595,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> RIVER 2 Pro (API) <i>(sensors: 30, switches: 4, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER 2 Pro (API) <i>(sensors: 34, switches: 4, sliders: 4, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -2109,10 +2613,14 @@ from Home Assistant.
 - AC In Volts
 - AC Out Volts
 - Type-C In Power
+- Solar In Current
+- Solar In Voltage
 - Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
+- DC Mode
+- MPPT Fault
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time
@@ -2238,7 +2746,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> WAVE 2 (API) <i>(sensors: 27, sliders: 1, selects: 4)</i> </summary>
+<details><summary> WAVE 2 (API) <i>(sensors: 27, sliders: 1, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -2278,6 +2786,7 @@ from Home Assistant.
 - Main mode
 - Remote startup/shutdown
 - Sub-mode
+- Temperature unit
 
 </p></details>
 
@@ -2341,6 +2850,43 @@ from Home Assistant.
 - Bluetooth Timeout
 - Device Timeout
 - AC Output Type
+
+</p></details>
+
+<details><summary> DELTA 3 Max Plus (API) <i>(sensors: 16, switches: 7, sliders: 3)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Battery Charging State
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- AC In Power
+- Solar In Power
+- Solar 2 In Power
+- DC Out Power
+- Type-C (1) Out Power
+- Type-C (2) Out Power
+- Type-C (3) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Status (Scheduled)
+
+*Switches*
+- AC Output
+- AC2 Output
+- DC Output
+- X-Boost Enabled
+- Beeper
+- Backup Reserve Enabled
+- Bypass Output Disabled
+
+*Sliders (numbers)*
+- Max Charge Level
+- Min Discharge Level
+- Backup Reserve Level
 
 </p></details>
 
@@ -2600,7 +3146,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> Stream AC (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream AC (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2610,6 +3156,8 @@ from Home Assistant.
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Battery Level  _(auto)_
+- Stored Energy
 - Max Charge Level
 - Min Discharge Level
 - Cycles
@@ -2670,7 +3218,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> Stream PRO (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream PRO (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2680,6 +3228,8 @@ from Home Assistant.
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Battery Level  _(auto)_
+- Stored Energy
 - Max Charge Level
 - Min Discharge Level
 - Cycles
@@ -2740,7 +3290,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> Stream Ultra (API) <i>(sensors: 53, switches: 5, sliders: 1)</i> </summary>
+<details><summary> Stream Ultra (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
 <p>
 
 *Sensors*
@@ -2750,6 +3300,80 @@ from Home Assistant.
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
+- Battery Level  _(auto)_
+- Stored Energy
+- Max Charge Level
+- Min Discharge Level
+- Cycles
+- Design Capacity  _(disabled)_
+- Power Battery SOC
+- Full Capacity  _(disabled)_
+- Power AC
+- Power Volts  _(disabled)_
+- In Power
+- Max Cell Temperature  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Out Power
+- Power Battery
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV 1  _(auto)_
+- Power PV 2  _(auto)_
+- Power PV 3  _(auto)_
+- Power PV 4  _(auto)_
+- Power PV1 Volts  _(auto)_
+- Power PV2 Volts  _(auto)_
+- Power PV3 Volts  _(auto)_
+- Power PV4 Volts  _(auto)_
+- Power PV1 In Amps  _(auto)_
+- Power PV2 In Amps  _(auto)_
+- Power PV3 In Amps  _(auto)_
+- Power PV4 In Amps  _(auto)_
+- Power PV Sum
+- Power SCHUKO1  _(auto)_
+- Power SCHUKO2  _(auto)_
+- Power Grid
+- Power Sys Load
+- Power Sys Load From Battery
+- Power Sys Load From Grid
+- Power Sys Load From PV
+- Real State of Health  _(disabled)_
+- Remain Capacity  _(disabled)_
+- Remaining Time
+- Power Battery
+- State of Health
+- Power AC SYS
+- Battery Temperature
+- Battery Volts  _(disabled)_
+
+*Switches*
+- AC 1 On
+- AC 2 On
+- Operating mode - Self-powered
+- Operating mode - AI Mode
+- Feed-in control
+
+*Sliders (numbers)*
+- Backup Reserve Level
+
+</p></details>
+
+<details><summary> Stream Ultra X (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Discharge (Wh)
+- Charge Remaining Time  _(disabled)_
+- Discharge Remaining Time  _(disabled)_
+- Battery Level  _(auto)_
+- Stored Energy
 - Max Charge Level
 - Min Discharge Level
 - Cycles
@@ -2831,7 +3455,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> Smart Home Panel (API) <i>(sensors: 30, binary_sensors: 1, switches: 4, sliders: 4, selects: 1)</i> </summary>
+<details><summary> Smart Home Panel (API) <i>(sensors: 67, binary_sensors: 1, switches: 4, sliders: 4, selects: 11)</i> </summary>
 <p>
 
 *Sensors*
@@ -2865,6 +3489,43 @@ from Home Assistant.
 - Circuit 8 Current  _(disabled)_
 - Circuit 9 Current  _(disabled)_
 - Circuit 10 Current  _(disabled)_
+- Breaker 1 Power (energy:  _[Device Name]_ Breaker 1  Energy)
+- Breaker 2 Power (energy:  _[Device Name]_ Breaker 2  Energy)
+- Breaker 3 Power (energy:  _[Device Name]_ Breaker 3  Energy)
+- Breaker 4 Power (energy:  _[Device Name]_ Breaker 4  Energy)
+- Breaker 5 Power (energy:  _[Device Name]_ Breaker 5  Energy)
+- Breaker 6 Power (energy:  _[Device Name]_ Breaker 6  Energy)
+- Breaker 7 Power (energy:  _[Device Name]_ Breaker 7  Energy)
+- Breaker 8 Power (energy:  _[Device Name]_ Breaker 8  Energy)
+- Breaker 9 Power (energy:  _[Device Name]_ Breaker 9  Energy)
+- Breaker 10 Power (energy:  _[Device Name]_ Breaker 10  Energy)
+- Breaker 1 Battery Power (energy:  _[Device Name]_ Breaker 1 Battery  Energy)
+- Breaker 1 Grid Power (energy:  _[Device Name]_ Breaker 1 Grid  Energy)
+- Breaker 2 Battery Power (energy:  _[Device Name]_ Breaker 2 Battery  Energy)
+- Breaker 2 Grid Power (energy:  _[Device Name]_ Breaker 2 Grid  Energy)
+- Breaker 3 Battery Power (energy:  _[Device Name]_ Breaker 3 Battery  Energy)
+- Breaker 3 Grid Power (energy:  _[Device Name]_ Breaker 3 Grid  Energy)
+- Breaker 4 Battery Power (energy:  _[Device Name]_ Breaker 4 Battery  Energy)
+- Breaker 4 Grid Power (energy:  _[Device Name]_ Breaker 4 Grid  Energy)
+- Breaker 5 Battery Power (energy:  _[Device Name]_ Breaker 5 Battery  Energy)
+- Breaker 5 Grid Power (energy:  _[Device Name]_ Breaker 5 Grid  Energy)
+- Breaker 6 Battery Power (energy:  _[Device Name]_ Breaker 6 Battery  Energy)
+- Breaker 6 Grid Power (energy:  _[Device Name]_ Breaker 6 Grid  Energy)
+- Breaker 7 Battery Power (energy:  _[Device Name]_ Breaker 7 Battery  Energy)
+- Breaker 7 Grid Power (energy:  _[Device Name]_ Breaker 7 Grid  Energy)
+- Breaker 8 Battery Power (energy:  _[Device Name]_ Breaker 8 Battery  Energy)
+- Breaker 8 Grid Power (energy:  _[Device Name]_ Breaker 8 Grid  Energy)
+- Breaker 9 Battery Power (energy:  _[Device Name]_ Breaker 9 Battery  Energy)
+- Breaker 9 Grid Power (energy:  _[Device Name]_ Breaker 9 Grid  Energy)
+- Breaker 10 Battery Power (energy:  _[Device Name]_ Breaker 10 Battery  Energy)
+- Breaker 10 Grid Power (energy:  _[Device Name]_ Breaker 10 Grid  Energy)
+- Battery 1 Power (energy:  _[Device Name]_ Battery 1  Energy)
+- Battery 2 Power (energy:  _[Device Name]_ Battery 2  Energy)
+- Circuits Combined Power (energy:  _[Device Name]_ Circuits Combined  Energy)
+- Circuits Battery Demand Power (energy:  _[Device Name]_ Circuits Battery Demand  Energy)
+- Circuits Grid Demand Power (energy:  _[Device Name]_ Circuits Grid Demand  Energy)
+- Battery Combined Power (energy:  _[Device Name]_ Battery Combined  Energy)
+- Status
 
 *Binary sensors*
 - Power Grid
@@ -2882,6 +3543,16 @@ from Home Assistant.
 - Scheduled Charge Power
 
 *Selects*
+- Circuit 1 Mode _(read-only)_
+- Circuit 2 Mode _(read-only)_
+- Circuit 3 Mode _(read-only)_
+- Circuit 4 Mode _(read-only)_
+- Circuit 5 Mode _(read-only)_
+- Circuit 6 Mode _(read-only)_
+- Circuit 7 Mode _(read-only)_
+- Circuit 8 Mode _(read-only)_
+- Circuit 9 Mode _(read-only)_
+- Circuit 10 Mode _(read-only)_
 - Scheduled Charge Battery
 
 </p></details>
@@ -2958,7 +3629,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> Power Ocean (API) <i>(sensors: 23)</i> </summary>
+<details><summary> Power Ocean (API) <i>(sensors: 26)</i> </summary>
 <p>
 
 *Sensors*
@@ -2978,6 +3649,9 @@ from Home Assistant.
 - pcsCPhase.actPwr
 - pcsCPhase.reactPwr
 - pcsCPhase.apparentPwr
+- sysGridPwr
+- sysLoadPwr
+- bpPwr
 - mpptPv1.pwr
 - mpptPv1.amp
 - mpptPv1.vol
@@ -2987,3 +3661,4 @@ from Home Assistant.
 - Status
 
 </p></details>
+

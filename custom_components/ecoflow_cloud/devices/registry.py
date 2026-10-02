@@ -13,8 +13,10 @@ from custom_components.ecoflow_cloud.devices.internal import (
     delta_mini as internal_delta_mini,
     delta_pro as internal_delta_pro,
     delta_pro_3 as internal_delta_pro_3,
+    delta_pro_ultra_x as internal_delta_pro_ultra_x,
     glacier as internal_glacier,
     glacier_classic as internal_glacier_classic,
+    ocean_pro as internal_ocean_pro,
     powerstream as internal_powerstream,
     river2 as internal_river2,
     river2_max as internal_river2_max,
@@ -23,9 +25,11 @@ from custom_components.ecoflow_cloud.devices.internal import (
     river_max as internal_river_max,
     river_mini as internal_river_mini,
     river_pro as internal_river_pro,
+    smart_home_panel_3 as internal_smart_home_panel_3,
     smart_meter as internal_smart_meter,
     smart_plug as internal_smart_plug,
     stream_ac as internal_stream_ac,
+    stream_microinverter as internal_stream_microinverter,
     wave2 as internal_wave2,
     wave3 as internal_wave3,
 )
@@ -66,6 +70,12 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "RIVER_3": internal_river3.River3,
         "DELTA_PRO": internal_delta_pro.DeltaPro,
         "DELTA_PRO_3": internal_delta_pro_3.DeltaPro3,
+        "DELTA_PRO_ULTRA_X": internal_delta_pro_ultra_x.DeltaProUltraX,
+        "SMART_HOME_PANEL_3": internal_smart_home_panel_3.SmartHomePanel3,
+        # Ocean Pro is two devices on two MQTT streams; the user selects the
+        # matching type per serial number in the manual (app-API) flow.
+        "OCEAN_SMART_PANEL": internal_ocean_pro.OceanPanel,      # HR61 — circuits
+        "OCEAN_PRO": internal_ocean_pro.OceanProInverter,        # HR51 — solar/battery
         "RIVER_MAX": internal_river_max.RiverMax,
         "RIVER_PRO": internal_river_pro.RiverPro,
         "RIVER_MINI": internal_river_mini.RiverMini,
@@ -82,6 +92,8 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "STREAM_AC": internal_stream_ac.StreamAC,
         "STREAM_PRO": internal_stream_ac.StreamAC,
         "STREAM_ULTRA": internal_stream_ac.StreamAC,
+        "STREAM_ULTRA_X": internal_stream_ac.StreamAC,
+        "STREAM_MICROINVERTER": internal_stream_microinverter.StreamMicroinverter,
         "DIAGNOSTIC": DiagnosticDevice,
     }
 )
@@ -106,6 +118,10 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[Ba
         "Smart Meter": public_smart_meter.SmartMeter,
         # Stream Series: keep batteries grouped, microinverter separate.
         "Stream Battery": public_stream_ac.StreamAC,
+        "Stream AC": public_stream_ac.StreamAC,
+        "Stream PRO": public_stream_ac.StreamAC,
+        "Stream Ultra": public_stream_ac.StreamAC,
+        "Stream Ultra X": public_stream_ac.StreamAC,
         "Stream Microinverter": public_stream_microinverter.StreamMicroinveter,
         "Smart Home Panel": public_smart_home_panel.SmartHomePanel,
         "Smart Home Panel 2": public_smart_home_panel_2.SmartHomePanel2,

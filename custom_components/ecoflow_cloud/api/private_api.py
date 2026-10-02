@@ -8,7 +8,7 @@ import aiohttp
 from homeassistant.util import uuid
 
 from ..devices import EcoflowDeviceInfo
-from . import EcoflowApiClient, EcoflowException
+from . import EcoflowApiClient, EcoflowAuthException, EcoflowException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +38,14 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             _LOGGER.info(f"Login to EcoFlow API {url}")
 
             resp = await session.post(url, headers=headers, json=data)
-            response = await self._get_json_response(resp)
+            try:
+                response = await self._get_json_response(resp)
+            except EcoflowException as error:
+                # an error code from /auth/login means the credentials were rejected;
+                # transport and parse failures carry no code and stay retryable
+                if error.code is None:
+                    raise
+                raise EcoflowAuthException(str(error), code=error.code) from error
 
             try:
                 self.token = response["data"]["token"]

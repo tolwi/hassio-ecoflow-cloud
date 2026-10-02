@@ -69,3 +69,4 @@
 *Selects*
 - Power supply mode (`20_1.supplyPriority` -> `{"sn": "SN", "cmdCode": "WN511_SET_SUPPLY_PRIORITY_PACK", "params": {"supplyPriority": "VALUE"}}` [Prioritize power supply (0), Prioritize power storage (1)])
 
+

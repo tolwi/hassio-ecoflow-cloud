@@ -4,10 +4,41 @@ DC_MODE_OPTIONS = {
     "Car Recharging": 2,
 }
 
+DC_MODE_LABELS = {code: label for label, code in DC_MODE_OPTIONS.items()}
+
 DC_ICONS = {
     "Auto": None,
     "MPPT": "mdi:solar-power",
     "DC": "mdi:current-dc",
+}
+
+# River 2 family FT307 MPPT/DC diagnostic bitmask. EcoFlow exposes these as
+# internal rail/input warnings; the integration keeps them diagnostic-only.
+FT307_FAULTS = {
+    1: {
+        "title": "DC input overvoltage",
+        "hint": "Input voltage is above the supported DC/solar range.",
+    },
+    2: {
+        "title": "DC input undervoltage",
+        "hint": "Input voltage is below the supported DC/solar range.",
+    },
+    4: {
+        "title": "DC input overcurrent",
+        "hint": "Input current is above the supported DC/solar range.",
+    },
+    8: {
+        "title": "DC input overtemperature",
+        "hint": "MPPT/DC input path reports overtemperature.",
+    },
+    16: {
+        "title": "DC input reverse polarity",
+        "hint": "Check DC input polarity before reconnecting the source.",
+    },
+    4096: {
+        "title": "No active DC input",
+        "hint": "Auxiliary idle/no-input warning; ignored when voltage/current/power are idle.",
+    },
 }
 
 SCREEN_TIMEOUT_OPTIONS = {
@@ -17,6 +48,19 @@ SCREEN_TIMEOUT_OPTIONS = {
     "1 min": 60,
     "5 min": 300,
     "30 min": 1800,
+}
+
+ENERGY_STRATEGY_OPTIONS = {
+    "Standard": 0,
+    "Self-Powered": 1,
+    "Scheduled": 2,
+    "TOU": 3,
+}
+
+AC_CHARGE_MODE_OPTIONS = {
+    "Auto": 1,
+    "Silent": 2,
+    "Custom": 0,
 }
 
 UNIT_TIMEOUT_OPTIONS = {
@@ -108,6 +152,11 @@ POWER_SUB_MODE_OPTIONS = {
     "Sleep": 1,
     "Eco": 2,
     "Manual": 3
+}
+
+TEMP_UNIT_OPTIONS = {
+    "Celsius": 0,
+    "Fahrenheit": 1
 }
 
 POWER_SUPPLY_PRIORITY_OPTIONS = {
@@ -234,12 +283,15 @@ SLAVE_N_BATTERY_LEVEL_SOC = "Slave %i Battery level SOC"
 MAX_CHARGE_LEVEL = "Max Charge Level"
 MIN_DISCHARGE_LEVEL = "Min Discharge Level"
 BACKUP_RESERVE_LEVEL = "Backup Reserve Level"
+BACKUP_RESERVE_SOC = "Backup Reserve SOC"
 AC_CHARGING_POWER = "AC Charging Power"
 SCREEN_TIMEOUT = "Screen Timeout"
 UNIT_TIMEOUT = "Unit Timeout"
 AC_TIMEOUT = "AC Timeout"
 DC_TIMEOUT = "DC (12V) Timeout"
 DC_CHARGE_CURRENT = "DC (12V) Charge Current"
+ENERGY_STRATEGY = "Energy Strategy"
+AC_CHARGE_MODE = "AC Charging Mode"
 GEN_AUTO_START_LEVEL = "Generator Auto Start Level"
 GEN_AUTO_STOP_LEVEL = "Generator Auto Stop Level"
 GEN_BAT_CHARGING_POWER = "Generator Battery Charging Power"
@@ -301,6 +353,7 @@ FAN_MODE = "Wind speed"
 MAIN_MODE = "Main mode"
 REMOTE_MODE = "Remote startup/shutdown"
 POWER_SUB_MODE = "Sub-mode"
+TEMP_UNIT = "Temperature unit"
 
 
 # Smart Meter
@@ -393,6 +446,12 @@ STREAM_HISTORY_BATTERY_CHARGE_CUMULATIVE = "Battery Charge (Cumulative)"
 STREAM_HISTORY_BATTERY_DISCHARGE_TODAY = "Battery Discharge (Today)"
 STREAM_HISTORY_BATTERY_DISCHARGE_CUMULATIVE = "Battery Discharge (Cumulative)"
 
+# Stream Microinverter (BK-series, internal/App API)
+STREAM_GRID_CONNECTION_STATUS = "Grid Connection Status"
+STREAM_WIFI_RSSI = "WiFi Signal Strength"
+STREAM_FEED_GRID_MODE_POW_LIMIT = "Feed-in Power Limit"
+STREAM_FEED_GRID_MODE_POW_MAX = "Feed-in Power Max"
+
 ACCU_CHARGE_CAP = "Cumulative Capacity Charge (mAh)"
 ACCU_CHARGE_ENERGY = "Cumulative Energy Charge (Wh)"
 ACCU_DISCHARGE_CAP = "Cumulative Capacity Discharge (mAh)"
@@ -460,6 +519,7 @@ BATTERY_N_IN_POWER = "Battery %i Input Power"
 BATTERY_N_OUT_POWER = "Battery %i Output Power"
 BATTERY_N_CURRENT = "Battery %i Current"
 CIRCUIT_N_CURRENT = "Circuit %i Current"
+BREAKER_N_POWER = "Breaker %i Power"
 
 #Smart Home Panel 2
 

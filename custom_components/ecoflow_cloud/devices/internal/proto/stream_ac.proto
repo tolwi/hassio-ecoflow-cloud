@@ -145,7 +145,19 @@ message StreamACCloudMeter {
 }
 
 message StreamACChamp_cmd21_3 {
+    // Per-PV power/voltage/current (PV1..4), field numbers raw-decoded and
+    // cross-checked against the app's per-panel display and against
+    // powGetPvSum (517, the four powers sum to it) -- see
+    // https://github.com/tolwi/hassio-ecoflow-cloud/pull/846#issuecomment-5046026257
+    // and https://gist.github.com/zoobuv101/91430722aa850b04297fbd1c17e46aaf.
+    // Not yet verified against a second physical unit.
+    optional float powGetPv2 = 70; // pv2 power
+    optional float inAmpPv2 = 71; // pv2 current
     optional uint32 Champ_cmd21_3_field282 = 282;
+    optional float powGetPv = 361; // pv1 power -- named to match the pre-existing (previously dead) powGetPv key/entity, not powGetPv1, so this reuses the same entity_id instead of registering a new one
+    optional float inVolPv1 = 380; // pv1 voltage
+    optional float inAmpPv1 = 381; // pv1 current
+    optional float inVolPv2 = 442; // pv2 voltage
     optional uint32 Champ_cmd21_3_field460 = 460;
     optional float powGetSysGrid = 515; // power grid
     optional float powGetSysLoad = 516;
@@ -155,6 +167,12 @@ message StreamACChamp_cmd21_3 {
     optional float gridConnectionPower = 616;
     optional StreamACCloudMeter cloudMetter = 785;
     optional float sysGridConnectionPower = 992;
+    optional float powGetPv3 = 996; // pv3 power
+    optional float powGetPv4 = 997; // pv4 power
+    optional float inVolPv3 = 998; // pv3 voltage
+    optional float inAmpPv3 = 999; // pv3 current
+    optional float inVolPv4 = 1000; // pv4 voltage
+    optional float inAmpPv4 = 1001; // pv4 current
     optional float powGetSysLoadFromBp = 1003;
     optional float powGetSysLoadFromGrid = 1004;
     optional float powGetSchuko1 = 1210;
@@ -167,12 +185,23 @@ message StreamACChamp_cmd21_2 {
     optional uint32 Champ_cmd21_2_field3 = 3;
     optional uint32 Champ_cmd21_2_field4 = 4;
     optional uint32 Champ_cmd21_2_field5 = 5;
+    optional uint32 Champ_cmd21_2_field7 = 7; // cmsMaxChgSoc (max charge %), verified == Public API
     optional uint32 Champ_cmd21_2_field8 = 8;
-    optional uint32 Champ_cmd21_2_field9 = 9;
+    optional uint32 Champ_cmd21_2_field9 = 9; // SOC %, verified == displayed battery level
     optional uint32 Champ_cmd21_2_field10 = 10;
     optional uint32 Champ_cmd21_2_field11 = 11;
+    optional uint32 Champ_cmd21_2_field12 = 12;
+    optional uint32 Champ_cmd21_2_field13 = 13; // discharge remaining time (minutes), verified ~= displayed runtime
+    optional uint32 Champ_cmd21_2_field14 = 14;
+    optional float Champ_cmd21_2_field15 = 15; // precise SOC (float)
     optional uint32 Champ_cmd21_2_field16 = 16;
     optional uint32 Champ_cmd21_2_field17 = 17;
+    optional uint32 Champ_cmd21_2_field18 = 18;
+    optional uint32 Champ_cmd21_2_field19 = 19;
+    optional uint32 Champ_cmd21_2_field20 = 20;
+    optional uint32 Champ_cmd21_2_field21 = 21; // cmsMinDsgSoc (min discharge %), verified == Public API
+    optional uint32 Champ_cmd21_2_field22 = 22;
+    optional uint32 Champ_cmd21_2_field23 = 23;
 }
 
 message StreamACChamp_cmd21 {

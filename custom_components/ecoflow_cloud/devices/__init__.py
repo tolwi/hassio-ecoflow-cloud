@@ -17,8 +17,8 @@ from homeassistant.util import dt
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import JSONDict, JSONMessage, Message
 from custom_components.ecoflow_cloud.device_data import DeviceData
-from custom_components.ecoflow_cloud.devices.data_holder import EcoflowDataHolder, PreparedData
 from custom_components.ecoflow_cloud.devices.data_coordinator import DeviceDataCoordinator
+from custom_components.ecoflow_cloud.devices.data_holder import EcoflowDataHolder, PreparedData
 from custom_components.ecoflow_cloud.devices.status_tracker import StatusTracker
 
 _LOGGER = logging.getLogger(__name__)
@@ -94,7 +94,6 @@ class BaseDevice(ABC):
 
     async def async_restore_state(self):
         """Restore persisted device state on startup. Override in subclasses."""
-        pass
 
     def extract_quota_data(self, message: JSONDict) -> PreparedData | None:
         return None
@@ -212,17 +211,17 @@ class BaseInternalDevice(BaseDevice):
 
 
 class DiagnosticDevice(BaseDevice):
-    def sensors(self, client: "EcoflowApiClient") -> Sequence[SensorEntity]:
+    def sensors(self, client: EcoflowApiClient) -> Sequence[SensorEntity]:
         return []
 
-    def numbers(self, client: "EcoflowApiClient") -> Sequence[NumberEntity]:
+    def numbers(self, client: EcoflowApiClient) -> Sequence[NumberEntity]:
         return []
 
-    def switches(self, client: "EcoflowApiClient") -> Sequence[SwitchEntity]:
+    def switches(self, client: EcoflowApiClient) -> Sequence[SwitchEntity]:
         return []
 
-    def buttons(self, client: "EcoflowApiClient") -> Sequence[ButtonEntity]:
+    def buttons(self, client: EcoflowApiClient) -> Sequence[ButtonEntity]:
         return []
 
-    def selects(self, client: "EcoflowApiClient") -> Sequence[SelectEntity]:
+    def selects(self, client: EcoflowApiClient) -> Sequence[SelectEntity]:
         return []
