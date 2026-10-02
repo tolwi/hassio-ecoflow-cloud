@@ -8,7 +8,9 @@
 #      editor -> paste.
 #
 # Needs two HACS frontend cards: power-flow-card-plus and auto-entities.
-# Everything else is a built-in card.
+# Everything else is a built-in card. "Power per string" uses statistics-graph (HA's
+# 5-minute averages): history-graph pulls every raw update, and with 8 strings reporting
+# every few seconds it can sit on "Loading state history".
 
 title: Ocean Pro
 views:
@@ -72,22 +74,23 @@ views:
         content: |-
           | String | V | A | W | MPPT |
           |:--|--:|--:|--:|:-:|
-          | PV1 | {{ states('sensor.INVERTER_pv1_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv1_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv1_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv1_mppt_state') }}/{{ states('sensor.INVERTER_pv1_mppt_fault_code') }} |
-          | PV2 | {{ states('sensor.INVERTER_pv2_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv2_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv2_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv2_mppt_state') }}/{{ states('sensor.INVERTER_pv2_mppt_fault_code') }} |
-          | PV3 | {{ states('sensor.INVERTER_pv3_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv3_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv3_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv3_mppt_state') }}/{{ states('sensor.INVERTER_pv3_mppt_fault_code') }} |
-          | PV4 | {{ states('sensor.INVERTER_pv4_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv4_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv4_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv4_mppt_state') }}/{{ states('sensor.INVERTER_pv4_mppt_fault_code') }} |
-          | PV5 | {{ states('sensor.INVERTER_pv5_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv5_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv5_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv5_mppt_state') }}/{{ states('sensor.INVERTER_pv5_mppt_fault_code') }} |
-          | PV6 | {{ states('sensor.INVERTER_pv6_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv6_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv6_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv6_mppt_state') }}/{{ states('sensor.INVERTER_pv6_mppt_fault_code') }} |
-          | PV7 | {{ states('sensor.INVERTER_pv7_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv7_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv7_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv7_mppt_state') }}/{{ states('sensor.INVERTER_pv7_mppt_fault_code') }} |
-          | PV8 | {{ states('sensor.INVERTER_pv8_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv8_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv8_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv8_mppt_state') }}/{{ states('sensor.INVERTER_pv8_mppt_fault_code') }} |
+          | PV1 | {{ states('sensor.INVERTER_pv1_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv1_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv1_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv1_mppt_state') | replace('unknown', '–') }}/{{ states('sensor.INVERTER_pv1_mppt_fault_code') | replace('unknown', '–') }} |
+          | PV2 | {{ states('sensor.INVERTER_pv2_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv2_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv2_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv2_mppt_state') | replace('unknown', '–') }}/{{ states('sensor.INVERTER_pv2_mppt_fault_code') | replace('unknown', '–') }} |
+          | PV3 | {{ states('sensor.INVERTER_pv3_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv3_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv3_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv3_mppt_state') | replace('unknown', '–') }}/{{ states('sensor.INVERTER_pv3_mppt_fault_code') | replace('unknown', '–') }} |
+          | PV4 | {{ states('sensor.INVERTER_pv4_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv4_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv4_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv4_mppt_state') | replace('unknown', '–') }}/{{ states('sensor.INVERTER_pv4_mppt_fault_code') | replace('unknown', '–') }} |
+          | PV5 | {{ states('sensor.INVERTER_pv5_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv5_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv5_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv5_mppt_state') | replace('unknown', '–') }}/{{ states('sensor.INVERTER_pv5_mppt_fault_code') | replace('unknown', '–') }} |
+          | PV6 | {{ states('sensor.INVERTER_pv6_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv6_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv6_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv6_mppt_state') | replace('unknown', '–') }}/{{ states('sensor.INVERTER_pv6_mppt_fault_code') | replace('unknown', '–') }} |
+          | PV7 | {{ states('sensor.INVERTER_pv7_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv7_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv7_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv7_mppt_state') | replace('unknown', '–') }}/{{ states('sensor.INVERTER_pv7_mppt_fault_code') | replace('unknown', '–') }} |
+          | PV8 | {{ states('sensor.INVERTER_pv8_voltage') | float(0) | round(1) }} | {{ states('sensor.INVERTER_pv8_current') | float(0) | round(2) }} | {{ states('sensor.INVERTER_pv8_power') | float(0) | round(0) | int }} | {{ states('sensor.INVERTER_pv8_mppt_state') | replace('unknown', '–') }}/{{ states('sensor.INVERTER_pv8_mppt_fault_code') | replace('unknown', '–') }} |
 
-          _MPPT = the inverter's own state/fault code for that string. EcoFlow
-          publishes no meanings; seen so far: **8/0** tracking, **5/2** stood
-          down (every string at night)._
+          _MPPT = the inverter's own state/fault code for that string. EcoFlow publishes no meanings; seen so far: **8/0** tracking, **5/2** stood down (every string at night)._
 
-      - type: history-graph
+      - type: statistics-graph
         title: Power per string — last 24 h
-        hours_to_show: 24
+        days_to_show: 1
+        period: 5minute
+        stat_types: [mean]
+        chart_type: line
         entities:
           - entity: sensor.INVERTER_pv1_power
             name: PV1
@@ -132,13 +135,9 @@ views:
         content: |-
           - **Normal V, normal A** — healthy.
           - **Normal V, low A** — less light: shade, dirt, clouds.
-          - **Low V at full A** — part of the string is bypassed (debris,
-            a wet junction box, a damaged panel).
-          - **~0 A while the others produce** — open circuit (connector,
-            wire, disconnect).
-          - **Several strings at the same voltage below 60 V** — under the
-            inverter's MPPT floor; identical readings on separate strings
-            point at the inverter rather than the roof.
+          - **Low V at full A** — part of the string is bypassed (debris, a wet junction box, a damaged panel).
+          - **~0 A while the others produce** — open circuit (connector, wire, disconnect).
+          - **Several strings at the same voltage below 60 V** — under the inverter's MPPT floor; identical readings on separate strings point at the inverter rather than the roof.
 
   - title: Circuits
     path: circuits
