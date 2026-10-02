@@ -203,12 +203,18 @@ PV_STATUS_OFFSETS: dict[str, tuple[int, float, float]] = {
     "vol": (0, 0.0, 600.0),
     "amp": (2, -1.0, 25.0),
 }
-# Fault/status register, 8 slots (fields 1512..1519). Baseline 0,0,0,0,0,2,0,2 — a bank of
-# per-subsystem err/warn codes (the EU PowerOcean JSON carries the same shape as parallel
-# bpErrCode/pcsAcErrCode/mppt*FaultCode fields). No public dictionary maps the code numbers,
-# so a nonzero needs EcoFlow to decode. Varints; surfaced as-is (no guard) so a change shows.
+# Per-string MPPT fault code + state machine — RuntimePropertyUpload (254/22), one varint per
+# string: fields 1512..1519 = dt_mppt_pv{n}_fault, 1520..1527 = dt_mppt_pv{n}_fsm_state (names
+# from the same app proto as PV_STATUS_*; these were once read as an 8-slot "fault register").
+# No enum ships with the proto, so codes are surfaced raw. Observed on our captures: state 8
+# with fault 0 while a string tracks; state 5 with fault 2 when it stands down — every string
+# at night, and pv6 + pv8 alone in daylight on 08-14 and 09-15 while the rest tracked. So
+# fault 2 reads as "no usable PV input" rather than a hardware trip; a NEW code is the signal.
+# Field 1531 (dt_mppt_parallel_detect_record) reads 80 = bits 4 and 6 (pv5, pv7) — plausibly
+# the inverter's record of strings it judged paralleled; unconfirmed, kept raw. ONLY on cmdId 22.
 FAULT_FIELD_BASE = 1512
-FAULT_SLOTS = 8
+MPPT_STATE_FIELD_BASE = 1520
+MPPT_PARALLEL_DETECT_FIELD = 1531
 # Candidate-unknown fields: live-varying but unidentified, collected raw for later ID (they
 # feed an "unknown fields" dashboard). The two devices carry different sets on their streams.
 INVERTER_UNKNOWN_FIELDS: tuple[int, ...] = (22, 50, 518, 1469, 1472, 1557, 1560, 1682)
@@ -462,12 +468,13 @@ class OceanProInverter(DeltaPro3):
             VoltSensorEntity(client, self, "dc_bus_voltage", "DC Bus Voltage", diagnostic=True).with_icon("mdi:current-dc"),
             VoltSensorEntity(client, self, "dc_bus_voltage2", "DC Bus Voltage 2", diagnostic=True).with_icon("mdi:current-dc"),
         ]
-        # Fault/status register — 8 per-subsystem err/warn slots. No public code dictionary
-        # exists, so a nonzero value needs EcoFlow to decode. Diagnostic.
-        out += [
-            MiscSensorEntity(client, self, f"fault_{FAULT_FIELD_BASE + i}", f"Fault Reg {i}", diagnostic=True).with_icon("mdi:alert-circle-outline")
-            for i in range(FAULT_SLOTS)
-        ]
+        # Per-string MPPT fault code + state (254/22 — see FAULT_FIELD_BASE). Raw codes, no
+        # public dictionary. The fault keys keep their original fault_<field> names so the
+        # entities' history survives the re-identification from "fault register".
+        for i in range(PV_STRINGS):
+            out.append(MiscSensorEntity(client, self, f"fault_{FAULT_FIELD_BASE + i}", f"PV{i + 1} MPPT Fault Code", diagnostic=True).with_icon("mdi:alert-circle-outline"))
+            out.append(MiscSensorEntity(client, self, f"mppt_state_{MPPT_STATE_FIELD_BASE + i}", f"PV{i + 1} MPPT State", diagnostic=True).with_icon("mdi:state-machine"))
+        out.append(MiscSensorEntity(client, self, "mppt_parallel_detect", "MPPT Parallel Detect", diagnostic=True).with_icon("mdi:call-split"))
         # Candidate-unknown fields on the inverter stream, collected raw for identification.
         out += [
             MiscSensorEntity(client, self, f"ef_unknown_{f}", f"Unknown 254/{f}", diagnostic=True)
@@ -533,23 +540,17 @@ class OceanProInverter(DeltaPro3):
         return result
 
     def _decode_status_fields(self, flat: dict[str, Any], params: dict[str, Any]) -> bool:
-        """Grid metering + DC-bus + fault register from a 254 status frame (path 1.1.<field>).
+        """Grid metering + DC-bus from a 254 status frame (path 1.1.<field>).
 
         Grid/DC-bus values are range-guarded to reject field-number reuse from nested
-        submessages; the fault register and candidate-unknown fields are surfaced raw so a
-        change is always visible. Returns whether at least one field was written (for the
-        decode-health tracker).
+        submessages; candidate-unknown fields are surfaced raw so a change is always visible.
+        Returns whether at least one field was written (for the decode-health tracker).
         """
         wrote = False
         for key, (field, lo, hi) in STATUS_GUARDED_FIELDS.items():
             v = _flat_num(flat, field)
             if v is not None and lo <= v <= hi:
                 params[key] = round(float(v), 2)
-                wrote = True
-        for i in range(FAULT_SLOTS):
-            v = _flat_num(flat, FAULT_FIELD_BASE + i)
-            if v is not None:
-                params[f"fault_{FAULT_FIELD_BASE + i}"] = int(v)
                 wrote = True
         for field in INVERTER_UNKNOWN_FIELDS:
             v = _flat_num(flat, field)
@@ -559,11 +560,12 @@ class OceanProInverter(DeltaPro3):
         return wrote
 
     def _decode_pv_status(self, flat: dict[str, Any], params: dict[str, Any]) -> bool:
-        """Per-string PV voltage + current from the 254/22 frame (path 1.1.<field>).
+        """Per-string PV voltage, current and MPPT fault/state from the 254/22 frame.
 
         Delta frames carry only the strings whose values changed, so an absent field leaves
-        that sensor at its last value (the HA sensors persist between frames). Returns whether
-        at least one field was written (for the decode-health tracker).
+        that sensor at its last value (the HA sensors persist between frames). The MPPT codes
+        are varints surfaced as-is (no guard) so any change shows. Returns whether at least one
+        field was written (for the decode-health tracker).
         """
         wrote = False
         for i in range(PV_STRINGS):
@@ -573,6 +575,18 @@ class OceanProInverter(DeltaPro3):
                 if v is not None and lo <= v <= hi:
                     params[f"pv{i + 1}_{suffix}"] = round(float(v), 2)
                     wrote = True
+            for key, field in (
+                (f"fault_{FAULT_FIELD_BASE + i}", FAULT_FIELD_BASE + i),
+                (f"mppt_state_{MPPT_STATE_FIELD_BASE + i}", MPPT_STATE_FIELD_BASE + i),
+            ):
+                v = _flat_num(flat, field)
+                if v is not None:
+                    params[key] = int(v)
+                    wrote = True
+        v = _flat_num(flat, MPPT_PARALLEL_DETECT_FIELD)
+        if v is not None:
+            params["mppt_parallel_detect"] = int(v)
+            wrote = True
         return wrote
 
     @override
