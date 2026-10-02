@@ -4,8 +4,7 @@
 #   1. Replace every INVERTER with your Ocean Pro inverter's entity prefix
 #      (e.g. sensor.hr51xxxxxxxxxxxx_pv1_power -> INVERTER = hr51xxxxxxxxxxxx).
 #   2. Replace every PANEL with your Smart Panel's entity prefix (hr61...).
-#   3. Replace PANEL_DEVICE_NAME with the panel's device name as HA shows it.
-#   4. Settings -> Dashboards -> Add dashboard -> open it -> Edit -> Raw configuration
+#   3. Settings -> Dashboards -> Add dashboard -> open it -> Edit -> Raw configuration
 #      editor -> paste.
 #
 # Needs two HACS frontend cards: power-flow-card-plus and auto-entities.
@@ -129,28 +128,35 @@ views:
     path: circuits
     icon: mdi:electric-switch
     cards:
-      # Matches on the device, not on entity_id: circuits you named in the EcoFlow
-      # app get name-based entity_ids (e.g. ..._dryer_power), so a
-      # "*_circuit_*" pattern would silently miss them.
+      # Lists the panel device's power sensors (found from the battery-level sensor),
+      # not an entity_id pattern: circuits you named in the EcoFlow app get name-based
+      # entity_ids (e.g. ..._dryer_power), so a "*_circuit_*" pattern would miss them.
+      # The integration prefixes every circuit name with the device name (the panel's
+      # serial unless you renamed it); the template strips that and the " Power" suffix.
       - type: custom:auto-entities
         card:
           type: entities
           title: Circuits drawing now
           state_color: true
-        filter:
-          include:
-            - device: PANEL_DEVICE_NAME
-              attributes:
-                device_class: power
-              state: "> 0"
-          exclude:
-            - entity_id: "*_home_load_power"
-            - entity_id: "*_grid_power"
-            - entity_id: "*_grid_l1_power"
-            - entity_id: "*_grid_l2_power"
-            - entity_id: "*_storage_output_power"
-        sort:
-          method: state
-          numeric: true
-          reverse: true
         show_empty: true
+        filter:
+          template: >-
+            {% set dev = device_id('sensor.PANEL_battery_level') %}
+            {% set prefix = (device_attr(dev, 'name_by_user') or device_attr(dev, 'name')) ~ ' ' %}
+            {% set skip = ['home load power', 'grid power', 'grid l1 power',
+                           'grid l2 power', 'storage output power'] %}
+            {% set ns = namespace(rows=[]) %}
+            {% for e in device_entities(dev) | select('match', 'sensor\\.') %}
+              {% set n = state_attr(e, 'friendly_name') | replace(prefix, '') %}
+              {% if state_attr(e, 'device_class') == 'power'
+                    and n | lower not in skip
+                    and states(e) | float(0) > 0 %}
+                {% set ns.rows = ns.rows + [{'entity': e, 'w': states(e) | float(0),
+                                             'name': n | replace(' Power', '')}] %}
+              {% endif %}
+            {% endfor %}
+            {% set out = namespace(rows=[]) %}
+            {% for r in ns.rows | sort(attribute='w', reverse=true) %}
+              {% set out.rows = out.rows + [{'entity': r.entity, 'name': r.name}] %}
+            {% endfor %}
+            {{ out.rows | tojson }}
