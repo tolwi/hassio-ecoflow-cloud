@@ -80,7 +80,7 @@ MULTI_DEVICE_CONFIGURATIONS = {
 }
 
 # Initialize configurations
-device_options = DeviceOptions(0, 0, False, False, 600, True)
+device_options = DeviceOptions(0, 0, False, False, 600, True, 0)
 
 
 class MockSetup:

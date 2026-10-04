@@ -2,12 +2,17 @@ import inspect
 import logging
 import re
 import struct
+import time
 from collections import OrderedDict
 from collections.abc import Mapping
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Any, override
 
-from homeassistant.components.integration.sensor import IntegrationSensor  # pyright: ignore[reportMissingImports]
+from homeassistant.components.integration.sensor import (  # pyright: ignore[reportMissingImports]
+    IntegrationSensor,
+    IntegrationSensorExtraStoredData,
+)
 from homeassistant.components.sensor import (  # pyright: ignore[reportMissingImports]
     SensorDeviceClass,
     SensorEntity,
@@ -866,6 +871,38 @@ class IntegralEnergySensorEntity(IntegrationSensor):
         )
         self.device_info = base.device_info
         self._attr_entity_registry_enabled_default = enabled_default and base.enabled_default
+        # Optional per-device throttle (seconds; 0 = off). The integral still advances on every source
+        # update; only the reported total is held back, so the recorder stores at most one row per
+        # interval instead of one per MQTT frame. Energy is never dropped: each reported value is the
+        # full running total, and the restore data below always carries the live integral.
+        self._report_interval = base._device.device_data.options.energy_update_interval
+        self._reported_value: Decimal | None = None
+        self._reported_at = 0.0
+
+    def _integral_value(self) -> Decimal | None:
+        return super().native_value
+
+    @property
+    @override
+    def native_value(self) -> Decimal | None:
+        value = self._integral_value()
+        if self._report_interval <= 0 or value is None:
+            return value
+        now = time.monotonic()
+        if self._reported_value is None or now - self._reported_at >= self._report_interval:
+            self._reported_value, self._reported_at = value, now
+        return self._reported_value
+
+    @property
+    @override
+    def extra_restore_state_data(self) -> IntegrationSensorExtraStoredData:
+        # Persist the live integral, not the held-back reported value, so a restart loses nothing.
+        # The parent reads native_value, which would advance the throttle without a state write.
+        held = self._reported_value, self._reported_at
+        data = super().extra_restore_state_data
+        self._reported_value, self._reported_at = held
+        data.native_value = self._integral_value()
+        return data
 
 
 class SolarPowerSensorEntity(WattsSensorEntity):

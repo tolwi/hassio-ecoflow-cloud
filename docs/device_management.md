@@ -71,5 +71,9 @@ Use the **Configure** button to adjust specific settings for your devices, such 
 *   **Reset sensors when offline**:
     *   Enabled by default. While the device is offline, sensors that define a default value (most power and current sensors, which default to `0`) are reset to it, so the dashboard does not keep showing stale power readings.
     *   If disabled, those sensors keep their last received value until new data arrives.
+*   **Energy sensor update interval (sec, 0 = every update)**:
+    *   `0` (default) keeps today's behaviour: each integrated energy sensor (the kWh companion of a power sensor) reports a new total on every data refresh.
+    *   A value like `60` makes those energy sensors report at most once per interval. The running total is still integrated on every refresh and saved across restarts, so no energy is lost; only the reported value moves less often.
+    *   Useful for devices with many circuits (e.g. Smart Home Panel 3 / Ocean Pro): each energy sensor otherwise adds a recorder row every few seconds. Power sensors are not affected.
 
 Click **Submit** to save your changes. The integration will reload with the new settings.

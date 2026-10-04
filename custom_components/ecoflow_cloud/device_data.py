@@ -11,6 +11,7 @@ class DeviceOptions:
     verbose_status_mode: bool
     assume_offline_sec: int
     reset_sensors_on_offline: bool
+    energy_update_interval: int
 
 
 @dataclasses.dataclass
