@@ -575,7 +575,10 @@ class EcoflowOptionsFlow(OptionsFlow):
                 ),
             )
 
+        # Copy the nested device list too. A shallow copy edits the entry's live options in place, so HA
+        # compares the result to itself, sees no change, and neither saves the options nor reloads.
         new_options = {**self.config_entry.options}
+        new_options[CONF_DEVICE_LIST] = {**self.config_entry.options[CONF_DEVICE_LIST]}
         new_options[CONF_DEVICE_LIST][self.selected_device.sn] = {
             OPTS_POWER_STEP: user_input[OPTS_POWER_STEP],
             OPTS_REFRESH_PERIOD_SEC: user_input[OPTS_REFRESH_PERIOD_SEC],
