@@ -95,7 +95,8 @@
                     "diagnostic_mode": "Tryb diagnostyczny",
                     "assume_offline_sec": "Czas do domniemania offline (sek)",
                     "verbose_status_mode": "Szczegółowy opis statusu",
-                    "reset_sensors_on_offline": "Resetuj sensory po przejściu w offline"
+                    "reset_sensors_on_offline": "Resetuj sensory po przejściu w offline",
+                    "energy_update_interval_sec": "Interwał aktualizacji sensorów energii (s, 0 = przy każdej aktualizacji)"
                 }
             }
         }

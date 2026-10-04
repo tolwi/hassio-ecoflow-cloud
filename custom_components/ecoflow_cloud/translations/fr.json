@@ -95,7 +95,8 @@
                     "diagnostic_mode": "Mode diagnostic",
                     "assume_offline_sec": "Délai avant supposition hors ligne (sec)",
                     "verbose_status_mode": "Mode de statut détaillé",
-                    "reset_sensors_on_offline": "Réinitialiser les capteurs hors ligne"
+                    "reset_sensors_on_offline": "Réinitialiser les capteurs hors ligne",
+                    "energy_update_interval_sec": "Intervalle de mise à jour des capteurs d'énergie (s, 0 = à chaque mise à jour)"
                 }
             }
         }
