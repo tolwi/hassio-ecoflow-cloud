@@ -45,6 +45,7 @@ from custom_components.ecoflow_cloud.sensor import (
     MiscSensorEntity,
     QuotaStatusSensorEntity,
     SolarPowerSensorEntity,
+    TempSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
 )
@@ -79,6 +80,13 @@ F_PCS_TOTAL = 53
 # field-for-field parity with the mini collector (which stores it as `solar_total`).
 F_SOLAR_TOTAL = 517
 SOLAR_TOTAL_MAX = PV_MAX_W * PV_STRINGS  # 8-string ceiling; above = field-reuse noise
+
+# Device temperatures, 254/21 fields 1553..1557 (dev_temperature_1..5 in the app proto), F32
+# degrees C. The proto names no location for any of the five, so they are numbered, not
+# labelled; on our captures they run 45-69 C in daytime. Guarded against field-number reuse.
+DEV_TEMP_FIELD_BASE = 1553
+DEV_TEMP_COUNT = 5
+DEV_TEMP_MIN, DEV_TEMP_MAX = -40.0, 150.0
 
 # Per-leg PCS AC telemetry on the SAME 254/21 stream (fields 1463..1468). A/B phase
 # assignment is provisional (per the meter-validated fieldmap). Voltage/current are
@@ -180,6 +188,9 @@ STATUS_GUARDED_FIELDS: dict[str, tuple[int, float, float]] = {
     "grid_voltage_l2": (644, 100.0, 300.0),
     "grid_current_l1": (645, 0.0, 300.0),
     "grid_current_l2": (646, 0.0, 300.0),
+    # The app proto names these dt_dab_bus_volt_ref (1502) and dt_dab_bus_volt_curr (1503):
+    # setpoint and measured bus voltage of the battery-side DC-DC (DAB) converter. Keys kept
+    # as-is so the entities' history survives; the MPPT side's own bus pair is MPPT_STATUS_FIELDS.
     "dc_bus_voltage": (1502, 300.0, 500.0),
     "dc_bus_voltage2": (1503, 300.0, 500.0),
 }
@@ -215,9 +226,26 @@ PV_STATUS_OFFSETS: dict[str, tuple[int, float, float]] = {
 FAULT_FIELD_BASE = 1512
 MPPT_STATE_FIELD_BASE = 1520
 MPPT_PARALLEL_DETECT_FIELD = 1531
+# MPPT-stage scalars, same 254/22 frame (app proto names in brackets). key -> (field, min, max).
+# On our captures: the bus setpoint sits at 440 V (0 when the stage is off) with the measured bus
+# ~400-420 V, and the power limit holds at 5000 W, the datasheet's per-channel rating, so a drop
+# below it is the inverter curtailing solar. ONLY on cmdId 22, like the per-string block.
+MPPT_STATUS_FIELDS: dict[str, tuple[int, float, float]] = {
+    "mppt_bus_volt_ref": (1510, 0.0, 600.0),  # dt_mppt_bus_volt_ref
+    "mppt_bus_volt": (1511, 0.0, 600.0),  # dt_mppt_bus_volt_curr
+    "mppt_power_limit": (1529, 0.0, 50_000.0),  # dt_mppt_power_limit_value
+}
+# MPPT-stage flags, raw varints like the per-string codes (no enum ships with the proto):
+# general warning reads 0 on every capture, so any non-zero is new; the insulation (Riso)
+# check flag reads 1 once the morning check has run. key -> field.
+MPPT_STATUS_RAW_FIELDS: dict[str, int] = {
+    "mppt_warning": 1528,  # dt_mppt_gen_warning
+    "mppt_iso_check_done": 1534,  # dt_mppt_iso_finish_flg
+}
 # Candidate-unknown fields: live-varying but unidentified, collected raw for later ID (they
 # feed an "unknown fields" dashboard). The two devices carry different sets on their streams.
-INVERTER_UNKNOWN_FIELDS: tuple[int, ...] = (22, 50, 518, 1469, 1472, 1557, 1560, 1682)
+# (1557 was promoted out of this list: it is dev_temperature_5, see DEV_TEMP_FIELD_BASE.)
+INVERTER_UNKNOWN_FIELDS: tuple[int, ...] = (22, 50, 518, 1469, 1472, 1560, 1682)
 PANEL_UNKNOWN_FIELDS: tuple[int, ...] = (
     518, 962, 963, 1227, 1462, 1470, 1485, 1486,
 )
@@ -475,6 +503,20 @@ class OceanProInverter(DeltaPro3):
             out.append(MiscSensorEntity(client, self, f"fault_{FAULT_FIELD_BASE + i}", f"PV{i + 1} MPPT Fault Code", diagnostic=True).with_icon("mdi:alert-circle-outline"))
             out.append(MiscSensorEntity(client, self, f"mppt_state_{MPPT_STATE_FIELD_BASE + i}", f"PV{i + 1} MPPT State", diagnostic=True).with_icon("mdi:state-machine"))
         out.append(MiscSensorEntity(client, self, "mppt_parallel_detect", "MPPT Parallel Detect", diagnostic=True).with_icon("mdi:call-split"))
+        # MPPT stage (254/22 — see MPPT_STATUS_FIELDS): DC-bus setpoint vs measured, solar
+        # power limit, and the raw warning / insulation-check flags.
+        out += [
+            VoltSensorEntity(client, self, "mppt_bus_volt_ref", "MPPT Bus Voltage Setpoint", diagnostic=True).with_icon("mdi:current-dc"),
+            VoltSensorEntity(client, self, "mppt_bus_volt", "MPPT Bus Voltage", diagnostic=True).with_icon("mdi:current-dc"),
+            WattsSensorEntity(client, self, "mppt_power_limit", "MPPT Power Limit", diagnostic=True).with_icon("mdi:solar-power"),
+            MiscSensorEntity(client, self, "mppt_warning", "MPPT Warning", diagnostic=True).with_icon("mdi:alert-outline"),
+            MiscSensorEntity(client, self, "mppt_iso_check_done", "MPPT Insulation Check Done", diagnostic=True).with_icon("mdi:shield-check-outline"),
+        ]
+        # Device temperatures (254/21 — see DEV_TEMP_FIELD_BASE); locations unknown, so numbered.
+        out += [
+            TempSensorEntity(client, self, f"dev_temp_{n}", f"Device Temperature {n}", diagnostic=True)
+            for n in range(1, DEV_TEMP_COUNT + 1)
+        ]
         # Candidate-unknown fields on the inverter stream, collected raw for identification.
         out += [
             MiscSensorEntity(client, self, f"ef_unknown_{f}", f"Unknown 254/{f}", diagnostic=True)
@@ -587,6 +629,16 @@ class OceanProInverter(DeltaPro3):
         if v is not None:
             params["mppt_parallel_detect"] = int(v)
             wrote = True
+        for key, (field, lo, hi) in MPPT_STATUS_FIELDS.items():
+            v = _flat_num(flat, field)
+            if v is not None and lo <= v <= hi:
+                params[key] = round(float(v), 2)
+                wrote = True
+        for key, field in MPPT_STATUS_RAW_FIELDS.items():
+            v = _flat_num(flat, field)
+            if v is not None:
+                params[key] = int(v)
+                wrote = True
         return wrote
 
     @override
@@ -600,6 +652,7 @@ class OceanProInverter(DeltaPro3):
                 self._decode_pcs(fields, result)
                 self._decode_solar_total(fields, result)
                 self._decode_pcs_legs(fields, result)
+                self._decode_dev_temps(fields, result)
                 self._derive_battery_power(result)
         except Exception as e:  # reverse-engineered payload; never break the base decode
             _LOGGER.debug("Ocean Pro inverter field parse skipped: %s", e)
@@ -646,6 +699,13 @@ class OceanProInverter(DeltaPro3):
             if key.endswith("_power") and abs(v) > PCS_P_MAX:
                 continue
             result[key] = round(v, 2)
+
+    def _decode_dev_temps(self, fields: FieldMap, result: dict[str, Any]) -> None:
+        """Device temperatures 1..5 (fields 1553..1557), degrees C, range-guarded."""
+        for n in range(DEV_TEMP_COUNT):
+            v = _first(fields, DEV_TEMP_FIELD_BASE + n, WIRE_F32)
+            if v is not None and DEV_TEMP_MIN <= v <= DEV_TEMP_MAX:
+                result[f"dev_temp_{n + 1}"] = round(v, 1)
 
     def _derive_battery_power(self, result: dict[str, Any]) -> None:
         """Battery power from the DC-bus balance: sum(pv1..pv8) + PCS total.
