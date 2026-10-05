@@ -335,7 +335,6 @@ class TempSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_value = 0
 
 
 class CelsiusSensorEntity(TempSensorEntity):
