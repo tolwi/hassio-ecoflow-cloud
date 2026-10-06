@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14.2"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -973,7 +973,7 @@ requires-dist = [
     { name = "homeassistant", specifier = "==2026.8.0" },
     { name = "jsonpath-ng", specifier = ">=1.7.0" },
     { name = "paho-mqtt", specifier = "==2.1.0" },
-    { name = "protobuf", specifier = "==6.32.0" },
+    { name = "protobuf", specifier = ">=6.32.0,<8" },
 ]
 
 [package.metadata.requires-dev]
