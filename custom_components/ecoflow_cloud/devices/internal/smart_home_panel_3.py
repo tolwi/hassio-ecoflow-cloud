@@ -143,10 +143,13 @@ class _CircuitNamed(_CircuitNamedBase):
 
     def _updated(self, data: dict[str, Any]) -> None:
         super()._updated(data)  # type: ignore[misc]
-        # Force one state write when the label first streams in, so idle
-        # circuits (no value change) pick up their name immediately.
-        if not getattr(self, "_labelled", False) and data.get(f"ch_{self._circuit_no}_name"):
-            self._labelled = True
+        # The base class only writes state when the value changes, so a
+        # circuit holding a steady value (idle at 0 W, a flat 10 A) would keep
+        # its old name forever. Write whenever the name itself changes: the
+        # label first streaming in, or an app-side rename later on.
+        name = self._circuit_name()
+        if name != getattr(self, "_written_name", None):
+            self._written_name = name
             if getattr(self, "hass", None) is not None:
                 self.schedule_update_ha_state()
 
