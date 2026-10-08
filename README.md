@@ -1917,6 +1917,39 @@ from Home Assistant.
 
 </p></details>
 
+<details><summary> SMART_GENERATOR <i>(sensors: 19, binary_sensors: 1, switches: 2)</i> </summary>
+<p>
+
+*Sensors*
+- AC Out Power
+- DC Out Power
+- Total Out Power
+- Generator Max Output Power
+- Fuel Level
+- Remaining Time
+- Motor Run Time
+- AC Out Volts
+- DC Out Voltage
+- AC Out Current
+- DC Out Current
+- Temperature
+- System Mode
+- Error Code
+- Generator Type  _(disabled)_
+- Unit Number  _(disabled)_
+- Firmware Version  _(disabled)_
+- Cell ID  _(disabled)_
+- Status
+
+*Binary sensors*
+- DC Output State
+
+*Switches*
+- Generator Motor
+- AC Enabled
+
+</p></details>
+
 <details><summary> STREAM_AC <i>(sensors: 42)</i> </summary>
 <p>
 
