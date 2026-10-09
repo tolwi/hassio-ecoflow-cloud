@@ -1,4 +1,4 @@
-# EcoFlow Cloud Integration for Home Assistant
+# EcoFlow Cloud Integration for Home Assistant - Eduardo's fork
 [![GitHub release](https://img.shields.io/github/release/tolwi/hassio-ecoflow-cloud?include_prereleases=&sort=semver&color=blue)](https://github.com/tolwi/hassio-ecoflow-cloud/releases/)
 [![issues - hassio-ecoflow-cloud](https://img.shields.io/github/issues/tolwi/hassio-ecoflow-cloud)](https://github.com/tolwi/hassio-ecoflow-cloud/issues)
 [![GH-code-size](https://img.shields.io/github/languages/code-size/tolwi/hassio-ecoflow-cloud?color=red)](https://github.com/tolwi/hassio-ecoflow-cloud)
