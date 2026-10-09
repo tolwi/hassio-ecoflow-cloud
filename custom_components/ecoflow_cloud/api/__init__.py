@@ -155,9 +155,21 @@ class EcoflowApiClient(ABC):
         self.mqtt_client = EcoflowMQTTClient(self.mqtt_info, self.devices)
         self.mqtt_client.on_auth_failure = self.on_auth_failure
 
-    def schedule_mqtt_reconnect(self, cooldown_sec: int = 60) -> int | None:
+    def schedule_mqtt_reconnect(self, data_stale: bool = False, cooldown_sec: int = 60) -> int | None:
+        """Return the new reconnect count if a reconnect should run, else None.
+
+        ``data_stale`` exists because a dead socket is not the only failure
+        mode: EcoFlow's cloud stops asking a device to report once the MQTT
+        session registered for it goes away. Ours stays connected and
+        subscribed and simply receives nothing, so is_connected() sees no
+        problem. Callers that know their device should be reporting pass
+        data_stale=True to reconnect anyway.
+        """
         # reconnecting with rejected credentials only repeats the rejection
-        if self.mqtt_client.is_connected() or self.mqtt_client.auth_failed:
+        if self.mqtt_client.auth_failed:
+            return None
+
+        if not data_stale and self.mqtt_client.is_connected():
             return None
 
         now = time.monotonic()

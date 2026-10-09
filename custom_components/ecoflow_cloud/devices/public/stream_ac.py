@@ -316,6 +316,7 @@ class StreamAC(BaseDevice):
             .attr("minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # "waterInFlag": 0,
+            self._status_sensor(client),
         ]
 
     # moduleWifiRssi
@@ -449,4 +450,7 @@ class StreamAC(BaseDevice):
         return res
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
-        return StatusSensorEntity(client, self)
+        # A healthy STREAM reports several times a minute, so silence
+        # here means the cloud stopped asking it to report -- see
+        # schedule_mqtt_reconnect().
+        return StatusSensorEntity(client, self, reconnect_when_stale=True)
