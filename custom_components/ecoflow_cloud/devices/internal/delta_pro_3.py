@@ -1,11 +1,13 @@
 import logging
 from typing import Any, override
 
+from google.protobuf.json_format import MessageToDict
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.internal.proto import (
@@ -65,6 +67,63 @@ BMS_HEARTBEAT_COMMANDS: set[tuple[int, int]] = {
     (32, 51),
     (32, 52),
 }
+
+
+class DeltaPro3CommandMessage(PrivateAPIMessageProtocol):
+    """Message wrapper for Delta Pro 3 protobuf set commands."""
+
+    def __init__(self, payload: dp3.DP3SetCommand, packet: dp3.DP3SendHeaderMsg):
+        self._packet = packet
+        self._payload = payload
+
+    @override
+    def to_mqtt_payload(self):
+        return self._packet.SerializeToString()
+
+    @override
+    def to_dict(self) -> dict:
+        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
+        result = MessageToDict(self._packet, preserving_proto_field_name=True)
+        result["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}
+        result["msg"][0].pop("seq", None)
+        return {type(self._packet).__name__: result}
+
+
+def _create_dp3_proto_command(field_name: str, value: int, device_sn: str) -> DeltaPro3CommandMessage | None:
+    """Build a DP3SetCommand wrapped in a DP3SendHeaderMsg packet.
+
+    The device only accepts writes in this protobuf envelope (cmd_func=254,
+    cmd_id=17, matching every other "internal" EcoPacket device in this repo).
+    Plain JSON on the set topic is silently ignored, which is why values were
+    reverting to their previous state on the next telemetry update.
+    """
+    payload = dp3.DP3SetCommand()
+    try:
+        setattr(payload, field_name, int(value))
+    except AttributeError:
+        _LOGGER.error("Unknown DeltaPro3 set field: %s", field_name)
+        return None
+
+    pdata = payload.SerializeToString()
+
+    packet = dp3.DP3SendHeaderMsg()
+    message = packet.msg.add()
+    message.src = 32
+    message.dest = 2
+    message.d_src = 1
+    message.d_dest = 1
+    message.cmd_func = 254
+    message.cmd_id = 17
+    message.need_ack = 1
+    message.seq = Message.gen_seq()
+    message.product_id = 1
+    message.version = 19
+    message.payload_ver = 1
+    message.device_sn = device_sn
+    message.data_len = len(pdata)
+    message.pdata = pdata
+
+    return DeltaPro3CommandMessage(payload, packet)
 
 
 class DeltaPro3(BaseInternalDevice):
@@ -143,6 +202,7 @@ class DeltaPro3(BaseInternalDevice):
 
     @override
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
+        device = self
         return [
             # Battery Management
             MaxBatteryLevelEntity(
@@ -152,11 +212,7 @@ class DeltaPro3(BaseInternalDevice):
                 const.MAX_CHARGE_LEVEL,
                 50,
                 100,
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 49, "cmsMaxChgSoc": value},
-                },
+                lambda value: _create_dp3_proto_command("cmsMaxChgSoc", value, device.device_data.sn),
             ),
             MinBatteryLevelEntity(
                 client,
@@ -165,11 +221,7 @@ class DeltaPro3(BaseInternalDevice):
                 const.MIN_DISCHARGE_LEVEL,
                 0,
                 30,
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 51, "cmsMinDsgSoc": value},
-                },
+                lambda value: _create_dp3_proto_command("cmsMinDsgSoc", value, device.device_data.sn),
             ),
             # AC Charging Power
             ChargingPowerEntity(
@@ -179,16 +231,13 @@ class DeltaPro3(BaseInternalDevice):
                 const.AC_CHARGING_POWER,
                 200,
                 3000,
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 69, "plugInInfoAcInChgPowMax": value},
-                },
+                lambda value: _create_dp3_proto_command("plugInInfoAcInChgPowMax", value, device.device_data.sn),
             ),
         ]
 
     @override
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
+        device = self
         return [
             # Audio Control
             BeeperEntity(
@@ -196,11 +245,7 @@ class DeltaPro3(BaseInternalDevice):
                 self,
                 "en_beep",
                 const.BEEPER,
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 38, "enBeep": value},
-                },
+                lambda value: _create_dp3_proto_command("enBeep", 1 if value else 0, device.device_data.sn),
             ),
             # AC Output Control
             EnabledEntity(
@@ -208,22 +253,18 @@ class DeltaPro3(BaseInternalDevice):
                 self,
                 "cfg_hv_ac_out_open",
                 "AC HV Output Enabled",
-                lambda value, params=None: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 66, "cfgHvAcOutOpen": value},
-                },
+                lambda value, params=None: _create_dp3_proto_command(
+                    "cfgHvAcOutOpen", 1 if value else 0, device.device_data.sn
+                ),
             ),
             EnabledEntity(
                 client,
                 self,
                 "cfg_lv_ac_out_open",
                 "AC LV Output Enabled",
-                lambda value, params=None: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 66, "cfgLvAcOutOpen": value},
-                },
+                lambda value, params=None: _create_dp3_proto_command(
+                    "cfgLvAcOutOpen", 1 if value else 0, device.device_data.sn
+                ),
             ),
             # DC Output Control
             EnabledEntity(
@@ -231,22 +272,20 @@ class DeltaPro3(BaseInternalDevice):
                 self,
                 "cfg_dc_12v_out_open",
                 "12V DC Output Enabled",
-                lambda value, params=None: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 81, "cfgDc12vOutOpen": value},
-                },
+                lambda value, params=None: _create_dp3_proto_command(
+                    "cfgDc12vOutOpen", 1 if value else 0, device.device_data.sn
+                ),
             ),
+            # DP3SetCommand has no known field for the 24V output switch (only
+            # cfgDc12vOutOpen=18 is defined); disabled until the real field id
+            # is reverse-engineered from app traffic, rather than guessing one.
             EnabledEntity(
                 client,
                 self,
                 "cfg_dc_24v_out_open",
                 "24V DC Output Enabled",
-                lambda value, params=None: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 81, "cfgDc24vOutOpen": value},
-                },
+                lambda value, params=None: None,
+                enabled=False,
             ),
             # Xboost Control
             EnabledEntity(
@@ -254,11 +293,9 @@ class DeltaPro3(BaseInternalDevice):
                 self,
                 "xboost_en",
                 const.XBOOST_ENABLED,
-                lambda value, params=None: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 66, "xboostEn": value},
-                },
+                lambda value, params=None: _create_dp3_proto_command(
+                    "xboostEn", 1 if value else 0, device.device_data.sn
+                ),
             ),
             # Energy Saving
             EnabledEntity(
@@ -266,11 +303,9 @@ class DeltaPro3(BaseInternalDevice):
                 self,
                 "ac_energy_saving_open",
                 "AC Energy Saving Enabled",
-                lambda value, params=None: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 95, "acEnergySavingOpen": value},
-                },
+                lambda value, params=None: _create_dp3_proto_command(
+                    "acEnergySavingOpen", 1 if value else 0, device.device_data.sn
+                ),
             ),
             # GFCI Control
             EnabledEntity(
@@ -278,16 +313,15 @@ class DeltaPro3(BaseInternalDevice):
                 self,
                 "llc_gfci_flag",
                 "GFCI Protection Enabled",
-                lambda value, params=None: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 153, "llcGFCIFlag": value},
-                },
+                lambda value, params=None: _create_dp3_proto_command(
+                    "llc_GFCIFlag", 1 if value else 0, device.device_data.sn
+                ),
             ),
         ]
 
     @override
     def selects(self, client: EcoflowApiClient) -> list[SelectEntity]:
+        device = self
         return [
             # Screen Timeout
             TimeoutDictSelectEntity(
@@ -296,11 +330,7 @@ class DeltaPro3(BaseInternalDevice):
                 "screen_off_time",
                 const.SCREEN_TIMEOUT,
                 const.SCREEN_TIMEOUT_OPTIONS,
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"screenOffTime": value, "id": 39},
-                },
+                lambda value: _create_dp3_proto_command("screenOffTime", value, device.device_data.sn),
             ),
             # AC Standby Timeout
             TimeoutDictSelectEntity(
@@ -309,11 +339,7 @@ class DeltaPro3(BaseInternalDevice):
                 "ac_standby_time",
                 const.AC_TIMEOUT,
                 const.AC_TIMEOUT_OPTIONS,
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"acStandbyTime": value, "id": 10},
-                },
+                lambda value: _create_dp3_proto_command("acStandbyTime", value, device.device_data.sn),
             ),
             # DC Standby Timeout
             TimeoutDictSelectEntity(
@@ -322,24 +348,19 @@ class DeltaPro3(BaseInternalDevice):
                 "dc_standby_time",
                 "DC Timeout",
                 const.UNIT_TIMEOUT_OPTIONS_LIMITED,
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"dcStandbyTime": value, "id": 33},
-                },
+                lambda value: _create_dp3_proto_command("dcStandbyTime", value, device.device_data.sn),
             ),
-            # AC Output Type
+            # DP3SetCommand has no known field for AC output type (HV+LV/HV
+            # Only/LV Only); disabled until the real field id is
+            # reverse-engineered from app traffic, rather than guessing one.
             DictSelectEntity(
                 client,
                 self,
                 "plug_in_info_ac_out_type",
                 "AC Output Type",
                 {"HV+LV": 0, "HV Only": 1, "LV Only": 2},
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"plugInInfoAcOutType": int(value), "id": 59},
-                },
+                lambda value: None,
+                enabled=False,
             ),
         ]
 
@@ -352,6 +373,14 @@ class DeltaPro3(BaseInternalDevice):
         decoded_data: dict[str, Any] | None = None
         try:
             _LOGGER.debug(f"Processing {len(raw_data)} bytes of raw data")
+
+            # The set/get/set_reply/get_reply topics echo plain-JSON command
+            # payloads (e.g. our own published "set" commands); only the data
+            # topic carries the protobuf-framed HeaderMessage. Skip straight to
+            # the JSON path for those so we don't log a spurious parse failure
+            # for every command sent.
+            if raw_data.lstrip()[:1] in (b"{", b"["):
+                return super()._prepare_data(raw_data)
 
             # 1. Decode HeaderMessage
             header_info = self._decode_header_message(raw_data)
