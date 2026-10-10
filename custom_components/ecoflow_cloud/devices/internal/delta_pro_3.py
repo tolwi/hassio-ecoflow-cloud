@@ -1,17 +1,20 @@
 import logging
 from typing import Any, override
 
+from google.protobuf.json_format import MessageToDict
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.internal.proto import (
     ef_dp3_iobroker_pb2 as dp3,
 )
 from custom_components.ecoflow_cloud.number import (
+    BatteryBackupLevel,
     ChargingPowerEntity,
     MaxBatteryLevelEntity,
     MinBatteryLevelEntity,
@@ -44,6 +47,69 @@ from custom_components.ecoflow_cloud.sensor import (
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class DeltaPro3CommandMessage(PrivateAPIMessageProtocol):
+    """Message wrapper for DELTA Pro 3 protobuf commands."""
+
+    def __init__(
+        self,
+        payload: dp3.DP3SetCommand,
+        packet: dp3.DP3SendHeaderMsg,
+    ):
+        self._packet = packet
+        self._payload = payload
+
+    @override
+    def to_mqtt_payload(self):
+        return self._packet.SerializeToString()
+
+    @override
+    def to_dict(self) -> dict:
+        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
+
+        result = MessageToDict(self._packet, preserving_proto_field_name=True)
+        result["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}
+        result["msg"][0].pop("seq", None)
+        return {type(self._packet).__name__: result}
+
+
+def _create_delta_pro3_backup_reserve_command(energy_backup_start_soc: int, device_sn: str) -> DeltaPro3CommandMessage:
+    """Create a protobuf command setting the DELTA Pro 3 backup reserve level.
+
+    The DELTA Pro 3 ignores the legacy JSON/TCP envelope used by the rest of
+    this profile for the backup reserve config, so this is written as a
+    cmdFunc=254 / cmdId=17 protobuf frame, exactly as Delta 3 and River 3 do.
+
+    Only energyBackupStartSoc is set; cfgEnergyBackup's enable flag is left
+    absent so that changing the level cannot alter whether backup reserve is
+    switched on.
+    """
+    payload = dp3.DP3SetCommand()
+    payload.cfgEnergyBackup.energyBackupStartSoc = int(energy_backup_start_soc)
+
+    pdata = payload.SerializeToString()
+
+    packet = dp3.DP3SendHeaderMsg()
+    message = packet.msg.add()
+
+    message.src = 32
+    message.dest = 2
+    message.d_src = 1
+    message.d_dest = 1
+    message.cmd_func = 254
+    message.cmd_id = 17
+    message.need_ack = 1
+    message.seq = Message.gen_seq()
+    message.product_id = 1
+    message.version = 19
+    message.payload_ver = 1
+    message.device_sn = device_sn
+    message.data_len = len(pdata)
+    message.pdata = pdata
+
+    return DeltaPro3CommandMessage(payload, packet)
+
 
 # Message type mapping for BMS heartbeat related reports
 # These (cmdFunc, cmdId) pairs are known to map to BMSHeartBeatReport
@@ -143,6 +209,7 @@ class DeltaPro3(BaseInternalDevice):
 
     @override
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
+        device = self
         return [
             # Battery Management
             MaxBatteryLevelEntity(
@@ -184,6 +251,19 @@ class DeltaPro3(BaseInternalDevice):
                     "operateType": "TCP",
                     "params": {"id": 69, "plugInInfoAcInChgPowMax": value},
                 },
+            ),
+            # Backup Reserve
+            BatteryBackupLevel(
+                client,
+                self,
+                "energy_backup_start_soc",
+                const.BACKUP_RESERVE_LEVEL,
+                5,
+                100,
+                "cms_min_dsg_soc",
+                "cms_max_chg_soc",
+                5,
+                lambda value: _create_delta_pro3_backup_reserve_command(int(value), device.device_data.sn),
             ),
         ]
 

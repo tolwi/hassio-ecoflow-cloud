@@ -723,7 +723,7 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> DELTA_PRO_3 <i>(sensors: 47, switches: 8, sliders: 3, selects: 4)</i> </summary>
+<details><summary> DELTA_PRO_3 <i>(sensors: 47, switches: 8, sliders: 4, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -789,6 +789,7 @@ from Home Assistant.
 - Max Charge Level
 - Min Discharge Level
 - AC Charging Power
+- Backup Reserve Level
 
 *Selects*
 - Screen Timeout

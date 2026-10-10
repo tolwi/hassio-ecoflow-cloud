@@ -63,6 +63,7 @@
 - Max Charge Level (`cms_max_chg_soc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 49, "cmsMaxChgSoc": "VALUE"}}` [50 - 100])
 - Min Discharge Level (`cms_min_dsg_soc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 51, "cmsMinDsgSoc": "VALUE"}}` [0 - 30])
 - AC Charging Power (`plug_in_info_ac_in_chg_pow_max` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 69, "plugInInfoAcInChgPowMax": "VALUE"}}` [200 - 3000])
+- Backup Reserve Level (`energy_backup_start_soc` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"cfgEnergyBackup": {"energyBackupStartSoc": 6666}}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 6, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [5 - 100])
 
 *Selects*
 - Screen Timeout (`screen_off_time` -> `{"moduleType": 0, "operateType": "TCP", "params": {"screenOffTime": "VALUE", "id": 39}}` [Never (0), 10 sec (10), 30 sec (30), 1 min (60), 5 min (300), 30 min (1800)])

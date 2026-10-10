@@ -491,6 +491,7 @@ message DP3SetCommand {
     optional int32 xboostEn = 25;
     optional int32 cmsMaxChgSoc = 33;
     optional int32 cmsMinDsgSoc = 34;
+    optional DP3CfgEnergyBackup cfgEnergyBackup = 43;
     optional int32 plugInInfoPvLDcAmpMax = 52;
     optional int32 plugInInfoPvHDcAmpMax = 53;
     optional int32 plugInInfoAcInChgPowMax= 54;
@@ -523,6 +524,7 @@ message DP3SetReply {
     optional int32 xboostEn = 25;
     optional int32 cmsMaxChgSoc = 33;
     optional int32 cmsMinDsgSoc = 34;
+    optional DP3CfgEnergyBackup cfgEnergyBackup = 43;
     optional int32 plugInInfoPvLDcAmpMax = 52;
     optional int32 plugInInfoPvHDcAmpMax = 53;
     optional int32 plugInInfoAcInChgPowMax= 54;
@@ -537,6 +539,24 @@ message DP3SetReply {
 	optional int32 unknown167 = 167;
 	// bleStandbyTime //Bluetooth timeout.
 	// fastChargeSwitch
+}
+
+// Backup reserve (energy backup) configuration.
+//
+// EcoFlow's DELTA Pro 3 developer docs document this as a cmdFunc=254 /
+// cmdId=17 command carrying params.cfgEnergyBackup {energyBackupStartSoc,
+// energyBackupEn}, read back via the energyBackupStartSoc / energyBackupEn
+// quotas. The device reports the pair as energy_backup_en (7) and
+// energy_backup_start_soc (8) in DP3DisplayPropertyUpload.
+//
+// The docs give the JSON shape but no protobuf field number for
+// cfgEnergyBackup. 43 is taken from Delta3CfgEnergyBackup /
+// River3CfgEnergyBackup: every set-command field the DELTA Pro 3 and Delta 3
+// have in common already shares a number (9, 10, 11, 12, 13, 14, 18, 25, 33,
+// 34, 54), and 43 is otherwise unused here.
+message DP3CfgEnergyBackup {
+  optional uint32 energyBackupEn = 1;                   // Backup reserve enabled (0/1)
+  optional uint32 energyBackupStartSoc = 2;             // Backup reserve SOC threshold (%)
 }
 
 message DP3SetValue {
