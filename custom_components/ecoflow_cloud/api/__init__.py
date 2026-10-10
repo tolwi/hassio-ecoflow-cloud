@@ -28,6 +28,10 @@ class EcoflowAuthException(EcoflowException):
     """Credentials were rejected - retrying with the same ones will not help."""
 
 
+class EcoflowPrivateApiLoginRejected(EcoflowException):
+    """Private login was rejected without a reliable credential verdict."""
+
+
 @dataclass
 class EcoflowMqttInfo:
     url: str
