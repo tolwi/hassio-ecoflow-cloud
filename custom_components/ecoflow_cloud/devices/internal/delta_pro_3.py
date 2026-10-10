@@ -1,11 +1,13 @@
 import logging
 from typing import Any, override
 
+from google.protobuf.json_format import MessageToDict
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.switch import SwitchEntity
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.internal.proto import (
@@ -44,6 +46,55 @@ from custom_components.ecoflow_cloud.sensor import (
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class DeltaPro3CommandMessage(PrivateAPIMessageProtocol):
+    """Message wrapper for DELTA Pro 3 protobuf commands."""
+
+    def __init__(self, payload: dp3.DP3SetCommand, packet: dp3.DP3SetMessage):
+        self._packet = packet
+        self._payload = payload
+
+    @override
+    def to_mqtt_payload(self):
+        return self._packet.SerializeToString()
+
+    @override
+    def to_dict(self) -> dict:
+        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
+        result = MessageToDict(self._packet, preserving_proto_field_name=True)
+        result["header"]["pdata"] = {type(self._payload).__name__: payload_dict}
+        result["header"].pop("seq", None)
+        return {type(self._packet).__name__: result}
+
+
+def _create_delta_pro3_proto_command(field_name: str, value: int) -> DeltaPro3CommandMessage:
+    """Create a protobuf SET command for DELTA Pro 3."""
+    payload = dp3.DP3SetCommand()
+    try:
+        setattr(payload, field_name, int(value))
+    except AttributeError:
+        _LOGGER.error("Unknown DELTA Pro 3 set field: %s", field_name)
+        raise
+
+    pdata = payload.SerializeToString()
+    packet = dp3.DP3SetMessage()
+    header = packet.header
+    header.src = 32
+    header.dest = 2
+    header.d_src = 1
+    header.d_dest = 1
+    header.cmd_func = 254
+    header.cmd_id = 17
+    header.data_len = len(pdata)
+    header.need_ack = 1
+    header.seq = Message.gen_seq()
+    header.product_id = 1
+    header.version = 19
+    header.payload_ver = 1
+    header.pdata = pdata
+
+    return DeltaPro3CommandMessage(payload, packet)
 
 # Message type mapping for BMS heartbeat related reports
 # These (cmdFunc, cmdId) pairs are known to map to BMSHeartBeatReport
@@ -177,13 +228,11 @@ class DeltaPro3(BaseInternalDevice):
                 self,
                 "plug_in_info_ac_in_chg_pow_max",
                 const.AC_CHARGING_POWER,
-                200,
-                3000,
-                lambda value: {
-                    "moduleType": 0,
-                    "operateType": "TCP",
-                    "params": {"id": 69, "plugInInfoAcInChgPowMax": value},
-                },
+                400,
+                2900,
+                lambda value: _create_delta_pro3_proto_command(
+                    "plugInInfoAcInChgPowMax", int(value)
+                ),
             ),
         ]
 
