@@ -43,6 +43,7 @@ from custom_components.ecoflow_cloud.sensor import (
     CentivoltSensorEntity,
     FrequencySensorEntity,
     MiscSensorEntity,
+    QuotaScheduledStatusSensorEntity,
     QuotaStatusSensorEntity,
     SolarPowerSensorEntity,
     TempSensorEntity,
@@ -87,6 +88,16 @@ SOLAR_TOTAL_MAX = PV_MAX_W * PV_STRINGS  # 8-string ceiling; above = field-reuse
 DEV_TEMP_FIELD_BASE = 1553
 DEV_TEMP_COUNT = 5
 DEV_TEMP_MIN, DEV_TEMP_MAX = -40.0, 150.0
+
+# Quota refresh cadence for BOTH devices. The Ocean Pro sends telemetry only in answer to a
+# `latestQuotas` request: a passive subscriber receives nothing. The inherited status sensors
+# ask only once the device has gone silent for assume_offline_sec (300 s by default), so alone
+# they would hold the feed to one burst per ~5 minutes. Any other client polling the same
+# account (the mobile app, a collector) masks this by keeping the stream awake, which is why
+# it went unnoticed. 10 s is the cadence the private collector has run at since 2026-07-22,
+# the regime every rate in this profile was observed under; each request is one small MQTT
+# publish. With the default 5 s coordinator tick it fires every 10-15 s.
+QUOTA_REFRESH_SEC = 10
 
 # Per-leg PCS AC telemetry on the SAME 254/21 stream (fields 1463..1468). A/B phase
 # assignment is provisional (per the meter-validated fieldmap). Voltage/current are
@@ -362,7 +373,11 @@ class OceanPanel(SmartHomePanel3):
         # App operating mode (254/21 field 900), mapped to the app's three mode names.
         # Enabled (diagnostic) — collect-all rule, local patch, not upstreamed to tolwi yet;
         # if/when upstreamed, flip to enabled=False to match tolwi convention.
-        return super().sensors(client) + [
+        # The inherited status sensor only polls after 300 s of silence; swap it for the
+        # scheduled one (same "status" key, so the entity is unchanged) — see QUOTA_REFRESH_SEC.
+        inherited = [s for s in super().sensors(client) if not isinstance(s, QuotaStatusSensorEntity)]
+        return inherited + [
+            QuotaScheduledStatusSensorEntity(client, self, QUOTA_REFRESH_SEC, "Status", "status"),
             MiscSensorEntity(client, self, "ocean_operating_mode", "Operating Mode", diagnostic=True).with_icon("mdi:home-lightning-bolt"),
             # Grid-connect / island status (254 field 619): on_grid / islanded. Diagnostic.
             MiscSensorEntity(client, self, "ocean_grid_status", "Grid Connection", diagnostic=True).with_icon("mdi:transmission-tower"),
@@ -482,7 +497,8 @@ class OceanProInverter(DeltaPro3):
             VoltSensorEntity(client, self, "pcsB_voltage", "PCS Phase B Voltage").with_icon("mdi:sine-wave"),
             AmpSensorEntity(client, self, "pcsB_current", "PCS Phase B Current"),
             WattsSensorEntity(client, self, "pcsB_power", "PCS Phase B Power").with_icon("mdi:sine-wave"),
-            QuotaStatusSensorEntity(client, self),
+            # Scheduled, not silence-triggered — see QUOTA_REFRESH_SEC.
+            QuotaScheduledStatusSensorEntity(client, self, QUOTA_REFRESH_SEC, "Status", "status"),
         ]
         # Grid-side metering (254/22 status frame): frequency + per-leg voltage/current.
         # Distinct from the PCS/inverter-output legs above — this is the grid connection.
