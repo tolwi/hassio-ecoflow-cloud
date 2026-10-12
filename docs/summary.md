@@ -3470,7 +3470,7 @@
 
 </p></details>
 
-<details><summary> Smart Home Panel (API) <i>(sensors: 67, binary_sensors: 1, switches: 4, sliders: 4, selects: 11)</i> </summary>
+<details><summary> Smart Home Panel (API) <i>(sensors: 67, binary_sensors: 1, switches: 5, sliders: 6, selects: 11)</i> </summary>
 <p>
 
 *Sensors*
@@ -3548,6 +3548,7 @@
 *Switches*
 - EPS Mode
 - Scheduled Charge
+- Alternating Charge
 - Battery 1 Charge
 - Battery 2 Charge
 
@@ -3556,6 +3557,8 @@
 - Max Charge Level
 - Scheduled Charge Battery Level
 - Scheduled Charge Power
+- Alternating Charge Battery Level
+- Alternating Charge Power
 
 *Selects*
 - Circuit 1 Mode _(read-only)_
