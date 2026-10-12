@@ -504,6 +504,9 @@ SCHEDULED_CHARGE = "Scheduled Charge"
 SCHEDULED_CHARGE_BATTERY = "Scheduled Charge Battery"
 SCHEDULED_CHARGE_BATTERY_LEVEL = "Scheduled Charge Battery Level"
 SCHEDULED_CHARGE_POWER = "Scheduled Charge Power"
+ALTERNATING_CHARGE = "Alternating Charge"
+ALTERNATING_CHARGE_BATTERY_LEVEL = "Alternating Charge Battery Level"
+ALTERNATING_CHARGE_POWER = "Alternating Charge Power"
 
 SCHEDULED_CHARGE_BATTERY_OPTIONS = {
     "Battery 1": [1, 0],
