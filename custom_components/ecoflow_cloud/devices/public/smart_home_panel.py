@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import threading
 from datetime import datetime
 
 import jsonpath_ng.ext as jp
@@ -13,6 +14,7 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.storage import Store
+from homeassistant.util import dt as dt_util
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
@@ -20,6 +22,7 @@ from custom_components.ecoflow_cloud.button import EnabledButtonEntity
 from custom_components.ecoflow_cloud.device_data import DeviceData
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo, const
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
+from custom_components.ecoflow_cloud.entities import EcoFlowDictEntity
 from custom_components.ecoflow_cloud.number import (
     ChargingPowerEntity,
     MaxBatteryLevelEntity,
@@ -124,11 +127,87 @@ class AggregatedWattsSensorEntity(WattsSensorEntity):
                 self.schedule_update_ha_state()
 
 
+class AlternatingChargeAttrsMixin(EcoFlowDictEntity):
+    """Port 2 state lives in attributes; the base class writes state only when the port 1 value changes."""
+
+    def _updated(self, data: dict):
+        before = dict(self.extra_state_attributes or {})
+        super()._updated(data)
+        if dict(self.extra_state_attributes or {}) != before:
+            self.schedule_update_ha_state()
+
+
+class AlternatingChargeSwitchEntity(AlternatingChargeAttrsMixin, EnabledEntity):
+    """Enables/disables both alternating scheduled-charge tasks (port 1 / port 2) at once."""
+
+    def __init__(self, client: EcoflowApiClient, device: SmartHomePanel, key: str, title: str) -> None:
+        # The command builder only documents the port 1 task; turn_on/turn_off send both tasks.
+        super().__init__(
+            client, device, key, title,
+            command=lambda value, params: device._alternating_charge_commands(params, is_enable=value)[0][1],
+        )
+        self._panel = device
+
+    def turn_on(self, **kwargs) -> None:
+        self._panel.send_alternating_charge(self._client, is_enable=1)
+
+    def turn_off(self, **kwargs) -> None:
+        self._panel.send_alternating_charge(self._client, is_enable=0)
+
+
+class AlternatingChargePowerEntity(AlternatingChargeAttrsMixin, ChargingPowerEntity):
+    """Charge power shared by both alternating scheduled-charge tasks."""
+
+    def __init__(self, client: EcoflowApiClient, device: SmartHomePanel, key: str, title: str, min_value: int, max_value: int) -> None:
+        super().__init__(
+            client, device, key, title, min_value, max_value,
+            command=lambda value, params: device._alternating_charge_commands(params, charge_watt=value)[0][1],
+        )
+        self._panel = device
+
+    async def async_set_native_value(self, value: float) -> None:
+        self._panel.send_alternating_charge(self._client, charge_watt=int(value))
+
+
+class AlternatingChargeLevelEntity(AlternatingChargeAttrsMixin, MaxBatteryLevelEntity):
+    """Charge limit shared by both alternating scheduled-charge tasks."""
+
+    def __init__(self, client: EcoflowApiClient, device: SmartHomePanel, key: str, title: str, min_value: int, max_value: int) -> None:
+        super().__init__(
+            client, device, key, title, min_value, max_value,
+            command=lambda value, params: device._alternating_charge_commands(params, high_battery=value)[0][1],
+        )
+        self._panel = device
+
+    async def async_set_native_value(self, value: float) -> None:
+        self._panel.send_alternating_charge(self._client, high_battery=int(value))
+
+
 class SmartHomePanel(BaseDevice):
     # Scheduled charge task slots (cfgIndex) on the panel. The panel has 20 slots
     # (0-19) and streams them round-robin, one per second, as params.timeTask
     # with an "index" field. The EcoFlow app allocates from 0 upwards.
     SCHEDULED_CHARGE_INDEX = 10
+    # Alternating charge: two tasks that split every hour between the ports.
+    # cfgIndex -> chSta (port 1, port 2)
+    ALTERNATING_CHARGE_TASKS = {11: [1, 0], 12: [0, 1]}
+    # cfgIndex -> active 10-minute slots within each hour
+    ALTERNATING_CHARGE_SLOTS = {11: (0, 1, 2), 12: (3, 4, 5)}
+    ALTERNATING_CHARGE_TIME_RANGE = {
+        "isCfg": 1,
+        "isEnable": 1,
+        "timeMode": 0,
+        "startTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1},
+        "endTime": {"sec": 59, "min": 59, "week": 1, "hour": 23, "month": 1, "year": 2040, "day": 1},
+    }
+    # The panel answers a cfg command that arrives while it is still applying the
+    # previous one with a bare {"ack": 1} and drops it (observed with a 2 s gap;
+    # 10 s apart both were applied), so the two task writes are spaced apart.
+    ALTERNATING_CHARGE_COMMAND_GAP_SEC = 10.0
+    # timeScale: 18 signed bytes = 144 bits = 24h in 10-minute slots, LSB first.
+    TIME_SCALE_BYTES = 18
+    TIME_SCALE_SLOTS_PER_HOUR = 6
+
     # Scheduled charge defaults and limits
     SCHEDULED_CHARGE_BATTERY_MIN = 50
     SCHEDULED_CHARGE_BATTERY_MAX = 100
@@ -322,6 +401,22 @@ class SmartHomePanel(BaseDevice):
                 self.SCHEDULED_CHARGE_POWER_MAX,
                 lambda value, params: self._scheduled_charge_command(params, charge_watt=value),
             ),
+            AlternatingChargeLevelEntity(
+                client,
+                self,
+                "timeTask11.cfg.param.hightBattery",
+                const.ALTERNATING_CHARGE_BATTERY_LEVEL,
+                self.SCHEDULED_CHARGE_BATTERY_MIN,
+                self.SCHEDULED_CHARGE_BATTERY_MAX,
+            ).attr("timeTask12.cfg.param.hightBattery", "Port 2 task level", 0),
+            AlternatingChargePowerEntity(
+                client,
+                self,
+                "timeTask11.cfg.param.chChargeWatt",
+                const.ALTERNATING_CHARGE_POWER,
+                self.SCHEDULED_CHARGE_POWER_MIN,
+                self.SCHEDULED_CHARGE_POWER_MAX,
+            ).attr("timeTask12.cfg.param.chChargeWatt", "Port 2 task power", 0),
         ]
 
     def switches(self, client: EcoflowApiClient) -> list[SwitchEntity]:
@@ -347,6 +442,12 @@ class SmartHomePanel(BaseDevice):
             )
             .with_category(EntityCategory.CONFIG)
             .with_icon("mdi:battery-clock"),
+            AlternatingChargeSwitchEntity(client, self, "timeTask11.cfg.comCfg.isEnable", const.ALTERNATING_CHARGE)
+            .attr("timeTask12.cfg.comCfg.isEnable", "Port 2 task enabled", 0)
+            .attr("timeTask11.cfg.comCfg.isCfg", "Port 1 task configured", 0)
+            .attr("timeTask12.cfg.comCfg.isCfg", "Port 2 task configured", 0)
+            .with_category(EntityCategory.CONFIG)
+            .with_icon("mdi:battery-sync"),
             self._batteryChargeSwitch(client, 1, True),
             self._batteryChargeSwitch(client, 2, False),
         ]
@@ -413,6 +514,11 @@ class SmartHomePanel(BaseDevice):
             if index == self.SCHEDULED_CHARGE_INDEX:
                 self.data.params["timeTask"] = task
 
+    def update_data(self, raw_data: bytes, data_type: str) -> bool:
+        if data_type in (self.device_info.set_topic, self.device_info.set_reply_topic) and _LOGGER.isEnabledFor(logging.DEBUG):
+            _LOGGER.debug("%s: %s", "set" if data_type == self.device_info.set_topic else "set_reply", raw_data.decode("utf-8", errors="ignore"))
+        return super().update_data(raw_data, data_type)
+
     def _prepare_data_data_topic(self, raw_data: bytes) -> PreparedData:
         data = self._prepare_data(raw_data)
         self._absorb_time_task(data)
@@ -454,12 +560,96 @@ class SmartHomePanel(BaseDevice):
         asyncio.run_coroutine_threadsafe(self._store.async_save(snapshot), self._hass.loop)
 
     @classmethod
-    def _get_scheduled_charge_params(cls, params: dict) -> dict:
-        """Extract current scheduled charge param values from timeTask structure."""
-        time_task = params.get("timeTask", {}) if params else {}
+    def _time_scale(cls, slots_in_hour: tuple[int, ...]) -> list[int]:
+        """Build a timeScale bitmap: 144 ten-minute slots, 8 per signed byte, LSB first."""
+        bits = [0] * (cls.TIME_SCALE_BYTES * 8)
+        for hour in range(24):
+            for slot in slots_in_hour:
+                bits[hour * cls.TIME_SCALE_SLOTS_PER_HOUR + slot] = 1
+        result = []
+        for byte in range(cls.TIME_SCALE_BYTES):
+            value = sum(bits[byte * 8 + bit] << bit for bit in range(8))
+            result.append(value - 256 if value > 127 else value)
+        return result
+
+    def send_alternating_charge(
+        self,
+        client: EcoflowApiClient,
+        high_battery: int | None = None,
+        charge_watt: int | None = None,
+        is_enable: int | None = None,
+    ) -> None:
+        now = dt_util.now()
+        set_time = {
+            "sec": now.second, "min": now.minute, "hour": now.hour,
+            "day": now.day, "month": now.month, "year": now.year, "week": now.isoweekday(),
+        }
+        commands = self._alternating_charge_commands(
+            self.data.params, high_battery=high_battery, charge_watt=charge_watt, is_enable=is_enable, set_time=set_time
+        )
+        for i, (state, command) in enumerate(commands):
+            _LOGGER.debug("alternating charge: cfgIndex %s %s", command["params"]["cfgIndex"], json.dumps(command, separators=(",", ":")))
+            if i == 0:
+                client.send_set_message(self.device_info.sn, state, command)
+            else:
+                threading.Timer(
+                    i * self.ALTERNATING_CHARGE_COMMAND_GAP_SEC,
+                    client.send_set_message,
+                    args=(self.device_info.sn, state, command),
+                ).start()
+
+    def _alternating_charge_commands(
+        self,
+        params: dict,
+        high_battery: int | None = None,
+        charge_watt: int | None = None,
+        is_enable: int | None = None,
+        set_time: dict | None = None,
+    ) -> list[tuple[dict, dict]]:
+        """One (optimistic state, command) pair per alternating task; overrides apply to both.
+
+        set_time None uses the builder's fixed default, which keeps the generated docs stable.
+        """
+        result = []
+        for index, ch_sta in self.ALTERNATING_CHARGE_TASKS.items():
+            p = self._get_scheduled_charge_params(params, index)
+            high = high_battery if high_battery is not None else p["hightBattery"]
+            watt = charge_watt if charge_watt is not None else p["chChargeWatt"]
+            enable = is_enable if is_enable is not None else p["isEnable"]
+            command = self._build_scheduled_charge_command(
+                high, max(high - 5, 0), watt, ch_sta, enable,
+                cfg_index=index,
+                time_scale=self._time_scale(self.ALTERNATING_CHARGE_SLOTS[index]),
+                time_range=self.ALTERNATING_CHARGE_TIME_RANGE,
+                set_time=set_time,
+            )
+            key = self._time_task_key(index)
+            state = {
+                f"{key}.cfg.param.hightBattery": high,
+                f"{key}.cfg.param.lowBattery": max(high - 5, 0),
+                f"{key}.cfg.param.chChargeWatt": watt,
+                f"{key}.cfg.comCfg.isEnable": enable,
+            }
+            result.append((state, command))
+        return result
+
+    @classmethod
+    def _get_scheduled_charge_params(cls, params: dict, cfg_index: int = SCHEDULED_CHARGE_INDEX) -> dict:
+        """Extract current scheduled charge param values for one task slot (defaults if unconfigured)."""
+        time_task = None
+        if params:
+            time_task = params.get(cls._time_task_key(cfg_index))
+            if time_task is None and cfg_index == cls.SCHEDULED_CHARGE_INDEX:
+                time_task = params.get("timeTask")
+        if not isinstance(time_task, dict):
+            time_task = {}
         cfg = time_task.get("cfg", {})
         cfg_param = cfg.get("param", {})
         cfg_com = cfg.get("comCfg", {})
+        if int(cfg_com.get("isCfg", 0)) != 1:
+            # Empty slot: the panel reports all-zero fields, which must not be preserved.
+            cfg_param = {}
+            cfg_com = {}
 
         high = cfg_param.get("hightBattery", cls.SCHEDULED_CHARGE_BATTERY_DEFAULT)
         return {
@@ -477,8 +667,22 @@ class SmartHomePanel(BaseDevice):
         charge_watt: int,
         ch_sta: list,
         is_enable: int,
+        cfg_index: int = SCHEDULED_CHARGE_INDEX,
+        time_scale: list[int] | None = None,
+        time_range: dict | None = None,
+        set_time: dict | None = None,
     ) -> dict:
         """Build the scheduled charge command structure."""
+        if time_range is None:
+            time_range = {
+                "isCfg": 1,
+                "isEnable": 1,
+                "timeMode": 0,
+                "startTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1},
+                "endTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2030, "day": 1},
+            }
+        if set_time is None:
+            set_time = {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1}
         return {
             "operateType": "TCP",
             "params": {
@@ -490,21 +694,15 @@ class SmartHomePanel(BaseDevice):
                         "chSta": ch_sta,
                     },
                     "comCfg": {
-                        "timeScale": [-1] * 18,
+                        "timeScale": list(time_scale) if time_scale is not None else [-1] * 18,
                         "isCfg": 1,
                         "type": 1,
-                        "timeRange": {
-                            "isCfg": 1,
-                            "isEnable": 1,
-                            "timeMode": 0,
-                            "startTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1},
-                            "endTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2030, "day": 1},
-                        },
-                        "setTime": {"sec": 0, "min": 0, "week": 1, "hour": 0, "month": 1, "year": 2020, "day": 1},
+                        "timeRange": dict(time_range),
+                        "setTime": dict(set_time),
                         "isEnable": is_enable,
                     },
                 },
-                "cfgIndex": SmartHomePanel.SCHEDULED_CHARGE_INDEX,
+                "cfgIndex": cfg_index,
                 "cmdSet": 11,
                 "id": 81,
             },
