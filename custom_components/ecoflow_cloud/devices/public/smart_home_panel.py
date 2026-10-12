@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 from datetime import datetime
 
 import jsonpath_ng.ext as jp
@@ -16,7 +17,9 @@ from homeassistant.helpers.storage import Store
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
 from custom_components.ecoflow_cloud.button import EnabledButtonEntity
-from custom_components.ecoflow_cloud.devices import BaseDevice, const
+from custom_components.ecoflow_cloud.device_data import DeviceData
+from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo, const
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.number import (
     ChargingPowerEntity,
     MaxBatteryLevelEntity,
@@ -38,6 +41,8 @@ from custom_components.ecoflow_cloud.sensor import (
     WattsSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import EnabledEntity
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class ScheduledChargeChStaSelectEntity(DictSelectEntity):
@@ -120,6 +125,10 @@ class AggregatedWattsSensorEntity(WattsSensorEntity):
 
 
 class SmartHomePanel(BaseDevice):
+    # Scheduled charge task slots (cfgIndex) on the panel. The panel has 20 slots
+    # (0-19) and streams them round-robin, one per second, as params.timeTask
+    # with an "index" field. The EcoFlow app allocates from 0 upwards.
+    SCHEDULED_CHARGE_INDEX = 10
     # Scheduled charge defaults and limits
     SCHEDULED_CHARGE_BATTERY_MIN = 50
     SCHEDULED_CHARGE_BATTERY_MAX = 100
@@ -128,6 +137,11 @@ class SmartHomePanel(BaseDevice):
     SCHEDULED_CHARGE_POWER_MAX = 3400
     SCHEDULED_CHARGE_POWER_DEFAULT = 2000
     SCHEDULED_CHARGE_CH_STA_DEFAULT = [1, 1]
+
+    def __init__(self, device_info: EcoflowDeviceInfo, device_data: DeviceData) -> None:
+        super().__init__(device_info, device_data)
+        self._time_tasks: dict[int, dict] = {}
+        self._store: Store[dict] | None = None
 
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         sensors = [
@@ -372,26 +386,71 @@ class SmartHomePanel(BaseDevice):
     def configure(self, hass: HomeAssistant):
         super().configure(hass)
         self._hass = hass
-        self._store: Store[dict] = Store(hass, 1, f"ecoflow_cloud.{self.device_info.sn}.timetask")
+        self._store = Store(hass, 1, f"ecoflow_cloud.{self.device_info.sn}.timetask")
+
+    @classmethod
+    def _time_task_key(cls, index: int) -> str:
+        return f"timeTask{index}"
 
     async def async_restore_state(self):
+        if self._store is None:
+            return
         data = await self._store.async_load()
-        if data and "timeTask" in data:
-            self.data.params["timeTask"] = data["timeTask"]
+        if not data:
+            return
+        tasks = data.get("timeTasks")
+        if isinstance(tasks, dict):
+            for key, task in tasks.items():
+                if isinstance(task, dict):
+                    self._time_tasks[int(key)] = task
+        elif isinstance(data.get("timeTask"), dict):
+            # Legacy single-task store (last reported task, whatever its index).
+            task = data["timeTask"]
+            self._time_tasks[int(task.get("index", self.SCHEDULED_CHARGE_INDEX))] = task
+        for index, task in self._time_tasks.items():
+            self.data.params[self._time_task_key(index)] = task
+            if index == self.SCHEDULED_CHARGE_INDEX:
+                self.data.params["timeTask"] = task
 
-    def update_data(self, raw_data: bytes, data_type: str) -> bool:
+    def _prepare_data_data_topic(self, raw_data: bytes) -> PreparedData:
+        data = self._prepare_data(raw_data)
+        self._absorb_time_task(data)
+        return PreparedData(None, data, data)
+
+    def _absorb_time_task(self, data: dict) -> None:
+        """Re-key the round-robin timeTask report by its slot index.
+
+        The panel streams all 20 task slots one per second under the same
+        params.timeTask key, so a plain params.update() would make every
+        timeTask entity flap between slots. Each report is stored under
+        timeTask<index>; the legacy timeTask key is kept only for the
+        integration's own slot so existing entity keys stay valid.
+        """
         try:
-            payload = raw_data.decode("utf-8", errors="ignore")
-            if "timeTask" in payload:
-                parsed = json.loads(payload)
-                if "params" in parsed and "timeTask" in parsed["params"]:
-                    asyncio.run_coroutine_threadsafe(
-                        self._store.async_save({"timeTask": parsed["params"]["timeTask"]}),
-                        self._hass.loop,
-                    )
+            params = data.get("params") if isinstance(data, dict) else None
+            if not isinstance(params, dict):
+                return
+            task = params.get("timeTask")
+            if not isinstance(task, dict) or "index" not in task:
+                return
+            index = int(task["index"])
+            params[self._time_task_key(index)] = task
+            if index != self.SCHEDULED_CHARGE_INDEX:
+                del params["timeTask"]
+            if self._time_tasks.get(index) != task:
+                self._time_tasks[index] = task
+                _LOGGER.debug("timeTask[%s] changed: %s", index, json.dumps(task, separators=(",", ":")))
+                self._save_time_tasks()
         except Exception:
-            pass
-        return super().update_data(raw_data, data_type)
+            _LOGGER.exception("Failed to process timeTask report")
+
+    def _save_time_tasks(self) -> None:
+        if self._store is None or self._hass.is_stopping or not self._hass.loop.is_running():
+            # Reports still arrive on the MQTT thread while HA shuts down; a coroutine
+            # scheduled onto a closing loop would only raise "never awaited".
+            return
+        snapshot = {"timeTasks": {str(k): v for k, v in self._time_tasks.items()}}
+        asyncio.run_coroutine_threadsafe(self._store.async_save(snapshot), self._hass.loop)
 
     @classmethod
     def _get_scheduled_charge_params(cls, params: dict) -> dict:
