@@ -35,7 +35,11 @@ Everything else is a built-in card.
    (`sensor.hr61xxxxxxxxxxxx_battery_level`).
 2. In `ocean_pro.yaml`, replace every `INVERTER` with the inverter prefix and every `PANEL`
    with the panel prefix.
-3. Settings → Dashboards → Add dashboard → open it → ⋮ → Edit dashboard → ⋮ → Raw
+3. Enable the diagnostic sensors the dashboard uses. They ship disabled, like the per-circuit
+   volt/amp sensors. On the inverter device page open the hidden/disabled entities and enable
+   PV1–PV8 Voltage, Current, MPPT Fault Code and MPPT State (32 sensors, all on the Strings
+   view). On the panel device enable Operating Mode (Live view).
+4. Settings → Dashboards → Add dashboard → open it → ⋮ → Edit dashboard → ⋮ → Raw
    configuration editor → paste → Save.
 
 ### If a card says "Entity not available"
@@ -45,8 +49,7 @@ Everything else is a built-in card.
   moved to an area). Open the device page, find the sensor by name, and use its actual
   entity_id.
 - **Entities you renamed** keep your name, not the default one in this file.
-- **Disabled entities** don't appear. Some diagnostics ship disabled; enable them on the
-  device page.
+- **Disabled entities** don't appear. See setup step 3 for the ones this dashboard needs.
 - The Strings view needs the per-string voltage, current and MPPT sensors, which arrived
   after the original Ocean Pro support. Update the integration if they're missing.
 
