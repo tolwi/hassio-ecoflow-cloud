@@ -104,13 +104,13 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out Energy)
 - AC In Volts
 - AC Out Volts
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- Solar In Power (energy:  _[Device Name]_ Solar In Energy)
 - DC Out Power
 - Type-C (1) Out Power
 - Type-C (2) Out Power
@@ -183,8 +183,8 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - Solar In Power
 - Solar In Current
 - AC In Power
@@ -248,13 +248,13 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out Energy)
 - AC In Volts
 - AC Out Volts
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- Solar In Power (energy:  _[Device Name]_ Solar In Energy)
 - DC Out Power
 - Type-C (1) Out Power
 - USB QC (1) Out Power
@@ -323,8 +323,8 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - Solar In Power
 - Solar In Current
 - AC In Power
@@ -388,16 +388,16 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - Solar In Current
 - Solar In Voltage
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out Energy)
 - AC In Volts
 - AC Out Volts
 - Type-C In Power
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- Solar In Power (energy:  _[Device Name]_ Solar In Energy)
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
@@ -449,16 +449,16 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - Solar In Current
 - Solar In Voltage
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out Energy)
 - AC In Volts
 - AC Out Volts
 - Type-C In Power
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- Solar In Power (energy:  _[Device Name]_ Solar In Energy)
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
@@ -510,16 +510,16 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out Energy)
 - AC In Volts
 - AC Out Volts
 - Type-C In Power
 - Solar In Current
 - Solar In Voltage
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- Solar In Power (energy:  _[Device Name]_ Solar In Energy)
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
@@ -570,8 +570,8 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - Solar In Power
 - Solar In Current
 - AC In Power
@@ -803,8 +803,8 @@ from Home Assistant.
 
 *Sensors*
 - Battery Level
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - Charge Remaining Time
 - Discharge Remaining Time
 - Status
@@ -878,8 +878,8 @@ from Home Assistant.
 
 *Sensors*
 - Battery Level
-- Home Load Power (energy:  _[Device Name]_ Home Load  Energy)
-- Grid Power (energy:  _[Device Name]_ Grid  Energy)
+- Home Load Power (energy:  _[Device Name]_ Home Load Energy)
+- Grid Power (energy:  _[Device Name]_ Grid Energy)
 - Storage Output Power
 - Status
 - Grid L1 Power  _(disabled)_
@@ -888,100 +888,100 @@ from Home Assistant.
 - Grid L2 Voltage  _(disabled)_
 - Grid L1 Current  _(disabled)_
 - Grid L2 Current  _(disabled)_
-- Circuit 1 Power (energy:  _[Device Name]_ Circuit 1  Energy)
+- Circuit 1 Power (energy:  _[Device Name]_ Circuit 1 Energy)
 - Circuit 1 Voltage  _(disabled)_
 - Circuit 1 Current  _(disabled)_
-- Circuit 2 Power (energy:  _[Device Name]_ Circuit 2  Energy)
+- Circuit 2 Power (energy:  _[Device Name]_ Circuit 2 Energy)
 - Circuit 2 Voltage  _(disabled)_
 - Circuit 2 Current  _(disabled)_
-- Circuit 3 Power (energy:  _[Device Name]_ Circuit 3  Energy)
+- Circuit 3 Power (energy:  _[Device Name]_ Circuit 3 Energy)
 - Circuit 3 Voltage  _(disabled)_
 - Circuit 3 Current  _(disabled)_
-- Circuit 4 Power (energy:  _[Device Name]_ Circuit 4  Energy)
+- Circuit 4 Power (energy:  _[Device Name]_ Circuit 4 Energy)
 - Circuit 4 Voltage  _(disabled)_
 - Circuit 4 Current  _(disabled)_
-- Circuit 5 Power (energy:  _[Device Name]_ Circuit 5  Energy)
+- Circuit 5 Power (energy:  _[Device Name]_ Circuit 5 Energy)
 - Circuit 5 Voltage  _(disabled)_
 - Circuit 5 Current  _(disabled)_
-- Circuit 6 Power (energy:  _[Device Name]_ Circuit 6  Energy)
+- Circuit 6 Power (energy:  _[Device Name]_ Circuit 6 Energy)
 - Circuit 6 Voltage  _(disabled)_
 - Circuit 6 Current  _(disabled)_
-- Circuit 7 Power (energy:  _[Device Name]_ Circuit 7  Energy)
+- Circuit 7 Power (energy:  _[Device Name]_ Circuit 7 Energy)
 - Circuit 7 Voltage  _(disabled)_
 - Circuit 7 Current  _(disabled)_
-- Circuit 8 Power (energy:  _[Device Name]_ Circuit 8  Energy)
+- Circuit 8 Power (energy:  _[Device Name]_ Circuit 8 Energy)
 - Circuit 8 Voltage  _(disabled)_
 - Circuit 8 Current  _(disabled)_
-- Circuit 9 Power (energy:  _[Device Name]_ Circuit 9  Energy)
+- Circuit 9 Power (energy:  _[Device Name]_ Circuit 9 Energy)
 - Circuit 9 Voltage  _(disabled)_
 - Circuit 9 Current  _(disabled)_
-- Circuit 10 Power (energy:  _[Device Name]_ Circuit 10  Energy)
+- Circuit 10 Power (energy:  _[Device Name]_ Circuit 10 Energy)
 - Circuit 10 Voltage  _(disabled)_
 - Circuit 10 Current  _(disabled)_
-- Circuit 11 Power (energy:  _[Device Name]_ Circuit 11  Energy)
+- Circuit 11 Power (energy:  _[Device Name]_ Circuit 11 Energy)
 - Circuit 11 Voltage  _(disabled)_
 - Circuit 11 Current  _(disabled)_
-- Circuit 12 Power (energy:  _[Device Name]_ Circuit 12  Energy)
+- Circuit 12 Power (energy:  _[Device Name]_ Circuit 12 Energy)
 - Circuit 12 Voltage  _(disabled)_
 - Circuit 12 Current  _(disabled)_
-- Circuit 13 Power (energy:  _[Device Name]_ Circuit 13  Energy)
+- Circuit 13 Power (energy:  _[Device Name]_ Circuit 13 Energy)
 - Circuit 13 Voltage  _(disabled)_
 - Circuit 13 Current  _(disabled)_
-- Circuit 14 Power (energy:  _[Device Name]_ Circuit 14  Energy)
+- Circuit 14 Power (energy:  _[Device Name]_ Circuit 14 Energy)
 - Circuit 14 Voltage  _(disabled)_
 - Circuit 14 Current  _(disabled)_
-- Circuit 15 Power (energy:  _[Device Name]_ Circuit 15  Energy)
+- Circuit 15 Power (energy:  _[Device Name]_ Circuit 15 Energy)
 - Circuit 15 Voltage  _(disabled)_
 - Circuit 15 Current  _(disabled)_
-- Circuit 16 Power (energy:  _[Device Name]_ Circuit 16  Energy)
+- Circuit 16 Power (energy:  _[Device Name]_ Circuit 16 Energy)
 - Circuit 16 Voltage  _(disabled)_
 - Circuit 16 Current  _(disabled)_
-- Circuit 17 Power (energy:  _[Device Name]_ Circuit 17  Energy)
+- Circuit 17 Power (energy:  _[Device Name]_ Circuit 17 Energy)
 - Circuit 17 Voltage  _(disabled)_
 - Circuit 17 Current  _(disabled)_
-- Circuit 18 Power (energy:  _[Device Name]_ Circuit 18  Energy)
+- Circuit 18 Power (energy:  _[Device Name]_ Circuit 18 Energy)
 - Circuit 18 Voltage  _(disabled)_
 - Circuit 18 Current  _(disabled)_
-- Circuit 19 Power (energy:  _[Device Name]_ Circuit 19  Energy)
+- Circuit 19 Power (energy:  _[Device Name]_ Circuit 19 Energy)
 - Circuit 19 Voltage  _(disabled)_
 - Circuit 19 Current  _(disabled)_
-- Circuit 20 Power (energy:  _[Device Name]_ Circuit 20  Energy)
+- Circuit 20 Power (energy:  _[Device Name]_ Circuit 20 Energy)
 - Circuit 20 Voltage  _(disabled)_
 - Circuit 20 Current  _(disabled)_
-- Circuit 21 Power (energy:  _[Device Name]_ Circuit 21  Energy)
+- Circuit 21 Power (energy:  _[Device Name]_ Circuit 21 Energy)
 - Circuit 21 Voltage  _(disabled)_
 - Circuit 21 Current  _(disabled)_
-- Circuit 22 Power (energy:  _[Device Name]_ Circuit 22  Energy)
+- Circuit 22 Power (energy:  _[Device Name]_ Circuit 22 Energy)
 - Circuit 22 Voltage  _(disabled)_
 - Circuit 22 Current  _(disabled)_
-- Circuit 23 Power (energy:  _[Device Name]_ Circuit 23  Energy)
+- Circuit 23 Power (energy:  _[Device Name]_ Circuit 23 Energy)
 - Circuit 23 Voltage  _(disabled)_
 - Circuit 23 Current  _(disabled)_
-- Circuit 24 Power (energy:  _[Device Name]_ Circuit 24  Energy)
+- Circuit 24 Power (energy:  _[Device Name]_ Circuit 24 Energy)
 - Circuit 24 Voltage  _(disabled)_
 - Circuit 24 Current  _(disabled)_
-- Circuit 25 Power (energy:  _[Device Name]_ Circuit 25  Energy)
+- Circuit 25 Power (energy:  _[Device Name]_ Circuit 25 Energy)
 - Circuit 25 Voltage  _(disabled)_
 - Circuit 25 Current  _(disabled)_
-- Circuit 26 Power (energy:  _[Device Name]_ Circuit 26  Energy)
+- Circuit 26 Power (energy:  _[Device Name]_ Circuit 26 Energy)
 - Circuit 26 Voltage  _(disabled)_
 - Circuit 26 Current  _(disabled)_
-- Circuit 27 Power (energy:  _[Device Name]_ Circuit 27  Energy)
+- Circuit 27 Power (energy:  _[Device Name]_ Circuit 27 Energy)
 - Circuit 27 Voltage  _(disabled)_
 - Circuit 27 Current  _(disabled)_
-- Circuit 28 Power (energy:  _[Device Name]_ Circuit 28  Energy)
+- Circuit 28 Power (energy:  _[Device Name]_ Circuit 28 Energy)
 - Circuit 28 Voltage  _(disabled)_
 - Circuit 28 Current  _(disabled)_
-- Circuit 29 Power (energy:  _[Device Name]_ Circuit 29  Energy)
+- Circuit 29 Power (energy:  _[Device Name]_ Circuit 29 Energy)
 - Circuit 29 Voltage  _(disabled)_
 - Circuit 29 Current  _(disabled)_
-- Circuit 30 Power (energy:  _[Device Name]_ Circuit 30  Energy)
+- Circuit 30 Power (energy:  _[Device Name]_ Circuit 30 Energy)
 - Circuit 30 Voltage  _(disabled)_
 - Circuit 30 Current  _(disabled)_
-- Circuit 31 Power (energy:  _[Device Name]_ Circuit 31  Energy)
+- Circuit 31 Power (energy:  _[Device Name]_ Circuit 31 Energy)
 - Circuit 31 Voltage  _(disabled)_
 - Circuit 31 Current  _(disabled)_
-- Circuit 32 Power (energy:  _[Device Name]_ Circuit 32  Energy)
+- Circuit 32 Power (energy:  _[Device Name]_ Circuit 32 Energy)
 - Circuit 32 Voltage  _(disabled)_
 - Circuit 32 Current  _(disabled)_
 
@@ -992,8 +992,8 @@ from Home Assistant.
 
 *Sensors*
 - Battery Level
-- Home Load Power (energy:  _[Device Name]_ Home Load  Energy)
-- Grid Power (energy:  _[Device Name]_ Grid  Energy)
+- Home Load Power (energy:  _[Device Name]_ Home Load Energy)
+- Grid Power (energy:  _[Device Name]_ Grid Energy)
 - Storage Output Power
 - Status
 - Grid L1 Power  _(disabled)_
@@ -1002,124 +1002,124 @@ from Home Assistant.
 - Grid L2 Voltage  _(disabled)_
 - Grid L1 Current  _(disabled)_
 - Grid L2 Current  _(disabled)_
-- Circuit 1 Power (energy:  _[Device Name]_ Circuit 1  Energy)
+- Circuit 1 Power (energy:  _[Device Name]_ Circuit 1 Energy)
 - Circuit 1 Voltage  _(disabled)_
 - Circuit 1 Current  _(disabled)_
-- Circuit 2 Power (energy:  _[Device Name]_ Circuit 2  Energy)
+- Circuit 2 Power (energy:  _[Device Name]_ Circuit 2 Energy)
 - Circuit 2 Voltage  _(disabled)_
 - Circuit 2 Current  _(disabled)_
-- Circuit 3 Power (energy:  _[Device Name]_ Circuit 3  Energy)
+- Circuit 3 Power (energy:  _[Device Name]_ Circuit 3 Energy)
 - Circuit 3 Voltage  _(disabled)_
 - Circuit 3 Current  _(disabled)_
-- Circuit 4 Power (energy:  _[Device Name]_ Circuit 4  Energy)
+- Circuit 4 Power (energy:  _[Device Name]_ Circuit 4 Energy)
 - Circuit 4 Voltage  _(disabled)_
 - Circuit 4 Current  _(disabled)_
-- Circuit 5 Power (energy:  _[Device Name]_ Circuit 5  Energy)
+- Circuit 5 Power (energy:  _[Device Name]_ Circuit 5 Energy)
 - Circuit 5 Voltage  _(disabled)_
 - Circuit 5 Current  _(disabled)_
-- Circuit 6 Power (energy:  _[Device Name]_ Circuit 6  Energy)
+- Circuit 6 Power (energy:  _[Device Name]_ Circuit 6 Energy)
 - Circuit 6 Voltage  _(disabled)_
 - Circuit 6 Current  _(disabled)_
-- Circuit 7 Power (energy:  _[Device Name]_ Circuit 7  Energy)
+- Circuit 7 Power (energy:  _[Device Name]_ Circuit 7 Energy)
 - Circuit 7 Voltage  _(disabled)_
 - Circuit 7 Current  _(disabled)_
-- Circuit 8 Power (energy:  _[Device Name]_ Circuit 8  Energy)
+- Circuit 8 Power (energy:  _[Device Name]_ Circuit 8 Energy)
 - Circuit 8 Voltage  _(disabled)_
 - Circuit 8 Current  _(disabled)_
-- Circuit 9 Power (energy:  _[Device Name]_ Circuit 9  Energy)
+- Circuit 9 Power (energy:  _[Device Name]_ Circuit 9 Energy)
 - Circuit 9 Voltage  _(disabled)_
 - Circuit 9 Current  _(disabled)_
-- Circuit 10 Power (energy:  _[Device Name]_ Circuit 10  Energy)
+- Circuit 10 Power (energy:  _[Device Name]_ Circuit 10 Energy)
 - Circuit 10 Voltage  _(disabled)_
 - Circuit 10 Current  _(disabled)_
-- Circuit 11 Power (energy:  _[Device Name]_ Circuit 11  Energy)
+- Circuit 11 Power (energy:  _[Device Name]_ Circuit 11 Energy)
 - Circuit 11 Voltage  _(disabled)_
 - Circuit 11 Current  _(disabled)_
-- Circuit 12 Power (energy:  _[Device Name]_ Circuit 12  Energy)
+- Circuit 12 Power (energy:  _[Device Name]_ Circuit 12 Energy)
 - Circuit 12 Voltage  _(disabled)_
 - Circuit 12 Current  _(disabled)_
-- Circuit 13 Power (energy:  _[Device Name]_ Circuit 13  Energy)
+- Circuit 13 Power (energy:  _[Device Name]_ Circuit 13 Energy)
 - Circuit 13 Voltage  _(disabled)_
 - Circuit 13 Current  _(disabled)_
-- Circuit 14 Power (energy:  _[Device Name]_ Circuit 14  Energy)
+- Circuit 14 Power (energy:  _[Device Name]_ Circuit 14 Energy)
 - Circuit 14 Voltage  _(disabled)_
 - Circuit 14 Current  _(disabled)_
-- Circuit 15 Power (energy:  _[Device Name]_ Circuit 15  Energy)
+- Circuit 15 Power (energy:  _[Device Name]_ Circuit 15 Energy)
 - Circuit 15 Voltage  _(disabled)_
 - Circuit 15 Current  _(disabled)_
-- Circuit 16 Power (energy:  _[Device Name]_ Circuit 16  Energy)
+- Circuit 16 Power (energy:  _[Device Name]_ Circuit 16 Energy)
 - Circuit 16 Voltage  _(disabled)_
 - Circuit 16 Current  _(disabled)_
-- Circuit 17 Power (energy:  _[Device Name]_ Circuit 17  Energy)
+- Circuit 17 Power (energy:  _[Device Name]_ Circuit 17 Energy)
 - Circuit 17 Voltage  _(disabled)_
 - Circuit 17 Current  _(disabled)_
-- Circuit 18 Power (energy:  _[Device Name]_ Circuit 18  Energy)
+- Circuit 18 Power (energy:  _[Device Name]_ Circuit 18 Energy)
 - Circuit 18 Voltage  _(disabled)_
 - Circuit 18 Current  _(disabled)_
-- Circuit 19 Power (energy:  _[Device Name]_ Circuit 19  Energy)
+- Circuit 19 Power (energy:  _[Device Name]_ Circuit 19 Energy)
 - Circuit 19 Voltage  _(disabled)_
 - Circuit 19 Current  _(disabled)_
-- Circuit 20 Power (energy:  _[Device Name]_ Circuit 20  Energy)
+- Circuit 20 Power (energy:  _[Device Name]_ Circuit 20 Energy)
 - Circuit 20 Voltage  _(disabled)_
 - Circuit 20 Current  _(disabled)_
-- Circuit 21 Power (energy:  _[Device Name]_ Circuit 21  Energy)
+- Circuit 21 Power (energy:  _[Device Name]_ Circuit 21 Energy)
 - Circuit 21 Voltage  _(disabled)_
 - Circuit 21 Current  _(disabled)_
-- Circuit 22 Power (energy:  _[Device Name]_ Circuit 22  Energy)
+- Circuit 22 Power (energy:  _[Device Name]_ Circuit 22 Energy)
 - Circuit 22 Voltage  _(disabled)_
 - Circuit 22 Current  _(disabled)_
-- Circuit 23 Power (energy:  _[Device Name]_ Circuit 23  Energy)
+- Circuit 23 Power (energy:  _[Device Name]_ Circuit 23 Energy)
 - Circuit 23 Voltage  _(disabled)_
 - Circuit 23 Current  _(disabled)_
-- Circuit 24 Power (energy:  _[Device Name]_ Circuit 24  Energy)
+- Circuit 24 Power (energy:  _[Device Name]_ Circuit 24 Energy)
 - Circuit 24 Voltage  _(disabled)_
 - Circuit 24 Current  _(disabled)_
-- Circuit 25 Power (energy:  _[Device Name]_ Circuit 25  Energy)
+- Circuit 25 Power (energy:  _[Device Name]_ Circuit 25 Energy)
 - Circuit 25 Voltage  _(disabled)_
 - Circuit 25 Current  _(disabled)_
-- Circuit 26 Power (energy:  _[Device Name]_ Circuit 26  Energy)
+- Circuit 26 Power (energy:  _[Device Name]_ Circuit 26 Energy)
 - Circuit 26 Voltage  _(disabled)_
 - Circuit 26 Current  _(disabled)_
-- Circuit 27 Power (energy:  _[Device Name]_ Circuit 27  Energy)
+- Circuit 27 Power (energy:  _[Device Name]_ Circuit 27 Energy)
 - Circuit 27 Voltage  _(disabled)_
 - Circuit 27 Current  _(disabled)_
-- Circuit 28 Power (energy:  _[Device Name]_ Circuit 28  Energy)
+- Circuit 28 Power (energy:  _[Device Name]_ Circuit 28 Energy)
 - Circuit 28 Voltage  _(disabled)_
 - Circuit 28 Current  _(disabled)_
-- Circuit 29 Power (energy:  _[Device Name]_ Circuit 29  Energy)
+- Circuit 29 Power (energy:  _[Device Name]_ Circuit 29 Energy)
 - Circuit 29 Voltage  _(disabled)_
 - Circuit 29 Current  _(disabled)_
-- Circuit 30 Power (energy:  _[Device Name]_ Circuit 30  Energy)
+- Circuit 30 Power (energy:  _[Device Name]_ Circuit 30 Energy)
 - Circuit 30 Voltage  _(disabled)_
 - Circuit 30 Current  _(disabled)_
-- Circuit 31 Power (energy:  _[Device Name]_ Circuit 31  Energy)
+- Circuit 31 Power (energy:  _[Device Name]_ Circuit 31 Energy)
 - Circuit 31 Voltage  _(disabled)_
 - Circuit 31 Current  _(disabled)_
-- Circuit 32 Power (energy:  _[Device Name]_ Circuit 32  Energy)
+- Circuit 32 Power (energy:  _[Device Name]_ Circuit 32 Energy)
 - Circuit 32 Voltage  _(disabled)_
 - Circuit 32 Current  _(disabled)_
-- Circuit 33 Power (energy:  _[Device Name]_ Circuit 33  Energy)
+- Circuit 33 Power (energy:  _[Device Name]_ Circuit 33 Energy)
 - Circuit 33 Voltage  _(disabled)_
 - Circuit 33 Current  _(disabled)_
-- Circuit 34 Power (energy:  _[Device Name]_ Circuit 34  Energy)
+- Circuit 34 Power (energy:  _[Device Name]_ Circuit 34 Energy)
 - Circuit 34 Voltage  _(disabled)_
 - Circuit 34 Current  _(disabled)_
-- Circuit 35 Power (energy:  _[Device Name]_ Circuit 35  Energy)
+- Circuit 35 Power (energy:  _[Device Name]_ Circuit 35 Energy)
 - Circuit 35 Voltage  _(disabled)_
 - Circuit 35 Current  _(disabled)_
-- Circuit 36 Power (energy:  _[Device Name]_ Circuit 36  Energy)
+- Circuit 36 Power (energy:  _[Device Name]_ Circuit 36 Energy)
 - Circuit 36 Voltage  _(disabled)_
 - Circuit 36 Current  _(disabled)_
-- Circuit 37 Power (energy:  _[Device Name]_ Circuit 37  Energy)
+- Circuit 37 Power (energy:  _[Device Name]_ Circuit 37 Energy)
 - Circuit 37 Voltage  _(disabled)_
 - Circuit 37 Current  _(disabled)_
-- Circuit 38 Power (energy:  _[Device Name]_ Circuit 38  Energy)
+- Circuit 38 Power (energy:  _[Device Name]_ Circuit 38 Energy)
 - Circuit 38 Voltage  _(disabled)_
 - Circuit 38 Current  _(disabled)_
-- Circuit 39 Power (energy:  _[Device Name]_ Circuit 39  Energy)
+- Circuit 39 Power (energy:  _[Device Name]_ Circuit 39 Energy)
 - Circuit 39 Voltage  _(disabled)_
 - Circuit 39 Current  _(disabled)_
-- Circuit 40 Power (energy:  _[Device Name]_ Circuit 40  Energy)
+- Circuit 40 Power (energy:  _[Device Name]_ Circuit 40 Energy)
 - Circuit 40 Voltage  _(disabled)_
 - Circuit 40 Current  _(disabled)_
 
@@ -1132,14 +1132,14 @@ from Home Assistant.
 - Inverter Output Power
 - Battery Power
 - Status
-- PV1 Power (energy:  _[Device Name]_ PV1  Energy)
-- PV2 Power (energy:  _[Device Name]_ PV2  Energy)
-- PV3 Power (energy:  _[Device Name]_ PV3  Energy)
-- PV4 Power (energy:  _[Device Name]_ PV4  Energy)
-- PV5 Power (energy:  _[Device Name]_ PV5  Energy)
-- PV6 Power (energy:  _[Device Name]_ PV6  Energy)
-- PV7 Power (energy:  _[Device Name]_ PV7  Energy)
-- PV8 Power (energy:  _[Device Name]_ PV8  Energy)
+- PV1 Power (energy:  _[Device Name]_ PV1 Energy)
+- PV2 Power (energy:  _[Device Name]_ PV2 Energy)
+- PV3 Power (energy:  _[Device Name]_ PV3 Energy)
+- PV4 Power (energy:  _[Device Name]_ PV4 Energy)
+- PV5 Power (energy:  _[Device Name]_ PV5 Energy)
+- PV6 Power (energy:  _[Device Name]_ PV6 Energy)
+- PV7 Power (energy:  _[Device Name]_ PV7 Energy)
+- PV8 Power (energy:  _[Device Name]_ PV8 Energy)
 
 </p></details>
 
@@ -2243,8 +2243,8 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Level (Precise)  _(disabled)_
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - Main Battery Current
 - AC In Power
 - AC Out Power
@@ -2346,53 +2346,53 @@ from Home Assistant.
 - Wireless 4G SIM ID  _(disabled)_
 - Internet Connection Type  _(disabled)_
 - Error Code
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- Power I/O Port Input Power (energy:  _[Device Name]_  Energy I/O Port Input  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
+- Power I/O Port Input Power (energy:  _[Device Name]_ Energy I/O Port Input Energy)
 - Power I/O Port Input Current  _(disabled)_
 - Power I/O Port Input Voltage  _(disabled)_
-- Power I/O Port Output Power (energy:  _[Device Name]_  Energy I/O Port Output  Energy)
+- Power I/O Port Output Power (energy:  _[Device Name]_ Energy I/O Port Output Energy)
 - Power I/O Port Output Current  _(disabled)_
 - Power I/O Port Output Voltage  _(disabled)_
 - Power I/O Port Input Type
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
 - AC In Current  _(disabled)_
 - AC In Volts  _(disabled)_
-- USB (1) Out Power (energy:  _[Device Name]_ USB (1) Out  Energy)
-- USB (2) Out Power (energy:  _[Device Name]_ USB (2) Out  Energy)
-- Type-C (1) Out Power (energy:  _[Device Name]_ Type-C (1) Out  Energy)
-- Type-C (2) Out Power (energy:  _[Device Name]_ Type-C (2) Out  Energy)
-- Solar (1) In Power (energy:  _[Device Name]_ Solar (1) In  Energy)
+- USB (1) Out Power (energy:  _[Device Name]_ USB (1) Out Energy)
+- USB (2) Out Power (energy:  _[Device Name]_ USB (2) Out Energy)
+- Type-C (1) Out Power (energy:  _[Device Name]_ Type-C (1) Out Energy)
+- Type-C (2) Out Power (energy:  _[Device Name]_ Type-C (2) Out Energy)
+- Solar (1) In Power (energy:  _[Device Name]_ Solar (1) In Energy)
 - Solar (1) In Amps  _(disabled)_
 - Solar (1) In Volts  _(disabled)_
-- Solar (2) In Power (energy:  _[Device Name]_ Solar (2) In  Energy)
+- Solar (2) In Power (energy:  _[Device Name]_ Solar (2) In Energy)
 - Solar (2) In Amps  _(disabled)_
 - Solar (2) In Volts  _(disabled)_
-- AC (1) Out Power (energy:  _[Device Name]_ AC (1) Out  Energy)
+- AC (1) Out Power (energy:  _[Device Name]_ AC (1) Out Energy)
 - AC (1) Out Current  _(disabled)_
 - AC (1) Out Voltage  _(disabled)_
 - AC (1) Out Frequency  _(disabled)_
-- AC (2) Out Power (energy:  _[Device Name]_ AC (2) Out  Energy)
+- AC (2) Out Power (energy:  _[Device Name]_ AC (2) Out Energy)
 - AC (2) Out Current  _(disabled)_
 - AC (2) Out Voltage  _(disabled)_
 - AC (2) Out Frequency  _(disabled)_
-- AC (3) Out Power (energy:  _[Device Name]_ AC (3) Out  Energy)
+- AC (3) Out Power (energy:  _[Device Name]_ AC (3) Out Energy)
 - AC (3) Out Current  _(disabled)_
 - AC (3) Out Voltage  _(disabled)_
 - AC (3) Out Frequency  _(disabled)_
-- AC (4) Out Power (energy:  _[Device Name]_ AC (4) Out  Energy)
+- AC (4) Out Power (energy:  _[Device Name]_ AC (4) Out Energy)
 - AC (4) Out Current  _(disabled)_
 - AC (4) Out Voltage  _(disabled)_
 - AC (4) Out Frequency  _(disabled)_
-- AC (5) Out Power (energy:  _[Device Name]_ AC (5) Out  Energy)
+- AC (5) Out Power (energy:  _[Device Name]_ AC (5) Out Energy)
 - AC (5) Out Current  _(disabled)_
 - AC (5) Out Voltage  _(disabled)_
 - AC (5) Out Frequency  _(disabled)_
-- AC (6) Out Power (energy:  _[Device Name]_ AC (6) Out  Energy)
+- AC (6) Out Power (energy:  _[Device Name]_ AC (6) Out Energy)
 - AC (6) Out Current  _(disabled)_
 - AC (6) Out Voltage  _(disabled)_
 - AC (6) Out Frequency  _(disabled)_
-- DC Anderson Out Power (energy:  _[Device Name]_ DC Anderson Out  Energy)
+- DC Anderson Out Power (energy:  _[Device Name]_ DC Anderson Out Energy)
 
 *Switches*
 - Wireless 4G Enabled
@@ -2418,13 +2418,13 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out Energy)
 - AC In Volts
 - AC Out Volts
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- Solar In Power (energy:  _[Device Name]_ Solar In Energy)
 - DC Out Power
 - Type-C (1) Out Power
 - Type-C (2) Out Power
@@ -2606,16 +2606,16 @@ from Home Assistant.
 - State of Health
 - Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out Energy)
 - AC In Volts
 - AC Out Volts
 - Type-C In Power
 - Solar In Current
 - Solar In Voltage
-- Solar In Power (energy:  _[Device Name]_ Solar In  Energy)
+- Solar In Power (energy:  _[Device Name]_ Solar In Energy)
 - DC Out Power
 - Type-C Out Power
 - USB Out Power
@@ -2805,8 +2805,8 @@ from Home Assistant.
 - Discharge Remaining Time
 - Total Charging Time
 - Total Discharging Time
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - AC In Power
 - Real-time grid power
 - AC Out Power
@@ -2859,8 +2859,8 @@ from Home Assistant.
 *Sensors*
 - Main Battery Level
 - Battery Charging State
-- Total In Power (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out Energy)
 - AC In Power
 - Solar In Power
 - Solar 2 In Power
@@ -3469,10 +3469,10 @@ from Home Assistant.
 - Battery 2 Discharge Remaining Time  _(disabled)_
 - Battery 1 Temperature
 - Battery 2 Temperature  _(disabled)_
-- Battery 1 Input Power (energy:  _[Device Name]_ Battery 1 Input  Energy)
-- Battery 2 Input Power  _(disabled)_ (energy:  _[Device Name]_ Battery 2 Input  Energy)
-- Battery 1 Output Power (energy:  _[Device Name]_ Battery 1 Output  Energy)
-- Battery 2 Output Power  _(disabled)_ (energy:  _[Device Name]_ Battery 2 Output  Energy)
+- Battery 1 Input Power (energy:  _[Device Name]_ Battery 1 Input Energy)
+- Battery 2 Input Power  _(disabled)_ (energy:  _[Device Name]_ Battery 2 Input Energy)
+- Battery 1 Output Power (energy:  _[Device Name]_ Battery 1 Output Energy)
+- Battery 2 Output Power  _(disabled)_ (energy:  _[Device Name]_ Battery 2 Output Energy)
 - Power Grid Today
 - Battery Today
 - Power Grid Voltage
@@ -3489,42 +3489,42 @@ from Home Assistant.
 - Circuit 8 Current  _(disabled)_
 - Circuit 9 Current  _(disabled)_
 - Circuit 10 Current  _(disabled)_
-- Breaker 1 Power (energy:  _[Device Name]_ Breaker 1  Energy)
-- Breaker 2 Power (energy:  _[Device Name]_ Breaker 2  Energy)
-- Breaker 3 Power (energy:  _[Device Name]_ Breaker 3  Energy)
-- Breaker 4 Power (energy:  _[Device Name]_ Breaker 4  Energy)
-- Breaker 5 Power (energy:  _[Device Name]_ Breaker 5  Energy)
-- Breaker 6 Power (energy:  _[Device Name]_ Breaker 6  Energy)
-- Breaker 7 Power (energy:  _[Device Name]_ Breaker 7  Energy)
-- Breaker 8 Power (energy:  _[Device Name]_ Breaker 8  Energy)
-- Breaker 9 Power (energy:  _[Device Name]_ Breaker 9  Energy)
-- Breaker 10 Power (energy:  _[Device Name]_ Breaker 10  Energy)
-- Breaker 1 Battery Power (energy:  _[Device Name]_ Breaker 1 Battery  Energy)
-- Breaker 1 Grid Power (energy:  _[Device Name]_ Breaker 1 Grid  Energy)
-- Breaker 2 Battery Power (energy:  _[Device Name]_ Breaker 2 Battery  Energy)
-- Breaker 2 Grid Power (energy:  _[Device Name]_ Breaker 2 Grid  Energy)
-- Breaker 3 Battery Power (energy:  _[Device Name]_ Breaker 3 Battery  Energy)
-- Breaker 3 Grid Power (energy:  _[Device Name]_ Breaker 3 Grid  Energy)
-- Breaker 4 Battery Power (energy:  _[Device Name]_ Breaker 4 Battery  Energy)
-- Breaker 4 Grid Power (energy:  _[Device Name]_ Breaker 4 Grid  Energy)
-- Breaker 5 Battery Power (energy:  _[Device Name]_ Breaker 5 Battery  Energy)
-- Breaker 5 Grid Power (energy:  _[Device Name]_ Breaker 5 Grid  Energy)
-- Breaker 6 Battery Power (energy:  _[Device Name]_ Breaker 6 Battery  Energy)
-- Breaker 6 Grid Power (energy:  _[Device Name]_ Breaker 6 Grid  Energy)
-- Breaker 7 Battery Power (energy:  _[Device Name]_ Breaker 7 Battery  Energy)
-- Breaker 7 Grid Power (energy:  _[Device Name]_ Breaker 7 Grid  Energy)
-- Breaker 8 Battery Power (energy:  _[Device Name]_ Breaker 8 Battery  Energy)
-- Breaker 8 Grid Power (energy:  _[Device Name]_ Breaker 8 Grid  Energy)
-- Breaker 9 Battery Power (energy:  _[Device Name]_ Breaker 9 Battery  Energy)
-- Breaker 9 Grid Power (energy:  _[Device Name]_ Breaker 9 Grid  Energy)
-- Breaker 10 Battery Power (energy:  _[Device Name]_ Breaker 10 Battery  Energy)
-- Breaker 10 Grid Power (energy:  _[Device Name]_ Breaker 10 Grid  Energy)
-- Battery 1 Power (energy:  _[Device Name]_ Battery 1  Energy)
-- Battery 2 Power (energy:  _[Device Name]_ Battery 2  Energy)
-- Circuits Combined Power (energy:  _[Device Name]_ Circuits Combined  Energy)
-- Circuits Battery Demand Power (energy:  _[Device Name]_ Circuits Battery Demand  Energy)
-- Circuits Grid Demand Power (energy:  _[Device Name]_ Circuits Grid Demand  Energy)
-- Battery Combined Power (energy:  _[Device Name]_ Battery Combined  Energy)
+- Breaker 1 Power (energy:  _[Device Name]_ Breaker 1 Energy)
+- Breaker 2 Power (energy:  _[Device Name]_ Breaker 2 Energy)
+- Breaker 3 Power (energy:  _[Device Name]_ Breaker 3 Energy)
+- Breaker 4 Power (energy:  _[Device Name]_ Breaker 4 Energy)
+- Breaker 5 Power (energy:  _[Device Name]_ Breaker 5 Energy)
+- Breaker 6 Power (energy:  _[Device Name]_ Breaker 6 Energy)
+- Breaker 7 Power (energy:  _[Device Name]_ Breaker 7 Energy)
+- Breaker 8 Power (energy:  _[Device Name]_ Breaker 8 Energy)
+- Breaker 9 Power (energy:  _[Device Name]_ Breaker 9 Energy)
+- Breaker 10 Power (energy:  _[Device Name]_ Breaker 10 Energy)
+- Breaker 1 Battery Power (energy:  _[Device Name]_ Breaker 1 Battery Energy)
+- Breaker 1 Grid Power (energy:  _[Device Name]_ Breaker 1 Grid Energy)
+- Breaker 2 Battery Power (energy:  _[Device Name]_ Breaker 2 Battery Energy)
+- Breaker 2 Grid Power (energy:  _[Device Name]_ Breaker 2 Grid Energy)
+- Breaker 3 Battery Power (energy:  _[Device Name]_ Breaker 3 Battery Energy)
+- Breaker 3 Grid Power (energy:  _[Device Name]_ Breaker 3 Grid Energy)
+- Breaker 4 Battery Power (energy:  _[Device Name]_ Breaker 4 Battery Energy)
+- Breaker 4 Grid Power (energy:  _[Device Name]_ Breaker 4 Grid Energy)
+- Breaker 5 Battery Power (energy:  _[Device Name]_ Breaker 5 Battery Energy)
+- Breaker 5 Grid Power (energy:  _[Device Name]_ Breaker 5 Grid Energy)
+- Breaker 6 Battery Power (energy:  _[Device Name]_ Breaker 6 Battery Energy)
+- Breaker 6 Grid Power (energy:  _[Device Name]_ Breaker 6 Grid Energy)
+- Breaker 7 Battery Power (energy:  _[Device Name]_ Breaker 7 Battery Energy)
+- Breaker 7 Grid Power (energy:  _[Device Name]_ Breaker 7 Grid Energy)
+- Breaker 8 Battery Power (energy:  _[Device Name]_ Breaker 8 Battery Energy)
+- Breaker 8 Grid Power (energy:  _[Device Name]_ Breaker 8 Grid Energy)
+- Breaker 9 Battery Power (energy:  _[Device Name]_ Breaker 9 Battery Energy)
+- Breaker 9 Grid Power (energy:  _[Device Name]_ Breaker 9 Grid Energy)
+- Breaker 10 Battery Power (energy:  _[Device Name]_ Breaker 10 Battery Energy)
+- Breaker 10 Grid Power (energy:  _[Device Name]_ Breaker 10 Grid Energy)
+- Battery 1 Power (energy:  _[Device Name]_ Battery 1 Energy)
+- Battery 2 Power (energy:  _[Device Name]_ Battery 2 Energy)
+- Circuits Combined Power (energy:  _[Device Name]_ Circuits Combined Energy)
+- Circuits Battery Demand Power (energy:  _[Device Name]_ Circuits Battery Demand Energy)
+- Circuits Grid Demand Power (energy:  _[Device Name]_ Circuits Grid Demand Energy)
+- Battery Combined Power (energy:  _[Device Name]_ Battery Combined Energy)
 - Status
 
 *Binary sensors*
@@ -3562,8 +3562,8 @@ from Home Assistant.
 
 *Sensors*
 - Status (Scheduled)
-- AC In Power (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (energy:  _[Device Name]_ AC Out  Energy)
+- AC In Power (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (energy:  _[Device Name]_ AC Out Energy)
 - Battery Level
 - Discharge Remaining Time
 - Power Grid Voltage  _(disabled)_
@@ -3574,21 +3574,21 @@ from Home Assistant.
 - Battery 1 Level  _(disabled)_
 - Battery 2 Level  _(disabled)_
 - Battery 3 Level  _(disabled)_
-- Battery 1 Power  _(disabled)_ (energy:  _[Device Name]_ Battery 1  Energy)
-- Battery 2 Power  _(disabled)_ (energy:  _[Device Name]_ Battery 2  Energy)
-- Battery 3 Power  _(disabled)_ (energy:  _[Device Name]_ Battery 3  Energy)
-- Breaker1 Power (energy:  _[Device Name]_ Breaker1  Energy)
-- Breaker2 Power (energy:  _[Device Name]_ Breaker2  Energy)
-- Breaker3 Power (energy:  _[Device Name]_ Breaker3  Energy)
-- Breaker4 Power (energy:  _[Device Name]_ Breaker4  Energy)
-- Breaker5 Power (energy:  _[Device Name]_ Breaker5  Energy)
-- Breaker6 Power (energy:  _[Device Name]_ Breaker6  Energy)
-- Breaker7 Power (energy:  _[Device Name]_ Breaker7  Energy)
-- Breaker8 Power (energy:  _[Device Name]_ Breaker8  Energy)
-- Breaker9 Power (energy:  _[Device Name]_ Breaker9  Energy)
-- Breaker10 Power (energy:  _[Device Name]_ Breaker10  Energy)
-- Breaker11 Power (energy:  _[Device Name]_ Breaker11  Energy)
-- Breaker12 Power (energy:  _[Device Name]_ Breaker12  Energy)
+- Battery 1 Power  _(disabled)_ (energy:  _[Device Name]_ Battery 1 Energy)
+- Battery 2 Power  _(disabled)_ (energy:  _[Device Name]_ Battery 2 Energy)
+- Battery 3 Power  _(disabled)_ (energy:  _[Device Name]_ Battery 3 Energy)
+- Breaker1 Power (energy:  _[Device Name]_ Breaker1 Energy)
+- Breaker2 Power (energy:  _[Device Name]_ Breaker2 Energy)
+- Breaker3 Power (energy:  _[Device Name]_ Breaker3 Energy)
+- Breaker4 Power (energy:  _[Device Name]_ Breaker4 Energy)
+- Breaker5 Power (energy:  _[Device Name]_ Breaker5 Energy)
+- Breaker6 Power (energy:  _[Device Name]_ Breaker6 Energy)
+- Breaker7 Power (energy:  _[Device Name]_ Breaker7 Energy)
+- Breaker8 Power (energy:  _[Device Name]_ Breaker8 Energy)
+- Breaker9 Power (energy:  _[Device Name]_ Breaker9 Energy)
+- Breaker10 Power (energy:  _[Device Name]_ Breaker10 Energy)
+- Breaker11 Power (energy:  _[Device Name]_ Breaker11 Energy)
+- Breaker12 Power (energy:  _[Device Name]_ Breaker12 Energy)
 
 *Binary sensors*
 - Power Grid
