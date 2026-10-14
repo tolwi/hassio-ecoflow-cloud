@@ -76,9 +76,9 @@ PV_MAX_W = 5_500  # per-string MPPT ceiling; anything above is field-reuse noise
 F_PCS_TOTAL = 53
 
 # Total solar power, 254/21 field 517 — the inverter's OWN sum of the MPPT strings.
-# On the HR51 stream this equals sum(pv1..8) to <0.5% (verified from live captures), so it
-# is a faithful mirror of the string sum, not an independent measurement. Mirrored here for
-# field-for-field parity with the mini collector (which stores it as `solar_total`).
+# Usually equals sum(pv1..8) to within 1 W, but under fast changes the two are not always
+# sampled together (up to ~1.2 kW apart in captures); field 518 battery power is built from
+# this total, not from the strings. Mirrored for parity with the mini collector (`solar_total`).
 F_SOLAR_TOTAL = 517
 SOLAR_TOTAL_MAX = PV_MAX_W * PV_STRINGS  # 8-string ceiling; above = field-reuse noise
 
@@ -116,20 +116,22 @@ PCS_V_MAX = 300.0  # split-phase leg is ~120-125 V; anything above is field-reus
 PCS_A_MAX = 300.0  # per-leg current is well under 100 A; guard generously
 PCS_P_MAX = 20_000.0  # per-leg magnitude ceiling; abs above this is reuse noise
 
-# Battery power is NOT read from per-pack field 44 (cmdFunc=32 / cmdId=177). That field
-# decodes to physically impossible values while charging — ~122 kW per pack and ~15 kA of
-# current, scaling with the pack count — so summing it per slot reported hundreds of kW.
-# A plausibility clamp on field 44 only turned the garbage into a *frozen* sensor: with
-# every charge frame rejected, Battery Power held its last discharge value for the entire
-# charge. Instead derive it from the reliable 254/21 stream by the DC-bus power balance:
+# Battery power, 254/21 field 518 (pow_get_bp_cms in the app proto), F32 watts, signed
+# + = charging / - = discharging. It is the inverter's own DC-bus balance:
 #
-#     battery power (+ = charge) = sum(pv1..pv8) + PCS total
+#     field 518 = total solar (field 517) + PCS total (field 53)
 #
-# with PCS in its native sign (negative = production/export). Verified against a night
-# grid-charge (PV 0, PCS +20.7 kW -> +20.7 kW charge, matching grid 29.2 - home 8.6 kW)
-# and idle (-> 0). This is DC-bus power, so it reads a few % high vs true pack terminal
-# power (it ignores conversion loss) — an acceptable trade for a fresh, non-freezing value
-# that tracks SoC through a charge instead of freezing on it.
+# which held in 687 of the 696 captured frames carrying 517 (the rest read exactly 0 with
+# the battery idle). It is sent only when it changes, so an absent field means "unchanged",
+# and the sensor keeps its value. It replaces two earlier approaches:
+# - Per-pack field 44 (cmdFunc=32 / cmdId=177) decodes to impossible values while charging
+#   (~122 kW per pack, ~15 kA), and clamping it froze the sensor for a whole charge.
+# - Recomputing sum(pv1..pv8) + PCS here drifted from the inverter's figure: the string
+#   powers and field 517 are not always sampled together (up to ~1.2 kW apart under fast
+#   changes), daytime frames without string fields dropped solar entirely, and an idle
+#   battery showed conversion residue instead of 0.
+F_BATT_PWR = 518
+BATT_P_MAX = 30_000.0  # bank charge/discharge peaks ~21 kW; abs above this is reuse noise
 
 # --- Work mode + battery pack: decoded the mini collector's PROVEN way ------
 # Work mode (254/21, decoded on OceanPanel/HR61) and the per-pack scalars (cmdFunc=32/
@@ -144,8 +146,8 @@ PCS_P_MAX = 20_000.0  # per-leg magnitude ceiling; abs above this is reuse noise
 # Voltage (field 45) is a real measurement (10 mV/count -> V = /100, ~398 V, matching the
 # EF-BP-10 datasheet's 400 V / 380-550 V rating); pack count is a real count. Per-pack
 # current (field 43) has an unsettled scale, so it is surfaced RAW (no amp unit), and
-# field 44 is the impossible-value field the module note above rejects (battery power is
-# derived from PV+PCS instead). The pack stream sends ONE pack per frame, tagged by slot,
+# field 44 is the impossible-value field the module note above rejects (battery power comes
+# from 254/21 field 518 instead). The pack stream sends ONE pack per frame, tagged by slot,
 # so bank figures accumulate per slot: voltage AVERAGES, current SUMS, packs = slot count.
 BATTERY_PACK_CMD = (32, 177)
 P_CMDFUNC, P_CMDID = "1.8", "1.9"  # header cmdFunc / cmdId in the flattened frame
@@ -464,8 +466,8 @@ class OceanProInverter(DeltaPro3):
             CentivoltSensorEntity(client, self, "bp_voltage_raw", "Battery Pack Voltage", enabled=False, diagnostic=True).with_icon("mdi:home-battery"),
             MiscSensorEntity(client, self, "bp_packs", "Battery Packs Online", enabled=False, diagnostic=True).with_icon("mdi:battery-sync"),
             MiscSensorEntity(client, self, "bp_current_raw", "Battery Pack Current (raw)", enabled=False, diagnostic=True).with_icon("mdi:current-dc"),
-            # Battery power, derived from PV + PCS on the 254/21 stream (signed:
-            # + charge / - discharge). See the module note on why field 44 is not used.
+            # Battery power, the inverter's own figure (254/21 field 518, signed:
+            # + charge / - discharge). See F_BATT_PWR.
             WattsSensorEntity(client, self, "ocean_batt_pwr", "Battery Power").with_icon("mdi:home-battery"),
             # Per-leg AC (PCS phase A/B): voltage, current and active power. Same 254/21
             # stream as PV/PCS-total — the split-phase voltage HA otherwise lacks entirely.
@@ -541,7 +543,7 @@ class OceanProInverter(DeltaPro3):
         The per-pack scalars live at nested paths that a shallow top-level parse mis-reads
         (small field numbers collide), so they are read here from the SAME raw frame the base
         pipeline consumes, using the collector's proven full-path flatten (``1.1.<field>``).
-        Everything else — PV, PCS, total solar, derived battery power — is decoded in
+        Everything else — PV, PCS, total solar, battery power — is decoded in
         ``_decode_message_by_type`` on the base's extracted pdata as before. (Work mode is
         decoded on OceanPanel/HR61, where field 1470 is authoritative.)
         """
@@ -636,7 +638,7 @@ class OceanProInverter(DeltaPro3):
                 self._decode_solar_total(fields, result)
                 self._decode_pcs_legs(fields, result)
                 self._decode_dev_temps(fields, result)
-                self._derive_battery_power(result)
+                self._decode_battery_power(fields, result)
         except Exception as e:  # reverse-engineered payload; never break the base decode
             _LOGGER.debug("Ocean Pro inverter field parse skipped: %s", e)
         return result
@@ -690,23 +692,11 @@ class OceanProInverter(DeltaPro3):
             if v is not None and DEV_TEMP_MIN <= v <= DEV_TEMP_MAX:
                 result[f"dev_temp_{n + 1}"] = round(v, 1)
 
-    def _derive_battery_power(self, result: dict[str, Any]) -> None:
-        """Battery power from the DC-bus balance: sum(pv1..pv8) + PCS total.
-
-        + = charging, - = discharging. Computed from this 254/21 frame's own PV and
-        PCS values (not persisted), so it is correctly PV=0 at night — the PV fields
-        are simply absent then — instead of holding a stale daytime sum. Requires PCS;
-        if the frame carried no PCS reading, leave the previous value untouched.
-        """
-        pcs = result.get("ocean_pcs_pwr")
-        if pcs is None:
-            return
-        solar_in = sum(
-            result[f"pv{i}_pwr"]
-            for i in range(1, PV_STRINGS + 1)
-            if result.get(f"pv{i}_pwr")
-        )
-        result["ocean_batt_pwr"] = round(solar_in + pcs, 2)
+    def _decode_battery_power(self, fields: FieldMap, result: dict[str, Any]) -> None:
+        """Battery power (field 518), + = charging — see F_BATT_PWR for why this field."""
+        v = _first(fields, F_BATT_PWR, WIRE_F32)
+        if v is not None and abs(v) <= BATT_P_MAX:
+            result["ocean_batt_pwr"] = round(v, 2)
 
     def _decode_battery_pack(self, flat: dict[str, Any], params: dict[str, Any]) -> bool:
         """Bank rollup from the per-pack 32/177 stream (one pack per frame).
