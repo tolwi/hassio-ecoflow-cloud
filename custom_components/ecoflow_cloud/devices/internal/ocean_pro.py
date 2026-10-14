@@ -153,7 +153,7 @@ P_CMDFUNC, P_CMDID = "1.8", "1.9"  # header cmdFunc / cmdId in the flattened fra
 # the app live: 900 tracked 2->3->1->2 across Scheduled->Intelligent->Self-powered->Scheduled
 # (and reads 2 in two independent Scheduled-mode captures). Field 1470 — the OLD "work_mode"
 # — is NOT the selector: it sits constant (2) on HR61 through all three modes and is stale
-# garbage on HR51, so it is no longer surfaced as the mode (kept only as a raw unknown).
+# garbage on HR51, so it is not surfaced.
 P_OPERATING_MODE = "1.1.900"  # 254/21 (HR61): app operating mode — see OPERATING_MODE_CODES
 P_BP_SLOT = "1.1.5"  # 32/177: pack slot index
 P_BP_VOLTAGE = "1.1.45"  # 32/177: pack voltage, 10 mV/count -> V = /100
@@ -253,24 +253,15 @@ MPPT_STATUS_RAW_FIELDS: dict[str, int] = {
     "mppt_warning": 1528,  # dt_mppt_gen_warning
     "mppt_iso_check_done": 1534,  # dt_mppt_iso_finish_flg
 }
-# Candidate-unknown fields: live-varying but unidentified, collected raw for later ID (they
-# feed an "unknown fields" dashboard). The two devices carry different sets on their streams.
-# (1557 was promoted out of this list: it is dev_temperature_5, see DEV_TEMP_FIELD_BASE.)
-INVERTER_UNKNOWN_FIELDS: tuple[int, ...] = (22, 50, 518, 1469, 1472, 1560, 1682)
-PANEL_UNKNOWN_FIELDS: tuple[int, ...] = (
-    518, 962, 963, 1227, 1462, 1470, 1485, 1486,
-)
 # Live grid-side metering block — HR61 fields 964..967 (254 status frame). Confirmed
 # 2026-09-16 across two off-grid/on-grid cycles: they carry real signed values while grid-tied
 # and collapse to ~0 (±5) when islanded — UNLIKE the cached 643-646 block on the inverter,
 # which is a stale quota echo (byte-identical across a whole cycle) and does NOT track grid
-# state. Promoted out of PANEL_UNKNOWN_FIELDS. Unit UNCONFIRMED: signed, hundreds-range,
+# state. Unit UNCONFIRMED: signed, hundreds-range,
 # a 2x2-looking group (on-grid ~ 112 / -415 / 296 / 647; likely per-leg P/Q). They ride a
 # separate frame from 643-646 so no cross-correlation was possible — kept raw as diagnostics
 # until EcoFlow's register map or more capture pins the unit; do NOT stamp V/A/W yet.
 GRID_METER_FIELDS: tuple[int, ...] = (964, 965, 966, 967)
-# (1470 = the old mislabeled "work mode"; kept as a raw unknown — it's constant on HR61,
-# stale on HR51, and NOT the operating-mode selector, which is field 900.)
 
 
 def _flat_num(flat: dict[str, Any], field: int) -> int | float | None:
@@ -353,7 +344,7 @@ class OceanPanel(SmartHomePanel3):
     2=Scheduled tasks, 3=Intelligent — confirmed by live app toggling 2026-09-15.
     Decoded HERE on the panel stream. (The old field 1470 "work mode" was WRONG —
     it stays constant on HR61 across all three modes and is stale on HR51 — so it is
-    no longer surfaced as the mode, only kept as a raw unknown.)
+    not surfaced.)
 
     Grid-connect status (254 field 619: on_grid / islanded) and the live grid-side
     metering block (254 fields 964..967) are also decoded here — confirmed 2026-09-16
@@ -371,25 +362,19 @@ class OceanPanel(SmartHomePanel3):
     @override
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         # App operating mode (254/21 field 900), mapped to the app's three mode names.
-        # Enabled (diagnostic) — collect-all rule, local patch, not upstreamed to tolwi yet;
-        # if/when upstreamed, flip to enabled=False to match tolwi convention.
         # The inherited status sensor only polls after 300 s of silence; swap it for the
         # scheduled one (same "status" key, so the entity is unchanged) — see QUOTA_REFRESH_SEC.
         inherited = [s for s in super().sensors(client) if not isinstance(s, QuotaStatusSensorEntity)]
         return inherited + [
             QuotaScheduledStatusSensorEntity(client, self, QUOTA_REFRESH_SEC, "Status", "status"),
-            MiscSensorEntity(client, self, "ocean_operating_mode", "Operating Mode", diagnostic=True).with_icon("mdi:home-lightning-bolt"),
+            MiscSensorEntity(client, self, "ocean_operating_mode", "Operating Mode", enabled=False, diagnostic=True).with_icon("mdi:home-lightning-bolt"),
             # Grid-connect / island status (254 field 619): on_grid / islanded. Diagnostic.
             MiscSensorEntity(client, self, "ocean_grid_status", "Grid Connection", diagnostic=True).with_icon("mdi:transmission-tower"),
         ] + [
             # Live grid-side metering (254 fields 964..967): confirmed to track grid-tied vs
             # islanded, kept raw pending unit ID — see GRID_METER_FIELDS note. Diagnostic.
-            MiscSensorEntity(client, self, f"grid_meter_{f}", f"Grid Meter {f}", diagnostic=True).with_icon("mdi:transmission-tower")
+            MiscSensorEntity(client, self, f"grid_meter_{f}", f"Grid Meter {f}", enabled=False, diagnostic=True).with_icon("mdi:transmission-tower")
             for f in GRID_METER_FIELDS
-        ] + [
-            # Candidate-unknown fields on the panel stream, collected raw for identification.
-            MiscSensorEntity(client, self, f"ef_unknown_{f}", f"Unknown 254/{f}", diagnostic=True)
-            for f in PANEL_UNKNOWN_FIELDS
         ]
 
     @override
@@ -419,7 +404,7 @@ class OceanPanel(SmartHomePanel3):
                         int(v), f"unknown_{int(v)}"
                     )
                     extracted = True
-            # Grid status, live grid metering and candidate-unknowns ride the 254 status
+            # Grid status and live grid metering ride the 254 status
             # frames (any cmdId); read from the same flatten.
             if cmd_func == STATUS_CMDFUNC:
                 params = result.setdefault("params", {})
@@ -433,11 +418,6 @@ class OceanPanel(SmartHomePanel3):
                     v = _flat_num(flat, field)
                     if v is not None:
                         _store_raw(params, f"grid_meter_{field}", v)
-                        extracted = True
-                for field in PANEL_UNKNOWN_FIELDS:
-                    v = _flat_num(flat, field)
-                    if v is not None:
-                        _store_raw(params, f"ef_unknown_{field}", v)
                         extracted = True
         except Exception as e:  # reverse-engineered payload; never break the base decode
             exc = e
@@ -480,17 +460,15 @@ class OceanProInverter(DeltaPro3):
             # (self_use). The authoritative EMS mode lives on the HR61 panel stream and is
             # decoded on OceanPanel instead. See that class + the module note.
             # Battery pack bank telemetry (32/177 stream). Voltage is a real measurement;
-            # if/when upstreamed, flip these three to enabled=False to match tolwi convention.
             # pack count is a real count; current is raw (scale unsettled — see module note).
-            CentivoltSensorEntity(client, self, "bp_voltage_raw", "Battery Pack Voltage", diagnostic=True).with_icon("mdi:home-battery"),
-            MiscSensorEntity(client, self, "bp_packs", "Battery Packs Online", diagnostic=True).with_icon("mdi:battery-sync"),
-            MiscSensorEntity(client, self, "bp_current_raw", "Battery Pack Current (raw)", diagnostic=True).with_icon("mdi:current-dc"),
+            CentivoltSensorEntity(client, self, "bp_voltage_raw", "Battery Pack Voltage", enabled=False, diagnostic=True).with_icon("mdi:home-battery"),
+            MiscSensorEntity(client, self, "bp_packs", "Battery Packs Online", enabled=False, diagnostic=True).with_icon("mdi:battery-sync"),
+            MiscSensorEntity(client, self, "bp_current_raw", "Battery Pack Current (raw)", enabled=False, diagnostic=True).with_icon("mdi:current-dc"),
             # Battery power, derived from PV + PCS on the 254/21 stream (signed:
             # + charge / - discharge). See the module note on why field 44 is not used.
             WattsSensorEntity(client, self, "ocean_batt_pwr", "Battery Power").with_icon("mdi:home-battery"),
             # Per-leg AC (PCS phase A/B): voltage, current and active power. Same 254/21
-            # stream as PV/PCS-total; not exposed by upstream — the split-phase grid
-            # voltage HA otherwise lacks entirely.
+            # stream as PV/PCS-total — the split-phase voltage HA otherwise lacks entirely.
             VoltSensorEntity(client, self, "pcsA_voltage", "PCS Phase A Voltage").with_icon("mdi:sine-wave"),
             AmpSensorEntity(client, self, "pcsA_current", "PCS Phase A Current"),
             WattsSensorEntity(client, self, "pcsA_power", "PCS Phase A Power").with_icon("mdi:sine-wave"),
@@ -516,38 +494,32 @@ class OceanProInverter(DeltaPro3):
         # public dictionary. The fault keys keep their original fault_<field> names so the
         # entities' history survives the re-identification from "fault register".
         for i in range(PV_STRINGS):
-            out.append(MiscSensorEntity(client, self, f"fault_{FAULT_FIELD_BASE + i}", f"PV{i + 1} MPPT Fault Code", diagnostic=True).with_icon("mdi:alert-circle-outline"))
-            out.append(MiscSensorEntity(client, self, f"mppt_state_{MPPT_STATE_FIELD_BASE + i}", f"PV{i + 1} MPPT State", diagnostic=True).with_icon("mdi:state-machine"))
-        out.append(MiscSensorEntity(client, self, "mppt_parallel_detect", "MPPT Parallel Detect", diagnostic=True).with_icon("mdi:call-split"))
+            out.append(MiscSensorEntity(client, self, f"fault_{FAULT_FIELD_BASE + i}", f"PV{i + 1} MPPT Fault Code", enabled=False, diagnostic=True).with_icon("mdi:alert-circle-outline"))
+            out.append(MiscSensorEntity(client, self, f"mppt_state_{MPPT_STATE_FIELD_BASE + i}", f"PV{i + 1} MPPT State", enabled=False, diagnostic=True).with_icon("mdi:state-machine"))
+        out.append(MiscSensorEntity(client, self, "mppt_parallel_detect", "MPPT Parallel Detect", enabled=False, diagnostic=True).with_icon("mdi:call-split"))
         # MPPT stage (254/22 — see MPPT_STATUS_FIELDS): DC-bus setpoint vs measured, solar
         # power limit, and the raw warning / insulation-check flags.
         out += [
-            VoltSensorEntity(client, self, "mppt_bus_volt_ref", "MPPT Bus Voltage Setpoint", diagnostic=True).with_icon("mdi:current-dc"),
-            VoltSensorEntity(client, self, "mppt_bus_volt", "MPPT Bus Voltage", diagnostic=True).with_icon("mdi:current-dc"),
-            WattsSensorEntity(client, self, "mppt_power_limit", "MPPT Power Limit", diagnostic=True).with_icon("mdi:solar-power"),
-            MiscSensorEntity(client, self, "mppt_warning", "MPPT Warning", diagnostic=True).with_icon("mdi:alert-outline"),
-            MiscSensorEntity(client, self, "mppt_iso_check_done", "MPPT Insulation Check Done", diagnostic=True).with_icon("mdi:shield-check-outline"),
+            VoltSensorEntity(client, self, "mppt_bus_volt_ref", "MPPT Bus Voltage Setpoint", enabled=False, diagnostic=True).with_icon("mdi:current-dc"),
+            VoltSensorEntity(client, self, "mppt_bus_volt", "MPPT Bus Voltage", enabled=False, diagnostic=True).with_icon("mdi:current-dc"),
+            WattsSensorEntity(client, self, "mppt_power_limit", "MPPT Power Limit", enabled=False, diagnostic=True).with_icon("mdi:solar-power"),
+            MiscSensorEntity(client, self, "mppt_warning", "MPPT Warning", enabled=False, diagnostic=True).with_icon("mdi:alert-outline"),
+            MiscSensorEntity(client, self, "mppt_iso_check_done", "MPPT Insulation Check Done", enabled=False, diagnostic=True).with_icon("mdi:shield-check-outline"),
         ]
         # Device temperatures (254/21 — see DEV_TEMP_FIELD_BASE); locations unknown, so numbered.
         out += [
-            TempSensorEntity(client, self, f"dev_temp_{n}", f"Device Temperature {n}", diagnostic=True)
+            TempSensorEntity(client, self, f"dev_temp_{n}", f"Device Temperature {n}", enabled=False, diagnostic=True)
             for n in range(1, DEV_TEMP_COUNT + 1)
-        ]
-        # Candidate-unknown fields on the inverter stream, collected raw for identification.
-        out += [
-            MiscSensorEntity(client, self, f"ef_unknown_{f}", f"Unknown 254/{f}", diagnostic=True)
-            for f in INVERTER_UNKNOWN_FIELDS
         ]
         # PV strings: per-string production power with integrated energy (kWh,
         # total_increasing) for the HA Energy dashboard.
         for i in range(1, PV_STRINGS + 1):
             out.append(SolarPowerSensorEntity(client, self, f"pv{i}_pwr", f"PV{i} Power").with_energy())
-        # PV strings: per-string voltage + current (254/22 — see PV_STATUS_OFFSETS). Diagnostic;
-        # enabled for the local collect-all rule — if/when upstreamed, flip to enabled=False to
-        # match tolwi's convention for secondary per-channel metrics.
+        # PV strings: per-string voltage + current (254/22 — see PV_STATUS_OFFSETS). Secondary
+        # per-channel metrics, so disabled by default like the per-circuit volt/amp sensors.
         for i in range(1, PV_STRINGS + 1):
-            out.append(VoltSensorEntity(client, self, f"pv{i}_vol", f"PV{i} Voltage", diagnostic=True).with_icon("mdi:solar-panel"))
-            out.append(AmpSensorEntity(client, self, f"pv{i}_amp", f"PV{i} Current", diagnostic=True))
+            out.append(VoltSensorEntity(client, self, f"pv{i}_vol", f"PV{i} Voltage", enabled=False, diagnostic=True).with_icon("mdi:solar-panel"))
+            out.append(AmpSensorEntity(client, self, f"pv{i}_amp", f"PV{i} Current", enabled=False, diagnostic=True))
         return out
 
     @override
@@ -601,7 +573,7 @@ class OceanProInverter(DeltaPro3):
         """Grid metering + DC-bus from a 254 status frame (path 1.1.<field>).
 
         Grid/DC-bus values are range-guarded to reject field-number reuse from nested
-        submessages; candidate-unknown fields are surfaced raw so a change is always visible.
+        submessages.
         Returns whether at least one field was written (for the decode-health tracker).
         """
         wrote = False
@@ -609,11 +581,6 @@ class OceanProInverter(DeltaPro3):
             v = _flat_num(flat, field)
             if v is not None and lo <= v <= hi:
                 params[key] = round(float(v), 2)
-                wrote = True
-        for field in INVERTER_UNKNOWN_FIELDS:
-            v = _flat_num(flat, field)
-            if v is not None:
-                _store_raw(params, f"ef_unknown_{field}", v)
                 wrote = True
         return wrote
 
