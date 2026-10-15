@@ -3,7 +3,6 @@
 *Sensors*
 - Battery Level (`cms_batt_soc`)
 - Home Load Power (`shp_load_pwr`) (energy:  _[Device Name]_ Home Load  Energy)
-- Grid Power (`shp_grid_pwr`) (energy:  _[Device Name]_ Grid  Energy)
 - Storage Output Power (`shp_batt_pwr`)
 - Grid L1 Power (`shp_grid_l1_pwr`)   _(disabled)_
 - Grid L2 Power (`shp_grid_l2_pwr`)   _(disabled)_
@@ -132,6 +131,9 @@
 - Circuit 40 Voltage (`ch_40_vol`)   _(disabled)_
 - Circuit 40 Current (`ch_40_amp`)   _(disabled)_
 - Status
+- Grid Power (`shp_grid_pwr`)
+- Grid Import Power (`ocean_grid_import_pwr`) (energy:  _[Device Name]_ Grid Import  Energy)
+- Grid Export Power (`ocean_grid_export_pwr`) (energy:  _[Device Name]_ Grid Export  Energy)
 - Operating Mode (`ocean_operating_mode`)   _(disabled)_
 - Grid Connection (`ocean_grid_status`)
 - Grid Meter 964 (`grid_meter_964`)   _(disabled)_
