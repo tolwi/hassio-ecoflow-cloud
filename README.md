@@ -991,13 +991,12 @@ from Home Assistant.
 
 </p></details>
 
-<details><summary> OCEAN_SMART_PANEL <i>(sensors: 137)</i> </summary>
+<details><summary> OCEAN_SMART_PANEL <i>(sensors: 139)</i> </summary>
 <p>
 
 *Sensors*
 - Battery Level
 - Home Load Power (energy:  _[Device Name]_ Home Load  Energy)
-- Grid Power (energy:  _[Device Name]_ Grid  Energy)
 - Storage Output Power
 - Grid L1 Power  _(disabled)_
 - Grid L2 Power  _(disabled)_
@@ -1126,6 +1125,9 @@ from Home Assistant.
 - Circuit 40 Voltage  _(disabled)_
 - Circuit 40 Current  _(disabled)_
 - Status
+- Grid Power
+- Grid Import Power (energy:  _[Device Name]_ Grid Import  Energy)
+- Grid Export Power (energy:  _[Device Name]_ Grid Export  Energy)
 - Operating Mode  _(disabled)_
 - Grid Connection
 - Grid Meter 964  _(disabled)_

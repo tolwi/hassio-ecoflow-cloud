@@ -42,7 +42,9 @@ from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
     CentivoltSensorEntity,
     FrequencySensorEntity,
+    InWattsSensorEntity,
     MiscSensorEntity,
+    OutWattsSensorEntity,
     QuotaScheduledStatusSensorEntity,
     QuotaStatusSensorEntity,
     SolarPowerSensorEntity,
@@ -352,6 +354,10 @@ class OceanPanel(SmartHomePanel3):
     metering block (254 fields 964..967) are also decoded here — confirmed 2026-09-16
     across two off-grid/on-grid cycles. The metering fields are kept raw pending unit
     ID; see GRID_STATUS_CODES and GRID_METER_FIELDS.
+
+    Grid Power is signed here (+ import / - export): unlike a Delta Pro 3 behind an SHP3,
+    an Ocean Pro exports solar. Its energy is therefore integrated as separate import and
+    export totals rather than one net total — see _decode_flows.
     """
 
     CIRCUITS = OCEAN_PANEL_CIRCUITS
@@ -366,9 +372,19 @@ class OceanPanel(SmartHomePanel3):
         # App operating mode (254/21 field 900), mapped to the app's three mode names.
         # The inherited status sensor only polls after 300 s of silence; swap it for the
         # scheduled one (same "status" key, so the entity is unchanged) — see QUOTA_REFRESH_SEC.
-        inherited = [s for s in super().sensors(client) if not isinstance(s, QuotaStatusSensorEntity)]
+        # Grid Power is replaced by the same sensor without its energy integral: integrating the
+        # signed flow gives NET import, which falls on every export (see _decode_flows).
+        inherited = [
+            s
+            for s in super().sensors(client)
+            if not isinstance(s, QuotaStatusSensorEntity)
+            and not (isinstance(s, WattsSensorEntity) and s.mqtt_key == "shp_grid_pwr")
+        ]
         return inherited + [
             QuotaScheduledStatusSensorEntity(client, self, QUOTA_REFRESH_SEC, "Status", "status"),
+            InWattsSensorEntity(client, self, "shp_grid_pwr", "Grid Power"),
+            InWattsSensorEntity(client, self, "ocean_grid_import_pwr", "Grid Import Power").with_energy(),
+            OutWattsSensorEntity(client, self, "ocean_grid_export_pwr", "Grid Export Power").with_energy(),
             MiscSensorEntity(client, self, "ocean_operating_mode", "Operating Mode", enabled=False, diagnostic=True).with_icon("mdi:home-lightning-bolt"),
             # Grid-connect / island status (254 field 619): on_grid / islanded. Diagnostic.
             MiscSensorEntity(client, self, "ocean_grid_status", "Grid Connection", diagnostic=True).with_icon("mdi:transmission-tower"),
@@ -378,6 +394,24 @@ class OceanPanel(SmartHomePanel3):
             MiscSensorEntity(client, self, f"grid_meter_{f}", f"Grid Meter {f}", enabled=False, diagnostic=True).with_icon("mdi:transmission-tower")
             for f in GRID_METER_FIELDS
         ]
+
+    @override
+    def _decode_flows(self, fields: FieldMap, result: dict[str, Any]) -> None:
+        """Split the signed grid flow into import and export halves.
+
+        Each half is never negative, so its integral only ever grows — what HA's
+        Energy dashboard expects for grid consumption and return. The single net
+        integral the SHP3 keeps for Grid Power would instead dip on every export:
+        HA logs the total_increasing sensor as "not strictly increasing", and a
+        dashboard built on it counts import minus export as import.
+        """
+        super()._decode_flows(fields, result)
+        # Present only on frames that carry the flow group; otherwise both halves
+        # keep their last value, exactly like Grid Power itself.
+        grid = result.get("shp_grid_pwr")
+        if grid is not None:
+            result["ocean_grid_import_pwr"] = grid if grid > 0 else 0.0
+            result["ocean_grid_export_pwr"] = -grid if grid < 0 else 0.0
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
