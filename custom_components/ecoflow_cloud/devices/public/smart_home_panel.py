@@ -216,14 +216,15 @@ class SmartHomePanel(BaseDevice):
                 ).with_energy()
             )
 
-        # Battery power at indices 10, 11
+        # Battery power at indices 10, 11. On the battery ports powType is the
+        # flow direction, not the circuits' grid/battery source.
         sensors.append(
             WattsSensorEntity(client, self, "'infoList'[10].chWatt", const.BATTERY_N_POWER % 1)
-            .with_energy().attr("'infoList'[10].powType", "Power Source (0=Grid,1=Battery)", 0)
+            .with_energy().attr("'infoList'[10].powType", "Direction (0=Idle,1=Discharging,2=Charging)", 0)
         )
         sensors.append(
             WattsSensorEntity(client, self, "'infoList'[11].chWatt", const.BATTERY_N_POWER % 2)
-            .with_energy().attr("'infoList'[11].powType", "Power Source (0=Grid,1=Battery)", 0)
+            .with_energy().attr("'infoList'[11].powType", "Direction (0=Idle,1=Discharging,2=Charging)", 0)
         )
 
         # Aggregated power sensors
