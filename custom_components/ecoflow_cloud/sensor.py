@@ -31,14 +31,16 @@ from homeassistant.core import (  # pyright: ignore[reportMissingImports]
 )
 from homeassistant.helpers.entity import EntityCategory  # pyright: ignore[reportMissingImports]
 from homeassistant.helpers.entity_platform import AddEntitiesCallback  # pyright: ignore[reportMissingImports]
-from homeassistant.helpers.event import async_track_state_change_event  # pyright: ignore[reportMissingImports]
+from homeassistant.helpers.event import (  # pyright: ignore[reportMissingImports]
+    async_track_state_change_event,
+    async_track_time_interval,
+)
 from homeassistant.util import dt  # pyright: ignore[reportMissingImports]
 
 from . import (
     ATTR_DATA_UPDATES,
     ATTR_MQTT_CONNECTED,
     ATTR_QUOTA_REQUESTS,
-    ATTR_STATUS_RECONNECTS,
     ATTR_STATUS_DATA_LAST_UPDATE,
     ATTR_STATUS_LAST_UPDATE,
     ATTR_STATUS_SN,
@@ -504,18 +506,29 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
         self._attrs[ATTR_STATUS_SN] = self._device.device_info.sn
         self._attrs[ATTR_STATUS_DATA_LAST_UPDATE] = None
         self._attrs[ATTR_MQTT_CONNECTED] = None
-        self._attrs[ATTR_STATUS_RECONNECTS] = 0
         if poll_when_silent or scheduled_refresh_sec is not None:
             self._attrs[ATTR_QUOTA_REQUESTS] = 0
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        # Re-evaluate on a timer, not only when a frame arrives: if the MQTT
+        # client thread dies, no frame ever calls _handle_coordinator_update,
+        # and the status froze at 'online' (seen 2026-09-21, 3.5 h). The
+        # tracker's age check already yields assume_offline/offline; it just
+        # needed something to ask. Writes only when the label changes.
+        self.async_on_remove(
+            async_track_time_interval(self.hass, self._on_status_timer, timedelta(seconds=60))
+        )
+
+    @callback
+    def _on_status_timer(self, _now: datetime) -> None:
+        self._handle_coordinator_update()
 
     def _handle_coordinator_update(self) -> None:
         from .devices.status_tracker import OnlineStatus
 
         status = self._tracker.status
         changed = status != self._prev_status
-
-        if self._schedule_mqtt_reconnect():
-            changed = True
 
         # Active polling when device goes silent
         if self._poll_when_silent and status == OnlineStatus.ASSUME_OFFLINE:
@@ -548,21 +561,6 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
                 self._actualize_attributes()
                 self.schedule_update_ha_state()
 
-    def _schedule_mqtt_reconnect(self) -> bool:
-        reconnect_count = self._client.schedule_mqtt_reconnect()
-        if reconnect_count is None:
-            return False
-
-        self._attrs[ATTR_STATUS_RECONNECTS] = reconnect_count
-        self.hass.async_create_background_task(
-            self._async_reconnect_mqtt(),
-            f"reconnect ecoflow mqtt {self._device.device_info.sn}",
-        )
-        return True
-
-    async def _async_reconnect_mqtt(self) -> None:
-        await self.hass.async_add_executor_job(self._client.mqtt_client.reconnect)
-
     def _format_age(self, timestamp: datetime | None) -> str | None:
         if timestamp is None:
             return None
@@ -578,7 +576,6 @@ class StatusSensorEntity(SensorEntity, EcoFlowAbstractDataEntity):  # type: igno
             self._attrs[ATTR_STATUS_UPDATES] = self._tracker._explicit_status_count
             self._attrs[ATTR_DATA_UPDATES] = self._tracker._data_received_count
         self._attrs[ATTR_MQTT_CONNECTED] = self._client.mqtt_client.is_connected()
-        self._attrs[ATTR_STATUS_RECONNECTS] = self._client.mqtt_reconnect_count
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
@@ -601,15 +598,8 @@ class QuotaStatusSensorEntity(StatusSensorEntity):
 class QuotaScheduledStatusSensorEntity(QuotaStatusSensorEntity):
     """QuotaStatusSensorEntity with additional periodic scheduled refresh."""
 
-    def __init__(
-        self,
-        client: EcoflowApiClient,
-        device: BaseDevice,
-        reload_delay: int = 3600,
-        title: str = "Status (Scheduled)",
-        key: str = "status.scheduled",
-    ):
-        super().__init__(client, device, title, key)
+    def __init__(self, client: EcoflowApiClient, device: BaseDevice, reload_delay: int = 3600):
+        super().__init__(client, device, "Status (Scheduled)", "status.scheduled")
         self._scheduled_refresh_sec = reload_delay
 
 
