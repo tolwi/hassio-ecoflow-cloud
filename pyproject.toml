@@ -6,7 +6,7 @@ requires-python = ">=3.13"
 dependencies = [
     "homeassistant>=2024.5.5",
     "paho-mqtt==2.1.0",
-    "protobuf==6.32.0",
+    "protobuf>=6.32.0",
     "jsonpath-ng>=1.7.0",
 ]
 
