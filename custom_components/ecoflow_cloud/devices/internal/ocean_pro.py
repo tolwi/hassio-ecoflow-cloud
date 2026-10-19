@@ -22,6 +22,7 @@ Both devices are read-only: sensors only, no control entities.
 import logging
 import struct
 import time
+from collections.abc import Iterator
 from typing import Any, override
 
 from homeassistant.components.number import NumberEntity
@@ -149,8 +150,9 @@ BATT_P_MAX = 30_000.0  # bank charge/discharge peaks ~21 kW; abs above this is r
 # EF-BP-10 datasheet's 400 V / 380-550 V rating); pack count is a real count. Per-pack
 # current (field 43) has an unsettled scale, so it is surfaced RAW (no amp unit), and
 # field 44 is the impossible-value field the module note above rejects (battery power comes
-# from 254/21 field 518 instead). The pack stream sends ONE pack per frame, tagged by slot,
-# so bank figures accumulate per slot: voltage AVERAGES, current SUMS, packs = slot count.
+# from 254/21 field 518 instead). Each 32/177 message carries ONE pack, tagged by slot (a
+# single MQTT frame often batches several of them; see _decode_envelopes), so bank figures
+# accumulate per slot: voltage AVERAGES, current SUMS, packs = slot count.
 BATTERY_PACK_CMD = (32, 177)
 P_CMDFUNC, P_CMDID = "1.8", "1.9"  # header cmdFunc / cmdId in the flattened frame
 # App operating-mode selector = HR61 field 900 (254/21). Confirmed 2026-09-15 by toggling
@@ -279,16 +281,28 @@ def _store_raw(params: dict[str, Any], key: str, v: int | float) -> None:
     params[key] = int(v) if isinstance(v, int) else round(float(v), 2)
 
 
-def _decode_envelope(raw_data: bytes) -> tuple[Any, Any, dict[str, Any]]:
-    """Flatten the raw Ocean Pro app-envelope frame once → (cmdFunc, cmdId, flat).
+def _decode_envelopes(raw_data: bytes) -> Iterator[tuple[Any, Any, dict[str, Any]]]:
+    """Yield (cmdFunc, cmdId, flat) for each message in a raw Ocean Pro app-envelope frame.
 
     Both device classes read their app scalars from this same envelope (see
     ``OceanPanel._prepare_data`` for why the raw frame, not the base's decoded ``pdata``), so
     the parse lives in one place. ``cmdFunc``/``cmdId`` are the envelope's own (paths ``1.8``/
     ``1.9``), distinct from the DeltaPro3 header's; callers read fields at ``1.1.<field>``.
+
+    One MQTT payload can carry SEVERAL messages: the top-level field 1 repeats, e.g. a 254/22
+    status message followed by a 254/21 telemetry message (~4% of frames on live captures).
+    Each message is flattened ON ITS OWN. Flattening the whole frame as one would key every
+    message to the same ``1.x`` paths: the last message's cmdFunc/cmdId would win, and the
+    earlier messages' fields would be read under the wrong header. That silently dropped a
+    whole 254/22 delta (per-string MPPT state and fault codes, which the inverter sends only
+    on change), so those sensors stayed stale for hours. Messages are yielded as they parse,
+    so a malformed message late in a frame no longer costs the ones before it.
     """
-    flat = _pb_flatten(list(_pb_parse(raw_data)))
-    return flat.get(P_CMDFUNC), flat.get(P_CMDID), flat
+    for item in _pb_parse(raw_data):
+        field, _wire, value = item
+        if field == 1 and isinstance(value, list):
+            flat = _pb_flatten([item])
+            yield flat.get(P_CMDFUNC), flat.get(P_CMDID), flat
 
 
 # A stall is surfaced only after this long with frames still arriving but no augmented field
@@ -431,30 +445,30 @@ class OceanPanel(SmartHomePanel3):
         extracted = False
         exc: Exception | None = None
         try:
-            cmd_func, cmd_id, flat = _decode_envelope(raw_data)
-            if (cmd_func, cmd_id) == (254, 21):
-                v = flat.get(P_OPERATING_MODE)
-                if isinstance(v, (int, float)):
-                    # HA reads entity values from result["params"][mqtt_key]; materialise it.
-                    result.setdefault("params", {})["ocean_operating_mode"] = OPERATING_MODE_CODES.get(
-                        int(v), f"unknown_{int(v)}"
-                    )
-                    extracted = True
-            # Grid status and live grid metering ride the 254 status
-            # frames (any cmdId); read from the same flatten.
-            if cmd_func == STATUS_CMDFUNC:
-                params = result.setdefault("params", {})
-                # Grid-connect / island status (field 619), mapped to on_grid / islanded.
-                gs = flat.get(P_GRID_STATUS)
-                if isinstance(gs, (int, float)):
-                    params["ocean_grid_status"] = GRID_STATUS_CODES.get(int(gs), f"unknown_{int(gs)}")
-                    extracted = True
-                # Live grid-side metering (fields 964..967), raw pending unit ID.
-                for field in GRID_METER_FIELDS:
-                    v = _flat_num(flat, field)
-                    if v is not None:
-                        _store_raw(params, f"grid_meter_{field}", v)
+            for cmd_func, cmd_id, flat in _decode_envelopes(raw_data):
+                if (cmd_func, cmd_id) == (254, 21):
+                    v = flat.get(P_OPERATING_MODE)
+                    if isinstance(v, (int, float)):
+                        # HA reads entity values from result["params"][mqtt_key]; materialise it.
+                        result.setdefault("params", {})["ocean_operating_mode"] = OPERATING_MODE_CODES.get(
+                            int(v), f"unknown_{int(v)}"
+                        )
                         extracted = True
+                # Grid status and live grid metering ride the 254 status
+                # frames (any cmdId); read from the same flatten.
+                if cmd_func == STATUS_CMDFUNC:
+                    params = result.setdefault("params", {})
+                    # Grid-connect / island status (field 619), mapped to on_grid / islanded.
+                    gs = flat.get(P_GRID_STATUS)
+                    if isinstance(gs, (int, float)):
+                        params["ocean_grid_status"] = GRID_STATUS_CODES.get(int(gs), f"unknown_{int(gs)}")
+                        extracted = True
+                    # Live grid-side metering (fields 964..967), raw pending unit ID.
+                    for field in GRID_METER_FIELDS:
+                        v = _flat_num(flat, field)
+                        if v is not None:
+                            _store_raw(params, f"grid_meter_{field}", v)
+                            extracted = True
         except Exception as e:  # reverse-engineered payload; never break the base decode
             exc = e
         if extracted:
@@ -585,19 +599,19 @@ class OceanProInverter(DeltaPro3):
         extracted = False
         exc: Exception | None = None
         try:
-            cmd_func, cmd_id, flat = _decode_envelope(raw_data)
-            # Work mode is decoded on OceanPanel (HR61), where field 1470 is authoritative;
-            # this inverter stream carries only the per-pack bank telemetry.
-            if (cmd_func, cmd_id) == BATTERY_PACK_CMD:
-                # HA reads entity values from result["params"][mqtt_key]; a pack-only frame
-                # makes the base return {}, so materialise "params" before writing into it.
-                extracted |= self._decode_battery_pack(flat, result.setdefault("params", {}))
-            # Grid metering, DC-bus and the fault register ride the 254 status frame(s),
-            # not the 254/21 telemetry burst; read them here from the same flattened frame.
-            if cmd_func == STATUS_CMDFUNC:
-                extracted |= self._decode_status_fields(flat, result.setdefault("params", {}))
-            if (cmd_func, cmd_id) == PV_STATUS_CMD:
-                extracted |= self._decode_pv_status(flat, result.setdefault("params", {}))
+            for cmd_func, cmd_id, flat in _decode_envelopes(raw_data):
+                # Work mode is decoded on OceanPanel (HR61), where field 1470 is authoritative;
+                # this inverter stream carries only the per-pack bank telemetry.
+                if (cmd_func, cmd_id) == BATTERY_PACK_CMD:
+                    # HA reads entity values from result["params"][mqtt_key]; a pack-only frame
+                    # makes the base return {}, so materialise "params" before writing into it.
+                    extracted |= self._decode_battery_pack(flat, result.setdefault("params", {}))
+                # Grid metering, DC-bus and the fault register ride the 254 status frame(s),
+                # not the 254/21 telemetry burst; read them here from the same flattened message.
+                if cmd_func == STATUS_CMDFUNC:
+                    extracted |= self._decode_status_fields(flat, result.setdefault("params", {}))
+                if (cmd_func, cmd_id) == PV_STATUS_CMD:
+                    extracted |= self._decode_pv_status(flat, result.setdefault("params", {}))
         except Exception as e:  # reverse-engineered payload; never break the base decode
             exc = e
         if extracted:
@@ -733,10 +747,10 @@ class OceanProInverter(DeltaPro3):
             result["ocean_batt_pwr"] = round(v, 2)
 
     def _decode_battery_pack(self, flat: dict[str, Any], params: dict[str, Any]) -> bool:
-        """Bank rollup from the per-pack 32/177 stream (one pack per frame).
+        """Bank rollup from the per-pack 32/177 stream (one pack per message).
 
         Voltage averages across paralleled packs; current sums; pack count = distinct
-        slots seen. Each frame carries a single pack (path 1.1.5 = slot), so the running
+        slots seen. Each message carries a single pack (path 1.1.5 = slot), so the running
         per-slot state (self._bp_slots) is what the bank figures read across. Returns True —
         a pack frame always materialises at least the pack count (for the health tracker).
         """
