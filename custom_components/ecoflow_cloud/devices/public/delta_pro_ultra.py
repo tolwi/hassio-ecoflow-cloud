@@ -145,7 +145,7 @@ class _BatterySensorEntity(BaseSensorEntity):
     def __init__(
         self,
         client: EcoflowApiClient,
-        device: "DeltaProUltra",
+        device: DeltaProUltra,
         serial: str,
         field: str,
         title: str,
