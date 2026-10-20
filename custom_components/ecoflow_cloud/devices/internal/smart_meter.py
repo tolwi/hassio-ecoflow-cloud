@@ -375,7 +375,7 @@ class SmartMeter(BaseInternalDevice):
                 return PreparedData(int(data["params"]["status"]) == 1, None, data)
             return PreparedData(None, None, data)
         except Exception as e:
-            logging.debug(f"Failed to prepare status topic for {self.device_info.sn}: ", e)
+            _LOGGER.debug(f"Failed to prepare status topic for {self.device_info.sn}: ", e)
 
     # @override
     # def _prepare_data_get_reply_topic(self, raw_data: bytes) -> PreparedData:
