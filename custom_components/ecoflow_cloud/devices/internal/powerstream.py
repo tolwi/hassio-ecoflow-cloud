@@ -416,6 +416,7 @@ class PowerStream(BaseInternalDevice):
             return PreparedData(None, None, data)
         except Exception as e:
             _LOGGER.debug(f"Failed to prepare status topic for {self.device_info.sn}: ", e)
+        return PreparedData(None, None, None)
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
         return QuotaStatusSensorEntity(client, self)
