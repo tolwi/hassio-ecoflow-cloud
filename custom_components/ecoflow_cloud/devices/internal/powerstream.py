@@ -393,7 +393,7 @@ class PowerStream(BaseInternalDevice):
                             [str(int(dt_today.timestamp()) - 24*60*60), "Yesterday"]
                         ])
                         # We have to check exact dates because somtimes it sends the whole week
-                        if str(watth_item.timestamp) in dt_days.keys():
+                        if str(watth_item.timestamp) in dt_days:
                             params.update(
                                 {
                                     f"{command.func}_{command.id}.{field_name}{dt_days[str(watth_item.timestamp)]}": sum(
