@@ -305,9 +305,10 @@ def _decode_envelopes(raw_data: bytes) -> Iterator[tuple[Any, Any, dict[str, Any
             yield flat.get(P_CMDFUNC), flat.get(P_CMDID), flat
 
 
-# A stall is surfaced only after this long with frames still arriving but no augmented field
-# decoded — long enough that normal frame-type interleaving never trips it, short enough to
-# notice a real outage.
+# A stall is surfaced only after this long with no augmented field decoded — long enough that
+# normal frame-type interleaving never trips it, short enough to notice a real outage. Every
+# MQTT message counts as a frame here (status and get/set topics too, not only telemetry), so
+# a device that goes quiet trips it as well: its offline status message is a frame.
 DECODE_STALE_AFTER_S = 900
 
 
@@ -334,7 +335,7 @@ class _EnvelopeHealth:
 
     def frame(self, exc: Exception | None = None) -> None:
         """Called once per frame (with the exception, if the decode raised). Warns once when
-        no augmented field has been decoded for DECODE_STALE_AFTER_S while frames keep coming.
+        a frame arrives and no augmented field has been decoded for DECODE_STALE_AFTER_S.
         """
         if exc is not None:
             _LOGGER.debug("%s: envelope decode skipped: %s", self._label, exc)
@@ -344,8 +345,9 @@ class _EnvelopeHealth:
         elif not self._degraded and now - self._last_ok > DECODE_STALE_AFTER_S:
             self._degraded = True
             _LOGGER.warning(
-                "%s: no augmented Ocean Pro field decoded for >%ds despite incoming frames — "
-                "the app frame format may have changed; augmented sensors are stale.",
+                "%s: no augmented Ocean Pro field decoded for >%ds; augmented sensors are "
+                "stale. Either the device stopped sending telemetry (check whether its other "
+                "sensors stopped too) or the app frame format changed.",
                 self._label,
                 DECODE_STALE_AFTER_S,
             )
