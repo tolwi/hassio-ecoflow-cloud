@@ -52,7 +52,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
                 self.user_id = response["data"]["user"]["userId"]
                 self.user_name = response["data"]["user"].get("name", "<no user name>")
             except KeyError as key:
-                raise EcoflowException(f"Failed to extract key {key} from response: {response}")
+                raise EcoflowException(f"Failed to extract key {key} from login response")
 
             _LOGGER.info(f"Successfully logged in: {self.user_name}")
 

@@ -102,7 +102,6 @@ class EcoflowApiClient(ABC):
         self.devices.pop(device.device_data.sn, None)
 
     def _accept_mqqt_certification(self, resp_json: dict):
-        _LOGGER.info(f"Received MQTT credentials: {resp_json}")
         try:
             mqtt_url = resp_json["data"]["url"]
             mqtt_port = int(resp_json["data"]["port"])
@@ -110,7 +109,7 @@ class EcoflowApiClient(ABC):
             mqtt_password = resp_json["data"]["certificatePassword"]
             self.mqtt_info = EcoflowMqttInfo(mqtt_url, mqtt_port, mqtt_username, mqtt_password)
         except KeyError as key:
-            raise EcoflowException(f"Failed to extract key {key} from {resp_json}")
+            raise EcoflowException(f"Failed to extract key {key} from MQTT credentials response")
 
         _LOGGER.info(f"Successfully extracted account: {self.mqtt_info.username}")
 
