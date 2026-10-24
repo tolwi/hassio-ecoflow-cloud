@@ -146,7 +146,8 @@ class EcoflowApiClient(ABC):
             command = JSONMessage(command)
 
         self.devices[device_sn].data.update_to_target_state(mqtt_state)
-        self.mqtt_client.publish(self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload())
+        # paho keeps QoS 1 messages queued across a disconnect and replays them on reconnect (#819)
+        self.mqtt_client.publish(self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload(), qos=0)
 
     def start(self):
         _LOGGER.debug("Starting MQTT client for %s", self.mqtt_info.client_id)
