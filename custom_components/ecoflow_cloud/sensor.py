@@ -870,8 +870,16 @@ class IntegralEnergySensorEntity(IntegrationSensor):
 
     @staticmethod
     def _energy_name(base: WattsSensorEntity) -> str:
-        # "X Power" -> "X Energy". Replacing the bare word keeps the original spacing.
-        return f"{base._device.device_info.name} {base.title().replace(const.POWER, const.ENERGY)}"
+        # "X Power" -> "X Energy". Only the trailing word: a label like "Power I/O Port Input
+        # Power" or a circuit named "Range Hood Power Test" keeps its inner "Power". Titles that
+        # don't end in it ("AC Output Power L1") keep the plain word swap.
+        title = base.title()
+        suffix = f" {const.POWER}"
+        if title.endswith(suffix):
+            title = title.removesuffix(suffix) + f" {const.ENERGY}"
+        else:
+            title = title.replace(const.POWER, const.ENERGY)
+        return f"{base._device.device_info.name} {title}"
 
     @property
     @override
