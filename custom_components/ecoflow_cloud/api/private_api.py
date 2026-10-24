@@ -5,10 +5,11 @@ from time import time
 from typing import Any
 
 import aiohttp
+from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.util import uuid
 
 from ..devices import EcoflowDeviceInfo
-from . import EcoflowApiClient, EcoflowAuthException, EcoflowException
+from . import API_RESPONSE_TO_REDACT, EcoflowApiClient, EcoflowAuthException, EcoflowException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,6 +53,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
                 self.user_id = response["data"]["user"]["userId"]
                 self.user_name = response["data"]["user"].get("name", "<no user name>")
             except KeyError as key:
+                _LOGGER.debug("Login response: %s", async_redact_data(response, API_RESPONSE_TO_REDACT))
                 raise EcoflowException(f"Failed to extract key {key} from login response")
 
             _LOGGER.info(f"Successfully logged in: {self.user_name}")
