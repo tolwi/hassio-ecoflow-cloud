@@ -77,11 +77,11 @@ class EcoflowDataHolder:
         )
 
     def add_set_message(self, data: PreparedData):
-        self.__accept_prepared_data(data, self.set.append)
+        self.__accept_prepared_data(data, self.__timestamped(self.set.append))
         self.set_time = dt.utcnow()
 
     def add_set_reply_message(self, data: PreparedData):
-        self.__accept_prepared_data(data, self.set_reply.append)
+        self.__accept_prepared_data(data, self.__timestamped(self.set_reply.append))
         self.set_reply_time = dt.utcnow()
 
     def add_get_message(self, data: PreparedData):
@@ -116,6 +116,10 @@ class EcoflowDataHolder:
         if "params" in params:
             self.params.update(params["params"])
             self.set_params_time = dt.utcnow()
+
+    @staticmethod
+    def __timestamped(acceptor: Callable[[dict[str, Any]], None]) -> Callable[[dict[str, Any]], None]:
+        return lambda raw_data: acceptor({**raw_data, "received_at": dt.utcnow().isoformat()})
 
     def __accept_prepared_data(self, data: PreparedData, raw_data_acceptor: Callable[[dict[str, Any]], None]):
         if data.online is not None:
