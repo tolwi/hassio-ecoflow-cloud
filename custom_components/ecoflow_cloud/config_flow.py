@@ -6,6 +6,7 @@ from copy import deepcopy
 from typing import Any
 
 import voluptuous as vol
+from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -30,6 +31,7 @@ from custom_components.ecoflow_cloud import (
     CONF_PASSWORD,
     CONF_SECRET_KEY,
     CONF_SELECT_DEVICE_KEY,
+    CONF_TO_REDACT,
     CONF_USERNAME,
     CONFIG_VERSION,
     DEFAULT_ASSUME_OFFLINE_SEC,
@@ -86,7 +88,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             _LOGGER.info(
                 ".. reconfigure: entry = %s, data = %s, options = %s ",
                 str(self.config_entry),
-                str(self.new_data),
+                async_redact_data(self.new_data, CONF_TO_REDACT),
                 str(self.new_options),
             )
             if self.hass.config_entries.async_update_entry(
@@ -101,7 +103,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             _LOGGER.info(
                 ".. create: entry = %s, data = %s, options = %s ",
                 str(self.config_entry),
-                str(self.new_data),
+                async_redact_data(self.new_data, CONF_TO_REDACT),
                 str(self.new_options),
             )
 

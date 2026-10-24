@@ -2,6 +2,7 @@ import logging
 from typing import Any, Final
 
 import aiohttp
+from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -51,6 +52,7 @@ CONF_API_HOST: Final = "api_host"
 CONF_ACCESS_KEY: Final = "access_key"
 CONF_SECRET_KEY: Final = "secret_key"
 CONF_GROUP: Final = "group"
+CONF_TO_REDACT: Final = {CONF_USERNAME, CONF_PASSWORD, CONF_ACCESS_KEY, CONF_SECRET_KEY}
 CONF_DEVICE_LIST: Final = "devices_list"
 CONF_ENTRY_ID: Final = "entry_id"
 
@@ -242,7 +244,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if entry.version != CONFIG_VERSION:
         return False
 
-    _LOGGER.info("Setup entry %s (data = %s)", str(entry), str(entry.data))
+    _LOGGER.info("Setup entry %s (data = %s)", str(entry), async_redact_data(entry.data, CONF_TO_REDACT))
     api_client: EcoflowApiClient
     if ECOFLOW_DOMAIN not in hass.data:
         hass.data[ECOFLOW_DOMAIN] = {}
