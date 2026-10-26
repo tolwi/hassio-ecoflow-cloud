@@ -32,6 +32,15 @@ from custom_components.ecoflow_cloud.sensor import (
 _LOGGER = logging.getLogger(__name__)
 
 
+class StreamStoredEnergySensorEntity(StoredEnergyFromSocSensorEntity):
+    # Some Ultra / Ultra X firmware reports cmsBattSoc as 0.0 and the real SoC only in soc (#923).
+    @override
+    def _updated(self, data: dict[str, Any]) -> None:
+        if not data.get(self._soc_key) and data.get("soc") is not None:
+            data = {**data, self._soc_key: data["soc"]}
+        super()._updated(data)
+
+
 class StreamAC(BaseInternalDevice):
     # StreamAC backs every Stream-family model (registry.py maps STREAM_AC,
     # STREAM_PRO, STREAM_ULTRA and STREAM_ULTRA_X all to this one class), so
@@ -146,15 +155,9 @@ class StreamAC(BaseInternalDevice):
             # "cmsBattPowInMax": 2114,
             # "cmsBattPowOutMax": 2400,
             # "cmsBattSoc": 43.0,
-            # cmsBattFullEnergy / cmsBattSoc are not emitted on the private API
-            # for Stream Ultra / Ultra X (confirmed absent from both the private
-            # dump and the Public API quota). auto_enable keeps this hidden where
-            # the source fields never arrive, while still surfacing on Stream
-            # models that do report them.
-            # cmsBattSoc is not emitted on Stream Ultra / Ultra X. Use 'soc' instead so
-            # StoredEnergyFromSocSensorEntity can compute stored Wh across all variants.
-            StoredEnergyFromSocSensorEntity(
-                client, self, "cmsBattFullEnergy", "soc", const.STREAM_STORED_ENERGY, False, True
+            # cmsBattFullEnergy never arrives on private-API Ultra / Ultra X; auto_enable keeps this hidden there.
+            StreamStoredEnergySensorEntity(
+                client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY, False, True
             ),
             # "cmsBattSoh": 100.0,
             # "cmsBmsRunState": 1,

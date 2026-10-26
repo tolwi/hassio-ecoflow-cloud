@@ -23,11 +23,11 @@ from custom_components.ecoflow_cloud.sensor import (
     RemainSensorEntity,
     StateOfHealthSensorEntity,
     StatusSensorEntity,
-    StoredEnergyFromSocSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
 )
+from custom_components.ecoflow_cloud.devices.internal.stream_ac import StreamStoredEnergySensorEntity
 from custom_components.ecoflow_cloud.devices.public.stream_pv_helpers import (
     StreamPvWattsSensorEntity,
 )
@@ -97,10 +97,8 @@ class StreamAC(BaseDevice):
             .attr("fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             # Keep cmsBattSoc as secondary / auto-enabled if present on other firmware
-            LevelSensorEntity(client, self, "cmsBattSoc", const.STREAM_BATTERY_LEVEL, False, True),
-            StoredEnergyFromSocSensorEntity(
-             client, self, "cmsBattFullEnergy", "soc", const.STREAM_STORED_ENERGY
-            ),
+            LevelSensorEntity(client, self, "cmsBattSoc", const.STREAM_CMS_BATTERY_LEVEL, False, True),
+            StreamStoredEnergySensorEntity(client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY),
             # "cmsBattSoh": 100.0,
             # "cmsBmsRunState": 1,
             # "cmsChgDsgState": 2,
