@@ -124,7 +124,9 @@ class BatteryBackupLevel(MinMaxLevelEntity):
         min_key: str,
         max_key: str,
         gap_min: int,
-        command: Callable[[int], dict[str, Any]] | None,
+        command: Callable[[int], dict[str, Any] | Message]
+        | Callable[[int, dict[str, Any]], dict[str, Any] | Message]
+        | None,
     ):
         super().__init__(client, device, mqtt_key, title, min_value, max_value, command)
         self._min_key = min_key

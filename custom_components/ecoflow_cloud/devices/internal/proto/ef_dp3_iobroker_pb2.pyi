@@ -920,7 +920,7 @@ class DP3DisplayPropertyReport(_message.Message):
     def __init__(self, report_timestamp: _Optional[int] = ..., unknown2_f23: _Optional[float] = ..., unknown5_f23: _Optional[int] = ...) -> None: ...
 
 class DP3SetCommand(_message.Message):
-    __slots__ = ("cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
+    __slots__ = ("cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "cfgEnergyBackup", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
     CFGPOWEROFF_FIELD_NUMBER: _ClassVar[int]
     ENBEEP_FIELD_NUMBER: _ClassVar[int]
     ACSTANDBYTIME_FIELD_NUMBER: _ClassVar[int]
@@ -934,6 +934,7 @@ class DP3SetCommand(_message.Message):
     XBOOSTEN_FIELD_NUMBER: _ClassVar[int]
     CMSMAXCHGSOC_FIELD_NUMBER: _ClassVar[int]
     CMSMINDSGSOC_FIELD_NUMBER: _ClassVar[int]
+    CFGENERGYBACKUP_FIELD_NUMBER: _ClassVar[int]
     PLUGININFOPVLDCAMPMAX_FIELD_NUMBER: _ClassVar[int]
     PLUGININFOPVHDCAMPMAX_FIELD_NUMBER: _ClassVar[int]
     PLUGININFOACINCHGPOWMAX_FIELD_NUMBER: _ClassVar[int]
@@ -959,6 +960,7 @@ class DP3SetCommand(_message.Message):
     xboostEn: int
     cmsMaxChgSoc: int
     cmsMinDsgSoc: int
+    cfgEnergyBackup: DP3CfgEnergyBackup
     plugInInfoPvLDcAmpMax: int
     plugInInfoPvHDcAmpMax: int
     plugInInfoAcInChgPowMax: int
@@ -971,10 +973,10 @@ class DP3SetCommand(_message.Message):
     multiBpChgDsgMode: int
     lowDischargeLimitCmd: int
     unknown167: int
-    def __init__(self, cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
+    def __init__(self, cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., cfgEnergyBackup: _Optional[_Union[DP3CfgEnergyBackup, _Mapping]] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
 
 class DP3SetReply(_message.Message):
-    __slots__ = ("actionId", "configOk", "cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
+    __slots__ = ("actionId", "configOk", "cfgPowerOff", "enBeep", "acStandbyTime", "dcStandbyTime", "screenOffTime", "devStandbyTime", "lcdLight", "cfgHvAcOutOpen", "cfgLvAcOutOpen", "cfgDc12vOutOpen", "xboostEn", "cmsMaxChgSoc", "cmsMinDsgSoc", "cfgEnergyBackup", "plugInInfoPvLDcAmpMax", "plugInInfoPvHDcAmpMax", "plugInInfoAcInChgPowMax", "plugInInfo_5p8ChgPowMax", "cmsOilSelfStart", "cmsOilOnSoc", "cmsOilOffSoc", "llc_GFCIFlag", "acEnergySavingOpen", "multiBpChgDsgMode", "lowDischargeLimitCmd", "unknown167")
     ACTIONID_FIELD_NUMBER: _ClassVar[int]
     CONFIGOK_FIELD_NUMBER: _ClassVar[int]
     CFGPOWEROFF_FIELD_NUMBER: _ClassVar[int]
@@ -990,6 +992,7 @@ class DP3SetReply(_message.Message):
     XBOOSTEN_FIELD_NUMBER: _ClassVar[int]
     CMSMAXCHGSOC_FIELD_NUMBER: _ClassVar[int]
     CMSMINDSGSOC_FIELD_NUMBER: _ClassVar[int]
+    CFGENERGYBACKUP_FIELD_NUMBER: _ClassVar[int]
     PLUGININFOPVLDCAMPMAX_FIELD_NUMBER: _ClassVar[int]
     PLUGININFOPVHDCAMPMAX_FIELD_NUMBER: _ClassVar[int]
     PLUGININFOACINCHGPOWMAX_FIELD_NUMBER: _ClassVar[int]
@@ -1017,6 +1020,7 @@ class DP3SetReply(_message.Message):
     xboostEn: int
     cmsMaxChgSoc: int
     cmsMinDsgSoc: int
+    cfgEnergyBackup: DP3CfgEnergyBackup
     plugInInfoPvLDcAmpMax: int
     plugInInfoPvHDcAmpMax: int
     plugInInfoAcInChgPowMax: int
@@ -1029,7 +1033,15 @@ class DP3SetReply(_message.Message):
     multiBpChgDsgMode: int
     lowDischargeLimitCmd: int
     unknown167: int
-    def __init__(self, actionId: _Optional[int] = ..., configOk: _Optional[bool] = ..., cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
+    def __init__(self, actionId: _Optional[int] = ..., configOk: _Optional[bool] = ..., cfgPowerOff: _Optional[int] = ..., enBeep: _Optional[int] = ..., acStandbyTime: _Optional[int] = ..., dcStandbyTime: _Optional[int] = ..., screenOffTime: _Optional[int] = ..., devStandbyTime: _Optional[int] = ..., lcdLight: _Optional[int] = ..., cfgHvAcOutOpen: _Optional[int] = ..., cfgLvAcOutOpen: _Optional[int] = ..., cfgDc12vOutOpen: _Optional[int] = ..., xboostEn: _Optional[int] = ..., cmsMaxChgSoc: _Optional[int] = ..., cmsMinDsgSoc: _Optional[int] = ..., cfgEnergyBackup: _Optional[_Union[DP3CfgEnergyBackup, _Mapping]] = ..., plugInInfoPvLDcAmpMax: _Optional[int] = ..., plugInInfoPvHDcAmpMax: _Optional[int] = ..., plugInInfoAcInChgPowMax: _Optional[int] = ..., plugInInfo_5p8ChgPowMax: _Optional[int] = ..., cmsOilSelfStart: _Optional[int] = ..., cmsOilOnSoc: _Optional[int] = ..., cmsOilOffSoc: _Optional[int] = ..., llc_GFCIFlag: _Optional[int] = ..., acEnergySavingOpen: _Optional[int] = ..., multiBpChgDsgMode: _Optional[int] = ..., lowDischargeLimitCmd: _Optional[int] = ..., unknown167: _Optional[int] = ...) -> None: ...
+
+class DP3CfgEnergyBackup(_message.Message):
+    __slots__ = ("energyBackupEn", "energyBackupStartSoc")
+    ENERGYBACKUPEN_FIELD_NUMBER: _ClassVar[int]
+    ENERGYBACKUPSTARTSOC_FIELD_NUMBER: _ClassVar[int]
+    energyBackupEn: int
+    energyBackupStartSoc: int
+    def __init__(self, energyBackupEn: _Optional[int] = ..., energyBackupStartSoc: _Optional[int] = ...) -> None: ...
 
 class DP3SetValue(_message.Message):
     __slots__ = ("value", "value2")
