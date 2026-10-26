@@ -97,6 +97,9 @@
                     "verbose_status_mode": "Szczegółowy opis statusu",
                     "reset_sensors_on_offline": "Resetuj sensory po przejściu w offline",
                     "energy_update_interval_sec": "Interwał aktualizacji sensorów energii (s, 0 = przy każdej aktualizacji)"
+                },
+                "data_description": {
+                    "energy_update_interval_sec": "Czujniki energii (kWh) raportują najwyżej raz na interwał. Energia nie jest tracona, ale do jednego interwału może zostać policzone w statystykach następnej godziny lub po zmianie taryfy utility_meter. 60 zmniejsza liczbę zapisów recordera o około 90%."
                 }
             }
         }

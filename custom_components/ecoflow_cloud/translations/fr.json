@@ -97,6 +97,9 @@
                     "verbose_status_mode": "Mode de statut détaillé",
                     "reset_sensors_on_offline": "Réinitialiser les capteurs hors ligne",
                     "energy_update_interval_sec": "Intervalle de mise à jour des capteurs d'énergie (s, 0 = à chaque mise à jour)"
+                },
+                "data_description": {
+                    "energy_update_interval_sec": "Les capteurs d'énergie (kWh) publient au plus une fois par intervalle. Aucune énergie n'est perdue, mais jusqu'à un intervalle peut être compté dans les statistiques de l'heure suivante, ou après un changement de tarif d'un utility_meter. 60 réduit les écritures du recorder d'environ 90 %."
                 }
             }
         }
