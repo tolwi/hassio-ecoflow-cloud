@@ -1,24 +1,31 @@
 import asyncio
 import logging
 import struct
+import time
 from typing import TYPE_CHECKING, Any, Self, override
 
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass, BinarySensorEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.select import SelectEntity
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.const import UnitOfPower
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
+from custom_components.ecoflow_cloud.binary_sensor import MiscBinarySensorEntity
 from custom_components.ecoflow_cloud.devices import const
 from custom_components.ecoflow_cloud.devices.internal.delta_pro_3 import DeltaPro3
+from custom_components.ecoflow_cloud.devices.public.delta3_max_plus import Delta3ChargingStateSensorEntity
 from custom_components.ecoflow_cloud.sensor import (
     AmpSensorEntity,
+    BatteryLimitSensorEntity,
     InAmpSensorEntity,
     InVoltSensorEntity,
     InWattsSensorEntity,
     LevelSensorEntity,
+    MiscSensorEntity,
     QuotaStatusSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
@@ -39,6 +46,27 @@ F_LOAD_PWR = 516
 F_GRID_L1_PWR, F_GRID_L2_PWR = 962, 963
 F_L1_VOL, F_L2_VOL = 956, 957
 F_GRID_L1_AMP, F_GRID_L2_AMP = 958, 959
+# Panel state, sent only in the 120 s full frames. Names and meanings follow
+# the SHP3 schema in rabits/ha-ef-ble (dev_apl_comm), which agrees with
+# 1RadMan/ecoflow-cloud-dpu-extra. 619, 461, 270, 467 and 282 travel in one
+# frame, 752, 806, 1244 and 1245 in another; 282 also comes in the 2 s frames
+# when it changes.
+F_GRID_STA = 619  # grid_connection_sta: 1 grid in, 2 offline, 3 feeding
+F_GRID_ENERGIZED = 752
+F_BACKUP_RESERVE = 461  # %
+F_MAX_CHG_SOC = 270  # cms_max_chg_soc, %: the app's charge limit
+F_NICE_TO_HAVE_SOC = 806  # mid_priority_discharge_low, %: Nice to Have circuits shed below it
+F_STORM_GUARD = 467  # storm_pattern_enable
+F_CHG_DSG_STATE = 282  # cms_chg_dsg_state: 0 idle, 1 discharging, 2 charging
+F_CHARGE_LIMIT = 1244  # W
+F_PANEL_MODE = 1245  # submessage of mode flags, see PANEL_MODES
+# Operating-mode flag sub-fields of 1245; none set means Backup. Sub-field 4
+# (EPS) is a separate flag that combines with any of them.
+PANEL_MODES = {1: "self_powered", 2: "scheduled", 3: "tou", 5: "mix_scheduled", 6: "intelligent"}
+PANEL_MODE_EPS = 4
+GRID_STA_ON = {1: True, 2: False, 3: True}
+# 2.5 full-frame periods: one lost frame is tolerated, a dead stream is not.
+PANEL_STATE_STALE_S = 300
 
 # Protobuf wire types (as tagged by _parse_fields).
 WIRE_VARINT = 0
@@ -101,11 +129,13 @@ def _first(fields: FieldMap, no: int, wire_type: int) -> Any | None:
 
 
 if TYPE_CHECKING:
-    from custom_components.ecoflow_cloud.entities import BaseSensorEntity
+    from custom_components.ecoflow_cloud.entities import BaseSensorEntity, EcoFlowDictEntity
 
     _CircuitNamedBase = BaseSensorEntity
+    _PanelStateBase = EcoFlowDictEntity
 else:
     _CircuitNamedBase = object
+    _PanelStateBase = object
 
 
 class _CircuitNamed(_CircuitNamedBase):
@@ -163,6 +193,59 @@ class NamedCircuitAmp(_CircuitNamed, AmpSensorEntity):
     pass
 
 
+class _PanelState(_PanelStateBase):
+    """Mixin: unavailable once the panel-state value is PANEL_STATE_STALE_S old.
+
+    These values arrive only in the 120 s full frames and hold in between, so
+    without this a lost frame stream would show the last value indefinitely.
+    """
+
+    @property
+    def available(self) -> bool:
+        seen = getattr(self._device, "panel_state_seen", {}).get(self.mqtt_key)
+        fresh = seen is not None and time.monotonic() - seen < PANEL_STATE_STALE_S
+        return super().available and fresh
+
+    def _handle_coordinator_update(self) -> None:
+        super()._handle_coordinator_update()  # type: ignore[misc]
+        # The base class writes state only on a new value; going stale is not one.
+        available = self.available
+        if available != getattr(self, "_written_available", None):
+            self._written_available = available
+            self.schedule_update_ha_state()
+
+
+class PanelStateBinarySensorEntity(_PanelState, MiscBinarySensorEntity):
+    pass
+
+
+class PanelLimitSensorEntity(_PanelState, BatteryLimitSensorEntity):
+    pass
+
+
+class PanelChargingStateSensorEntity(_PanelState, Delta3ChargingStateSensorEntity):  # type: ignore[misc]
+    pass
+
+
+class GridStatusBinarySensorEntity(_PanelState, MiscBinarySensorEntity):
+    _attr_device_class = BinarySensorDeviceClass.POWER
+
+    def _update_value(self, val: Any) -> bool:
+        # 0 (no valid status) and unknown codes read as unknown, not "off".
+        self._attr_is_on = GRID_STA_ON.get(val)
+        return True
+
+
+class ChargeLimitSensorEntity(_PanelState, MiscSensorEntity):  # type: ignore[misc]
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_native_unit_of_measurement = UnitOfPower.WATT
+
+
+class PanelModeSensorEntity(_PanelState, MiscSensorEntity):  # type: ignore[misc]
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = ["backup", *PANEL_MODES.values()]
+
+
 class SmartHomePanel3(DeltaPro3):
     """EcoFlow Smart Home Panel 3 (private / app API).
 
@@ -193,6 +276,8 @@ class SmartHomePanel3(DeltaPro3):
         self._meta: dict[int, dict[str, Any]] = {}
         # Last-seen grid/load pair, carried across frames that omit the group.
         self._flows: dict[str, float] = {}
+        # Panel-state key -> monotonic time it was last decoded (see _PanelState).
+        self.panel_state_seen: dict[str, float] = {}
 
     @override
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
@@ -217,6 +302,15 @@ class SmartHomePanel3(DeltaPro3):
             InVoltSensorEntity(client, self, "shp_l2_vol", "Grid L2 Voltage", False, diagnostic=True),
             InAmpSensorEntity(client, self, "shp_grid_l1_amp", "Grid L1 Current", False, diagnostic=True),
             InAmpSensorEntity(client, self, "shp_grid_l2_amp", "Grid L2 Current", False, diagnostic=True),
+            # Panel settings, read-only. Updated every 120 s (full frame).
+            PanelLimitSensorEntity(client, self, "shp_backup_reserve", "Backup Reserve"),
+            PanelLimitSensorEntity(client, self, "shp_max_chg_soc", "Charge Limit"),
+            PanelLimitSensorEntity(
+                client, self, "shp_nice_to_have_soc", "Nice to Have Threshold", False, diagnostic=True
+            ),
+            PanelChargingStateSensorEntity(client, self, "shp_chg_dsg_state", const.BATTERY_CHARGING_STATE),
+            PanelModeSensorEntity(client, self, "shp_panel_mode", "Operating Mode", diagnostic=False),
+            ChargeLimitSensorEntity(client, self, "shp_charge_limit", "Charge Power Limit", False),
         ]
         # Per-circuit sensors: power enabled with an integrated-energy
         # companion (kWh) for the Energy dashboard; volt/amp disabled by
@@ -244,6 +338,17 @@ class SmartHomePanel3(DeltaPro3):
                 )
             )
         return out
+
+    @override
+    def binary_sensors(self, client: EcoflowApiClient) -> list[BinarySensorEntity]:
+        return [
+            GridStatusBinarySensorEntity(client, self, "shp_grid_sta", "Grid"),
+            PanelStateBinarySensorEntity(client, self, "shp_grid_energized", "Grid Energized").with_device_class(
+                "power"
+            ),
+            PanelStateBinarySensorEntity(client, self, "shp_eps_mode", "EPS Mode", False, diagnostic=True),
+            PanelStateBinarySensorEntity(client, self, "shp_storm_guard", "Storm Guard", False, diagnostic=True),
+        ]
 
     @override
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
@@ -294,6 +399,7 @@ class SmartHomePanel3(DeltaPro3):
             try:
                 fields = _parse_fields(pdata)
                 self._decode_flows(fields, result)
+                self._decode_panel_state(fields, result)
                 self._decode_circuits(fields, result)
                 self._decode_metadata(fields, result)
                 self._combine_split_phase(result)
@@ -335,6 +441,52 @@ class SmartHomePanel3(DeltaPro3):
                 self._flows[k] = result[k]
         if len(self._flows) == 2:
             result["shp_batt_pwr"] = round(self._flows["shp_load_pwr"] - self._flows["shp_grid_pwr"], 2)
+
+    def _decode_panel_state(self, fields: FieldMap, result: dict[str, Any]) -> None:
+        """Grid status, panel settings, charge state, operating mode."""
+        # These have no reliable marker for their frame, so absent means "not
+        # in this frame" and the last value holds. The full frame sends them
+        # even when 0 (467 and 282 arrive as explicit zeros).
+        now = time.monotonic()
+        for key, no in (
+            ("shp_grid_sta", F_GRID_STA),
+            ("shp_backup_reserve", F_BACKUP_RESERVE),
+            ("shp_max_chg_soc", F_MAX_CHG_SOC),
+            ("shp_nice_to_have_soc", F_NICE_TO_HAVE_SOC),
+            ("shp_storm_guard", F_STORM_GUARD),
+            ("shp_chg_dsg_state", F_CHG_DSG_STATE),
+        ):
+            v = _first(fields, no, WIRE_VARINT)
+            if v is not None:
+                result[key] = v
+                self.panel_state_seen[key] = now
+
+        # The mode submessage carries the operating mode. In the full frame an
+        # absent 752/1244 means 0: grid de-energized, no charge limit
+        # (zero-omission, see module note). A mode change arrives as a frame
+        # with 1245 alone, where absent 752/1244 hold. The full frame is
+        # recognised by any of its other fields being present, so it is only
+        # missed when all three are 0 at once.
+        mode = _first(fields, F_PANEL_MODE, WIRE_LEN)
+        if mode is None:
+            return
+        flags = _parse_fields(mode)
+        result["shp_panel_mode"] = next(
+            (name for no, name in PANEL_MODES.items() if _first(flags, no, WIRE_VARINT)), "backup"
+        )
+        result["shp_eps_mode"] = bool(_first(flags, PANEL_MODE_EPS, WIRE_VARINT))
+        seen = ["shp_panel_mode", "shp_eps_mode"]
+        full_frame = any(no in fields for no in (F_GRID_ENERGIZED, F_NICE_TO_HAVE_SOC, F_CHARGE_LIMIT))
+        energized = _first(fields, F_GRID_ENERGIZED, WIRE_VARINT)
+        if energized is not None or full_frame:
+            result["shp_grid_energized"] = bool(energized)
+            seen.append("shp_grid_energized")
+        limit = _first(fields, F_CHARGE_LIMIT, WIRE_VARINT)
+        if limit is not None or full_frame:
+            result["shp_charge_limit"] = limit or 0
+            seen.append("shp_charge_limit")
+        for key in seen:
+            self.panel_state_seen[key] = now
 
     def _decode_circuits(self, fields: FieldMap, result: dict[str, Any]) -> None:
         """Per-circuit volt / watt / amp from the 32-entry array."""
