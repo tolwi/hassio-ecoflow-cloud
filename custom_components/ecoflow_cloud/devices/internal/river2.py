@@ -49,34 +49,25 @@ class River2(BaseInternalDevice):
             # "bms_bmsStatus."/"bms_emsStatus."/"mppt." set below - confirmed
             # via live diagnostics on a unit where every "bms_bmsStatus.*"
             # entity stayed permanently unknown while "bmsMaster.*" held the
-            # real values (see issue #918). Both variants are registered
-            # disabled+auto_enable so whichever one this device actually
-            # reports wins and the other stays hidden.
-            LevelSensorEntity(
-                client, self, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL, enabled=False, auto_enable=True
-            )
+            # real values (see issue #918). The new variants start disabled;
+            # the original keys keep their defaults.
+            LevelSensorEntity(client, self, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
             .attr("bms_bmsStatus.designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("bms_bmsStatus.fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("bms_bmsStatus.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
-            LevelSensorEntity(client, self, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL, enabled=False, auto_enable=True)
+            LevelSensorEntity(client, self, "bmsMaster.soc", const.MAIN_BATTERY_LEVEL, enabled=False)
             .attr("bmsMaster.fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("bmsMaster.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             CapacitySensorEntity(client, self, "bms_bmsStatus.designCap", const.MAIN_DESIGN_CAPACITY, False),
+            CapacitySensorEntity(client, self, "bms_bmsStatus.fullCap", const.MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, self, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, self, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False),
             CapacitySensorEntity(
-                client, self, "bms_bmsStatus.fullCap", const.MAIN_FULL_CAPACITY, False, auto_enable=True
-            ),
-            CapacitySensorEntity(client, self, "bmsMaster.fullCap", const.MAIN_FULL_CAPACITY, False, auto_enable=True),
-            CapacitySensorEntity(
-                client, self, "bms_bmsStatus.remainCap", const.MAIN_REMAIN_CAPACITY, False, auto_enable=True
-            ),
-            CapacitySensorEntity(
-                client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False, auto_enable=True
+                client, self, "bmsMaster.remainCap", const.MAIN_REMAIN_CAPACITY, False
             ),
             StateOfHealthSensorEntity(client, self, "bms_bmsStatus.soh", const.SOH),
-            LevelSensorEntity(
-                client, self, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL, enabled=False, auto_enable=True
-            ),
-            LevelSensorEntity(client, self, "pd.soc", const.COMBINED_BATTERY_LEVEL, enabled=False, auto_enable=True),
+            LevelSensorEntity(client, self, "bms_emsStatus.lcdShowSoc", const.COMBINED_BATTERY_LEVEL),
+            LevelSensorEntity(client, self, "pd.soc", const.COMBINED_BATTERY_LEVEL, enabled=False),
             ChargingStateSensorEntity(client, self, "bms_emsStatus.chgState", const.BATTERY_CHARGING_STATE),
             InWattsSensorEntity(client, self, "pd.wattsInSum", const.TOTAL_IN_POWER).with_energy(),
             OutWattsSensorEntity(client, self, "pd.wattsOutSum", const.TOTAL_OUT_POWER).with_energy(),
@@ -101,17 +92,15 @@ class River2(BaseInternalDevice):
             RemainSensorEntity(client, self, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
             RemainSensorEntity(client, self, "pd.remainTime", const.REMAINING_TIME),
             TempSensorEntity(client, self, "inv.outTemp", "Inv Out Temperature"),
-            CyclesSensorEntity(client, self, "bms_bmsStatus.cycles", const.CYCLES, enabled=False, auto_enable=True),
-            CyclesSensorEntity(client, self, "bmsMaster.cycles", const.CYCLES, enabled=False, auto_enable=True),
-            TempSensorEntity(
-                client, self, "bms_bmsStatus.temp", const.BATTERY_TEMP, enabled=False, auto_enable=True
-            )
+            CyclesSensorEntity(client, self, "bms_bmsStatus.cycles", const.CYCLES),
+            CyclesSensorEntity(client, self, "bmsMaster.cycles", const.CYCLES, enabled=False),
+            TempSensorEntity(client, self, "bms_bmsStatus.temp", const.BATTERY_TEMP)
             .attr("bms_bmsStatus.minCellTemp", const.ATTR_MIN_CELL_TEMP, 0)
             .attr("bms_bmsStatus.maxCellTemp", const.ATTR_MAX_CELL_TEMP, 0),
-            TempSensorEntity(client, self, "bmsMaster.temp", const.BATTERY_TEMP, enabled=False, auto_enable=True),
+            TempSensorEntity(client, self, "bmsMaster.temp", const.BATTERY_TEMP, enabled=False),
             TempSensorEntity(client, self, "bms_bmsStatus.minCellTemp", const.MIN_CELL_TEMP, False),
             TempSensorEntity(client, self, "bms_bmsStatus.maxCellTemp", const.MAX_CELL_TEMP, False),
-            VoltSensorEntity(client, self, "bms_bmsStatus.vol", const.BATTERY_VOLT, False, auto_enable=True)
+            VoltSensorEntity(client, self, "bms_bmsStatus.vol", const.BATTERY_VOLT, False)
             .attr("bms_bmsStatus.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("bms_bmsStatus.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             # bmsMaster.vol is reported in millivolts on this hardware variant
@@ -119,17 +108,13 @@ class River2(BaseInternalDevice):
             # unlike bms_bmsStatus.vol above which is assumed to already be whole volts -
             # MilliVoltSensorEntity's suggested_unit_of_measurement handles the mV->V
             # display conversion, same as the cell-level volt sensors below.
-            MilliVoltSensorEntity(client, self, "bmsMaster.vol", const.BATTERY_VOLT, False, auto_enable=True)
+            MilliVoltSensorEntity(client, self, "bmsMaster.vol", const.BATTERY_VOLT, False)
             .attr("bmsMaster.minCellVol", const.ATTR_MIN_CELL_VOLT, 0)
             .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
-            MilliVoltSensorEntity(
-                client, self, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False, auto_enable=True
-            ),
-            MilliVoltSensorEntity(client, self, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False, auto_enable=True),
-            MilliVoltSensorEntity(
-                client, self, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False, auto_enable=True
-            ),
-            MilliVoltSensorEntity(client, self, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False, auto_enable=True),
+            MilliVoltSensorEntity(client, self, "bms_bmsStatus.minCellVol", const.MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, self, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, self, "bms_bmsStatus.maxCellVol", const.MAX_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, self, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
             self._status_sensor(client),
             # FanSensorEntity(client, self, "bms_emsStatus.fanLevel", "Fan Level"),
         ]
@@ -149,8 +134,6 @@ class River2(BaseInternalDevice):
                 50,
                 100,
                 max_charge_command,
-                enabled=False,
-                auto_enable=True,
             ),
             MaxBatteryLevelEntity(
                 client,
@@ -161,7 +144,6 @@ class River2(BaseInternalDevice):
                 100,
                 max_charge_command,
                 enabled=False,
-                auto_enable=True,
             ),
             MinBatteryLevelEntity(
                 client,
@@ -237,11 +219,9 @@ class River2(BaseInternalDevice):
             # (state) key differs between variants - the write/command
             # payload is unverified against a "bmsMaster."/"inv." device and
             # reused as-is from the existing "mppt."/"pd." variant.
+            EnabledEntity(client, self, "mppt.cfgAcEnabled", const.AC_ENABLED, ac_enabled_command),
             EnabledEntity(
-                client, self, "mppt.cfgAcEnabled", const.AC_ENABLED, ac_enabled_command, enabled=False, auto_enable=True
-            ),
-            EnabledEntity(
-                client, self, "inv.cfgAcEnabled", const.AC_ENABLED, ac_enabled_command, enabled=False, auto_enable=True
+                client, self, "inv.cfgAcEnabled", const.AC_ENABLED, ac_enabled_command, enabled=False
             ),
             EnabledEntity(
                 client,
@@ -249,8 +229,6 @@ class River2(BaseInternalDevice):
                 "pd.acAutoOutConfig",
                 const.AC_ALWAYS_ENABLED,
                 ac_always_enabled_command,
-                enabled=False,
-                auto_enable=True,
             ),
             EnabledEntity(
                 client,
@@ -259,19 +237,14 @@ class River2(BaseInternalDevice):
                 const.AC_ALWAYS_ENABLED,
                 ac_always_enabled_command,
                 enabled=False,
-                auto_enable=True,
             ),
+            EnabledEntity(client, self, "mppt.cfgAcXboost", const.XBOOST_ENABLED, xboost_command),
             EnabledEntity(
-                client, self, "mppt.cfgAcXboost", const.XBOOST_ENABLED, xboost_command, enabled=False, auto_enable=True
+                client, self, "inv.cfgAcXboost", const.XBOOST_ENABLED, xboost_command, enabled=False
             ),
+            EnabledEntity(client, self, "pd.carState", const.DC_ENABLED, dc_enabled_command),
             EnabledEntity(
-                client, self, "inv.cfgAcXboost", const.XBOOST_ENABLED, xboost_command, enabled=False, auto_enable=True
-            ),
-            EnabledEntity(
-                client, self, "pd.carState", const.DC_ENABLED, dc_enabled_command, enabled=False, auto_enable=True
-            ),
-            EnabledEntity(
-                client, self, "pd.carSwitch", const.DC_ENABLED, dc_enabled_command, enabled=False, auto_enable=True
+                client, self, "pd.carSwitch", const.DC_ENABLED, dc_enabled_command, enabled=False
             ),
             EnabledEntity(
                 client,
@@ -340,7 +313,7 @@ class River2(BaseInternalDevice):
             # toggling "AC Slow Charging" in the app (issue #918 discussion), but
             # no verified write command exists for this device generation - see
             # the switches() comment for why this isn't a switch.
-            MiscBinarySensorEntity(client, self, "inv.cfgAcChgModeFlg", const.AC_SLOW_CHARGE),
+            MiscBinarySensorEntity(client, self, "inv.cfgAcChgModeFlg", const.AC_SLOW_CHARGE, False),
         ]
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
