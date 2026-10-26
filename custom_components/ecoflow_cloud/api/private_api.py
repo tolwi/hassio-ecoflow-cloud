@@ -8,7 +8,7 @@ import aiohttp
 from homeassistant.util import uuid
 
 from ..devices import EcoflowDeviceInfo
-from . import EcoflowApiClient, EcoflowAuthException, EcoflowException
+from . import EcoflowApiClient, EcoflowException, EcoflowPrivateApiLoginRejected
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,11 +41,13 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             try:
                 response = await self._get_json_response(resp)
             except EcoflowException as error:
-                # an error code from /auth/login means the credentials were rejected;
-                # transport and parse failures carry no code and stay retryable
+                # The private endpoint uses coded login rejections for both bad
+                # credentials and transient service failures. Preserve that
+                # ambiguity so config-entry setup can retry without claiming a
+                # definitive credential failure.
                 if error.code is None:
                     raise
-                raise EcoflowAuthException(str(error), code=error.code) from error
+                raise EcoflowPrivateApiLoginRejected(str(error), code=error.code) from error
 
             try:
                 self.token = response["data"]["token"]

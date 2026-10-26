@@ -12,6 +12,7 @@ from custom_components.ecoflow_cloud.api import (
     EcoflowApiClient,
     EcoflowAuthException,
     EcoflowException,
+    EcoflowPrivateApiLoginRejected,
 )
 
 from . import _preload_proto  # noqa: F401 # pyright: ignore[reportUnusedImport]
@@ -277,8 +278,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         # ConnectionError subclasses, so they need naming separately
         _LOGGER.warning("Failed to connect to EcoFlow API: %s", ex)
         raise ConfigEntryNotReady(f"Connection failed: {ex}") from ex
+    except EcoflowPrivateApiLoginRejected as ex:
+        # EcoFlow does not distinguish a transient private-service rejection from
+        # invalid stored credentials. Keep setup retryable; Reconfigure remains the
+        # explicit path for validating and replacing private credentials.
+        _LOGGER.warning("EcoFlow private API login rejected ambiguously: %s", ex)
+        raise ConfigEntryNotReady(f"Private API login rejected: {ex}") from ex
     except EcoflowAuthException as ex:
-        # Ask the user for new credentials instead of retrying with the rejected ones
+        # Public API credential failures have a specific code and can request reauth.
         raise ConfigEntryAuthFailed(str(ex)) from ex
     except EcoflowException as ex:
         # Any other API error may well be transient - let HA retry with backoff
