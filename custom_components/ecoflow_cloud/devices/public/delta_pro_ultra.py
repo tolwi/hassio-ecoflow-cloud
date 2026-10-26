@@ -87,7 +87,7 @@ def _battery_slot(params: dict[str, Any], serial: str) -> int | None:
     count = params.get(_BATTERY_COUNT)
     last = count if isinstance(count, int) and count > 0 else MAX_BATTERIES
     slot: int | None = None
-    newest = -1
+    newest: float = -1
     for n in range(1, last + 1):
         if params.get(f"{_BMS}.{n}.packSn") != serial:
             continue
@@ -193,7 +193,7 @@ class _BatterySensorEntity(BaseSensorEntity):
             self.schedule_update_ha_state()
 
 
-class _BatteryPositionSensorEntity(_BatterySensorEntity, MiscSensorEntity):
+class _BatteryPositionSensorEntity(_BatterySensorEntity, MiscSensorEntity):  # type: ignore[misc]
     _attr_icon = "mdi:numeric"
 
 
