@@ -97,6 +97,9 @@
                     "verbose_status_mode": "Verbose status mode",
                     "reset_sensors_on_offline": "Reset sensors when offline",
                     "energy_update_interval_sec": "Energy sensor update interval (sec, 0 = every update)"
+                },
+                "data_description": {
+                    "energy_update_interval_sec": "Energy (kWh) sensors report at most once per interval. No energy is lost, but up to one interval's worth can be counted in the next hour's statistics, or after a utility_meter tariff switch. 60 cuts recorder writes by about 90%."
                 }
             }
         }

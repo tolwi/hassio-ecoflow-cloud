@@ -97,6 +97,9 @@
                     "verbose_status_mode": "Modo de status detalhado",
                     "reset_sensors_on_offline": "Repor sensores quando offline",
                     "energy_update_interval_sec": "Intervalo de atualização dos sensores de energia (s, 0 = a cada atualização)"
+                },
+                "data_description": {
+                    "energy_update_interval_sec": "Os sensores de energia (kWh) reportam no máximo uma vez por intervalo. Nenhuma energia é perdida, mas até um intervalo pode ser contabilizado nas estatísticas da hora seguinte, ou após uma troca de tarifa de um utility_meter. 60 reduz as gravações do recorder em cerca de 90%."
                 }
             }
         }

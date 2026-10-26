@@ -97,6 +97,9 @@
                     "verbose_status_mode": "ステータス詳細モード",
                     "reset_sensors_on_offline": "オフライン時にセンサーをリセット",
                     "energy_update_interval_sec": "エネルギーセンサーの更新間隔（秒、0 = 毎回更新）"
+                },
+                "data_description": {
+                    "energy_update_interval_sec": "エネルギー (kWh) センサーは間隔ごとに最大1回だけ値を報告します。エネルギーは失われませんが、最大1間隔分が次の時間の統計、または utility_meter の料金切り替え後に計上されることがあります。60 で recorder の書き込みが約90%減ります。"
                 }
             }
         }

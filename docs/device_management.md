@@ -75,5 +75,6 @@ Use the **Configure** button to adjust specific settings for your devices, such 
     *   `0` (default) keeps today's behaviour: each integrated energy sensor (the kWh companion of a power sensor) reports a new total on every data refresh.
     *   A value like `60` makes those energy sensors report at most once per interval. The running total is still integrated on every refresh and saved across restarts, so no energy is lost; only the reported value moves less often.
     *   Useful for devices with many circuits (e.g. Smart Home Panel 3 / Ocean Pro): each energy sensor otherwise adds a recorder row every few seconds. Power sensors are not affected.
+    *   Side effect: the last total reported in an hour can be up to one interval old, so that energy is counted in the next hour of the Energy dashboard and long-term statistics, and on the other side of a `utility_meter` tariff switch. `60` removes about 90 % of the recorder rows with a shift of a few Wh; larger intervals shift more (a few hundred Wh at 900 s on a 1.4 kW load).
 
 Click **Submit** to save your changes. The integration will reload with the new settings.
