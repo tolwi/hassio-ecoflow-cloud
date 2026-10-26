@@ -89,13 +89,17 @@ class StreamAC(BaseDevice):
             # "cmsBattPowInMax": 2114,
             # "cmsBattPowOutMax": 2400,
             # "cmsBattSoc": 43.0,
-            # Actual battery state-of-charge. Stream Ultra / Ultra X report SoC
-            # via cmsBattSoc rather than soc/f32ShowSoc, so expose it directly
-            # as a battery-level sensor (auto_enable so it only activates on
-            # firmware that actually sends the field).
+            # Actual battery state-of-charge.
+            # While Stream Pro populates cmsBattSoc, Stream Ultra and Ultra X report 0.0 for cmsBattSoc
+            # and publish the actual SoC via the universal 'soc' (and 'bmsBattSoc') key.
+            LevelSensorEntity(client, self, "soc", const.STREAM_BATTERY_LEVEL)
+            .attr("designCap", const.ATTR_DESIGN_CAPACITY, 0)
+            .attr("fullCap", const.ATTR_FULL_CAPACITY, 0)
+            .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            # Keep cmsBattSoc as secondary / auto-enabled if present on other firmware
             LevelSensorEntity(client, self, "cmsBattSoc", const.STREAM_BATTERY_LEVEL, False, True),
             StoredEnergyFromSocSensorEntity(
-                client, self, "cmsBattFullEnergy", "cmsBattSoc", const.STREAM_STORED_ENERGY
+             client, self, "cmsBattFullEnergy", "soc", const.STREAM_STORED_ENERGY
             ),
             # "cmsBattSoh": 100.0,
             # "cmsBmsRunState": 1,
@@ -261,10 +265,10 @@ class StreamAC(BaseDevice):
             # "seriesConnectDeviceId": 1,
             # "seriesConnectDeviceStatus": "MASTER",
             # "soc": 46,
-            LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY)
-            .attr("designCap", const.ATTR_DESIGN_CAPACITY, 0)
-            .attr("fullCap", const.ATTR_FULL_CAPACITY, 0)
-            .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
+            # LevelSensorEntity(client, self, "soc", const.STREAM_POWER_BATTERY)
+            # .attr("designCap", const.ATTR_DESIGN_CAPACITY, 0)
+            # .attr("fullCap", const.ATTR_FULL_CAPACITY, 0)
+            # .attr("remainCap", const.ATTR_REMAIN_CAPACITY, 0),
             # "socketMeasurePower": 0.0,
             # "soh": 100,
             StateOfHealthSensorEntity(client, self, "soh", const.SOH),
