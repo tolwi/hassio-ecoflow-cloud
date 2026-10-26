@@ -504,7 +504,7 @@ class SmartHomePanel(BaseDevice):
                         "isEnable": is_enable,
                     },
                 },
-                "cfgIndex": 10,
+                "cfgIndex": SmartHomePanel.SCHEDULED_CHARGE_INDEX,
                 "cmdSet": 11,
                 "id": 81,
             },
