@@ -369,22 +369,22 @@ class StreamAC5000(BaseInternalDevice):
 
     def _decode_pdata(self, cmd_id: int, pdata: bytes, params: dict[str, Any]) -> None:
         if cmd_id == _CMD_ID_STATUS:
-            message = stream_ac_5000_pb2.StreamAC5000StatusPack()
-            message.ParseFromString(pdata)
+            status = stream_ac_5000_pb2.StreamAC5000StatusPack()
+            status.ParseFromString(pdata)
             # This frame's SoC is the pack scale, not the app-facing one.
-            self._copy(message.battery, params, "cmsMaxChgSoc", "bmsChgRemTime", "bmsDsgRemTime")
-            self._copy(message.battery, params, ("f32ShowSoc", _KEY_PACK_SOC), "cmsMinDsgSoc")
+            self._copy(status.battery, params, "cmsMaxChgSoc", "bmsChgRemTime", "bmsDsgRemTime")
+            self._copy(status.battery, params, ("f32ShowSoc", _KEY_PACK_SOC), "cmsMinDsgSoc")
 
         elif cmd_id == _CMD_ID_RUNTIME:
-            message = stream_ac_5000_pb2.StreamAC5000Runtime()
-            message.ParseFromString(pdata)
-            self._decode_runtime(message, params)
+            runtime = stream_ac_5000_pb2.StreamAC5000Runtime()
+            runtime.ParseFromString(pdata)
+            self._decode_runtime(runtime, params)
 
         elif cmd_id == _CMD_ID_PACK:
-            message = stream_ac_5000_pb2.StreamAC5000Pack()
-            message.ParseFromString(pdata)
+            pack = stream_ac_5000_pb2.StreamAC5000Pack()
+            pack.ParseFromString(pdata)
             self._copy(
-                message,
+                pack,
                 params,
                 ("f32ShowSoc", _KEY_PACK_SOC),
                 "realSoh",
