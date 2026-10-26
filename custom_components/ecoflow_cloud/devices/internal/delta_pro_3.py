@@ -132,27 +132,7 @@ BMS_HEARTBEAT_COMMANDS: set[tuple[int, int]] = {
 }
 
 
-class DeltaPro3CommandMessage(PrivateAPIMessageProtocol):
-    """Message wrapper for Delta Pro 3 protobuf set commands."""
-
-    def __init__(self, payload: dp3.DP3SetCommand, packet: dp3.DP3SendHeaderMsg):
-        self._packet = packet
-        self._payload = payload
-
-    @override
-    def to_mqtt_payload(self):
-        return self._packet.SerializeToString()
-
-    @override
-    def to_dict(self) -> dict:
-        payload_dict = MessageToDict(self._payload, preserving_proto_field_name=True)
-        result = MessageToDict(self._packet, preserving_proto_field_name=True)
-        result["msg"][0]["pdata"] = {type(self._payload).__name__: payload_dict}
-        result["msg"][0].pop("seq", None)
-        return {type(self._packet).__name__: result}
-
-
-def _create_dp3_proto_command(field_name: str, value: int, device_sn: str) -> DeltaPro3CommandMessage | None:
+def _create_dp3_proto_command(field_name: str, value: int, device_sn: str) -> DeltaPro3CommandMessage:
     """Build a DP3SetCommand wrapped in a DP3SendHeaderMsg packet.
 
     The device only accepts writes in this protobuf envelope (cmd_func=254,
@@ -161,11 +141,8 @@ def _create_dp3_proto_command(field_name: str, value: int, device_sn: str) -> De
     reverting to their previous state on the next telemetry update.
     """
     payload = dp3.DP3SetCommand()
-    try:
-        setattr(payload, field_name, int(value))
-    except AttributeError:
-        _LOGGER.error("Unknown DeltaPro3 set field: %s", field_name)
-        return None
+    # An unknown field raises AttributeError, so a typo fails the write instead of sending nothing.
+    setattr(payload, field_name, int(value))
 
     pdata = payload.SerializeToString()
 
@@ -352,16 +329,17 @@ class DeltaPro3(BaseInternalDevice):
                     "cfgDc12vOutOpen", 1 if value else 0, device.device_data.sn
                 ),
             ),
-            # DP3SetCommand has no known field for the 24V output switch (only
-            # cfgDc12vOutOpen=18 is defined); disabled until the real field id
-            # is reverse-engineered from app traffic, rather than guessing one.
+            # DP3SetCommand has no known field for the 24V output; keep the JSON command.
             EnabledEntity(
                 client,
                 self,
                 "cfg_dc_24v_out_open",
                 "24V DC Output Enabled",
-                lambda value, params=None: None,
-                enabled=False,
+                lambda value, params=None: {
+                    "moduleType": 0,
+                    "operateType": "TCP",
+                    "params": {"id": 81, "cfgDc24vOutOpen": value},
+                },
             ),
             # Xboost Control
             EnabledEntity(
@@ -426,17 +404,18 @@ class DeltaPro3(BaseInternalDevice):
                 const.UNIT_TIMEOUT_OPTIONS_LIMITED,
                 lambda value: _create_dp3_proto_command("dcStandbyTime", value, device.device_data.sn),
             ),
-            # DP3SetCommand has no known field for AC output type (HV+LV/HV
-            # Only/LV Only); disabled until the real field id is
-            # reverse-engineered from app traffic, rather than guessing one.
+            # DP3SetCommand has no known field for AC output type; keep the JSON command.
             DictSelectEntity(
                 client,
                 self,
                 "plug_in_info_ac_out_type",
                 "AC Output Type",
                 {"HV+LV": 0, "HV Only": 1, "LV Only": 2},
-                lambda value: None,
-                enabled=False,
+                lambda value: {
+                    "moduleType": 0,
+                    "operateType": "TCP",
+                    "params": {"plugInInfoAcOutType": int(value), "id": 59},
+                },
             ),
         ]
 
@@ -449,14 +428,6 @@ class DeltaPro3(BaseInternalDevice):
         decoded_data: dict[str, Any] | None = None
         try:
             _LOGGER.debug(f"Processing {len(raw_data)} bytes of raw data")
-
-            # The set/get/set_reply/get_reply topics echo plain-JSON command
-            # payloads (e.g. our own published "set" commands); only the data
-            # topic carries the protobuf-framed HeaderMessage. Skip straight to
-            # the JSON path for those so we don't log a spurious parse failure
-            # for every command sent.
-            if raw_data.lstrip()[:1] in (b"{", b"["):
-                return super()._prepare_data(raw_data)
 
             # 1. Decode HeaderMessage
             header_info = self._decode_header_message(raw_data)
