@@ -269,8 +269,8 @@ class DeltaPro3(BaseInternalDevice):
                 self,
                 "plug_in_info_ac_in_chg_pow_max",
                 const.AC_CHARGING_POWER,
-                200,
-                3000,
+                400,
+                2900,
                 lambda value: _create_dp3_proto_command("plugInInfoAcInChgPowMax", value, device.device_data.sn),
             ),
             # Backup Reserve
