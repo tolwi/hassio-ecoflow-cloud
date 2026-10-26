@@ -320,16 +320,20 @@
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 34, switches: 5, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 43, binary_sensors: 1, switches: 9, sliders: 5, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
 - Main Battery Level
+- Main Battery Level  _(disabled)_
 - Main Design Capacity  _(disabled)_
 - Main Full Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
 - Main Remain Capacity  _(disabled)_
 - State of Health
 - Battery Level
+- Battery Level  _(disabled)_
 - Battery Charging State
 - Total In Power (energy:  _[Device Name]_ Total In  Energy)
 - Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
@@ -351,22 +355,35 @@
 - Remaining Time
 - Inv Out Temperature
 - Cycles
+- Cycles  _(disabled)_
 - Battery Temperature
+- Battery Temperature  _(disabled)_
 - Min Cell Temperature  _(disabled)_
 - Max Cell Temperature  _(disabled)_
 - Battery Volts  _(disabled)_
+- Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
 - Status
 
+*Binary sensors*
+- AC Slow Charging  _(disabled)_
+
 *Switches*
 - AC Enabled
+- AC Enabled
+- AC Always On
 - AC Always On
 - X-Boost Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
 - DC (12V) Enabled
 - Backup Reserve Enabled
 
 *Sliders (numbers)*
+- Max Charge Level
 - Max Charge Level
 - Min Discharge Level
 - AC Charging Power
@@ -1910,6 +1927,60 @@
 
 </p></details>
 
+<details><summary> STREAM_AC_5000 <i>(sensors: 30, binary_sensors: 1, switches: 3, sliders: 4, selects: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Power Battery SOC  _(disabled)_
+- Battery Level (BMS)  _(disabled)_
+- Battery Level (pack)  _(disabled)_
+- Stored Energy
+- Remaining Time
+- Charge Remaining Time  _(disabled)_
+- Discharge Remaining Time  _(disabled)_
+- Grid Port Power
+- Battery Power
+- Charge Power Limit  _(disabled)_
+- Max Discharge Power  _(disabled)_
+- Feed-in Power Max  _(disabled)_
+- Power Grid Global
+- Power Grid L1
+- Power Grid L2
+- Power Grid L3
+- Power Grid (L1) Volts  _(disabled)_
+- Power Grid (L2) Volts  _(disabled)_
+- Power Grid (L3) Volts  _(disabled)_
+- Power Grid Frequency  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Real State of Health  _(disabled)_
+- State of Health  _(disabled)_
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Energy Discharge (Wh)
+- Status
+
+*Binary sensors*
+- P1 Meter Link
+
+*Switches*
+- AC Output
+- X-Boost
+- UPS Mode
+
+*Sliders (numbers)*
+- Max Charge Level
+- Min Discharge Level
+- Net Power Out Limit
+- Net Power In Limit
+
+*Selects*
+- Work Mode
+
+</p></details>
+
 <details><summary> STREAM_PRO <i>(sensors: 42)</i> </summary>
 <p>
 
@@ -3100,7 +3171,8 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
-- Battery Level  _(auto)_
+- Battery Level
+- Battery Level (CMS)  _(auto)_
 - Stored Energy
 - Max Charge Level
 - Min Discharge Level
@@ -3144,7 +3216,6 @@
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time
-- Power Battery
 - State of Health
 - Power AC SYS
 - Battery Temperature
@@ -3172,7 +3243,8 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
-- Battery Level  _(auto)_
+- Battery Level
+- Battery Level (CMS)  _(auto)_
 - Stored Energy
 - Max Charge Level
 - Min Discharge Level
@@ -3216,7 +3288,6 @@
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time
-- Power Battery
 - State of Health
 - Power AC SYS
 - Battery Temperature
@@ -3244,7 +3315,8 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
-- Battery Level  _(auto)_
+- Battery Level
+- Battery Level (CMS)  _(auto)_
 - Stored Energy
 - Max Charge Level
 - Min Discharge Level
@@ -3288,7 +3360,6 @@
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time
-- Power Battery
 - State of Health
 - Power AC SYS
 - Battery Temperature
@@ -3316,7 +3387,8 @@
 - Cumulative Energy Discharge (Wh)
 - Charge Remaining Time  _(disabled)_
 - Discharge Remaining Time  _(disabled)_
-- Battery Level  _(auto)_
+- Battery Level
+- Battery Level (CMS)  _(auto)_
 - Stored Energy
 - Max Charge Level
 - Min Discharge Level
@@ -3360,7 +3432,6 @@
 - Real State of Health  _(disabled)_
 - Remain Capacity  _(disabled)_
 - Remaining Time
-- Power Battery
 - State of Health
 - Power AC SYS
 - Battery Temperature

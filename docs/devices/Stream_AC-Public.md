@@ -7,7 +7,8 @@
 - Cumulative Energy Discharge (Wh) (`accuDsgEnergy`)
 - Charge Remaining Time (`bmsChgRemTime`)   _(disabled)_
 - Discharge Remaining Time (`bmsDsgRemTime`)   _(disabled)_
-- Battery Level (`cmsBattSoc`)   _(auto)_
+- Battery Level (`soc`)
+- Battery Level (CMS) (`cmsBattSoc`)   _(auto)_
 - Stored Energy (`storedEnergy_cmsBattFullEnergy`)
 - Max Charge Level (`cmsMaxChgSoc`)
 - Min Discharge Level (`cmsMinDsgSoc`)
@@ -51,7 +52,6 @@
 - Real State of Health (`realSoh`)   _(disabled)_
 - Remain Capacity (`remainCap`)   _(disabled)_
 - Remaining Time (`remainTime`)
-- Power Battery (`soc`)
 - State of Health (`soh`)
 - Power AC SYS (`sysGridConnectionPower`)
 - Battery Temperature (`temp`)

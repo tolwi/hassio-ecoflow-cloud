@@ -50,25 +50,25 @@
 - Status
 
 *Switches*
-- Beeper (`en_beep` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 38, "enBeep": "VALUE"}}`)
-- AC HV Output Enabled (`cfg_hv_ac_out_open` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "cfgHvAcOutOpen": "VALUE"}}`)
-- AC LV Output Enabled (`cfg_lv_ac_out_open` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "cfgLvAcOutOpen": "VALUE"}}`)
-- 12V DC Output Enabled (`cfg_dc_12v_out_open` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 81, "cfgDc12vOutOpen": "VALUE"}}`)
+- Beeper (`en_beep` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"enBeep": 1}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 2, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}`)
+- AC HV Output Enabled (`cfg_hv_ac_out_open` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"cfgHvAcOutOpen": 1}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 2, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}`)
+- AC LV Output Enabled (`cfg_lv_ac_out_open` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"cfgLvAcOutOpen": 1}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}`)
+- 12V DC Output Enabled (`cfg_dc_12v_out_open` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"cfgDc12vOutOpen": 1}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}`)
 - 24V DC Output Enabled (`cfg_dc_24v_out_open` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 81, "cfgDc24vOutOpen": "VALUE"}}`)
-- X-Boost Enabled (`xboost_en` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 66, "xboostEn": "VALUE"}}`)
-- AC Energy Saving Enabled (`ac_energy_saving_open` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 95, "acEnergySavingOpen": "VALUE"}}`)
-- GFCI Protection Enabled (`llc_gfci_flag` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 153, "llcGFCIFlag": "VALUE"}}`)
+- X-Boost Enabled (`xboost_en` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"xboostEn": 1}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}`)
+- AC Energy Saving Enabled (`ac_energy_saving_open` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"acEnergySavingOpen": 1}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}`)
+- GFCI Protection Enabled (`llc_gfci_flag` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"llc_GFCIFlag": 1}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}`)
 
 *Sliders (numbers)*
-- Max Charge Level (`cms_max_chg_soc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 49, "cmsMaxChgSoc": "VALUE"}}` [50 - 100])
-- Min Discharge Level (`cms_min_dsg_soc` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 51, "cmsMinDsgSoc": "VALUE"}}` [0 - 30])
-- AC Charging Power (`plug_in_info_ac_in_chg_pow_max` -> `{"moduleType": 0, "operateType": "TCP", "params": {"id": 69, "plugInInfoAcInChgPowMax": "VALUE"}}` [200 - 3000])
+- Max Charge Level (`cms_max_chg_soc` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"cmsMaxChgSoc": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 4, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [50 - 100])
+- Min Discharge Level (`cms_min_dsg_soc` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"cmsMinDsgSoc": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 4, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [0 - 30])
+- AC Charging Power (`plug_in_info_ac_in_chg_pow_max` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"plugInInfoAcInChgPowMax": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 4, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [400 - 2900])
 - Backup Reserve Level (`energy_backup_start_soc` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"cfgEnergyBackup": {"energyBackupStartSoc": 6666}}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 6, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [5 - 100])
 
 *Selects*
-- Screen Timeout (`screen_off_time` -> `{"moduleType": 0, "operateType": "TCP", "params": {"screenOffTime": "VALUE", "id": 39}}` [Never (0), 10 sec (10), 30 sec (30), 1 min (60), 5 min (300), 30 min (1800)])
-- AC Timeout (`ac_standby_time` -> `{"moduleType": 0, "operateType": "TCP", "params": {"acStandbyTime": "VALUE", "id": 10}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
-- DC Timeout (`dc_standby_time` -> `{"moduleType": 0, "operateType": "TCP", "params": {"dcStandbyTime": "VALUE", "id": 33}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 6 hr (360), 12 hr (720)])
+- Screen Timeout (`screen_off_time` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"screenOffTime": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [Never (0), 10 sec (10), 30 sec (30), 1 min (60), 5 min (300), 30 min (1800)])
+- AC Timeout (`ac_standby_time` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"acStandbyTime": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
+- DC Timeout (`dc_standby_time` -> `{"DP3SendHeaderMsg": {"msg": [{"pdata": {"DP3SetCommand": {"dcStandbyTime": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 6 hr (360), 12 hr (720)])
 - AC Output Type (`plug_in_info_ac_out_type` -> `{"moduleType": 0, "operateType": "TCP", "params": {"plugInInfoAcOutType": "VALUE", "id": 59}}` [HV+LV (0), HV Only (1), LV Only (2)])
 
 

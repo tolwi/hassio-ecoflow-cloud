@@ -2,11 +2,15 @@
 
 *Sensors*
 - Main Battery Level (`bms_bmsStatus.soc`)
+- Main Battery Level (`bmsMaster.soc`)   _(disabled)_
 - Main Design Capacity (`bms_bmsStatus.designCap`)   _(disabled)_
 - Main Full Capacity (`bms_bmsStatus.fullCap`)   _(disabled)_
+- Main Full Capacity (`bmsMaster.fullCap`)   _(disabled)_
 - Main Remain Capacity (`bms_bmsStatus.remainCap`)   _(disabled)_
+- Main Remain Capacity (`bmsMaster.remainCap`)   _(disabled)_
 - State of Health (`bms_bmsStatus.soh`)
 - Battery Level (`bms_emsStatus.lcdShowSoc`)
+- Battery Level (`pd.soc`)   _(disabled)_
 - Battery Charging State (`bms_emsStatus.chgState`)
 - Total In Power (`pd.wattsInSum`) (energy:  _[Device Name]_ Total In  Energy)
 - Total Out Power (`pd.wattsOutSum`) (energy:  _[Device Name]_ Total Out  Energy)
@@ -28,23 +32,36 @@
 - Remaining Time (`pd.remainTime`)
 - Inv Out Temperature (`inv.outTemp`)
 - Cycles (`bms_bmsStatus.cycles`)
+- Cycles (`bmsMaster.cycles`)   _(disabled)_
 - Battery Temperature (`bms_bmsStatus.temp`)
+- Battery Temperature (`bmsMaster.temp`)   _(disabled)_
 - Min Cell Temperature (`bms_bmsStatus.minCellTemp`)   _(disabled)_
 - Max Cell Temperature (`bms_bmsStatus.maxCellTemp`)   _(disabled)_
 - Battery Volts (`bms_bmsStatus.vol`)   _(disabled)_
+- Battery Volts (`bmsMaster.vol`)   _(disabled)_
 - Min Cell Volts (`bms_bmsStatus.minCellVol`)   _(disabled)_
+- Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bms_bmsStatus.maxCellVol`)   _(disabled)_
+- Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
 - Status
+
+*Binary sensors*
+- AC Slow Charging (`inv.cfgAcChgModeFlg`)   _(disabled)_
 
 *Switches*
 - AC Enabled (`mppt.cfgAcEnabled` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)
+- AC Enabled (`inv.cfgAcEnabled` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": "VALUE", "out_voltage": -1, "out_freq": 255, "xboost": 255}}`)
 - AC Always On (`pd.acAutoOutConfig` -> `{"moduleType": 1, "operateType": "acAutoOutConfig", "params": {"acAutoOutConfig": "VALUE", "minAcOutSoc": 5}}`)
+- AC Always On (`inv.acAutoOutConfig` -> `{"moduleType": 1, "operateType": "acAutoOutConfig", "params": {"acAutoOutConfig": "VALUE", "minAcOutSoc": 5}}`)
 - X-Boost Enabled (`mppt.cfgAcXboost` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": 255, "out_voltage": -1, "out_freq": 255, "xboost": "VALUE"}}`)
+- X-Boost Enabled (`inv.cfgAcXboost` -> `{"moduleType": 5, "operateType": "acOutCfg", "params": {"enabled": 255, "out_voltage": -1, "out_freq": 255, "xboost": "VALUE"}}`)
 - DC (12V) Enabled (`pd.carState` -> `{"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": "VALUE"}}`)
+- DC (12V) Enabled (`pd.carSwitch` -> `{"moduleType": 5, "operateType": "mpptCar", "params": {"enabled": "VALUE"}}`)
 - Backup Reserve Enabled (`pd.watchIsConfig` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": "VALUE", "bpPowerSoc": 333300, "minDsgSoc": 0, "minChgSoc": 0}}`)
 
 *Sliders (numbers)*
 - Max Charge Level (`bms_emsStatus.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])
+- Max Charge Level (`bmsMaster.maxChargeSoc` -> `{"moduleType": 2, "operateType": "upsConfig", "params": {"maxChgSoc": "VALUE"}}` [50 - 100])
 - Min Discharge Level (`bms_emsStatus.minDsgSoc` -> `{"moduleType": 2, "operateType": "dsgCfg", "params": {"minDsgSoc": "VALUE"}}` [0 - 30])
 - AC Charging Power (`mppt.cfgChgWatts` -> `{"moduleType": 5, "operateType": "acChgCfg", "params": {"chgWatts": "VALUE", "chgPauseFlag": 255}}` [100 - 360])
 - Backup Reserve Level (`pd.bpPowerSoc` -> `{"moduleType": 1, "operateType": "watthConfig", "params": {"isConfig": 1, "bpPowerSoc": "VALUE", "minDsgSoc": 0, "minChgSoc": 0}}` [5 - 100])
