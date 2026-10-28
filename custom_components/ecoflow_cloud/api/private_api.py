@@ -101,6 +101,7 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
             name=device_name,
             device_type=device_type,
             status=status,
+            status_topic=f"/app/device/status/{device_sn}",
             data_topic=f"/app/device/property/{device_sn}",
             set_topic=f"/app/{self.user_id}/{device_sn}/thing/property/set",
             set_reply_topic=f"/app/{self.user_id}/{device_sn}/thing/property/set_reply",

@@ -1,4 +1,5 @@
 import enum
+import json
 import logging
 from collections.abc import Sequence
 from typing import Any, NamedTuple, cast, override
@@ -353,6 +354,11 @@ class PowerStream(BaseInternalDevice):
                         self.device_data.sn,
                     )
 
+                params = cast(JSONDict, res.setdefault("params", {}))
+                if not message.cmd_func and not message.cmd_id and message.code == "-2":
+                    params.update({"online": 0})
+                    continue
+
                 command_desc = CommandFuncAndId(func=message.cmd_func, id=message.cmd_id)
 
                 try:
@@ -365,7 +371,6 @@ class PowerStream(BaseInternalDevice):
                     )
                     continue
 
-                params = cast(JSONDict, res.setdefault("params", {}))
                 if command in {Command.INVERTER_HEARTBEAT}:
                     payload_inverter_heartbeat = powerstream.PowerStreamInverterHeartbeat()
                     _ = payload_inverter_heartbeat.ParseFromString(message.pdata)
@@ -402,6 +407,16 @@ class PowerStream(BaseInternalDevice):
             _LOGGER.error(error)
             _LOGGER.info(raw_data.hex())
         return res
+
+    def _prepare_data_status_topic(self, raw_data: bytes) -> PreparedData:
+        try:
+            data = json.loads(raw_data.decode("utf-8"))
+            if "params" in data and "status" in data["params"]:
+                return PreparedData(int(data["params"]["status"]) == 1, None, data)
+            return PreparedData(None, None, data)
+        except Exception as e:
+            _LOGGER.debug(f"Failed to prepare status topic for {self.device_info.sn}: ", e)
+        return PreparedData(None, None, None)
 
     def _status_sensor(self, client: EcoflowApiClient) -> StatusSensorEntity:
         return QuotaStatusSensorEntity(client, self)
