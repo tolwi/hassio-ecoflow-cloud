@@ -18,7 +18,8 @@ from homeassistant.util import dt
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.api.message import JSONDict, Message, PrivateAPIMessageProtocol
-from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.device_data import DeviceData
+from custom_components.ecoflow_cloud.devices import BaseInternalDevice, EcoflowDeviceInfo, const
 from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.devices.internal import flatten_dict
 from custom_components.ecoflow_cloud.devices.internal.proto import AddressId, ef_smartmeter_pb2
@@ -114,6 +115,11 @@ class SmartMeterCommandMessage(PrivateAPIMessageProtocol):
 
 
 class SmartMeter(BaseInternalDevice):
+    def __init__(self, device_info: EcoflowDeviceInfo, device_data: DeviceData) -> None:
+        super().__init__(device_info, device_data)
+        # Only PowerStream and Smart Meter are tested on the app status topic (#946).
+        device_info.status_topic = f"/app/device/status/{device_info.sn}"
+
     @override
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         timezoneEntity = MiscSensorEntity(client, self, "254_21.utcTimezone", const.UTC_TIMEZONE, False)
