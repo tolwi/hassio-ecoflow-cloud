@@ -450,7 +450,8 @@ class River3(BaseInternalDevice):
         # Status messages and command replies can be JSON rather than protobuf.
         # Anything else is protobuf: handing it to the JSON parser only logs a
         # WARNING + ERROR pair per message (issues #872, #936) and yields {}.
-        if raw_data.lstrip().startswith(b"{"):
+        # No lstrip(): it strips a 0x0a tag, so a 123-byte protobuf header would look like JSON.
+        if raw_data[:1] == b"{":
             return super()._prepare_data(raw_data)
 
         try:
@@ -489,7 +490,7 @@ class River3(BaseInternalDevice):
             return {"params": flat, "all_fields": merged}
         except Exception as e:
             _LOGGER.debug(f"[River3] Data processing failed: {e}")
-            return {}
+            return super()._prepare_data(raw_data)
 
     def _perform_xor_decode(self, pdata: bytes, header_info: dict[str, Any]) -> bytes:
         """Perform XOR decoding if required by header info."""
