@@ -27,6 +27,7 @@ from custom_components.ecoflow_cloud.devices.internal import (
     river_pro as internal_river_pro,
     smart_home_panel_3 as internal_smart_home_panel_3,
     smart_meter as internal_smart_meter,
+    smart_generator as internal_smart_generator,
     smart_plug as internal_smart_plug,
     stream_ac as internal_stream_ac,
     stream_ac_5000 as internal_stream_ac_5000,
@@ -90,6 +91,7 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "WAVE_3": internal_wave3.Wave3,
         "SMART_METER": internal_smart_meter.SmartMeter,
         "SMART_PLUG": internal_smart_plug.SmartPlug,
+        "SMART_GENERATOR": internal_smart_generator.SmartGenerator,
         "STREAM_AC": internal_stream_ac.StreamAC,
         # Distinct telemetry schema from the rest of the Stream family -- see
         # devices/internal/stream_ac_5000.py. Not an alias of STREAM_AC.
