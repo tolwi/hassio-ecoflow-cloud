@@ -136,16 +136,13 @@ PCS_P_MAX = 20_000.0  # per-leg magnitude ceiling; abs above this is reuse noise
 F_BATT_PWR = 518
 BATT_P_MAX = 30_000.0  # bank charge/discharge peaks ~21 kW; abs above this is reuse noise
 
-# --- Work mode + battery pack: decoded the mini collector's PROVEN way ------
-# Work mode (254/21, decoded on OceanPanel/HR61) and the per-pack scalars (cmdFunc=32/
-# cmdId=177, decoded on OceanProInverter/HR51) are read by flattening the WHOLE frame and
-# matching the EXACT nested path ``1.1.<field>`` — the same rule the utility-meter-validated
-# collector uses — NOT a shallow top-level match on the leaf number. These field numbers are
-# small (slot=5, mode=1470) and recur inside unrelated nested submessages, so a top-level-first
-# match grabbed the wrong occurrence: it collapsed all packs to one slot (reporting 1 pack, not
-# 4). Work mode ALSO must come from the right DEVICE: field 1470 reads a stale self_use (0) on
-# the HR51 inverter stream but the real mode (e.g. backup) on the HR61 panel stream — confirmed
-# from live captures — so it is decoded on OceanPanel, not here.
+# --- Battery pack: decoded the mini collector's PROVEN way ------------------
+# The per-pack scalars (cmdFunc=32/cmdId=177, decoded on OceanProInverter/HR51) are read by
+# flattening the WHOLE frame and matching the EXACT nested path ``1.1.<field>`` — the same
+# rule the utility-meter-validated collector uses — NOT a shallow top-level match on the leaf
+# number. These field numbers are small (slot=5) and recur inside unrelated nested
+# submessages, so a top-level-first match grabbed the wrong occurrence: it collapsed all packs
+# to one slot (reporting 1 pack, not 4).
 # Voltage (field 45) is a real measurement (10 mV/count -> V = /100, ~398 V, matching the
 # EF-BP-10 datasheet's 400 V / 380-550 V rating); pack count is a real count. Per-pack
 # current (field 43) has an unsettled scale, so it is surfaced RAW (no amp unit), and
@@ -155,33 +152,10 @@ BATT_P_MAX = 30_000.0  # bank charge/discharge peaks ~21 kW; abs above this is r
 # accumulate per slot: voltage AVERAGES, current SUMS, packs = slot count.
 BATTERY_PACK_CMD = (32, 177)
 P_CMDFUNC, P_CMDID = "1.8", "1.9"  # header cmdFunc / cmdId in the flattened frame
-# App operating-mode selector = HR61 field 900 (254/21). Confirmed 2026-09-15 by toggling
-# the app live: 900 tracked 2->3->1->2 across Scheduled->Intelligent->Self-powered->Scheduled
-# (and reads 2 in two independent Scheduled-mode captures). Field 1470 — the OLD "work_mode"
-# — is NOT the selector: it sits constant (2) on HR61 through all three modes and is stale
-# garbage on HR51, so it is not surfaced.
-P_OPERATING_MODE = "1.1.900"  # 254/21 (HR61): app operating mode — see OPERATING_MODE_CODES
 P_BP_SLOT = "1.1.5"  # 32/177: pack slot index
 P_BP_VOLTAGE = "1.1.45"  # 32/177: pack voltage, 10 mV/count -> V = /100
 P_BP_CURRENT = "1.1.43"  # 32/177: pack current, RAW (scale unsettled)
 BP_V_RAW_MIN, BP_V_RAW_MAX = 30_000.0, 60_000.0  # 300-600 V at /100; guard bad frames
-
-# App operating-mode names, field 900 (HR61, 254/21). Confirmed 2026-09-15 by live toggling —
-# these match the app's exact three operating-mode options.
-OPERATING_MODE_CODES: dict[int, str] = {
-    1: "self_powered",
-    2: "scheduled_tasks",
-    3: "intelligent",
-}
-
-# Grid-connect / island status — HR61 field 619 (254 status frame). Confirmed 2026-09-16
-# across two manual off-grid -> on-grid cycles: reads 1 while grid-tied, 2 while islanded,
-# and flips on BOTH edges in BOTH cycles. Clean binary flag; NEW (was not previously collected).
-P_GRID_STATUS = "1.1.619"
-GRID_STATUS_CODES: dict[int, str] = {
-    1: "on_grid",
-    2: "islanded",
-}
 
 # --- Status frame (254/22): grid metering, DC-bus, fault register ------------
 # These ride cmdFunc=254 cmdId=22 (the status frame), NOT the 254/21 telemetry burst that
@@ -358,18 +332,12 @@ class OceanPanel(SmartHomePanel3):
 
     Identical to the Smart Home Panel 3 but with 40 circuits instead of 32; the
     per-circuit array, circuit labels, grid/load flows and SoC are all inherited
-    unchanged (only the circuit geometry is overridden).
+    unchanged (only the circuit geometry is overridden), as are its Operating Mode
+    and Grid sensors.
 
-    Also carries the app operating mode (254/21 field 900): 1=Self-powered,
-    2=Scheduled tasks, 3=Intelligent — confirmed by live app toggling 2026-09-15.
-    Decoded HERE on the panel stream. (The old field 1470 "work mode" was WRONG —
-    it stays constant on HR61 across all three modes and is stale on HR51 — so it is
-    not surfaced.)
-
-    Grid-connect status (254 field 619: on_grid / islanded) and the live grid-side
-    metering block (254 fields 964..967) are also decoded here — confirmed 2026-09-16
-    across two off-grid/on-grid cycles. The metering fields are kept raw pending unit
-    ID; see GRID_STATUS_CODES and GRID_METER_FIELDS.
+    Adds the live grid-side metering block (254 fields 964..967), confirmed
+    2026-09-16 to track two off-grid/on-grid cycles and kept raw pending unit ID;
+    see GRID_METER_FIELDS.
 
     Grid Power is signed here (+ import / - export): unlike a Delta Pro 3 behind an SHP3,
     an Ocean Pro exports solar. Its energy is therefore integrated as separate import and
@@ -385,7 +353,6 @@ class OceanPanel(SmartHomePanel3):
 
     @override
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
-        # App operating mode (254/21 field 900), mapped to the app's three mode names.
         # The inherited status sensor only polls after 300 s of silence; swap it for the
         # scheduled one (same "status" key, so the entity is unchanged) — see QUOTA_REFRESH_SEC.
         # Grid Power is replaced by the same sensor without its energy integral: integrating the
@@ -428,13 +395,13 @@ class OceanPanel(SmartHomePanel3):
 
     @override
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
-        """Augment the base panel decode with the app operating mode (field 900).
+        """Augment the base panel decode with the live grid metering (fields 964..967).
 
         Why parse the RAW frame here instead of the base's decoded ``pdata``: the Ocean Pro
         *app* stream wraps these scalars in its own message envelope (cmdFunc/cmdId at
         ``1.8``/``1.9``, fields at ``1.1.<field>``), which is a DIFFERENT framing of the
-        bytes than DeltaPro3's HeaderMessage→pdata split. These fields (900, 619, 964-967,
-        grid metering, fault register) do NOT live inside the extracted ``pdata`` — verified
+        bytes than DeltaPro3's HeaderMessage→pdata split. These fields do NOT live inside
+        the extracted ``pdata`` — verified
         2026-09-16 by replaying live captures through both decoders (they resolve on the raw
         envelope, return None on ``pdata``). So the generic full-path flatten is required, not
         a shortcut. All observed frames are ``encType=0`` (no XOR), and XOR only ever scrambles
@@ -444,25 +411,11 @@ class OceanPanel(SmartHomePanel3):
         extracted = False
         exc: Exception | None = None
         try:
-            for cmd_func, cmd_id, flat in _decode_envelopes(raw_data):
-                if (cmd_func, cmd_id) == (254, 21):
-                    v = flat.get(P_OPERATING_MODE)
-                    if isinstance(v, (int, float)):
-                        # HA reads entity values from result["params"][mqtt_key]; materialise it.
-                        result.setdefault("params", {})["ocean_operating_mode"] = OPERATING_MODE_CODES.get(
-                            int(v), f"unknown_{int(v)}"
-                        )
-                        extracted = True
-                # Grid status and live grid metering ride the 254 status
-                # frames (any cmdId); read from the same flatten.
+            for cmd_func, _cmd_id, flat in _decode_envelopes(raw_data):
+                # Live grid metering rides the 254 status frames (any cmdId).
                 if cmd_func == STATUS_CMDFUNC:
+                    # HA reads entity values from result["params"][mqtt_key]; materialise it.
                     params = result.setdefault("params", {})
-                    # Grid-connect / island status (field 619), mapped to on_grid / islanded.
-                    gs = flat.get(P_GRID_STATUS)
-                    if isinstance(gs, (int, float)):
-                        params["ocean_grid_status"] = GRID_STATUS_CODES.get(int(gs), f"unknown_{int(gs)}")
-                        extracted = True
-                    # Live grid-side metering (fields 964..967), raw pending unit ID.
                     for field in GRID_METER_FIELDS:
                         v = _flat_num(flat, field)
                         if v is not None:
@@ -505,9 +458,8 @@ class OceanProInverter(DeltaPro3):
             # revenue meter (a consistent multiplicative bias — see that entry), so it is a
             # directional live signal, not billing-grade.
             WattsSensorEntity(client, self, "ocean_grid_pwr", "Grid Power").with_icon("mdi:transmission-tower"),
-            # Work mode is NOT read here: field 1470 on the inverter stream is a stale default
-            # (self_use). The authoritative EMS mode lives on the HR61 panel stream and is
-            # decoded on OceanPanel instead. See that class + the module note.
+            # Operating mode is NOT read here: the inverter stream carries no reliable copy
+            # (field 1470 is a stale default). It is the panel's Operating Mode sensor.
             # Battery pack bank telemetry (32/177 stream). Voltage is a real measurement;
             # pack count is a real count; current is raw (scale unsettled — see module note).
             CentivoltSensorEntity(client, self, "bp_voltage_raw", "Battery Pack Voltage", enabled=False, diagnostic=True).with_icon("mdi:home-battery"),
@@ -591,16 +543,13 @@ class OceanProInverter(DeltaPro3):
         (small field numbers collide), so they are read here from the SAME raw frame the base
         pipeline consumes, using the collector's proven full-path flatten (``1.1.<field>``).
         Everything else — PV, PCS, total solar, battery power — is decoded in
-        ``_decode_message_by_type`` on the base's extracted pdata as before. (Work mode is
-        decoded on OceanPanel/HR61, where field 1470 is authoritative.)
+        ``_decode_message_by_type`` on the base's extracted pdata as before.
         """
         result = super()._prepare_data(raw_data)
         extracted = False
         exc: Exception | None = None
         try:
             for cmd_func, cmd_id, flat in _decode_envelopes(raw_data):
-                # Work mode is decoded on OceanPanel (HR61), where field 1470 is authoritative;
-                # this inverter stream carries only the per-pack bank telemetry.
                 if (cmd_func, cmd_id) == BATTERY_PACK_CMD:
                     # HA reads entity values from result["params"][mqtt_key]; a pack-only frame
                     # makes the base return {}, so materialise "params" before writing into it.
