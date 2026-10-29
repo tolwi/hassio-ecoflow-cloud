@@ -278,20 +278,6 @@ class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity[int]):
 class BaseSensorEntity(SensorEntity, EcoFlowDictEntity):  # type: ignore[misc]
     _attr_default_value: Any = None
 
-    def __init__(
-        self,
-        client: EcoflowApiClient,
-        device: BaseDevice,
-        mqtt_key: str,
-        title: str,
-        enabled: bool = True,
-        auto_enable: bool = False,
-        diagnostic: bool | None = None,
-    ):
-        super().__init__(client, device, mqtt_key, title, enabled, auto_enable, diagnostic)
-        if self._attr_default_value is not None:
-            self._attr_native_value = self._attr_default_value
-
     def _update_value(self, val: Any) -> bool:
         if self._attr_native_value != val:
             self._attr_native_value = val
