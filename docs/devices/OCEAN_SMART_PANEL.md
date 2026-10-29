@@ -134,8 +134,6 @@
 - Grid Power (`shp_grid_pwr`)
 - Grid Import Power (`ocean_grid_import_pwr`) (energy:  _[Device Name]_ Grid Import  Energy)
 - Grid Export Power (`ocean_grid_export_pwr`) (energy:  _[Device Name]_ Grid Export  Energy)
-- Operating Mode (`ocean_operating_mode`)   _(disabled)_
-- Grid Connection (`ocean_grid_status`)
 - Grid Meter 964 (`grid_meter_964`)   _(disabled)_
 - Grid Meter 965 (`grid_meter_965`)   _(disabled)_
 - Grid Meter 966 (`grid_meter_966`)   _(disabled)_

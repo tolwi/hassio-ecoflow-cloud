@@ -38,7 +38,7 @@ Everything else is a built-in card.
 3. Enable the diagnostic sensors the dashboard uses. They ship disabled, like the per-circuit
    volt/amp sensors. On the inverter device page open the hidden/disabled entities and enable
    PV1–PV8 Voltage, Current, MPPT Fault Code and MPPT State (32 sensors, all on the Strings
-   view). On the panel device enable Operating Mode (Live view).
+   view).
 4. Settings → Dashboards → Add dashboard → open it → ⋮ → Edit dashboard → ⋮ → Raw
    configuration editor → paste → Save.
 

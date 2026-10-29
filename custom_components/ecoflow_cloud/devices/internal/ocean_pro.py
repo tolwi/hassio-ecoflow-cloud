@@ -401,9 +401,6 @@ class OceanPanel(SmartHomePanel3):
             InWattsSensorEntity(client, self, "shp_grid_pwr", "Grid Power"),
             InWattsSensorEntity(client, self, "ocean_grid_import_pwr", "Grid Import Power").with_energy(),
             OutWattsSensorEntity(client, self, "ocean_grid_export_pwr", "Grid Export Power").with_energy(),
-            MiscSensorEntity(client, self, "ocean_operating_mode", "Operating Mode", enabled=False, diagnostic=True).with_icon("mdi:home-lightning-bolt"),
-            # Grid-connect / island status (254 field 619): on_grid / islanded. Diagnostic.
-            MiscSensorEntity(client, self, "ocean_grid_status", "Grid Connection", diagnostic=True).with_icon("mdi:transmission-tower"),
         ] + [
             # Live grid-side metering (254 fields 964..967): confirmed to track grid-tied vs
             # islanded, kept raw pending unit ID — see GRID_METER_FIELDS note. Diagnostic.

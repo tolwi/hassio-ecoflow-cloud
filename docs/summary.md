@@ -948,7 +948,7 @@
 
 </p></details>
 
-<details><summary> OCEAN_SMART_PANEL <i>(sensors: 139)</i> </summary>
+<details><summary> OCEAN_SMART_PANEL <i>(sensors: 137)</i> </summary>
 <p>
 
 *Sensors*
@@ -1085,8 +1085,6 @@
 - Grid Power
 - Grid Import Power (energy:  _[Device Name]_ Grid Import  Energy)
 - Grid Export Power (energy:  _[Device Name]_ Grid Export  Energy)
-- Operating Mode  _(disabled)_
-- Grid Connection
 - Grid Meter 964  _(disabled)_
 - Grid Meter 965  _(disabled)_
 - Grid Meter 966  _(disabled)_

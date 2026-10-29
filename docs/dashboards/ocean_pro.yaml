@@ -43,7 +43,7 @@ views:
         entity: sensor.PANEL_operating_mode
         name: Operating mode
       - type: tile
-        entity: sensor.PANEL_grid_connection
+        entity: binary_sensor.PANEL_grid
         name: Grid connection
       - type: tile
         entity: sensor.INVERTER_grid_frequency
