@@ -33,6 +33,8 @@ from custom_components.ecoflow_cloud.select import (
 from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
     CyclesSensorEntity,
+    FanSensorEntity,
+    FrequencySensorEntity,
     InEnergySensorEntity,
     InEnergySolarSensorEntity,
     InMilliampSensorEntity,
@@ -40,13 +42,16 @@ from custom_components.ecoflow_cloud.sensor import (
     InWattsSensorEntity,
     LevelSensorEntity,
     MilliVoltSensorEntity,
+    MiscSensorEntity,
     OutEnergySensorEntity,
+    OutVoltSensorEntity,
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
     StateOfHealthSensorEntity,
     TempSensorEntity,
     VoltSensorEntity,
+    WattsSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 
@@ -215,7 +220,6 @@ class River3(BaseInternalDevice):
             InWattsSensorEntity(client, self, "pow_get_ac_in", const.AC_IN_POWER),
             OutWattsAbsSensorEntity(client, self, "pow_get_ac_out", const.AC_OUT_POWER),
             InVoltSensorEntity(client, self, "plug_in_info_ac_in_vol", const.AC_IN_VOLT),
-            # AC output voltage not available in proto
             OutWattsSensorEntity(client, self, "pow_get_12v", const.DC_OUT_POWER),
             OutWattsAbsSensorEntity(client, self, "pow_get_typec1", const.TYPEC_1_OUT_POWER),
             OutWattsAbsSensorEntity(client, self, "pow_get_qcusb1", const.USB_QC_1_OUT_POWER),
@@ -241,6 +245,26 @@ class River3(BaseInternalDevice):
             OutEnergySensorEntity(client, self, "dc12v_out_energy", "DC 12V Output Energy", False),
             OutEnergySensorEntity(client, self, "typec_out_energy", "Type-C Output Energy", False),
             OutEnergySensorEntity(client, self, "usba_out_energy", "USB-A Output Energy", False),
+            StateOfHealthSensorEntity(client, self, "calendar_soh", const.CALENDAR_SOH),
+            StateOfHealthSensorEntity(client, self, "cycle_soh", const.CYCLE_SOH),
+            MilliVoltSensorEntity(client, self, "min_cell_vol", const.CELL_VOLT_MIN),
+            MilliVoltSensorEntity(client, self, "max_cell_vol", const.CELL_VOLT_MAX),
+            MilliVoltSensorEntity(client, self, "max_vol_diff", const.CELL_VOLT_DIFF),
+            MilliVoltSensorEntity(client, self, "msg32_2_1_cms_batt_vol_mv", const.BATTERY_PACK_VOLT, False),
+            OutVoltSensorEntity(client, self, "plug_in_info_ac_out_vol", const.AC_OUT_VOLT),
+            FrequencySensorEntity(client, self, "ac_out_freq", const.AC_OUT_FREQ),
+            WattsSensorEntity(client, self, "plug_in_info_ac_out_dsg_pow_max", const.AC_OUT_POWER_LIMIT, False),
+            WattsSensorEntity(client, self, "silence_chg_watt", const.QUIET_CHARGING_POWER, False),
+            TempSensorEntity(client, self, "max_env_temp", const.AMBIENT_TEMPERATURE),
+            TempSensorEntity(client, self, "bms_max_mos_temp", const.BMS_MOSFET_TEMP, False),
+            FanSensorEntity(client, self, "pcs_fan_level", const.FAN_LEVEL),
+            CapacitySensorEntity(client, self, "full_cap", const.BATTERY_FULL_CAPACITY, False),
+            CapacitySensorEntity(client, self, "remain_cap", const.BATTERY_REMAIN_CAPACITY, False),
+            MiscSensorEntity(client, self, "all_err_code", const.ERROR_CODE)
+            .attr("bms_err_code", "BMS Error Code", 0)
+            .attr("pd_err_code", "PD Error Code", 0)
+            .attr("llc_inv_err_code", "Inverter Error Code", 0)
+            .attr("mppt_err_code", "MPPT Error Code", 0),
             QuotaStatusSensorEntity(client, self),
         ]
 
@@ -399,6 +423,14 @@ class River3(BaseInternalDevice):
                 const.AC_TIMEOUT,
                 const.AC_TIMEOUT_OPTIONS,
                 lambda value: _create_river3_proto_command("ac_standby_time", int(value), device.device_data.sn),
+            ),
+            DictSelectEntity(
+                client,
+                self,
+                "led_mode",
+                const.LED_MODE,
+                const.LED_MODE_OPTIONS,
+                lambda value: _create_river3_proto_command("cfg_led_mode", int(value), device.device_data.sn),
             ),
         ]
 
