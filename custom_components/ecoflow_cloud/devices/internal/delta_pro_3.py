@@ -444,7 +444,14 @@ class DeltaPro3(BaseInternalDevice):
             # 2. Extract payload data
             pdata = self._extract_payload_data(header_info.get("header_obj"))
             if not pdata:
-                _LOGGER.warning("No payload data found")
+                # Routine: the EcoFlow app's get requests arrive on the shared
+                # get topic with an empty pdata while the app is open.
+                _LOGGER.debug(
+                    "No pdata in header (cmdFunc=%s, cmdId=%s, src=%s)",
+                    header_info.get("cmdFunc"),
+                    header_info.get("cmdId"),
+                    header_info.get("src"),
+                )
                 return {}
 
             # 3. XOR decode (if needed)
@@ -547,9 +554,7 @@ class DeltaPro3(BaseInternalDevice):
             if pdata:
                 _LOGGER.debug(f"Extracted {len(pdata)} bytes of payload data")
                 return pdata
-            else:
-                _LOGGER.warning("No pdata found in header")
-                return None
+            return None
         except Exception as e:
             _LOGGER.error(f"Payload extraction error: {e}")
             return None
