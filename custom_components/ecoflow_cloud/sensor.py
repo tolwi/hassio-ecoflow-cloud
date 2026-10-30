@@ -867,7 +867,7 @@ class IntegralEnergySensorEntity(IntegrationSensor):
         super().__init__(
             **version_kwargs,
             integration_method="left",
-            name=f"{base._device.device_info.name} {base.title().replace(f'{const.POWER}', f' {const.ENERGY}')}",
+            name=self._energy_name(base),
             round_digits=4,
             source_entity=base.entity_id,
             unique_id=f"{base._attr_unique_id}_energy",
@@ -876,6 +876,7 @@ class IntegralEnergySensorEntity(IntegrationSensor):
             max_sub_interval=timedelta(seconds=60),
         )
         self.device_info = base.device_info
+        self._base = base
         self._attr_entity_registry_enabled_default = enabled_default and base.enabled_default
         # Optional per-device throttle (seconds; 0 = off). The integral still advances on every source
         # update; only the reported total is held back, so the recorder stores at most one row per
@@ -909,6 +910,26 @@ class IntegralEnergySensorEntity(IntegrationSensor):
         self._reported_value, self._reported_at = held
         data.native_value = self._integral_value()
         return data
+
+    @staticmethod
+    def _energy_name(base: WattsSensorEntity) -> str:
+        # "X Power" -> "X Energy". Only the trailing word: a label like "Power I/O Port Input
+        # Power" or a circuit named "Range Hood Power Test" keeps its inner "Power". Titles that
+        # don't end in it ("AC Output Power L1") keep the plain word swap.
+        title = base.title()
+        suffix = f" {const.POWER}"
+        if title.endswith(suffix):
+            title = title.removesuffix(suffix) + f" {const.ENERGY}"
+        else:
+            title = title.replace(const.POWER, const.ENERGY)
+        return f"{base._device.device_info.name} {title}"
+
+    @property
+    @override
+    def name(self) -> str:
+        # Derived from the source on every state write, so a source whose title can change at
+        # runtime (e.g. an app-side circuit rename) renames its energy sensor too.
+        return self._energy_name(self._base)
 
 
 class SolarPowerSensorEntity(WattsSensorEntity):
