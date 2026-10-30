@@ -397,12 +397,22 @@ class PowerStream(BaseInternalDevice):
                             continue
 
                         field_name = f"watth{watth_type_name[0].upper()}{watth_type_name[1:]}"
-                        params.update(
-                            {
-                                f"{command.func}_{command.id}.{field_name}": sum(watth_item.watth),
-                                f"{command.func}_{command.id}.{field_name}Timestamp": watth_item.timestamp,
-                            }
-                        )
+                        dt_now = dt.utcnow()
+                        dt_today = dt_now.replace(hour=0, minute=0, second=0, microsecond=0)
+                        dt_days = dict([
+                            [str(int(dt_today.timestamp())), ""],
+                            [str(int(dt_today.timestamp()) - 24*60*60), "Yesterday"]
+                        ])
+                        # We have to check exact dates because somtimes it sends the whole week
+                        if str(watth_item.timestamp) in dt_days:
+                            params.update(
+                                {
+                                    f"{command.func}_{command.id}.{field_name}{dt_days[str(watth_item.timestamp)]}": sum(
+                                        watth_item.watth
+                                    ),
+                                    f"{command.func}_{command.id}.{field_name}{dt_days[str(watth_item.timestamp)]}Timestamp": watth_item.timestamp,
+                                }
+                            )
 
                 # Add cmd information to allow extraction in extract_quota_data
                 res["cmdFunc"] = command_desc.func
