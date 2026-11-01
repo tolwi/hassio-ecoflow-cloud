@@ -1,10 +1,10 @@
-"""EcoFlow Ocean Pro (US) — read-only internal / app-API device profiles.
+"""EcoFlow OCEAN Pro (US) — read-only internal / app-API device profiles.
 
-An Ocean Pro system is two physically separate devices, each publishing its own
+An OCEAN Pro system is two physically separate devices, each publishing its own
 `/app/device/property/<sn>` MQTT stream, so it is modelled here as two HA
 devices (the user adds both serial numbers):
 
-  * OceanPanel      — the OCEAN Smart Panel (HR61…). Its stream carries the
+  * OceanPanel      — the OCEAN Smart Electrical Panel 40 (HR61…). Its stream carries the
                       per-circuit array, circuit labels and grid/load flows.
                       This is exactly the Smart Home Panel 3 shape, widened
                       32 -> 40 circuits, so it subclasses SmartHomePanel3.
@@ -92,7 +92,7 @@ DEV_TEMP_FIELD_BASE = 1553
 DEV_TEMP_COUNT = 5
 DEV_TEMP_MIN, DEV_TEMP_MAX = -40.0, 150.0
 
-# Quota refresh cadence for BOTH devices. The Ocean Pro sends telemetry only in answer to a
+# Quota refresh cadence for BOTH devices. The OCEAN Pro sends telemetry only in answer to a
 # `latestQuotas` request: a passive subscriber receives nothing. The inherited status sensors
 # ask only once the device has gone silent for assume_offline_sec (300 s by default), so alone
 # they would hold the feed to one burst per ~5 minutes. Any other client polling the same
@@ -256,7 +256,7 @@ def _store_raw(params: dict[str, Any], key: str, v: int | float) -> None:
 
 
 def _decode_envelopes(raw_data: bytes) -> Iterator[tuple[Any, Any, dict[str, Any]]]:
-    """Yield (cmdFunc, cmdId, flat) for each message in a raw Ocean Pro app-envelope frame.
+    """Yield (cmdFunc, cmdId, flat) for each message in a raw OCEAN Pro app-envelope frame.
 
     Both device classes read their app scalars from this same envelope (see
     ``OceanPanel._prepare_data`` for why the raw frame, not the base's decoded ``pdata``), so
@@ -288,7 +288,7 @@ DECODE_STALE_AFTER_S = 900
 
 class _EnvelopeHealth:
     """Surface a PERSISTENT augmented-decode stall once, instead of letting every augmented
-    Ocean Pro sensor silently freeze if the app frame format ever changes ("no silent
+    OCEAN Pro sensor silently freeze if the app frame format ever changes ("no silent
     failures"). Logs only the DEGRADED and RECOVERED transitions — never a per-frame
     heartbeat — so an outage is visible without spamming the log.
     """
@@ -328,7 +328,7 @@ class _EnvelopeHealth:
 
 
 class OceanPanel(SmartHomePanel3):
-    """OCEAN Smart Panel (HR61…, private / app API). Read-only.
+    """OCEAN Smart Electrical Panel 40 (HR61…, private / app API). Read-only.
 
     Identical to the Smart Home Panel 3 but with 40 circuits instead of 32; the
     per-circuit array, circuit labels, grid/load flows and SoC are all inherited
@@ -340,7 +340,7 @@ class OceanPanel(SmartHomePanel3):
     see GRID_METER_FIELDS.
 
     Grid Power is signed here (+ import / - export): unlike a Delta Pro 3 behind an SHP3,
-    an Ocean Pro exports solar. Its energy is therefore integrated as separate import and
+    an OCEAN Pro exports solar. Its energy is therefore integrated as separate import and
     export totals rather than one net total — see _decode_flows.
     """
 
@@ -397,7 +397,7 @@ class OceanPanel(SmartHomePanel3):
     def _prepare_data(self, raw_data: bytes) -> dict[str, Any]:
         """Augment the base panel decode with the live grid metering (fields 964..967).
 
-        Why parse the RAW frame here instead of the base's decoded ``pdata``: the Ocean Pro
+        Why parse the RAW frame here instead of the base's decoded ``pdata``: the OCEAN Pro
         *app* stream wraps these scalars in its own message envelope (cmdFunc/cmdId at
         ``1.8``/``1.9``, fields at ``1.1.<field>``), which is a DIFFERENT framing of the
         bytes than DeltaPro3's HeaderMessage→pdata split. These fields do NOT live inside
@@ -433,7 +433,7 @@ class OceanProInverter(DeltaPro3):
     """OCEAN Pro inverter (HR51…, private / app API). Read-only.
 
     Shares the Delta Pro 3 254/21 decode pipeline (and its battery SoC), and
-    adds the solar/battery side unique to Ocean Pro: PV strings pv1..pv8, the
+    adds the solar/battery side unique to OCEAN Pro: PV strings pv1..pv8, the
     inverter AC output, and pack-reported battery power.
     """
 

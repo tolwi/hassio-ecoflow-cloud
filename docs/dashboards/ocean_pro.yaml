@@ -1,9 +1,9 @@
-# Example dashboard: EcoFlow PowerOcean Pro (US) — inverter + Smart Panel
+# Example dashboard: EcoFlow OCEAN Pro (US) — inverter + OCEAN Smart Electrical Panel 40
 #
 # Setup: see docs/dashboards/README.md. In short:
-#   1. Replace every INVERTER with your Ocean Pro inverter's entity prefix
+#   1. Replace every INVERTER with your OCEAN Pro inverter's entity prefix
 #      (e.g. sensor.hr51xxxxxxxxxxxx_pv1_power -> INVERTER = hr51xxxxxxxxxxxx).
-#   2. Replace every PANEL with your Smart Panel's entity prefix (hr61...).
+#   2. Replace every PANEL with your OCEAN Smart Electrical Panel 40's entity prefix (hr61...).
 #   3. Settings -> Dashboards -> Add dashboard -> open it -> Edit -> Raw configuration
 #      editor -> paste.
 #
@@ -12,7 +12,7 @@
 # 5-minute averages): history-graph pulls every raw update, and with 8 strings reporting
 # every few seconds it can sit on "Loading state history".
 
-title: Ocean Pro
+title: OCEAN Pro
 views:
   - title: Live
     path: live

@@ -38,7 +38,7 @@ _LOGGER = logging.getLogger(__name__)
 # These fields are absent from the DP3 proto (dropped on ParseFromString),
 # so they are recovered with a second raw pass over the payload.
 # The circuit count, name-field blocks and array base are class attributes on
-# SmartHomePanel3 (below) so wider variants (e.g. Ocean Pro, 40 circuits) can
+# SmartHomePanel3 (below) so wider variants (e.g. OCEAN Pro, 40 circuits) can
 # extend this device by overriding them rather than duplicating the decoders.
 # Aggregate flow and grid per-leg fields (float, wiretype 5).
 F_GRID_PWR = 515
@@ -257,7 +257,7 @@ class SmartHomePanel3(DeltaPro3):
     Read-only: no control entities until actuation is deliberately in scope.
 
     Circuit geometry is expressed as class attributes so wider panels (e.g.
-    Ocean Pro, 40 circuits) can subclass and override without touching the
+    OCEAN Pro, 40 circuits) can subclass and override without touching the
     decoders.
     """
 
