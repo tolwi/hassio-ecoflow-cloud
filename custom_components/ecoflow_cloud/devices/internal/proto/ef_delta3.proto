@@ -122,6 +122,11 @@ message Delta3DisplayPropertyUpload {
   optional uint32 silence_chg_watt = 359;               // Silent charging watt (W)
   optional uint32 flow_info_pv = 360;                   // Solar PV flow direction
   optional float pow_get_pv = 361;                      // Solar input power (W)
+  // --- Delta 3 Plus dual-MPPT channel-2 solar ---
+  optional float pow_get_pv2 = 70;              // Solar input power, MPPT channel 2 (W)
+  optional float plug_in_info_pv2_amp = 71;     // Solar input current, channel 2 (mA)
+  optional float temp_pv2 = 440;                // Solar PV temperature, channel 2 (C)
+  optional float plug_in_info_pv2_vol = 442;    // Solar input voltage, channel 2 (V)
   optional uint32 plug_in_info_pv_flag = 362;           // Solar PV connected flag (bool)
   optional uint32 plug_in_info_pv_type = 363;           // Solar PV input type
   optional uint32 plug_in_info_pv_charger_flag = 364;   // PV charger flag (bool)
