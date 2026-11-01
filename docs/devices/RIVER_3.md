@@ -36,6 +36,22 @@
 - DC 12V Output Energy (`dc12v_out_energy`)   _(disabled)_
 - Type-C Output Energy (`typec_out_energy`)   _(disabled)_
 - USB-A Output Energy (`usba_out_energy`)   _(disabled)_
+- Calendar State of Health (`calendar_soh`)
+- Cycle State of Health (`cycle_soh`)
+- Cell Voltage Min (`min_cell_vol`)
+- Cell Voltage Max (`max_cell_vol`)
+- Cell Voltage Difference (`max_vol_diff`)
+- Battery Pack Volts (`msg32_2_1_cms_batt_vol_mv`)   _(disabled)_
+- AC Out Volts (`plug_in_info_ac_out_vol`)
+- AC Out Frequency (`ac_out_freq`)
+- AC Output Power Limit (`plug_in_info_ac_out_dsg_pow_max`)   _(disabled)_
+- Quiet Charging Power (`silence_chg_watt`)   _(disabled)_
+- Ambient Temperature (`max_env_temp`)
+- BMS MOSFET Temperature (`bms_max_mos_temp`)   _(disabled)_
+- Fan Level (`pcs_fan_level`)
+- Battery Full Capacity (`full_cap`)   _(disabled)_
+- Battery Remaining Capacity (`remain_cap`)   _(disabled)_
+- Error Code (`all_err_code`)
 - Status
 
 *Switches*
@@ -58,5 +74,6 @@
 - Screen Timeout (`screen_off_time` -> `{"River3SendHeaderMsg": {"msg": [{"pdata": {"River3SetCommand": {"screen_off_time": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [Never (0), 10 sec (10), 30 sec (30), 1 min (60), 5 min (300), 30 min (1800)])
 - Unit Timeout (`dev_standby_time` -> `{"River3SendHeaderMsg": {"msg": [{"pdata": {"River3SetCommand": {"dev_standby_time": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
 - AC Timeout (`ac_standby_time` -> `{"River3SendHeaderMsg": {"msg": [{"pdata": {"River3SetCommand": {"ac_standby_time": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 3, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [Never (0), 30 min (30), 1 hr (60), 2 hr (120), 4 hr (240), 6 hr (360), 12 hr (720), 24 hr (1440)])
+- LED Mode (`led_mode` -> `{"River3SendHeaderMsg": {"msg": [{"pdata": {"River3SetCommand": {"cfg_led_mode": 6666}}, "src": 32, "dest": 2, "d_src": 1, "d_dest": 1, "cmd_func": 254, "cmd_id": 17, "data_len": 4, "need_ack": 1, "product_id": 1, "version": 19, "payload_ver": 1, "device_sn": "SN"}]}}` [Off (0), Dim (1), Bright (2), SOS (3)])
 
 

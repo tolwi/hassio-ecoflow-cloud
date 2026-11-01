@@ -519,7 +519,7 @@
 
 </p></details>
 
-<details><summary> RIVER_3 <i>(sensors: 36, switches: 6, sliders: 4, selects: 5)</i> </summary>
+<details><summary> RIVER_3 <i>(sensors: 52, switches: 6, sliders: 4, selects: 6)</i> </summary>
 <p>
 
 *Sensors*
@@ -558,6 +558,22 @@
 - DC 12V Output Energy  _(disabled)_
 - Type-C Output Energy  _(disabled)_
 - USB-A Output Energy  _(disabled)_
+- Calendar State of Health
+- Cycle State of Health
+- Cell Voltage Min
+- Cell Voltage Max
+- Cell Voltage Difference
+- Battery Pack Volts  _(disabled)_
+- AC Out Volts
+- AC Out Frequency
+- AC Output Power Limit  _(disabled)_
+- Quiet Charging Power  _(disabled)_
+- Ambient Temperature
+- BMS MOSFET Temperature  _(disabled)_
+- Fan Level
+- Battery Full Capacity  _(disabled)_
+- Battery Remaining Capacity  _(disabled)_
+- Error Code
 - Status
 
 *Switches*
@@ -580,6 +596,7 @@
 - Screen Timeout
 - Unit Timeout
 - AC Timeout
+- LED Mode
 
 </p></details>
 
