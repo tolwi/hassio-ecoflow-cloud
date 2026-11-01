@@ -303,10 +303,18 @@ class Wave3(BaseInternalDevice):
         return [Wave3ClimateEntity(client, self)]
 
 
+# HA 2026.11 renamed the climate temperature unit and values to native_*
+# (the old names stop working in 2027.11).
+_NATIVE_TEMPERATURES = hasattr(ClimateEntity, "native_current_temperature")
+
+
 class Wave3ClimateEntity(ClimateEntity):
     _attr_has_entity_name = True
     _attr_name = "Climate"
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    if _NATIVE_TEMPERATURES:
+        _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    else:
+        _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_should_poll = True
 
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.COOL, HVACMode.HEAT, HVACMode.FAN_ONLY, HVACMode.DRY, HVACMode.HEAT_COOL]
@@ -367,22 +375,28 @@ class Wave3ClimateEntity(ClimateEntity):
         return features
 
     @property
-    def current_temperature(self) -> Optional[float]:
+    def native_current_temperature(self) -> Optional[float]:
         return self._params().get("temp_ambient")
 
     @property
-    def target_temperature(self) -> Optional[float]:
+    def native_target_temperature(self) -> Optional[float]:
         if self.hvac_mode in (HVACMode.DRY, HVACMode.FAN_ONLY, HVACMode.HEAT_COOL):
             return None
         return self._params().get("current_temp_set", 22.0)
 
     @property
-    def target_temperature_high(self) -> Optional[float]:
+    def native_target_temperature_high(self) -> Optional[float]:
         return self._params().get("current_temp_upper", 24.0)
 
     @property
-    def target_temperature_low(self) -> Optional[float]:
+    def native_target_temperature_low(self) -> Optional[float]:
         return self._params().get("current_temp_lower", 20.0)
+
+    if not _NATIVE_TEMPERATURES:
+        current_temperature = native_current_temperature
+        target_temperature = native_target_temperature
+        target_temperature_high = native_target_temperature_high
+        target_temperature_low = native_target_temperature_low
 
     @property
     def current_humidity(self) -> Optional[float]:
