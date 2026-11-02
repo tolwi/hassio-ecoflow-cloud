@@ -48,6 +48,7 @@ from custom_components.ecoflow_cloud.sensor import (
     InAmpSensorEntity,
     MiscSensorEntity,
     QuotaScheduledStatusSensorEntity,
+    RssiSensorEntity,
     StatusSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
@@ -175,7 +176,7 @@ class StreamMicroinverter(BaseInternalDevice):
             VoltSensorEntity(client, self, "plug_in_info_pv2_vol", const.STREAM_IN_VOL_PV_2, False, True),
             InAmpSensorEntity(client, self, "plug_in_info_pv_amp", const.STREAM_IN_AMPS_PV_1, False, True),
             InAmpSensorEntity(client, self, "plug_in_info_pv2_amp", const.STREAM_IN_AMPS_PV_2, False, True),
-            MiscSensorEntity(client, self, "module_wifi_rssi", const.STREAM_WIFI_RSSI),
+            RssiSensorEntity(client, self, "module_wifi_rssi", const.STREAM_WIFI_RSSI),
             WattsSensorEntity(
                 client, self, "feed_grid_mode_pow_limit", const.STREAM_FEED_GRID_MODE_POW_LIMIT, diagnostic=True
             ),
