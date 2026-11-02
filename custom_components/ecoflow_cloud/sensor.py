@@ -21,6 +21,7 @@ from homeassistant.components.sensor import (  # pyright: ignore[reportMissingIm
 from homeassistant.config_entries import ConfigEntry  # pyright: ignore[reportMissingImports]
 from homeassistant.const import (  # pyright: ignore[reportMissingImports]
     PERCENTAGE,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
     UnitOfElectricCurrent,
@@ -138,6 +139,13 @@ class FanSensorEntity(BaseSensorEntity):
 
 class MiscSensorEntity(BaseSensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+
+class RssiSensorEntity(BaseSensorEntity):
+    _attr_device_class = SensorDeviceClass.SIGNAL_STRENGTH
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = SIGNAL_STRENGTH_DECIBELS_MILLIWATT
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
 
 class DcModeStateSensorEntity(MiscSensorEntity):

@@ -29,6 +29,7 @@ from custom_components.ecoflow_cloud.sensor import (
     MiscSensorEntity,
     QuotaStatusSensorEntity,
     RemainSensorEntity,
+    RssiSensorEntity,
     StatusSensorEntity,
     VoltSensorEntity,
     WattsSensorEntity,
@@ -181,7 +182,7 @@ class Alternator(BaseInternalDevice):
             VoltSensorEntity(client, self, f"{_HB_KEY}.carBatVolt", const.ALTERNATOR_CAR_BAT_VOLT),
             # Diagnostics
             CelsiusSensorEntity(client, self, f"{_HB_KEY}.temp", const.ALTERNATOR_TEMP),
-            MiscSensorEntity(client, self, f"{_HB_KEY}.wifiRssi", const.ALTERNATOR_WIFI_RSSI, enabled=False),
+            RssiSensorEntity(client, self, f"{_HB_KEY}.wifiRssi", const.ALTERNATOR_WIFI_RSSI, enabled=False),
             MiscSensorEntity(client, self, f"{_HB_KEY}.status1", "Alternator Status Code", enabled=False),
             MiscSensorEntity(client, self, f"{_HB_KEY}.operationMode", const.ALTERNATOR_OPERATION_MODE, enabled=False),
             # Per-mode current limits (read-only view — controlled via number entities)
