@@ -243,6 +243,75 @@ from Home Assistant.
 
 </p></details>
 
+<details><summary> DELTA_3_PLUS <i>(sensors: 36, switches: 8, sliders: 5, selects: 7)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Solar In Power
+- Solar In Current
+- AC In Power
+- AC Out Power
+- AC In Volts
+- AC Out Volts
+- DC Out Power
+- Type-C (1) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- PCS DC Temperature
+- PCS AC Temperature
+- Battery Temperature
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Cycles
+- Solar In Energy
+- Status
+- Solar Input Power (MPPT 2)
+- Solar Input Voltage (MPPT 2)
+- Solar Input Current (MPPT 2)
+- Solar PV Temperature (MPPT 2)
+
+*Switches*
+- Beeper
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
+- USB Enabled
+- AC Always On
+- Backup Reserve Enabled
+- Grid Bypass
+
+*Sliders (numbers)*
+- Max Charge Level
+- Min Discharge Level
+- AC Charging Power
+- Backup Reserve Level
+- Backup Reserve SOC
+
+*Selects*
+- DC (12V) Charge Current
+- Energy Strategy
+- AC Charging Mode
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
+- DC (12V) Timeout
+
+</p></details>
+
 <details><summary> DELTA_3_1500 <i>(sensors: 44, switches: 9, sliders: 4, selects: 5)</i> </summary>
 <p>
 
@@ -583,6 +652,87 @@ from Home Assistant.
 </p></details>
 
 <details><summary> RIVER_3 <i>(sensors: 52, switches: 6, sliders: 4, selects: 6)</i> </summary>
+<p>
+
+*Sensors*
+- Main Battery Level
+- Main Design Capacity  _(disabled)_
+- Main Full Capacity  _(disabled)_
+- Main Remain Capacity  _(disabled)_
+- State of Health
+- Battery Level
+- Battery Charging State
+- Total In Power (energy:  _[Device Name]_ Total In  Energy)
+- Total Out Power (energy:  _[Device Name]_ Total Out  Energy)
+- Solar In Power
+- Solar In Current
+- AC In Power
+- AC Out Power
+- AC In Volts
+- DC Out Power
+- Type-C (1) Out Power
+- USB QC (1) Out Power
+- USB QC (2) Out Power
+- Charge Remaining Time
+- Discharge Remaining Time
+- Remaining Time
+- PCS DC Temperature
+- PCS AC Temperature
+- Battery Temperature
+- Max Cell Temperature  _(disabled)_
+- Battery Volts  _(disabled)_
+- Min Cell Volts  _(disabled)_
+- Max Cell Volts  _(disabled)_
+- Cycles
+- AC Output Energy
+- AC Input Energy
+- Solar In Energy
+- DC 12V Output Energy  _(disabled)_
+- Type-C Output Energy  _(disabled)_
+- USB-A Output Energy  _(disabled)_
+- Calendar State of Health
+- Cycle State of Health
+- Cell Voltage Min
+- Cell Voltage Max
+- Cell Voltage Difference
+- Battery Pack Volts  _(disabled)_
+- AC Out Volts
+- AC Out Frequency
+- AC Output Power Limit  _(disabled)_
+- Quiet Charging Power  _(disabled)_
+- Ambient Temperature
+- BMS MOSFET Temperature  _(disabled)_
+- Fan Level
+- Battery Full Capacity  _(disabled)_
+- Battery Remaining Capacity  _(disabled)_
+- Error Code
+- Status
+
+*Switches*
+- Beeper
+- AC Enabled
+- X-Boost Enabled
+- DC (12V) Enabled
+- AC Always On
+- Backup Reserve Enabled
+
+*Sliders (numbers)*
+- Max Charge Level
+- Min Discharge Level
+- AC Charging Power
+- Backup Reserve Level
+
+*Selects*
+- DC (12V) Charge Current
+- DC Mode
+- Screen Timeout
+- Unit Timeout
+- AC Timeout
+- LED Mode
+
+</p></details>
+
+<details><summary> RIVER_3_PLUS <i>(sensors: 52, switches: 6, sliders: 4, selects: 6)</i> </summary>
 <p>
 
 *Sensors*
