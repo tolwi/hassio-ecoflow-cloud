@@ -33,9 +33,11 @@ Restart Home Assistant. Once restart is done, use `Add Integration` → `Ecoflow
 ## Device Management
 For information on how to add, remove, and configure devices, please refer to the [Device Management Documentation](docs/device_management.md).
 
+OCEAN Pro (US): read-only, private API. Add both serials, the panel (HR61) as OCEAN_SMART_PANEL and the inverter (HR51) as OCEAN_PRO.
+
 ## Example dashboards
 Ready-to-paste Lovelace examples live in [docs/dashboards](docs/dashboards/README.md).
-Currently: PowerOcean Pro (US) with its Smart Panel.
+Currently: OCEAN Pro (US) with its OCEAN Smart Electrical Panel 40.
 
 ## EcoFlow API modes
 
