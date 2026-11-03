@@ -2,8 +2,8 @@
 
 *Sensors*
 - Status (Scheduled)
-- AC In Power (`'wattInfo.gridWatt'`) (energy:  _[Device Name]_ AC In  Energy)
-- AC Out Power (`'wattInfo.allHallWatt'`) (energy:  _[Device Name]_ AC Out  Energy)
+- AC In Power (`'wattInfo.gridWatt'`) (energy:  _[Device Name]_ AC In Energy)
+- AC Out Power (`'wattInfo.allHallWatt'`) (energy:  _[Device Name]_ AC Out Energy)
 - Battery Level (`'backupIncreInfo.backupBatPer'`)
 - Discharge Remaining Time (`'backupInfo.backupDischargeTime'`)
 - Power Grid Voltage (`'pd303_mc.masterIncreInfo.gridVol'`)   _(disabled)_
@@ -14,21 +14,21 @@
 - Battery 1 Level (`'backupIncreInfo.Energy1Info.batteryPercentage'`)   _(disabled)_
 - Battery 2 Level (`'backupIncreInfo.Energy2Info.batteryPercentage'`)   _(disabled)_
 - Battery 3 Level (`'backupIncreInfo.Energy3Info.batteryPercentage'`)   _(disabled)_
-- Battery 1 Power (`'wattInfo.chWatt'[0]`)   _(disabled)_ (energy:  _[Device Name]_ Battery 1  Energy)
-- Battery 2 Power (`'wattInfo.chWatt'[1]`)   _(disabled)_ (energy:  _[Device Name]_ Battery 2  Energy)
-- Battery 3 Power (`'wattInfo.chWatt'[2]`)   _(disabled)_ (energy:  _[Device Name]_ Battery 3  Energy)
-- Breaker1 Power (`'loadInfo.hall1Watt'[0]`) (energy:  _[Device Name]_ Breaker1  Energy)
-- Breaker2 Power (`'loadInfo.hall1Watt'[1]`) (energy:  _[Device Name]_ Breaker2  Energy)
-- Breaker3 Power (`'loadInfo.hall1Watt'[2]`) (energy:  _[Device Name]_ Breaker3  Energy)
-- Breaker4 Power (`'loadInfo.hall1Watt'[3]`) (energy:  _[Device Name]_ Breaker4  Energy)
-- Breaker5 Power (`'loadInfo.hall1Watt'[4]`) (energy:  _[Device Name]_ Breaker5  Energy)
-- Breaker6 Power (`'loadInfo.hall1Watt'[5]`) (energy:  _[Device Name]_ Breaker6  Energy)
-- Breaker7 Power (`'loadInfo.hall1Watt'[6]`) (energy:  _[Device Name]_ Breaker7  Energy)
-- Breaker8 Power (`'loadInfo.hall1Watt'[7]`) (energy:  _[Device Name]_ Breaker8  Energy)
-- Breaker9 Power (`'loadInfo.hall1Watt'[8]`) (energy:  _[Device Name]_ Breaker9  Energy)
-- Breaker10 Power (`'loadInfo.hall1Watt'[9]`) (energy:  _[Device Name]_ Breaker10  Energy)
-- Breaker11 Power (`'loadInfo.hall1Watt'[10]`) (energy:  _[Device Name]_ Breaker11  Energy)
-- Breaker12 Power (`'loadInfo.hall1Watt'[11]`) (energy:  _[Device Name]_ Breaker12  Energy)
+- Battery 1 Power (`'wattInfo.chWatt'[0]`)   _(disabled)_ (energy:  _[Device Name]_ Battery 1 Energy)
+- Battery 2 Power (`'wattInfo.chWatt'[1]`)   _(disabled)_ (energy:  _[Device Name]_ Battery 2 Energy)
+- Battery 3 Power (`'wattInfo.chWatt'[2]`)   _(disabled)_ (energy:  _[Device Name]_ Battery 3 Energy)
+- Breaker1 Power (`'loadInfo.hall1Watt'[0]`) (energy:  _[Device Name]_ Breaker1 Energy)
+- Breaker2 Power (`'loadInfo.hall1Watt'[1]`) (energy:  _[Device Name]_ Breaker2 Energy)
+- Breaker3 Power (`'loadInfo.hall1Watt'[2]`) (energy:  _[Device Name]_ Breaker3 Energy)
+- Breaker4 Power (`'loadInfo.hall1Watt'[3]`) (energy:  _[Device Name]_ Breaker4 Energy)
+- Breaker5 Power (`'loadInfo.hall1Watt'[4]`) (energy:  _[Device Name]_ Breaker5 Energy)
+- Breaker6 Power (`'loadInfo.hall1Watt'[5]`) (energy:  _[Device Name]_ Breaker6 Energy)
+- Breaker7 Power (`'loadInfo.hall1Watt'[6]`) (energy:  _[Device Name]_ Breaker7 Energy)
+- Breaker8 Power (`'loadInfo.hall1Watt'[7]`) (energy:  _[Device Name]_ Breaker8 Energy)
+- Breaker9 Power (`'loadInfo.hall1Watt'[8]`) (energy:  _[Device Name]_ Breaker9 Energy)
+- Breaker10 Power (`'loadInfo.hall1Watt'[9]`) (energy:  _[Device Name]_ Breaker10 Energy)
+- Breaker11 Power (`'loadInfo.hall1Watt'[10]`) (energy:  _[Device Name]_ Breaker11 Energy)
+- Breaker12 Power (`'loadInfo.hall1Watt'[11]`) (energy:  _[Device Name]_ Breaker12 Energy)
 
 *Binary sensors*
 - Power Grid (`'pd303_mc.masterIncreInfo.gridSta'`)

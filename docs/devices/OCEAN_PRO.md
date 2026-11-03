@@ -49,14 +49,14 @@
 - Device Temperature 3 (`dev_temp_3`)   _(disabled)_
 - Device Temperature 4 (`dev_temp_4`)   _(disabled)_
 - Device Temperature 5 (`dev_temp_5`)   _(disabled)_
-- PV1 Power (`pv1_pwr`) (energy:  _[Device Name]_ PV1  Energy)
-- PV2 Power (`pv2_pwr`) (energy:  _[Device Name]_ PV2  Energy)
-- PV3 Power (`pv3_pwr`) (energy:  _[Device Name]_ PV3  Energy)
-- PV4 Power (`pv4_pwr`) (energy:  _[Device Name]_ PV4  Energy)
-- PV5 Power (`pv5_pwr`) (energy:  _[Device Name]_ PV5  Energy)
-- PV6 Power (`pv6_pwr`) (energy:  _[Device Name]_ PV6  Energy)
-- PV7 Power (`pv7_pwr`) (energy:  _[Device Name]_ PV7  Energy)
-- PV8 Power (`pv8_pwr`) (energy:  _[Device Name]_ PV8  Energy)
+- PV1 Power (`pv1_pwr`) (energy:  _[Device Name]_ PV1 Energy)
+- PV2 Power (`pv2_pwr`) (energy:  _[Device Name]_ PV2 Energy)
+- PV3 Power (`pv3_pwr`) (energy:  _[Device Name]_ PV3 Energy)
+- PV4 Power (`pv4_pwr`) (energy:  _[Device Name]_ PV4 Energy)
+- PV5 Power (`pv5_pwr`) (energy:  _[Device Name]_ PV5 Energy)
+- PV6 Power (`pv6_pwr`) (energy:  _[Device Name]_ PV6 Energy)
+- PV7 Power (`pv7_pwr`) (energy:  _[Device Name]_ PV7 Energy)
+- PV8 Power (`pv8_pwr`) (energy:  _[Device Name]_ PV8 Energy)
 - PV1 Voltage (`pv1_vol`)   _(disabled)_
 - PV1 Current (`pv1_amp`)   _(disabled)_
 - PV2 Voltage (`pv2_vol`)   _(disabled)_

@@ -3,8 +3,8 @@
 *Sensors*
 - Main Battery Level (`cmsBattSoc`)
 - Battery Charging State (`cmsChgDsgState`)
-- Total In Power (`powInSumW`) (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (`powOutSumW`) (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (`powInSumW`) (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (`powOutSumW`) (energy:  _[Device Name]_ Total Out Energy)
 - AC In Power (`powGetAcIn`)
 - Solar In Power (`powGetPv`)
 - Solar 2 In Power (`powGetPv2`)

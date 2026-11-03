@@ -2,8 +2,8 @@
 
 *Sensors*
 - Battery Level (`cms_batt_soc`)
-- Total In Power (`pow_in_sum_w`) (energy:  _[Device Name]_ Total In  Energy)
-- Total Out Power (`pow_out_sum_w`) (energy:  _[Device Name]_ Total Out  Energy)
+- Total In Power (`pow_in_sum_w`) (energy:  _[Device Name]_ Total In Energy)
+- Total Out Power (`pow_out_sum_w`) (energy:  _[Device Name]_ Total Out Energy)
 - Charge Remaining Time (`cms_chg_rem_time`)
 - Discharge Remaining Time (`cms_dsg_rem_time`)
 - Status
