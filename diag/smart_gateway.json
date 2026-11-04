@@ -1,0 +1,67 @@
+{
+    "EcoFlow":  [
+                    {
+                        "device":  "SMART_GATEWAY",
+                        "name":  "Smart Gateway (200A)",
+                        "sn":  "HR65ZAXXXXXXXXXX",
+                        "params_time":  null,
+                        "status_time":  null,
+                        "params":  {
+                                       "ch_1_amp":  0.2,
+                                       "ch_1_pwr":  0.0,
+                                       "ch_1_vol":  122.63,
+                                       "ch_2_amp":  0.42,
+                                       "ch_2_pwr":  0.0,
+                                       "ch_2_vol":  120.68,
+                                       "ch_3_amp":  0.32,
+                                       "ch_3_pwr":  0.0,
+                                       "ch_3_vol":  121.8,
+                                       "ch_4_amp":  0.43,
+                                       "ch_4_pwr":  0.0,
+                                       "ch_4_vol":  120.81,
+                                       "ch_5_amp":  0.9,
+                                       "ch_5_partner":  6,
+                                       "ch_5_pwr":  0.0,
+                                       "ch_5_vol":  122.06,
+                                       "ch_6_amp":  0.92,
+                                       "ch_6_partner":  5,
+                                       "ch_6_pwr":  0.0,
+                                       "ch_6_vol":  120.63,
+                                       "ch_7_amp":  0.0,
+                                       "ch_7_pwr":  0.0,
+                                       "ch_7_vol":  0.0,
+                                       "ch_8_amp":  0.0,
+                                       "ch_8_pwr":  0.0,
+                                       "ch_8_vol":  0.0,
+                                       "cms_dsg_rem_time":  526,
+                                       "shp_batt_pwr":  -3571.46,
+                                       "shp_grid_l1_amp":  9.85,
+                                       "shp_grid_l1_pwr":  1184.6,
+                                       "shp_grid_l2_amp":  20.31,
+                                       "shp_grid_l2_pwr":  2377.25,
+                                       "shp_grid_pwr":  3571.46,
+                                       "shp_l1_vol":  124.0,
+                                       "shp_l2_vol":  122.42,
+                                       "shp_load_pwr":  0.0
+                                   },
+                        "set":  [
+
+                                ],
+                        "set_reply":  [
+
+                                      ],
+                        "get":  [
+
+                                ],
+                        "get_reply":  [
+
+                                      ],
+                        "set_status":  [
+
+                                       ],
+                        "set_params":  [
+
+                                       ]
+                    }
+                ]
+}

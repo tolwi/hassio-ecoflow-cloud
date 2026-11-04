@@ -156,9 +156,10 @@ class _CircuitNamed(_CircuitNamedBase):
         data = getattr(self._device, "data", None)
         params = data.params if data is not None else {}
         label = params.get(f"ch_{self._circuit_no}_name")
-        if not label:
-            return self._attr_name
         partner = params.get(f"ch_{self._circuit_no}_partner")
+        if not label and not partner:
+            return self._attr_name
+        label = label or f"Circuit {self._circuit_no}"
         if partner:
             # Primary leg carries the combined 240V load; the secondary reads 0.
             label += " (240V L2)" if partner < self._circuit_no else " (240V)"

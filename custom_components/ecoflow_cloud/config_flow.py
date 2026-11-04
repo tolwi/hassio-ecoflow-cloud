@@ -38,6 +38,7 @@ from custom_components.ecoflow_cloud import (
     DEFAULT_ENERGY_UPDATE_INTERVAL_SEC,
     DEFAULT_REFRESH_PERIOD_SEC,
     DEFAULT_RESET_SENSORS_ON_OFFLINE,
+    DEFAULT_SOLAR_ENABLED,
     ECOFLOW_DOMAIN,
     OPTS_ASSUME_OFFLINE_SEC,
     OPTS_DIAGNOSTIC_MODE,
@@ -45,6 +46,7 @@ from custom_components.ecoflow_cloud import (
     OPTS_POWER_STEP,
     OPTS_REFRESH_PERIOD_SEC,
     OPTS_RESET_SENSORS_ON_OFFLINE,
+    OPTS_SOLAR_ENABLED,
     OPTS_VERBOSE_STATUS_MODE,
     DeviceData,
     DeviceOptions,
@@ -394,6 +396,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
             OPTS_RESET_SENSORS_ON_OFFLINE: DEFAULT_RESET_SENSORS_ON_OFFLINE,
             OPTS_ENERGY_UPDATE_INTERVAL_SEC: DEFAULT_ENERGY_UPDATE_INTERVAL_SEC,
+            OPTS_SOLAR_ENABLED: DEFAULT_SOLAR_ENABLED,
         }
 
         return await self.update_or_create()
@@ -517,6 +520,7 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
             OPTS_ASSUME_OFFLINE_SEC: DEFAULT_ASSUME_OFFLINE_SEC,
             OPTS_RESET_SENSORS_ON_OFFLINE: DEFAULT_RESET_SENSORS_ON_OFFLINE,
             OPTS_ENERGY_UPDATE_INTERVAL_SEC: DEFAULT_ENERGY_UPDATE_INTERVAL_SEC,
+            OPTS_SOLAR_ENABLED: DEFAULT_SOLAR_ENABLED,
         }
 
         return await self.update_or_create()
@@ -557,34 +561,36 @@ class EcoflowOptionsFlow(OptionsFlow):
     async def async_step_options(self, user_input: dict[str, Any] | None = None):
         if user_input is None:
             device_options: DeviceOptions = self.devices[self.selected_device.sn].options
+            schema_fields: dict[Any, Any] = {
+                vol.Required(OPTS_POWER_STEP, default=device_options.power_step): int,
+                vol.Required(
+                    OPTS_REFRESH_PERIOD_SEC,
+                    default=device_options.refresh_period,
+                ): int,
+                vol.Required(OPTS_DIAGNOSTIC_MODE, default=device_options.diagnostic_mode): bool,
+                vol.Required(OPTS_VERBOSE_STATUS_MODE, default=device_options.verbose_status_mode): bool,
+                vol.Required(OPTS_ASSUME_OFFLINE_SEC, default=device_options.assume_offline_sec): int,
+                vol.Required(
+                    OPTS_RESET_SENSORS_ON_OFFLINE,
+                    default=device_options.reset_sensors_on_offline,
+                ): bool,
+                vol.Required(
+                    OPTS_ENERGY_UPDATE_INTERVAL_SEC,
+                    default=device_options.energy_update_interval,
+                ): vol.All(int, vol.Range(min=0)),
+            }
+            if self.selected_device.device_type == "SMART_GATEWAY":
+                schema_fields[vol.Required(OPTS_SOLAR_ENABLED, default=device_options.solar_enabled)] = bool
 
             return self.async_show_form(
                 step_id="options",
                 last_step=True,
-                data_schema=vol.Schema(
-                    {
-                        vol.Required(OPTS_POWER_STEP, default=device_options.power_step): int,
-                        vol.Required(
-                            OPTS_REFRESH_PERIOD_SEC,
-                            default=device_options.refresh_period,
-                        ): int,
-                        vol.Required(OPTS_DIAGNOSTIC_MODE, default=device_options.diagnostic_mode): bool,
-                        vol.Required(OPTS_VERBOSE_STATUS_MODE, default=device_options.verbose_status_mode): bool,
-                        vol.Required(OPTS_ASSUME_OFFLINE_SEC, default=device_options.assume_offline_sec): int,
-                        vol.Required(
-                            OPTS_RESET_SENSORS_ON_OFFLINE,
-                            default=device_options.reset_sensors_on_offline,
-                        ): bool,
-                        vol.Required(
-                            OPTS_ENERGY_UPDATE_INTERVAL_SEC,
-                            default=device_options.energy_update_interval,
-                        ): vol.All(int, vol.Range(min=0)),
-                    }
-                ),
+                data_schema=vol.Schema(schema_fields),
             )
 
         # Copy the nested device list too. A shallow copy edits the entry's live options in place, so HA
         # compares the result to itself, sees no change, and neither saves the options nor reloads.
+        device_options = self.devices[self.selected_device.sn].options
         new_options = {**self.config_entry.options}
         new_options[CONF_DEVICE_LIST] = {**self.config_entry.options[CONF_DEVICE_LIST]}
         new_options[CONF_DEVICE_LIST][self.selected_device.sn] = {
@@ -595,6 +601,7 @@ class EcoflowOptionsFlow(OptionsFlow):
             OPTS_ASSUME_OFFLINE_SEC: user_input[OPTS_ASSUME_OFFLINE_SEC],
             OPTS_RESET_SENSORS_ON_OFFLINE: user_input[OPTS_RESET_SENSORS_ON_OFFLINE],
             OPTS_ENERGY_UPDATE_INTERVAL_SEC: user_input[OPTS_ENERGY_UPDATE_INTERVAL_SEC],
+            OPTS_SOLAR_ENABLED: user_input.get(OPTS_SOLAR_ENABLED, device_options.solar_enabled),
         }
 
         return self.async_create_entry(title="", data=new_options)
