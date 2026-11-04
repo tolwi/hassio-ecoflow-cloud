@@ -12,6 +12,7 @@ class DeviceOptions:
     assume_offline_sec: int
     reset_sensors_on_offline: bool
     energy_update_interval: int
+    solar_enabled: bool = False
 
 
 @dataclasses.dataclass

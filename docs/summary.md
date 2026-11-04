@@ -1127,6 +1127,79 @@
 
 </p></details>
 
+<details><summary> SMART_GATEWAY <i>(sensors: 52, switches: 3, sliders: 4, selects: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Home Load Power (energy:  _[Device Name]_ Home Load Energy)
+- Grid Power (energy:  _[Device Name]_ Grid Energy)
+- Storage Output Power
+- Status
+- Grid L1 Power  _(disabled)_
+- Grid L2 Power  _(disabled)_
+- Grid L1 Voltage  _(disabled)_
+- Grid L2 Voltage  _(disabled)_
+- Grid L1 Current  _(disabled)_
+- Grid L2 Current  _(disabled)_
+- Circuit 1 Power (energy:  _[Device Name]_ Circuit 1 Energy)
+- Circuit 1 Voltage  _(disabled)_
+- Circuit 1 Current  _(disabled)_
+- Circuit 2 Power (energy:  _[Device Name]_ Circuit 2 Energy)
+- Circuit 2 Voltage  _(disabled)_
+- Circuit 2 Current  _(disabled)_
+- Circuit 3 Power (energy:  _[Device Name]_ Circuit 3 Energy)
+- Circuit 3 Voltage  _(disabled)_
+- Circuit 3 Current  _(disabled)_
+- Circuit 4 Power (energy:  _[Device Name]_ Circuit 4 Energy)
+- Circuit 4 Voltage  _(disabled)_
+- Circuit 4 Current  _(disabled)_
+- Circuit 5 Power (energy:  _[Device Name]_ Circuit 5 Energy)
+- Circuit 5 Voltage  _(disabled)_
+- Circuit 5 Current  _(disabled)_
+- Circuit 6 Power (energy:  _[Device Name]_ Circuit 6 Energy)
+- Circuit 6 Voltage  _(disabled)_
+- Circuit 6 Current  _(disabled)_
+- Circuit 7 Power (energy:  _[Device Name]_ Circuit 7 Energy)
+- Circuit 7 Voltage  _(disabled)_
+- Circuit 7 Current  _(disabled)_
+- Circuit 8 Power (energy:  _[Device Name]_ Circuit 8 Energy)
+- Circuit 8 Voltage  _(disabled)_
+- Circuit 8 Current  _(disabled)_
+- Grid Import Power (energy:  _[Device Name]_ Grid Import Energy)
+- Grid Export Power (energy:  _[Device Name]_ Grid Export Energy)
+- Battery Charge Power (energy:  _[Device Name]_ Battery Charge Energy)
+- Battery Discharge Power (energy:  _[Device Name]_ Battery Discharge Energy)
+- Battery Charging State
+- Discharge Remaining Time
+- Charge Remaining Time
+- Target Charge Level
+- Active Scheduled Task
+- Panel L1 Voltage  _(disabled)_
+- Panel L2 Voltage  _(disabled)_
+- Circuit 1 Breaker State
+- Circuit 2 Breaker State
+- Circuit 3 Breaker State
+- Circuit 4 Breaker State
+- Circuit 5 Breaker State
+- Circuit 6 Breaker State
+
+*Switches*
+- EPS Mode
+- Storm Guard
+- Emergency Charge
+
+*Sliders (numbers)*
+- Backup Reserve Level
+- Max Charge Level
+- Max Charge Rate
+- Generator Charge Rate
+
+*Selects*
+- Operating Mode
+
+</p></details>
+
 <details><summary> OCEAN_SMART_PANEL <i>(sensors: 143, binary_sensors: 4)</i> </summary>
 <p>
 
