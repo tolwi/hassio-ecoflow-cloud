@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import ssl
+import threading
 from collections.abc import Callable
 from typing import Any
 
@@ -27,6 +28,11 @@ class EcoflowMQTTClient:
         self.on_auth_failure: Callable[[], None] | None = None
         self.__mqtt_info = mqtt_info
         self.__devices: dict[str, BaseDevice] = devices
+        self.__bootstrap_lock = threading.RLock()
+        self.__bootstrap_timers: list[threading.Timer] = []
+        self.__bootstrap_generation = 0
+        self.__subscription_mid: int | None = None
+        self.__stopped = False
 
         from homeassistant.components.mqtt.async_client import AsyncMQTTClient
 
@@ -45,6 +51,7 @@ class EcoflowMQTTClient:
         self.__client.on_connect = self._on_connect
         self.__client.on_disconnect = self._on_disconnect
         self.__client.on_message = self._on_message
+        self.__client.on_subscribe = self._on_subscribe
         self.__client.on_socket_close = self._on_socket_close
 
         _LOGGER.info(
@@ -60,6 +67,7 @@ class EcoflowMQTTClient:
         return self.__client.is_connected()
 
     def reconnect(self) -> bool:
+        self.__cancel_bootstrap()
         try:
             _LOGGER.info(f"Re-connecting to MQTT Broker {self.__mqtt_info.url}:{self.__mqtt_info.port}")
             self.__client.loop_stop()
@@ -79,10 +87,16 @@ class EcoflowMQTTClient:
         self, client: Client, userdata: Any, flags: ConnectFlags, rc: ReasonCode, properties: Properties | None = None
     ):
         if rc == 0:
-            self.connected = True
-            self.auth_failed = False
-            target_topics = [(topic, 1) for topic in self.__target_topics()]
-            self.__client.subscribe(target_topics)
+            with self.__bootstrap_lock:
+                if self.__stopped:
+                    return
+                self.__cancel_bootstrap()
+                self.connected = True
+                self.auth_failed = False
+                target_topics = [(topic, 1) for topic in self.__target_topics()]
+                result, mid = self.__client.subscribe(target_topics)
+                if result == 0:
+                    self.__subscription_mid = mid
             _LOGGER.info(f"Subscribed to MQTT topics {target_topics}")
         elif rc.getName() in AUTH_FAILURE_REASONS:
             self.__handle_auth_failure(client, userdata, rc)
@@ -98,6 +112,7 @@ class EcoflowMQTTClient:
         reason_code: ReasonCode,
         properties: Properties | None,
     ) -> None:
+        self.__cancel_bootstrap()
         if not self.connected:
             # from homeassistant/components/mqtt/client.py
             # This function is re-entrant and may be called multiple times
@@ -119,9 +134,52 @@ class EcoflowMQTTClient:
             _LOGGER.error("Unexpected error processing MQTT message on topic %s", message.topic, exc_info=True)
 
     def stop(self):
+        with self.__bootstrap_lock:
+            self.__stopped = True
+            self.__cancel_bootstrap()
         self.__client.unsubscribe(self.__target_topics())
         self.__client.loop_stop()
         self.__client.disconnect()
+
+    def __cancel_bootstrap(self) -> None:
+        with self.__bootstrap_lock:
+            self.__bootstrap_generation += 1
+            self.__subscription_mid = None
+            for timer in self.__bootstrap_timers:
+                timer.cancel()
+            self.__bootstrap_timers.clear()
+
+    @callback
+    def _on_subscribe(
+        self, client: Client, userdata: Any, mid: int, reason_codes: list[ReasonCode], properties: Properties | None = None
+    ) -> None:
+        from ..devices.internal.powerstream import PowerStream
+
+        with self.__bootstrap_lock:
+            if self.__stopped or mid != self.__subscription_mid:
+                return
+            self.__subscription_mid = None
+            if not reason_codes or any(reason.is_failure for reason in reason_codes):
+                return
+            generation = self.__bootstrap_generation
+            for device in self.__devices.values():
+                if not isinstance(device, PowerStream) or "20_1.supplyPriority" in device.data.params:
+                    continue
+                for delay in (2, 10, 30):
+                    timer = threading.Timer(delay, self.__bootstrap_powerstream, args=(device, generation))
+                    timer.daemon = True
+                    self.__bootstrap_timers.append(timer)
+                    timer.start()
+
+    def __bootstrap_powerstream(self, device: BaseDevice, generation: int) -> None:
+        with self.__bootstrap_lock:
+            if self.__stopped or generation != self.__bootstrap_generation or not self.is_connected():
+                return
+            if "20_1.supplyPriority" in device.data.params:
+                return
+            # Read only: never publish to a set topic or populate a target-state cache.
+            self.publish(device.device_info.get_topic, device.get_quota_message().to_mqtt_payload())
+            _LOGGER.debug("Requested missing PowerStream mode after MQTT subscription confirmation")
 
     def __handle_auth_failure(self, client, userdata, reason_code: ReasonCode) -> None:
         if self.auth_failed:
