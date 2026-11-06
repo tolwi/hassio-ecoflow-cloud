@@ -27,6 +27,10 @@
 - USB Out Power (`pd.usb1Watts`)
 - DC Mode (`mppt.chgType`)
 - MPPT Fault (`mppt.faultCode`)
+- BMS Error Code (`bms_bmsStatus.errCode`)   _(disabled)_
+- BMS Fault (`bms_bmsStatus.bmsFault`)   _(disabled)_
+- Inverter Error Code (`inv.errCode`)   _(disabled)_
+- PD Error Code (`pd.errCode`)   _(disabled)_
 - Charge Remaining Time (`bms_emsStatus.chgRemainTime`)
 - Discharge Remaining Time (`bms_emsStatus.dsgRemainTime`)
 - Remaining Time (`pd.remainTime`)

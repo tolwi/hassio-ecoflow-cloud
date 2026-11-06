@@ -25,6 +25,7 @@ from custom_components.ecoflow_cloud.sensor import (
     InWattsSensorEntity,
     LevelSensorEntity,
     MilliVoltSensorEntity,
+    MiscSensorEntity,
     OutMilliVoltSensorEntity,
     OutWattsSensorEntity,
     QuotaStatusSensorEntity,
@@ -87,6 +88,10 @@ class River2(BaseInternalDevice):
             # Diagnostic only: reports which DC path is live, not a switchable 24V output like Delta Pro 3.
             DcModeStateSensorEntity(client, self, "mppt.chgType", "DC Mode", diagnostic=True),
             Ft307FaultCodeSensorEntity(client, self, "mppt.faultCode", "MPPT Fault", diagnostic=True),
+            MiscSensorEntity(client, self, "bms_bmsStatus.errCode", const.BMS_ERROR_CODE, False),
+            MiscSensorEntity(client, self, "bms_bmsStatus.bmsFault", const.BMS_FAULT, False),
+            MiscSensorEntity(client, self, "inv.errCode", const.INVERTER_ERROR_CODE, False),
+            MiscSensorEntity(client, self, "pd.errCode", const.PD_ERROR_CODE, False),
             # OutWattsSensorEntity(client, self, "pd.usb2Watts", const.USB_2_OUT_POWER),
             RemainSensorEntity(client, self, "bms_emsStatus.chgRemainTime", const.CHARGE_REMAINING_TIME),
             RemainSensorEntity(client, self, "bms_emsStatus.dsgRemainTime", const.DISCHARGE_REMAINING_TIME),
