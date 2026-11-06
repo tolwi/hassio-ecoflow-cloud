@@ -383,6 +383,21 @@ class MilliVoltSensorEntity(BaseSensorEntity):
     _attr_default_value: Any = 3
 
 
+class CellVoltSensorEntity(MilliVoltSensorEntity):
+    """One element of a cell voltage array, keyed as e.g. "bmsMaster.cellVol[0]"."""
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_suggested_display_precision = 3
+
+    def _adopt_json_key(self, key: str) -> str:
+        if not self._device.flat_json():
+            return key
+        # Flat params hold "bmsMaster.cellVol" as one literal field name, so only
+        # that name may be quoted; the index has to stay outside of the quotes.
+        field, index = key.removesuffix("]").split("[")
+        return f"'{field}'[{index}]"
+
+
 class BeSensorEntity(BaseSensorEntity):
     def _update_value(self, val: Any) -> bool:
         return super()._update_value(int(struct.unpack("<I", struct.pack(">I", val))[0]))

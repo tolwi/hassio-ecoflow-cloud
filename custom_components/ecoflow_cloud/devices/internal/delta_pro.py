@@ -15,6 +15,7 @@ from custom_components.ecoflow_cloud.number import (
 from custom_components.ecoflow_cloud.select import DictSelectEntity, TimeoutDictSelectEntity
 from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
+    CellVoltSensorEntity,
     CyclesSensorEntity,
     InEnergySensorEntity,
     InMilliampSolarSensorEntity,
@@ -25,6 +26,7 @@ from custom_components.ecoflow_cloud.sensor import (
     LevelSensorEntity,
     MilliampSensorEntity,
     MilliVoltSensorEntity,
+    MiscSensorEntity,
     OutEnergySensorEntity,
     OutMilliVoltSensorEntity,
     OutVoltDcSensorEntity,
@@ -89,6 +91,12 @@ class DeltaPro(BaseInternalDevice):
             .attr("bmsMaster.maxCellVol", const.ATTR_MAX_CELL_VOLT, 0),
             MilliVoltSensorEntity(client, self, "bmsMaster.minCellVol", const.MIN_CELL_VOLT, False),
             MilliVoltSensorEntity(client, self, "bmsMaster.maxCellVol", const.MAX_CELL_VOLT, False),
+            MilliVoltSensorEntity(client, self, "bmsMaster.maxVolDiff", const.CELL_VOLT_DIFF, False),
+            *[
+                CellVoltSensorEntity(client, self, f"bmsMaster.cellVol[{i}]", const.CELL_N_VOLT % (i + 1), False)
+                for i in range(15)
+            ],
+            MiscSensorEntity(client, self, "bmsMaster.balanceState", const.BALANCE_STATE, False),
             # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
             InEnergySensorEntity(client, self, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
             InEnergySensorEntity(client, self, "pd.chgPowerAc", const.CHARGE_AC_ENERGY),
