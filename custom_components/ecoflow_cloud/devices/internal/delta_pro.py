@@ -97,6 +97,17 @@ class DeltaPro(BaseInternalDevice):
                 for i in range(15)
             ],
             MiscSensorEntity(client, self, "bmsMaster.balanceState", const.BALANCE_STATE, False),
+            # Raw codes: EcoFlow does not document them, and a non-zero value does
+            # not always come with an error on the display or in the app.
+            MiscSensorEntity(client, self, "inv.errCode", const.INVERTER_ERROR_CODE, False),
+            MiscSensorEntity(client, self, "pd.errCode", const.PD_ERROR_CODE, False),
+            MiscSensorEntity(client, self, "bmsMaster.errCode", const.BMS_ERROR_CODE, False),
+            MiscSensorEntity(client, self, "bmsMaster.allErrCode", const.BMS_ALL_ERROR_CODE, False),
+            MiscSensorEntity(client, self, "bmsMaster.bmsFault", const.BMS_FAULT, False),
+            MiscSensorEntity(client, self, "bmsMaster.allBmsFault", const.BMS_ALL_FAULT, False),
+            MiscSensorEntity(client, self, "mppt.faultCode", const.MPPT_FAULT_CODE, False),
+            MiscSensorEntity(client, self, "pd.iconOverloadState", const.OVERLOAD_STATE, False),
+            MiscSensorEntity(client, self, "ems.bmsWarningState", const.BMS_WARNING_STATE, False),
             # https://github.com/tolwi/hassio-ecoflow-cloud/discussions/87
             InEnergySensorEntity(client, self, "pd.chgSunPower", const.SOLAR_IN_ENERGY),
             InEnergySensorEntity(client, self, "pd.chgPowerAc", const.CHARGE_AC_ENERGY),
