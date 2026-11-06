@@ -38,6 +38,32 @@
 - Battery Volts (`bmsMaster.vol`)   _(disabled)_
 - Min Cell Volts (`bmsMaster.minCellVol`)   _(disabled)_
 - Max Cell Volts (`bmsMaster.maxCellVol`)   _(disabled)_
+- Cell Voltage Difference (`bmsMaster.maxVolDiff`)   _(disabled)_
+- Cell 1 Voltage (`bmsMaster.cellVol[0]`)   _(disabled)_
+- Cell 2 Voltage (`bmsMaster.cellVol[1]`)   _(disabled)_
+- Cell 3 Voltage (`bmsMaster.cellVol[2]`)   _(disabled)_
+- Cell 4 Voltage (`bmsMaster.cellVol[3]`)   _(disabled)_
+- Cell 5 Voltage (`bmsMaster.cellVol[4]`)   _(disabled)_
+- Cell 6 Voltage (`bmsMaster.cellVol[5]`)   _(disabled)_
+- Cell 7 Voltage (`bmsMaster.cellVol[6]`)   _(disabled)_
+- Cell 8 Voltage (`bmsMaster.cellVol[7]`)   _(disabled)_
+- Cell 9 Voltage (`bmsMaster.cellVol[8]`)   _(disabled)_
+- Cell 10 Voltage (`bmsMaster.cellVol[9]`)   _(disabled)_
+- Cell 11 Voltage (`bmsMaster.cellVol[10]`)   _(disabled)_
+- Cell 12 Voltage (`bmsMaster.cellVol[11]`)   _(disabled)_
+- Cell 13 Voltage (`bmsMaster.cellVol[12]`)   _(disabled)_
+- Cell 14 Voltage (`bmsMaster.cellVol[13]`)   _(disabled)_
+- Cell 15 Voltage (`bmsMaster.cellVol[14]`)   _(disabled)_
+- Balance State (`bmsMaster.balanceState`)   _(disabled)_
+- Inverter Error Code (`inv.errCode`)   _(disabled)_
+- PD Error Code (`pd.errCode`)   _(disabled)_
+- BMS Error Code (`bmsMaster.errCode`)   _(disabled)_
+- BMS All Error Code (`bmsMaster.allErrCode`)   _(disabled)_
+- BMS Fault (`bmsMaster.bmsFault`)   _(disabled)_
+- BMS All Fault (`bmsMaster.allBmsFault`)   _(disabled)_
+- MPPT Fault Code (`mppt.faultCode`)   _(disabled)_
+- Overload State (`pd.iconOverloadState`)   _(disabled)_
+- BMS Warning State (`ems.bmsWarningState`)   _(disabled)_
 - Solar In Energy (`pd.chgSunPower`)
 - Battery Charge Energy from AC (`pd.chgPowerAc`)
 - Battery Charge Energy from DC (`pd.chgPowerDc`)

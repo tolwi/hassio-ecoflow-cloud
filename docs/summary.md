@@ -389,7 +389,7 @@
 
 </p></details>
 
-<details><summary> RIVER_2 <i>(sensors: 43, binary_sensors: 1, switches: 9, sliders: 5, selects: 5)</i> </summary>
+<details><summary> RIVER_2 <i>(sensors: 47, binary_sensors: 1, switches: 9, sliders: 5, selects: 5)</i> </summary>
 <p>
 
 *Sensors*
@@ -419,6 +419,10 @@
 - USB Out Power
 - DC Mode
 - MPPT Fault
+- BMS Error Code  _(disabled)_
+- BMS Fault  _(disabled)_
+- Inverter Error Code  _(disabled)_
+- PD Error Code  _(disabled)_
 - Charge Remaining Time
 - Discharge Remaining Time
 - Remaining Time
@@ -750,7 +754,7 @@
 
 </p></details>
 
-<details><summary> DELTA_PRO <i>(sensors: 71, switches: 6, sliders: 6, selects: 4)</i> </summary>
+<details><summary> DELTA_PRO <i>(sensors: 97, switches: 6, sliders: 6, selects: 4)</i> </summary>
 <p>
 
 *Sensors*
@@ -791,6 +795,32 @@
 - Battery Volts  _(disabled)_
 - Min Cell Volts  _(disabled)_
 - Max Cell Volts  _(disabled)_
+- Cell Voltage Difference  _(disabled)_
+- Cell 1 Voltage  _(disabled)_
+- Cell 2 Voltage  _(disabled)_
+- Cell 3 Voltage  _(disabled)_
+- Cell 4 Voltage  _(disabled)_
+- Cell 5 Voltage  _(disabled)_
+- Cell 6 Voltage  _(disabled)_
+- Cell 7 Voltage  _(disabled)_
+- Cell 8 Voltage  _(disabled)_
+- Cell 9 Voltage  _(disabled)_
+- Cell 10 Voltage  _(disabled)_
+- Cell 11 Voltage  _(disabled)_
+- Cell 12 Voltage  _(disabled)_
+- Cell 13 Voltage  _(disabled)_
+- Cell 14 Voltage  _(disabled)_
+- Cell 15 Voltage  _(disabled)_
+- Balance State  _(disabled)_
+- Inverter Error Code  _(disabled)_
+- PD Error Code  _(disabled)_
+- BMS Error Code  _(disabled)_
+- BMS All Error Code  _(disabled)_
+- BMS Fault  _(disabled)_
+- BMS All Fault  _(disabled)_
+- MPPT Fault Code  _(disabled)_
+- Overload State  _(disabled)_
+- BMS Warning State  _(disabled)_
 - Solar In Energy
 - Battery Charge Energy from AC
 - Battery Charge Energy from DC
