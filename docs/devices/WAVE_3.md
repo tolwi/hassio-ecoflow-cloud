@@ -18,6 +18,7 @@
 - Condenser Temp (`temp_condenser`)   _(disabled)_
 - Evaporator Temp (`temp_evaporator`)   _(disabled)_
 - BMS Error Code (`bms_err_code`)   _(disabled)_
+- Status
 
 *Switches*
 - Beeper (`en_beep` -> `{"Wave3SetMessage": {"header": {"pdata": {"Wave3ConfigWrite": {"enBeep": 0}}, "src": 32, "dest": 66, "d_src": 1, "d_dest": 1, "enc_type": 1, "check_type": 3, "cmd_func": 254, "cmd_id": 17, "data_len": 2, "need_ack": 1, "version": 3, "payload_ver": 1, "is_rw_cmd": 1, "from": "Android", "device_sn": "SN"}}}`)

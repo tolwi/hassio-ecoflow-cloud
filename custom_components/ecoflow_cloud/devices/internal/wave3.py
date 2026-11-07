@@ -23,8 +23,9 @@ from typing import Any, Optional, override
 from google.protobuf.json_format import MessageToDict
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
-from custom_components.ecoflow_cloud.api.message import PrivateAPIMessageProtocol
+from custom_components.ecoflow_cloud.api.message import Message, PrivateAPIMessageProtocol
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
 from custom_components.ecoflow_cloud.number import LevelEntity
 from custom_components.ecoflow_cloud.select import DictSelectEntity
 from custom_components.ecoflow_cloud.sensor import (
@@ -35,6 +36,7 @@ from custom_components.ecoflow_cloud.sensor import (
     WattsSensorEntity,
     InWattsSensorEntity,
     OutWattsSensorEntity,
+    QuotaStatusSensorEntity,
 )
 from custom_components.ecoflow_cloud.switch import BeeperEntity, EnabledEntity
 from .proto import wave3_pb2
@@ -87,6 +89,19 @@ class Wave3CommandMessage(PrivateAPIMessageProtocol):
             result["header"]["pdata"] = {type(self._payload).__name__: payload_dict}
             result["header"].pop("seq", None)
         return {type(self._packet).__name__: result}
+
+
+def _create_wave3_get_quota_command() -> Wave3CommandMessage:
+    msg = wave3_pb2.Wave3SetMessage()
+    h = msg.header
+
+    h.src = 32
+    h.dest = 32
+    h.seq = Message.gen_seq()
+    setattr(h, "from", "Android")
+
+    return Wave3CommandMessage(wave3_pb2.Wave3ConfigWrite(), msg)
+
 
 def _create_wave3_command(device_sn: str, **kwargs: Any) -> Wave3CommandMessage | dict[str, Any]:
     try:
@@ -228,6 +243,17 @@ class Wave3(BaseInternalDevice):
         except Exception:
             pass
 
+    @override
+    def get_quota_message(self) -> Wave3CommandMessage:
+        return _create_wave3_get_quota_command()
+
+    @override
+    def _prepare_data_get_reply_topic(self, raw_data: bytes) -> PreparedData:
+        data = self._prepare_data(raw_data)
+        if "params" in data:
+            return PreparedData(None, data, data)
+        return super()._prepare_data_get_reply_topic(raw_data)
+
     @staticmethod
     def _fallback_json(raw_data: bytes) -> dict[str, Any]:
         try:
@@ -261,6 +287,7 @@ class Wave3(BaseInternalDevice):
 
             # Diagnostics
             MiscSensorEntity(client, self, "bms_err_code", "BMS Error Code", False),
+            QuotaStatusSensorEntity(client, self),
         ]
 
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
