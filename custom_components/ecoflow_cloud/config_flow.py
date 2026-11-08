@@ -166,7 +166,13 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         else:
             identifiers = {(ECOFLOW_DOMAIN, f"{sn}")}
 
-        device = device_reg.async_get_device(identifiers=identifiers)
+        # Device identifiers are unique only within a config entry since HA 2026.8.
+        # Scope the lookup to this integration entry to avoid removing a device
+        # belonging to another entry that happens to share an identifier.
+        device = device_reg.async_get_device_by_identifier(
+            next(iter(identifiers)),
+            self.config_entry.entry_id,
+        )
         _LOGGER.debug(".. getting device by %s: %s", str(identifiers), str(device))
 
         # Remove all entities for this device
