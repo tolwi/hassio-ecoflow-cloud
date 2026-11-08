@@ -68,24 +68,6 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
         return result
 
-    def configure_device(self, device_data, api_devices_info=None):
-        """Route existing ES21/ES22 entries to their public BKW3 driver.
-
-        Existing HA config entries may still store the old 'Stream AC'
-        product type. Correct the in-memory type by serial so users do not
-        need to remove/re-add devices or lose their entity registry entries.
-        """
-        if device_data.parent is None:
-            if device_data.sn.startswith("ES21"):
-                device_data.device_type = "Stream 5000"
-            elif device_data.sn.startswith("ES22"):
-                device_data.device_type = "Stream AC 5000"
-
-        device = super().configure_device(device_data, api_devices_info)
-        if device_data.parent is None and device_data.sn.startswith(("ES21", "ES22")):
-            device.device_info.device_type = device_data.device_type
-        return device
-
     def _device_registry(self) -> dict[str, Any]:
         from custom_components.ecoflow_cloud.devices.registry import device_by_product
         return device_by_product
