@@ -57,3 +57,20 @@ and states. Do not automate power commands before that verification.
 
 Documentation reference:
 https://developer-eu.ecoflow.com/us/document/PP3?id=2115695633708867585
+
+## MQTT command diagnostics
+
+The public EcoFlow broker does not necessarily echo outgoing `/set` requests.
+For STREAM 5000 / AC 5000, enabling **Diagnostic mode** in the device's EcoFlow
+integration options now records outgoing messages locally in the diagnostic
+`set` list, marked `"direction": "outgoing"`. The stored `payload` is
+exactly the JSON published to MQTT, including its request `id`. The trace is
+bounded by the existing diagnostic FIFO.
+
+`set_reply` records only actual responses received from the public broker;
+a successfully applied command is **not** proof that an MQTT acknowledgement
+was delivered, and none is synthesized. `set_params` is also not a history of
+outgoing writes. With Diagnostic mode disabled, no outgoing payload is retained.
+
+During initial on-device validation, confirm that the current
+`bpBackupConfig.backupSoc` and `backupSocOnOff` fields match the official app.
