@@ -61,6 +61,55 @@ class TestStream5000Quota(unittest.TestCase):
             {"other-group": 1, "workMode": "AI_MODE", "soc": 40},
         )
 
+    def test_real_es22_diagnostic_conflicting_quotas(self):
+        """Real-life diagnostic shape: three field variants can disagree.
+
+        Anonymized sample based on a STREAM AC 5000 (ES22) diagnostic.
+        """
+        raw = {
+            "params": {
+                "bpBackupConfig": {"backupSocOnOff": False, "backupSoc": 40},
+                "bpBackupConfig-backupSoc": 40,
+                "bpBackupConfig.backupSoc": 40,
+                "devSwitch": {"acSocketOnoff": True},
+                "devSwitch-acSocketOnoff": True,
+                "powerParameterConfig": {"feedToGridLimitOnOff": True},
+                "sysEnergyStreamReport": {
+                    "bpSoc": 15,
+                    "onGridPwr": -107,
+                    "pvPwr": 0,
+                    "bpPwr": 107,
+                    "gridPwr": -52,
+                    "loadPwr": 0,
+                },
+                "sysEnergyStreamReport-bpSoc": 32,
+                "sysEnergyStreamReport-bpPwr": 1,
+                "sysEnergyStreamReport.bpSoc": 15,
+                "sysEnergyStreamReport.bpPwr": 107,
+                "workMode": "SELF_CONSUMPTION",
+            }
+        }
+        result = normalize_quota(raw)
+        self.assertEqual(result["sysEnergyStreamReport.bpSoc"], 15)
+        self.assertEqual(result["sysEnergyStreamReport.bpPwr"], 107)
+        self.assertEqual(result["sysEnergyStreamReport.gridPwr"], -52)
+        self.assertEqual(result["sysEnergyStreamReport.onGridPwr"], -107)
+        self.assertEqual(result["bpBackupConfig.backupSoc"], 40)
+        self.assertIs(result["bpBackupConfig.backupSocOnOff"], False)
+        self.assertIs(result["devSwitch.acSocketOnoff"], True)
+        self.assertEqual(result["workMode"], "SELF_CONSUMPTION")
+        self.assertNotIn("sysEnergyStreamReport-bpSoc", result)
+
+    def test_precedence_is_independent_of_input_order(self):
+        variants = [
+            ("sysEnergyStreamReport.bpSoc", 15),
+            ("sysEnergyStreamReport-bpSoc", 32),
+            ("sysEnergyStreamReport", {"bpSoc": 14}),
+        ]
+        for items in (variants, list(reversed(variants))):
+            with self.subTest(order=items):
+                self.assertEqual(normalize_quota(dict(items))["sysEnergyStreamReport.bpSoc"], 14)
+
     def test_malformed_params(self):
         self.assertEqual(normalize_quota({"params": None}), {})
 
