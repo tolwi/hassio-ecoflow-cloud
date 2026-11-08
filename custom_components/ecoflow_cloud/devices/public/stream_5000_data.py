@@ -1,8 +1,13 @@
-"""Normalize STREAM 5000 public API quotas from HTTP and MQTT.
+"""Normalize official STREAM 5000 HTTP and MQTT quota fields.
 
-HTTP quota/all uses keys such as "sysEnergyStreamReport-pvPwr".
-MQTT uses nested JSON such as {"sysEnergyStreamReport": {"pvPwr": 200}}.
-The rest of this integration expects a flat dict with dotted keys.
+The Developer API may return the same field in three shapes:
+- Nested MQTT: {"sysEnergyStreamReport": {"bpSoc": 15}}
+- Canonical dotted: {"sysEnergyStreamReport.bpSoc": 15}
+- Legacy/hyphen HTTP: {"sysEnergyStreamReport-bpSoc": 32}
+
+When several shapes coexist, nested fields take precedence over dotted
+fields, which take precedence over hyphenated fields. This matters for
+diagnostics that accumulate readings across different update ticks.
 """
 
 from collections.abc import Mapping
@@ -17,26 +22,39 @@ GROUPS = frozenset({
 
 
 def normalize_quota(raw: Mapping[str, Any]) -> dict[str, Any]:
-    """Flatten known STREAM 5000 groups while preserving other raw keys.
-
-    This is deliberately limited to the documented groups: an unrelated
-    hyphen in a parameter name must not be interpreted as nesting.
-    """
+    """Flatten supported BKW3 groups, using deterministic field precedence."""
     params = raw.get("params", raw)
     if not isinstance(params, Mapping):
         return {}
 
     result: dict[str, Any] = {}
+
+    # Least authoritative: HTTP hyphen form can coexist with stale readings.
+    for key, value in params.items():
+        if not isinstance(key, str) or "-" not in key:
+            continue
+        group, field = key.split("-", 1)
+        if group in GROUPS:
+            result[f"{group}.{field}"] = value
+
+    # Canonical dotted keys supersede their hyphen equivalents.
+    # Preserve unrelated values unchanged.
     for key, value in params.items():
         if not isinstance(key, str):
             continue
         if key in GROUPS and isinstance(value, Mapping):
-            for nested_key, nested_value in value.items():
-                if isinstance(nested_key, str):
-                    result[f"{key}.{nested_key}"] = nested_value
-        elif "-" in key and key.split("-", 1)[0] in GROUPS:
-            group, field = key.split("-", 1)
-            result[f"{group}.{field}"] = value
-        else:
-            result[key] = value
+            continue
+        if "-" in key and key.split("-", 1)[0] in GROUPS:
+            continue
+        result[key] = value
+
+    # Most authoritative: live structured group values.
+    for group in GROUPS:
+        value = params.get(group)
+        if not isinstance(value, Mapping):
+            continue
+        for nested_key, nested_value in value.items():
+            if isinstance(nested_key, str):
+                result[f"{group}.{nested_key}"] = nested_value
+
     return result
