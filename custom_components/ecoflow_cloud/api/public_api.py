@@ -75,7 +75,11 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             try:
                 raw = await self.call_api("/device/quota/all", {"sn": sn})
                 if "data" in raw:
-                    self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw, False))
+                    device = self.devices[sn]
+                    quota = raw["data"]
+                    if hasattr(device, "normalize_quota") and isinstance(quota, dict):
+                        quota = device.normalize_quota(quota)
+                    device.data.add_data(PreparedData(None, {"params": quota}, raw, False))
             except Exception:
                 _LOGGER.exception("Error retrieving %s", sn)
 
