@@ -3587,6 +3587,56 @@ from Home Assistant.
 
 </p></details>
 
+<details><summary> Stream 5000 (API) <i>(sensors: 7, switches: 3, sliders: 1, selects: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Power PV Sum
+- Power Battery
+- Power Sys Load
+- Power Grid
+- Power AC SYS
+- Status
+
+*Switches*
+- Backup Reserve
+- Feed-in Limit
+- AC Socket
+
+*Sliders (numbers)*
+- Backup Reserve Level
+
+*Selects*
+- Operating Mode
+
+</p></details>
+
+<details><summary> Stream AC 5000 (API) <i>(sensors: 7, switches: 3, sliders: 1, selects: 1)</i> </summary>
+<p>
+
+*Sensors*
+- Battery Level
+- Power PV Sum
+- Power Battery
+- Power Sys Load
+- Power Grid
+- Power AC SYS
+- Status
+
+*Switches*
+- Backup Reserve
+- Feed-in Limit
+- AC Socket
+
+*Sliders (numbers)*
+- Backup Reserve Level
+
+*Selects*
+- Operating Mode
+
+</p></details>
+
 <details><summary> Stream PRO (API) <i>(sensors: 55, switches: 5, sliders: 1)</i> </summary>
 <p>
 
