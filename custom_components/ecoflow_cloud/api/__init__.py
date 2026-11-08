@@ -148,8 +148,29 @@ class EcoflowApiClient(ABC):
         if isinstance(command, dict):
             command = JSONMessage(command)
 
-        self.devices[device_sn].data.update_to_target_state(mqtt_state)
-        self.mqtt_client.publish(self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload())
+        device = self.devices[device_sn]
+        device.data.update_to_target_state(mqtt_state)
+        payload = command.to_mqtt_payload()
+
+        # The public broker may not echo client-published /set messages.
+        # Keep an explicit, opt-in outbound trace for the BKW3 family.
+        # Store the exact published JSON (including its generated request ID)
+        # so it can be correlated with a future /set_reply, if received.
+        if (
+            device.device_info.public_api
+            and device.device_info.device_type in ("Stream 5000", "Stream AC 5000")
+            and device.device_data.options.diagnostic_mode
+            and isinstance(payload, str)
+        ):
+            import json
+
+            from custom_components.ecoflow_cloud.devices.data_holder import PreparedData
+
+            device.data.add_set_message(
+                PreparedData(None, None, {"direction": "outgoing", "payload": json.loads(payload)})
+            )
+
+        self.mqtt_client.publish(device.device_info.set_topic, payload)
 
     def start(self):
         _LOGGER.debug("Starting MQTT client for %s", self.mqtt_info.client_id)
