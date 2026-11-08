@@ -49,6 +49,10 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             _LOGGER.debug(str(device))
             sn = device["sn"]
             product_name = device.get("productName", "undefined")
+            if sn.startswith("ES21"):
+                product_name = "Stream 5000"
+            elif sn.startswith("ES22"):
+                product_name = "Stream AC 5000"
             if product_name == "undefined":
                 from ..devices.registry import device_by_product
 
@@ -75,7 +79,11 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             try:
                 raw = await self.call_api("/device/quota/all", {"sn": sn})
                 if "data" in raw:
-                    self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw, False))
+                    device = self.devices[sn]
+                    quota = raw["data"]
+                    if hasattr(device, "normalize_quota") and isinstance(quota, dict):
+                        quota = device.normalize_quota(quota)
+                    device.data.add_data(PreparedData(None, {"params": quota}, raw, False))
             except Exception:
                 _LOGGER.exception("Error retrieving %s", sn)
 

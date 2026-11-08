@@ -138,13 +138,24 @@ class DocumentationGenerator:
                 )
             ]
 
-    def get_devices(self, hass: HomeAssistant, device_type: str, dev: type[BaseDevice]) -> list[BaseDevice]:
+    def get_devices(
+            self,
+            hass: HomeAssistant,
+            device_type: str,
+            dev: type[BaseDevice],
+    ) -> list[BaseDevice]:
         real_devices = []
         device_info = create_test_device_info()
+
         for device_data in self.get_device_data(device_type):
             device = dev(device_info, device_data)
-            device.configure(hass)
+
+            # Documentation generation only needs entity descriptions.
+            # No real Home Assistant coordinator is required.
+            device.coordinator = Mock()
+
             real_devices.append(device)
+
         return real_devices
 
     def device_summary(self, base_devices: list[BaseDevice]) -> str:
