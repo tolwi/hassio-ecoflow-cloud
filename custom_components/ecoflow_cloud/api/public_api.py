@@ -49,6 +49,9 @@ class EcoflowPublicApiClient(EcoflowApiClient):
             _LOGGER.debug(str(device))
             sn = device["sn"]
             product_name = device.get("productName", "undefined")
+            if product_name == "undefined" and sn.startswith(("ES21", "ES22")):
+                # BKW3 systems may be returned without productName by EcoFlow.
+                product_name = "Stream 5000"
             if product_name == "undefined":
                 from ..devices.registry import device_by_product
 
