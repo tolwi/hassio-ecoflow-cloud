@@ -63,7 +63,7 @@ class Wave2(BaseInternalDevice):
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             # Power and Battery Entities
-            LevelSensorEntity(client, self, "bms.soc", const.MAIN_BATTERY_LEVEL).attr(
+            LevelSensorEntity(client, self, "pd.batSoc", const.MAIN_BATTERY_LEVEL).attr(
                 "bms.remainCap", const.ATTR_REMAIN_CAPACITY, 0
             ),
             CapacitySensorEntity(client, self, "bms.remainCap", const.MAIN_REMAIN_CAPACITY, False),
