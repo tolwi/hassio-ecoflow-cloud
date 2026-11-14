@@ -31,6 +31,7 @@ _PLATFORMS = {
     Platform.SENSOR,
     Platform.SWITCH,
     Platform.CLIMATE,
+    Platform.TEXT,
 }
 
 ATTR_STATUS_SN = "SN"
@@ -62,6 +63,8 @@ CONF_DEVICE_TYPE: Final = "device_type"
 CONF_DEVICE_NAME: Final = "device_name"
 CONF_DEVICE_ID: Final = "device_id"
 CONF_PARENT_SN: Final = "parent_sn"
+# modules of a multi-module device removed through the remove-device flow; discovery leaves them out
+CONF_IGNORED_MODULES: Final = "ignored_modules"
 OPTS_DIAGNOSTIC_MODE: Final = "diagnostic_mode"
 OPTS_POWER_STEP: Final = "power_step"
 OPTS_REFRESH_PERIOD_SEC: Final = "refresh_period_sec"
@@ -242,8 +245,15 @@ def extract_devices(entry: ConfigEntry) -> dict[str, DeviceData]:
         )
 
     for sn, data in entry.data[CONF_DEVICE_LIST].items():
-        if CONF_PARENT_SN in data:
-            result[sn].parent = result[data[CONF_PARENT_SN]]
+        if CONF_PARENT_SN not in data:
+            continue
+        parent = result.get(data[CONF_PARENT_SN])
+        if parent is None:
+            # a sub device whose parent is gone must not keep the whole entry from loading
+            _LOGGER.warning("Device %s belongs to the missing device %s and is skipped", sn, data[CONF_PARENT_SN])
+            result.pop(sn)
+            continue
+        result[sn].parent = parent
 
     return result
 

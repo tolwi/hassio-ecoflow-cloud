@@ -18,6 +18,7 @@ from custom_components.ecoflow_cloud.devices.internal import (
     glacier as internal_glacier,
     glacier_classic as internal_glacier_classic,
     ocean_pro as internal_ocean_pro,
+    powerkit as internal_powerkit,
     powerstream as internal_powerstream,
     river2 as internal_river2,
     river2_max as internal_river2_max,
@@ -88,6 +89,8 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "DELTA_MAX": internal_delta_max.DeltaMax,
         "DELTA_2_MAX": internal_delta2_max.Delta2Max,
         "POWERSTREAM": internal_powerstream.PowerStream,
+        # Power Hub (1st and 2nd generation) with its modules as sub devices, see devices/internal/powerkit.py
+        "POWER_KITS": internal_powerkit.PowerKit,
         "GLACIER": internal_glacier.Glacier,
         "GLACIER_CLASSIC": internal_glacier_classic.GlacierClassic,
         "WAVE_2": internal_wave2.Wave2,
@@ -137,4 +140,5 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[Ba
     }
 )
 
-device_support_sub_devices = ["Power Kits"]
+# device types whose modules become sub devices; the config flow discovers them when the device is added
+device_support_sub_devices = ["Power Kits", "POWER_KITS"]

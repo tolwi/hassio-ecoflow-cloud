@@ -1881,6 +1881,342 @@
 
 </p></details>
 
+<details><summary> POWER_KITS <i>(sensors: 216, switches: 24, sliders: 4, selects: 5, texts: 22)</i> </summary>
+<p>
+
+### hub
+
+*Sensors*
+- Battery Level
+- Total In Power
+- Total Out Power
+- Total Current
+- Remaining Time
+- Total Full Capacity  _(disabled)_
+- Total Charge Discharge State  _(disabled)_
+- Charge Upper Limit  _(disabled)_
+- Discharge Lower Limit  _(disabled)_
+- Generator Start Level  _(disabled)_
+- Generator Stop Level  _(disabled)_
+- Scene  _(disabled)_
+- GPS Enabled  _(disabled)_
+- GPS Connected  _(disabled)_
+- Status
+
+*Sliders (numbers)*
+- Min Discharge Level
+- Max Charge Level
+
+### bbcin
+
+*Sensors*
+- DC Work Mode 1  _(disabled)_
+- DC Work Mode 2  _(disabled)_
+- DC In Hardware Type
+- DC Online Pos  _(disabled)_
+- DC In Energy for Day  _(disabled)_
+- Disable Shake Control  _(disabled)_
+- Is Car Moving  _(disabled)_
+- DC In Event Code  _(disabled)_
+- DC In Warning Code
+- DC In Error Code
+- DC In Battery Power
+- DC In Battery Current
+- DC In Battery Voltage
+- DC Allow Discharge
+- DC Discharge Energy  _(disabled)_
+- DC In State
+- DC In Power
+- DC In Current
+- DC In Voltage
+- DC Charge Paused
+- DC Charge Type
+- DC Charge Max Current
+- DC Charge Mode
+- DC In L1 Current  _(disabled)_
+- DC In L2 Current  _(disabled)_
+- DC In HS1 Temperature
+- DC In HS2 Temperature
+- DC In PCB Temperature
+- Alt. Cable Unit
+- Alt. Cable Length
+- Alt. Cable Voltage Limit
+- Alt. Voltage Limit En
+- Alternator Mode  _(disabled)_
+- Third Input Power  _(disabled)_
+- Input Port Type  _(disabled)_
+
+*Switches*
+- Port 1 Charging
+
+*Selects*
+- Port 1 Charging Mode
+- Port 1 Alternator Type
+
+### bbcout
+
+*Sensors*
+- DC Out Current
+- DC Out Power
+- DC Out Battery Power
+- DC 1 Out Battery Current  _(disabled)_
+- DC 2 Out Battery Current  _(disabled)_
+- DC Out Battery Voltage  _(disabled)_
+- DC Output Enabled
+- Beeper  _(disabled)_
+- DC Always On  _(disabled)_
+- No Load Power  _(disabled)_
+- Hub Work Mode  _(disabled)_
+- DC Out Energy Today  _(disabled)_
+
+*Switches*
+- Main DC Output
+- Beeper
+
+*Selects*
+- DC Output Voltage
+
+### iclow
+
+*Sensors*
+- Main Battery Level
+- BMS Error Code
+- BMS Warning Code
+- BMS Event Code  _(disabled)_
+- BMS DC Temperature
+- BMS Charge Discharge State  _(disabled)_
+- BMS Charge Voltage  _(disabled)_
+- BMS Charge Type  _(disabled)_
+- BMS Charge In Type  _(disabled)_
+- BMS Charge Flag  _(disabled)_
+- BMS Max Charge Current  _(disabled)_
+- BMS External Kit Type  _(disabled)_
+- BMS Bus Current  _(disabled)_
+- BMS Bus Voltage
+- BMS LSPL Flag  _(disabled)_
+- BMS Protect State
+- BMS Battery Current  _(disabled)_
+- Fan Level  _(disabled)_
+- AC Always On  _(disabled)_
+- Inverter No Load Power  _(disabled)_
+
+### bpxxx
+
+*Sensors*
+- Ampere battery (SN)
+- max Capacity battery (SN)
+- State of Charge (soc) battery (SN)
+- minimal cell voltage battery (SN)
+- full cycle count battery (SN)
+- current voltage battery (SN)
+- current Capacity battery (SN)
+- Charing power battery (SN)
+- temperatur battery (SN)
+- remaining time battery (SN)
+- maximum cell voltage battery (SN)
+- discharing power battery (SN)
+- State of Health
+- Design Capacity  _(disabled)_
+- Cumulative Energy Charge (Wh)
+- Cumulative Energy Discharge (Wh)
+- Cumulative Capacity Charge (mAh)  _(disabled)_
+- Cumulative Capacity Discharge (mAh)  _(disabled)_
+- Max Cell Temperature  _(disabled)_
+- Min Cell Temperature  _(disabled)_
+- Charge Limit  _(disabled)_
+- Discharge Limit  _(disabled)_
+- Kit Number  _(disabled)_
+- Warning Code  _(disabled)_
+- BMS Fault  _(disabled)_
+
+### kitscc
+
+*Sensors*
+- Total In Power
+- Solar Battery Current
+- Solar Battery Voltage
+- Solar (2) In Power
+- Solar (2) In Voltage
+- Solar (2) In Current
+- Solar (2) Error Code
+- Solar (2) Hot Out  _(disabled)_
+- Solar (2) Input Flag  _(disabled)_
+- Solar (2) Work Mode  _(disabled)_
+- Solar (2) Enabled
+- Solar (2) Event Code  _(disabled)_
+- Solar (2) Warn Code
+- Solar (2) Temperature
+- Solar (3) In Power
+- Solar (3) In Voltage
+- Solar (3) In Current
+- Solar (3) Error Code
+- Solar (3) Hot Out  _(disabled)_
+- Solar (3) Input Flag  _(disabled)_
+- Solar (3) Work Mode  _(disabled)_
+- Solar (3) Enabled
+- Solar (3) Event Code  _(disabled)_
+- Solar (3) Warn Code
+- Solar (3) Temperature
+- Solar Total Charge Current  _(disabled)_
+- Solar Energy for Day  _(disabled)_
+
+*Switches*
+- Port 2 Charging
+- Port 3 Charging
+
+*Selects*
+- Port 2 Charging Mode
+- Port 3 Charging Mode
+
+### lddc
+
+*Sensors*
+- Distributer DC Out Power
+- DC Out 1
+- DC Out 2
+- DC Out 3
+- DC Out 4
+- DC Out 5
+- DC Out 6
+- DC Out 7
+- DC Out 8
+- DC Out 9
+- DC Out 10
+- DC Out 11
+- DC Out 12
+- DC Ampere Out 1
+- DC Ampere Out 2
+- DC Ampere Out 3
+- DC Ampere Out 4
+- DC Ampere Out 5
+- DC Ampere Out 6
+- DC Ampere Out 7
+- DC Ampere Out 8
+- DC Ampere Out 9
+- DC Ampere Out 10
+- DC Ampere Out 11
+- DC Ampere Out 12
+- Distributer - DC Temperature 1
+- Distributer - DC Temperature 2
+- DC Out Ch Relay  _(disabled)_
+- DC Out Enabled
+- DC Out Set Ch State  _(disabled)_
+- DC Out Voltage
+- DC Out 13
+- DC Out 14
+- DC Out 15
+- DC Out 16
+- DC Ampere Out 13
+- DC Ampere Out 14
+- DC Ampere Out 15
+- DC Ampere Out 16
+- DC Out 13-16 Ch Relay  _(disabled)_
+
+*Switches*
+- DC Switch 1
+- DC Switch 2
+- DC Switch 3
+- DC Switch 4
+- DC Switch 5
+- DC Switch 6
+- DC Switch 7
+- DC Switch 8
+- DC Switch 9
+- DC Switch 10
+- DC Switch 11
+- DC Switch 12
+- DC Switch 13
+- DC Switch 14
+- DC Switch 15
+- DC Switch 16
+
+*Texts*
+- DC Out 1 Name
+- DC Out 2 Name
+- DC Out 3 Name
+- DC Out 4 Name
+- DC Out 5 Name
+- DC Out 6 Name
+- DC Out 7 Name
+- DC Out 8 Name
+- DC Out 9 Name
+- DC Out 10 Name
+- DC Out 11 Name
+- DC Out 12 Name
+- DC Out 13 Name
+- DC Out 14 Name
+- DC Out 15 Name
+- DC Out 16 Name
+
+### ichigh
+
+*Sensors*
+- AC Out Voltage
+- AC Out Current
+- AC Inverter Type  _(disabled)_
+- AC In Frequency
+- AC In Power
+- AC In Current
+- AC In Voltage
+- AC Out Enabled
+- AC Inverter Temperature
+- AC Out Power
+- AC Outlet Power
+- AC Outlet Current
+- AC Config Out Frequency  _(disabled)_
+- AC Out Frequency
+- AC Standby Time  _(disabled)_
+- AC Input Day Power  _(disabled)_
+- AC Output Day Power  _(disabled)_
+- AC Out Apparent Power
+- AC Charge Power
+- AC Out Voltage Setting  _(disabled)_
+- AC Out Frequency Setting  _(disabled)_
+
+*Switches*
+- Grid Priority
+- AC Output
+- AC Charging
+
+*Sliders (numbers)*
+- AC Charging Current
+- AC Input Current
+
+### ldac
+
+*Sensors*
+- Distributer AC Out Power
+- AC Out 1
+- AC Out 2
+- AC Out 3
+- AC Out 4
+- AC Out 5
+- AC Out 6
+- AC Ampere Out 1
+- AC Ampere Out 2
+- AC Ampere Out 3
+- AC Ampere Out 4
+- AC Ampere Out 5
+- AC Ampere Out 6
+- AC Inverter In Power
+- AC Inverter In Voltage
+- Distributer AC Temperature 1
+- Distributer AC Temperature 2
+- AC Charge State
+- AC L1 Power
+- AC L2 Power
+- AC L2 In Voltage
+
+*Texts*
+- AC Out 1 Name
+- AC Out 2 Name
+- AC Out 3 Name
+- AC Out 4 Name
+- AC Out 5 Name
+- AC Out 6 Name
+
+</p></details>
+
 <details><summary> GLACIER <i>(sensors: 29, binary_sensors: 4, switches: 3, sliders: 3)</i> </summary>
 <p>
 

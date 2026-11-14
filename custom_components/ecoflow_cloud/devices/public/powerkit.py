@@ -9,6 +9,7 @@ from homeassistant.components.switch import SwitchEntity
 from custom_components.ecoflow_cloud.api import EcoflowApiClient, Message
 from custom_components.ecoflow_cloud.device_data import DeviceData
 from custom_components.ecoflow_cloud.devices import BaseDevice, EcoflowDeviceInfo, const
+from custom_components.ecoflow_cloud.devices.internal.powerkit_data import real_sn
 from custom_components.ecoflow_cloud.number import AcChargingPowerInAmpereEntity
 from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
@@ -18,8 +19,8 @@ from custom_components.ecoflow_cloud.sensor import (
     FanSensorEntity,
     FrequencySensorEntity,
     InRawTotalWattsSolarSensorEntity,
+    InRawWattsSolarSensorEntity,
     InWattsSensorEntity,
-    InWattsSolarSensorEntity,
     LevelSensorEntity,
     MilliampSensorEntity,
     MilliVoltSensorEntity,
@@ -38,16 +39,16 @@ _LOGGER = logging.getLogger(__name__)
 class BitMaskEnableEntity(EnabledEntity):
     """Bitmask switch specific to the PowerKit DC distribution panel.
 
-    The panel exposes its 6 DC channel switches as a single 6-bit
-    bitmask integer. Each switch owns one bit, LSB = switch 1.
+    The panel exposes its DC channel switches as a single bitmask
+    integer (6 bits on the 1st generation panel, 12 on the 2nd). Each
+    switch owns one bit, LSB = switch 1.
 
-    Read path: the incoming int is rendered as a 6-bit binary string,
-    reversed, and indexed by ``switchNumber - 1`` to get the per-switch
-    state.
+    Read path: the incoming int is rendered as a ``bits`` wide binary
+    string, reversed, and indexed by ``switchNumber - 1`` to get the
+    per-switch state.
 
     Write path: commands use an offset of 128 (`10000000`) to toggle a
     bit ON, and the raw ``switchNumber - 1`` index to toggle it OFF.
-    Only valid for the 6-switch PowerKit DC panel layout.
     """
 
     def __init__(
@@ -59,6 +60,8 @@ class BitMaskEnableEntity(EnabledEntity):
         command: Callable[[str, int], dict[str, Any] | Message],
         enabled: bool = True,
         auto_enable: bool = False,
+        bits: int = 6,
+        command_index: int | None = None,
     ):
         """
         Init the bitmask switsch
@@ -71,27 +74,35 @@ class BitMaskEnableEntity(EnabledEntity):
         parameter the sn (serial number) and a a second parameter the value (precalculated bitmask).
         :param bool enabled: defines if this switch is enabled by default
         :param bool auto_enable: defines if this switch is enabled by default
+        :param int bits: width of the bitmask the state is read from
+        :param int command_index: zero based channel index used in the command when the
+        state mask does not start at channel 1 (e.g. a second mask for channels 13-16)
         """
         # TODO: We don't know right now a good solution to the problem of lambda overloading
 
         splittedKey = switchKey.split(".")
         self.switchNumber = int(splittedKey[-1])
-        self.bitmask = "000000"
+        self.bits = bits
+        self.bitmask = "0" * bits
+        self.command_index = self.switchNumber - 1 if command_index is None else command_index
         mqtt_key = ".".join(splittedKey[:-1])
+        # the command addresses the module by its real serial, not the sub device key
+        module_sn = getattr(device, "module_sn", device.device_data.sn)
         super().__init__(
             client,
             device,
             mqtt_key,
             title,
-            lambda value: command(device.device_data.sn, value),
+            lambda value: command(module_sn, value),
             enabled,
             auto_enable,
         )
         self._attr_unique_id = self._gen_unique_id(self._device.device_data.sn, switchKey)
 
     def _update_value(self, val: Any) -> bool:
-        self.bitmask = ("{0:06b}".format(val))[::-1]
-        self._attr_is_on = bool(int(self.bitmask[self.switchNumber - 1]))
+        self.bitmask = format(int(val), f"0{self.bits}b")[::-1]
+        index = self.switchNumber - 1
+        self._attr_is_on = index < len(self.bitmask) and bool(int(self.bitmask[index]))
         _LOGGER.debug(
             "Updating switch " + str(self._attr_unique_id) + " with value " + str(val) + " to " + str(self._attr_is_on)
         )
@@ -99,11 +110,11 @@ class BitMaskEnableEntity(EnabledEntity):
 
     def turn_on(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_set_message(1, self.command_dict(128 + (self.switchNumber - 1)))
+            self.send_set_message(1, self.command_dict(128 + self.command_index))
 
     def turn_off(self, **kwargs: Any) -> None:
         if self._command:
-            self.send_set_message(0, self.command_dict((self.switchNumber - 1)))
+            self.send_set_message(0, self.command_dict(self.command_index))
 
 
 class PowerKit(BaseDevice):
@@ -121,28 +132,33 @@ class PowerKit(BaseDevice):
         """
         Variable contains a function to set the state of the DC switch of the DC distribution panel
         """
+        # sub device keys can carry a "#<module type>" suffix when two modules share a serial
+        self.module_sn = real_sn(device_data.sn)
         if device_data.device_type != "PowerKit" and device_data.parent is not None:
             if device_data.device_type.startswith("bp"):
-                device_data.display_name = f"PowerKit Battery ({device_data.parent.sn}.{device_data.sn})"
+                device_data.display_name = f"PowerKit Battery ({device_data.parent.sn}.{self.module_sn})"
             elif device_data.device_type == "iclow":
-                device_data.display_name = f"PowerKit Bms ({device_data.parent.sn}.{device_data.sn})"
+                device_data.display_name = f"PowerKit Bms ({device_data.parent.sn}.{self.module_sn})"
             elif device_data.device_type == "kitscc":
-                device_data.display_name = f"PowerKit Mppt ({device_data.parent.sn}.{device_data.sn})"
+                device_data.display_name = f"PowerKit Mppt ({device_data.parent.sn}.{self.module_sn})"
             elif device_data.device_type == "bbcout":
-                device_data.display_name = f"PowerKit Hub DC Out ({device_data.parent.sn}.{device_data.sn})"
+                device_data.display_name = f"PowerKit Hub DC Out ({device_data.parent.sn}.{self.module_sn})"
             elif device_data.device_type == "bbcin":
-                device_data.display_name = f"PowerKit Hub DC In ({device_data.parent.sn}.{device_data.sn})"
+                device_data.display_name = f"PowerKit Hub DC In ({device_data.parent.sn}.{self.module_sn})"
             elif device_data.device_type == "lddc":
                 device_data.display_name = (
-                    f"PowerKit Distrubution Panel DC Out ({device_data.parent.sn}.{device_data.sn})"
+                    f"PowerKit Distrubution Panel DC Out ({device_data.parent.sn}.{self.module_sn})"
                 )
             elif device_data.device_type == "ichigh":
-                device_data.display_name = f"PowerKit Hub AC Out ({device_data.parent.sn}.{device_data.sn})"
+                device_data.display_name = f"PowerKit Hub AC Out ({device_data.parent.sn}.{self.module_sn})"
             elif device_data.device_type == "ldac":
                 device_data.display_name = (
-                    f"PowerKit Distrubution Panel AC Out ({device_data.parent.sn}.{device_data.sn})"
+                    f"PowerKit Distrubution Panel AC Out ({device_data.parent.sn}.{self.module_sn})"
                 )
         super().__init__(device_info, device_data)
+        if device_data.parent is not None:
+            # data is routed to the module by its real serial
+            self.data.module_sn = self.module_sn
 
     def flat_json(self):
         return False
@@ -151,21 +167,21 @@ class PowerKit(BaseDevice):
         params = self.data.params
 
         if self.device_data.device_type.startswith("bp"):
-            return self.batterieSensors(client, self.device_data.sn, params)
+            return self.batterieSensors(client, self.module_sn, params)
         elif self.device_data.device_type == "iclow":
-            return self.bmsSensors(client, self.device_data.sn, params)
+            return self.bmsSensors(client, self.module_sn, params)
         elif self.device_data.device_type == "kitscc":
-            return self.mpptSensors(client, self.device_data.sn, params)
+            return self.mpptSensors(client, self.module_sn, params)
         elif self.device_data.device_type == "bbcout":
-            return self.powerHubDCOutSensors(client, self.device_data.sn, params)
+            return self.powerHubDCOutSensors(client, self.module_sn, params)
         elif self.device_data.device_type == "bbcin":
-            return self.powerHubDCInSensors(client, self.device_data.sn, params)
+            return self.powerHubDCInSensors(client, self.module_sn, params)
         elif self.device_data.device_type == "lddc":
-            return self.distributerDCOutSensors(client, self.device_data.sn, params)
+            return self.distributerDCOutSensors(client, self.module_sn, params)
         elif self.device_data.device_type == "ichigh":
-            return self.powerHubACOutSensors(client, self.device_data.sn, params)
+            return self.powerHubACOutSensors(client, self.module_sn, params)
         elif self.device_data.device_type == "ldac":
-            return self.distributerACOutSensors(client, self.device_data.sn, params)
+            return self.distributerACOutSensors(client, self.module_sn, params)
         return []
         # TODO: Check DC In via Smart Generator
 
@@ -287,7 +303,7 @@ class PowerKit(BaseDevice):
             ),
             MilliampSensorEntity(client, self, "batCurr", "Solar Battery Current", True),
             MilliVoltSensorEntity(client, self, "batVol", "Solar Battery Voltage", True),
-            InWattsSolarSensorEntity(client, self, "pv1InWatts", const.SOLAR_2_IN_POWER, True),
+            InRawWattsSolarSensorEntity(client, self, "pv1InWatts", const.SOLAR_2_IN_POWER, True),
             MilliVoltSensorEntity(client, self, "pv1InVol", "Solar (2) In Voltage", True),
             MilliampSensorEntity(client, self, "pv1InCurr", "Solar (2) In Current", True),
             MiscSensorEntity(client, self, "pv1ErrCode", "Solar (2) Error Code", True),
@@ -316,7 +332,7 @@ class PowerKit(BaseDevice):
             ),
             MiscSensorEntity(client, self, "warnCode1", "Solar (2) Warn Code", True),
             TempSensorEntity(client, self, "hs1Temp", "Solar (2) Temperature", True),
-            InWattsSolarSensorEntity(client, self, "pv2InWatts", "Solar (3) In Power", True),
+            InRawWattsSolarSensorEntity(client, self, "pv2InWatts", "Solar (3) In Power", True),
             MilliVoltSensorEntity(client, self, "pv2InVol", "Solar (3) In Voltage", True),
             MilliampSensorEntity(client, self, "pv2InCurr", "Solar (3) In Current", True),
             MiscSensorEntity(client, self, "pv2ErrCode", "Solar (3) Error Code", True),
@@ -610,7 +626,7 @@ class PowerKit(BaseDevice):
                         "id": 123456789,
                         "version": "1.0",
                         "sn": self.device_data.parent.sn,
-                        "moduleSn": self.device_data.sn,
+                        "moduleSn": self.module_sn,
                         "moduleType": 15365,
                         "operateType": "dischgIcParaSet",
                         "params": {"acCurrMaxSet": int(value)},
@@ -675,7 +691,7 @@ class PowerKit(BaseDevice):
                     lambda value: {
                         "id": 123456789,
                         "version": "1.0",
-                        "moduleSn": self.device_data.sn,
+                        "moduleSn": self.module_sn,
                         "moduleType": 15365,
                         "operateType": "dsgIcParaSet",
                         "params": {
@@ -699,7 +715,7 @@ class PowerKit(BaseDevice):
                     lambda value: {
                         "id": 123456789,
                         "version": "1.0",
-                        "moduleSn": self.device_data.sn,
+                        "moduleSn": self.module_sn,
                         "moduleType": 15365,
                         "operateType": "dischgIcParaSet",
                         "params": {
@@ -720,7 +736,7 @@ class PowerKit(BaseDevice):
                     lambda value: {
                         "id": 123456789,
                         "version": "1.0",
-                        "moduleSn": self.device_data.sn,
+                        "moduleSn": self.module_sn,
                         "moduleType": 15365,
                         "operateType": "dischgIcParaSet",
                         "params": {
@@ -748,7 +764,7 @@ class PowerKit(BaseDevice):
                     lambda value: {
                         "id": 123456789,
                         "version": "1.0",
-                        "moduleSn": self.device_data.sn,
+                        "moduleSn": self.module_sn,
                         "moduleType": 15362,
                         "operateType": "dischgParaSet",
                         "params": {

@@ -35,12 +35,16 @@ class EcoFlowAbstractEntity(Entity):
         name = self._device.device_data.name
         if self._device.device_data.display_name:
             name = self._device.device_data.display_name
+        # a device can name its product (multi-module devices show the module's product), and a sub
+        # device key can carry a "#<module type>" suffix that is not part of the printed serial
+        model = getattr(self._device, "model_name", None) or self._device.device_data.device_type
+        serial_number = getattr(self._device, "module_sn", None) or self._device.device_data.sn
         return DeviceInfo(
             identifiers={(ECOFLOW_DOMAIN, f"{self._type_prefix()}{self._device.device_data.sn}")},
             manufacturer="EcoFlow",
             name=name,
-            model=self._device.device_data.device_type,
-            serial_number=self._device.device_data.sn,
+            model=model,
+            serial_number=serial_number,
         )
 
     def _type_prefix(self):

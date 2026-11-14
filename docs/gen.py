@@ -65,18 +65,20 @@ def create_test_device_info() -> EcoflowDeviceInfo:
     )
 
 
-# Multi-device configurations
+# Multi-device configurations: the modules that become sub devices of the parent device
+POWER_KIT_MODULES = [
+    "bbcin",
+    "bbcout",
+    "iclow",
+    "bpxxx",
+    "kitscc",
+    "lddc",
+    "ichigh",
+    "ldac",
+]
 MULTI_DEVICE_CONFIGURATIONS = {
-    "Power Kits": [
-        "bbcin",
-        "bbcout",
-        "iclow",
-        "bpxxx",
-        "kitscc",
-        "lddc",
-        "ichigh",
-        "ldac",
-    ]
+    "Power Kits": POWER_KIT_MODULES,
+    "POWER_KITS": POWER_KIT_MODULES,
 }
 
 # Initialize configurations
@@ -107,7 +109,16 @@ class DocumentationGenerator:
         """Get device data for a given device type."""
         if device_type in device_support_sub_devices:
             if device_type in MULTI_DEVICE_CONFIGURATIONS:
-                return [
+                # the parent device itself first (its own entities, if any), then one device per module
+                parent = DeviceData(
+                    DEVICE_SN,
+                    DEVICE_NAME,
+                    device_type,
+                    device_options,
+                    None,
+                    None,
+                )
+                return [parent] + [
                     DeviceData(
                         DEVICE_SN,
                         DEVICE_NAME,
@@ -147,6 +158,19 @@ class DocumentationGenerator:
             real_devices.append(device)
         return real_devices
 
+    def render_devices(self, real_devices: list[BaseDevice], brief: bool = False) -> str:
+        """Render one or more devices; a multi-device set gets a heading per device, the parent labelled "hub"."""
+        content = ""
+        for device in real_devices:
+            summary = render_device_summary(device, brief)
+            if not summary.strip():
+                continue
+            if len(real_devices) > 1:
+                heading = device.device_data.device_type if device.device_data.parent is not None else "hub"
+                content = content + f"\n### {heading}\n"
+            content = content + summary
+        return content
+
     def device_summary(self, base_devices: list[BaseDevice]) -> str:
         """Generate a summary string for devices."""
         if not base_devices:
@@ -157,6 +181,7 @@ class DocumentationGenerator:
         total_switches = 0
         total_numbers = 0
         total_selects = 0
+        total_texts = 0
         for device in base_devices:
             client = Mock()
             client.device = device
@@ -165,6 +190,7 @@ class DocumentationGenerator:
             total_switches += len(device.switches(client))
             total_numbers += len(device.numbers(client))
             total_selects += len(device.selects(client))
+            total_texts += len(device.texts(client))
 
         parts = []
         if total_sensors > 0:
@@ -177,6 +203,8 @@ class DocumentationGenerator:
             parts.append(f"sliders: {total_numbers}")
         if total_selects > 0:
             parts.append(f"selects: {total_selects}")
+        if total_texts > 0:
+            parts.append(f"texts: {total_texts}")
 
         return ", ".join(parts)
 
@@ -189,10 +217,7 @@ class DocumentationGenerator:
             if not dt.upper().startswith("DIAGNOSTIC"):
                 content = ""
                 real_devices = self.get_devices(hass, dt, dev)
-                for device in real_devices:
-                    if len(real_devices) > 1:
-                        content = content + f"\n### {device.device_data.device_type}\n"
-                    content = content + render_device_summary(device, True)
+                content = self.render_devices(real_devices, True)
                 content_summary += f"<details><summary> {dt} <i>({self.device_summary(real_devices)})</i> </summary>"
                 content_summary += "\n<p>\n"
                 content_summary += content
@@ -204,10 +229,7 @@ class DocumentationGenerator:
             if not dt.upper().startswith("DIAGNOSTIC"):
                 content = ""
                 real_devices = self.get_devices(hass, dt, dev)
-                for device in real_devices:
-                    if len(real_devices) > 1:
-                        content = content + f"\n### {device.device_data.device_type}\n"
-                    content = content + render_device_summary(device, True)
+                content = self.render_devices(real_devices, True)
                 content_summary += f"<details><summary> {dt} (API) <i>({self.device_summary(real_devices)})</i> </summary>"
 
                 content_summary += "\n<p>\n"
@@ -254,10 +276,7 @@ class DocumentationGenerator:
             if not dt.upper().startswith("DIAGNOSTIC"):
                 content = ""
                 real_devices = self.get_devices(hass, dt, dev)
-                for device in real_devices:
-                    if len(real_devices) > 1:
-                        content = content + f"\n### {device.device_data.device_type}\n"
-                    content = content + render_device_summary(device)
+                content = self.render_devices(real_devices)
 
                 filename = f"{OUTPUT_DIR}/{dt}.md"
                 with open(filename, "w+", encoding="utf-8") as f:
@@ -271,10 +290,7 @@ class DocumentationGenerator:
             if not dt.upper().startswith("DIAGNOSTIC"):
                 content = ""
                 real_devices = self.get_devices(hass, dt, dev)
-                for device in real_devices:
-                    if len(real_devices) > 1:
-                        content = content + f"\n### {device.device_data.device_type}\n"
-                    content = content + render_device_summary(device)
+                content = self.render_devices(real_devices)
 
                 name = dt.replace(" ", "_")
                 filename = f"{OUTPUT_DIR}/{name}-Public.md"
@@ -303,6 +319,13 @@ class MarkdownRenderer:
     def prepare_options(self, options: dict[str, Any]) -> str:
         """Prepare options string for display."""
         return ", ".join([f"{k} ({v})" for k, v in options.items()])
+
+    def _replace_marker(self, value: Any) -> Any:
+        if isinstance(value, dict):
+            return {k: self._replace_marker(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [self._replace_marker(v) for v in value]
+        return "VALUE" if value == MARKER_VALUE else value
 
     def prepare_command(self, e: EcoFlowBaseCommandEntity) -> str:
         """Prepare command string for display."""
@@ -410,6 +433,15 @@ class MarkdownRenderer:
                 self.prepare_options(sw.options_dict()),
             )
 
+    def render_text(self, sw: Any, brief: bool = False) -> str:
+        """Render text entity to markdown; its value sits inside a nested params object."""
+        if brief:
+            return f"- {sw.name}"
+        command = self.sample_command(sw)
+        if not isinstance(command, dict):
+            return f"- {sw.name}"
+        return f"- {sw.name} (`{json.dumps(self._replace_marker(command))}`)"
+
     def render_device_summary(self, device: BaseDevice, brief: bool = False) -> str:
         """Render complete device summary to markdown."""
         client = Mock()
@@ -445,6 +477,12 @@ class MarkdownRenderer:
             res += "\n*Selects*\n"
             for sw in selects:
                 res += self.render_select(sw, brief) + "\n"
+
+        texts = device.texts(client)
+        if len(texts) > 0:
+            res += "\n*Texts*\n"
+            for sw in texts:
+                res += self.render_text(sw, brief) + "\n"
 
         return res
 

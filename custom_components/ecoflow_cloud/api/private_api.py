@@ -1,6 +1,10 @@
+import asyncio
 import base64
 import hashlib
+import json
 import logging
+import ssl
+import threading
 from time import time
 from typing import Any
 
@@ -10,6 +14,7 @@ from homeassistant.util import uuid
 
 from ..devices import EcoflowDeviceInfo
 from . import API_RESPONSE_TO_REDACT, EcoflowApiClient, EcoflowAuthException, EcoflowException
+from .message import JSONMessage
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,12 +90,89 @@ class EcoflowPrivateApiClient(EcoflowApiClient):
         else:
             target_devices = {device_sn: self.devices[device_sn]}
 
+        requested_topics: set[str | None] = set()
         for sn, device in target_devices.items():
+            # settings the quotas do not carry (e.g. the names of a panel's circuits)
+            for message in device.startup_set_messages():
+                self.mqtt_client.publish(device.device_info.set_topic, JSONMessage(message).to_mqtt_payload())
+            # sub devices (Power Kits modules) share their parent's topics: one latestQuotas serves them all
+            if device.device_info.get_topic in requested_topics:
+                continue
+            requested_topics.add(device.device_info.get_topic)
             self.send_get_message(sn, device.get_quota_message())
 
     def _device_registry(self) -> dict[str, Any]:
         from ..devices.registry import devices
         return devices
+
+    async def fetch_latest_quotas(self, device_sn: str, timeout: float = 15.0) -> dict[str, Any] | None:
+        """Ask one device for its ``latestQuotas`` over a short-lived MQTT session.
+
+        Returns the reply's ``data`` dict (``online``, ``quotaMap``, ...), or None when
+        the device did not answer in time. Used by the config flow, which has no
+        running MQTT client, to discover the modules of a Power Kit.
+        """
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self._fetch_latest_quotas_sync, device_sn, timeout)
+
+    def _fetch_latest_quotas_sync(self, device_sn: str, timeout: float) -> dict[str, Any] | None:
+        # everything blocking (DNS, TLS, the wait) stays on this executor thread
+        import paho.mqtt.client as mqtt
+        from paho.mqtt.enums import CallbackAPIVersion
+
+        get_topic = f"/app/{self.user_id}/{device_sn}/thing/property/get"
+        reply_topic = f"/app/{self.user_id}/{device_sn}/thing/property/get_reply"
+        request = JSONMessage(
+            {"version": "1.1", "moduleType": 0, "operateType": "latestQuotas", "params": {}}
+        ).to_mqtt_payload()
+
+        done = threading.Event()
+        reply: dict[str, Any] = {}
+
+        def on_connect(client, userdata, flags, reason_code, properties=None):
+            if reason_code.is_failure:
+                _LOGGER.warning("MQTT connect for module discovery of %s failed: %s", device_sn, reason_code)
+                done.set()
+                return
+            client.subscribe(reply_topic, 1)
+
+        def on_subscribe(client, userdata, mid, reason_codes, properties=None):
+            client.publish(get_topic, request, 1)
+
+        def on_message(client, userdata, message):
+            try:
+                data = json.loads(message.payload)
+            except ValueError:
+                return
+            if (
+                isinstance(data, dict)
+                and data.get("operateType") == "latestQuotas"
+                and isinstance(data.get("data"), dict)
+            ):
+                reply.update(data["data"])
+                done.set()
+
+        client = mqtt.Client(
+            CallbackAPIVersion.VERSION2,
+            client_id=f"ANDROID_{str(uuid.random_uuid_hex()).upper()}_{self.user_id}",
+        )
+        client.username_pw_set(self.mqtt_info.username, self.mqtt_info.password)
+        client.tls_set_context(ssl.create_default_context())
+        client.on_connect = on_connect
+        client.on_subscribe = on_subscribe
+        client.on_message = on_message
+
+        _LOGGER.info("Requesting latestQuotas of %s for module discovery", device_sn)
+        client.connect(self.mqtt_info.url, self.mqtt_info.port, keepalive=15)
+        client.loop_start()
+        try:
+            if not done.wait(timeout):
+                _LOGGER.warning("No latestQuotas reply from %s within %s s", device_sn, timeout)
+                return None
+            return reply or None
+        finally:
+            client.loop_stop()
+            client.disconnect()
 
     def _create_device_info(
         self, device_sn: str, device_name: str, device_type: str, status: int = -1

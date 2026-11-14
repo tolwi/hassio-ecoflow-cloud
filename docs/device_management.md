@@ -36,6 +36,11 @@ Removing a device is also done via the **Reconfigure** menu.
 
 The device and all its associated entities will be removed from Home Assistant.
 
+For a multi-module device (Power Kits), removing the hub also removes its modules. Removing a single
+module keeps it removed: the hub remembers it, so a later reconfiguration does not add it back. Modules
+that were offline when the hub was added are discovered the next time the reconfigure flow finishes
+(for example after **Add device** or directly via **Finish**).
+
 ---
 
 ## 3. Configuring Device Options
