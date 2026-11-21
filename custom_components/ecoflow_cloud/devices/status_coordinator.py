@@ -57,10 +57,18 @@ class DeviceStatusCoordinator(DataUpdateCoordinator[None]):
         return not self._clients
 
     def _collect_all_devices(self) -> dict[str, list]:
-        """Collect all devices grouped by SN. Same SN may appear in multiple clients."""
+        """Collect all devices grouped by the SN used for status lookups.
+
+        Child devices (e.g. Power Kit modules) are grouped under their parent's
+        SN: /device/list only reports the parent (hub), so children receive its
+        explicit online status. Same SN may appear in multiple clients.
+        """
         all_devices: dict[str, list] = {}
         for client in self._clients.values():
-            for sn, device in client.devices.items():
+            for device in client.devices.values():
+                sn = device.device_data.sn
+                if device.device_data.parent is not None:
+                    sn = device.device_data.parent.sn
                 all_devices.setdefault(sn, []).append(device)
         return all_devices
 

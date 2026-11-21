@@ -73,9 +73,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
 
         for sn in target_devices:
             try:
-                raw = await self.call_api("/device/quota/all", {"sn": sn})
+                device = self.devices[sn]
+                # child modules (e.g. Power Kit) are queried via their parent hub SN,
+                # mirroring configure_device()
+                quota_sn = device.device_data.parent.sn if device.device_data.parent is not None else sn
+                raw = await self.call_api("/device/quota/all", {"sn": quota_sn})
                 if "data" in raw:
-                    self.devices[sn].data.add_data(PreparedData(None, {"params": raw["data"]}, raw, False))
+                    device.data.add_data(PreparedData(None, {"params": raw["data"]}, raw, False))
             except Exception:
                 _LOGGER.exception("Error retrieving %s", sn)
 
