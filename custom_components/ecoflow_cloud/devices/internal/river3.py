@@ -23,7 +23,7 @@ from custom_components.ecoflow_cloud.devices.internal.proto import (
 from custom_components.ecoflow_cloud.number import (
     BatteryBackupLevel,
     ChargingPowerEntity,
-    MaxBatteryLevelEntity,
+    DeviceReportedMaxBatteryLevelEntity,
     MinBatteryLevelEntity,
 )
 from custom_components.ecoflow_cloud.select import (
@@ -272,7 +272,7 @@ class River3(BaseInternalDevice):
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         device = self
         return [
-            MaxBatteryLevelEntity(
+            DeviceReportedMaxBatteryLevelEntity(
                 client,
                 self,
                 "cms_max_chg_soc",
@@ -579,6 +579,8 @@ class River3(BaseInternalDevice):
                     msg_set_reply = ef_river3_pb2.River3SetReply()
                     msg_set_reply.ParseFromString(pdata)
                     result = self._protobuf_to_dict(msg_set_reply)
+                    # A set reply can echo the requested limit; only telemetry is readback.
+                    result.pop("cms_max_chg_soc", None)
                     return result if result.get("config_ok", False) else {}
                 except Exception as e:
                     _LOGGER.debug(f"Failed to decode as setReply_dp3: {e}")

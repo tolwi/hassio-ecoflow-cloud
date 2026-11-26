@@ -242,8 +242,9 @@ class EcoFlowBaseCommandEntity[CommandArg](EcoFlowDictEntity):
             raise ValueError("Incompatible command signature")
         raise ValueError("Command not found")
 
-    def send_set_message(self, target_value: Any, command: dict | Message):
-        self._client.send_set_message(self._device.device_info.sn, {self._mqtt_key_adopted: target_value}, command)
+    def send_set_message(self, target_value: Any, command: dict | Message, *, optimistic: bool = True):
+        target_state = {self._mqtt_key_adopted: target_value} if optimistic else None
+        self._client.send_set_message(self._device.device_info.sn, target_state, command)
 
 
 class BaseNumberEntity(NumberEntity, EcoFlowBaseCommandEntity[int]):
