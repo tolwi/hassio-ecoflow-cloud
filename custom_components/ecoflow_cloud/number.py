@@ -23,11 +23,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 class ValueUpdateEntity(BaseNumberEntity):
     _attr_native_step = 1
     _attr_mode = NumberMode.SLIDER
+    _optimistic = True
 
     async def async_set_native_value(self, value: float):
         if self._command:
             ival = int(value)
-            self.send_set_message(ival, self.command_dict(ival))
+            self.send_set_message(ival, self.command_dict(ival), optimistic=self._optimistic)
 
 
 class ChargingPowerEntity(ValueUpdateEntity):
@@ -151,6 +152,16 @@ class MinBatteryLevelEntity(LevelEntity):
 
 class MaxBatteryLevelEntity(LevelEntity):
     _attr_icon = "mdi:battery-charging-90"
+
+
+class DeviceReportedMaxBatteryLevelEntity(MaxBatteryLevelEntity):
+    """Update the charge limit only when EcoFlow reports the value."""
+
+    _optimistic = False
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {**(super().extra_state_attributes or {}), "device_reported_charge_limit": True}
 
 
 class MinGenStartLevelEntity(LevelEntity):

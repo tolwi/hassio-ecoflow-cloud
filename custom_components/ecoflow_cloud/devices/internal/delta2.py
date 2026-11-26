@@ -8,7 +8,7 @@ from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
 from custom_components.ecoflow_cloud.number import (
     BatteryBackupLevel,
     ChargingPowerEntity,
-    MaxBatteryLevelEntity,
+    DeviceReportedMaxBatteryLevelEntity,
     MaxGenStopLevelEntity,
     MinBatteryLevelEntity,
     MinGenStartLevelEntity,
@@ -37,6 +37,7 @@ class Delta2(BaseInternalDevice):
     def sensors(self, client: EcoflowApiClient) -> list[SensorEntity]:
         return [
             LevelSensorEntity(client, self, "bms_bmsStatus.soc", const.MAIN_BATTERY_LEVEL)
+            .attr("bms_bmsStatus.f32ShowSoc", "precise_battery_percentage", None)
             .attr("bms_bmsStatus.designCap", const.ATTR_DESIGN_CAPACITY, 0)
             .attr("bms_bmsStatus.fullCap", const.ATTR_FULL_CAPACITY, 0)
             .attr("bms_bmsStatus.remainCap", const.ATTR_REMAIN_CAPACITY, 0),
@@ -104,7 +105,7 @@ class Delta2(BaseInternalDevice):
 
     def numbers(self, client: EcoflowApiClient) -> list[NumberEntity]:
         return [
-            MaxBatteryLevelEntity(
+            DeviceReportedMaxBatteryLevelEntity(
                 client,
                 self,
                 "bms_emsStatus.maxChargeSoc",

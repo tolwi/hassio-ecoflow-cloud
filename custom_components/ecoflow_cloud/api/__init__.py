@@ -144,11 +144,12 @@ class EcoflowApiClient(ABC):
 
         self.mqtt_client.publish(self.devices[device_sn].device_info.get_topic, command.to_mqtt_payload())
 
-    def send_set_message(self, device_sn: str, mqtt_state: dict[str, Any], command: dict | Message):
+    def send_set_message(self, device_sn: str, mqtt_state: dict[str, Any] | None, command: dict | Message):
         if isinstance(command, dict):
             command = JSONMessage(command)
 
-        self.devices[device_sn].data.update_to_target_state(mqtt_state)
+        if mqtt_state is not None:
+            self.devices[device_sn].data.update_to_target_state(mqtt_state)
         self.mqtt_client.publish(self.devices[device_sn].device_info.set_topic, command.to_mqtt_payload())
 
     def start(self):
